@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.0] - 2026-06-09
+
+Remove management of fonts entirely. Now, we need to manage font loading in the
+consuming application.
+
 ## [0.3.4] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/style-system-v0.3.3...@macrostrat/style-system-v0.3.4)
 
 ### Patch Changes
