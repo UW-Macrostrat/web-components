@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.7] - 2026-06-23 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.6...@macrostrat/map-interface-v2.2.7)
+
+### Patch Changes
+
+- Fix bug with map interface sidebar clicks
+
 ## [2.2.6] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.5...@macrostrat/map-interface-v2.2.6)
 
 ### Patch Changes

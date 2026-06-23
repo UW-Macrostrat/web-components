@@ -56,7 +56,6 @@
 .detail-panel-holder
   display: flex
   flex-direction: column
-  flex-grow: 1
   min-height: 0
 
   & > *
@@ -146,7 +145,7 @@
   display: flex
   flex-direction: column
 
-  & > div
+  & > div:not(:empty)
     pointer-events: all
 
 .panel-title

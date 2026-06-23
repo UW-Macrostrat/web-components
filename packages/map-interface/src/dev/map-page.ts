@@ -102,7 +102,7 @@ export function MapInspectorV2({
     setInspectPosition(position);
   }, []);
 
-  let detailElement = null;
+  let detailElement: React.ReactNode = null;
   if (inspectPosition != null) {
     detailElement = h(
       LocationPanel,

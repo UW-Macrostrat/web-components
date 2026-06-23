@@ -1,9 +1,15 @@
-import { Spinner, Switch, Button, Intent } from "@blueprintjs/core";
+import {
+  Spinner,
+  Switch,
+  Button,
+  Intent,
+  NonIdealState,
+} from "@blueprintjs/core";
 import { useMapRef, useMapStatus } from "@macrostrat/mapbox-react";
 import mapboxgl from "mapbox-gl";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, ReactNode } from "react";
 import { JSONView } from "@macrostrat/ui-components";
 import { group } from "d3-array";
 import { ExpansionPanel } from "@macrostrat/data-components";
@@ -185,7 +191,7 @@ export function FeaturePanel({
 }) {
   if (features == null) return null;
 
-  let focusedSourcePanel = null;
+  let focusedSourcePanel: ReactNode = null;
   let filteredFeatures = features;
   let title = "Features";
 
@@ -224,7 +230,9 @@ export function FeaturePanel({
 
 function FeatureGroups({ features }) {
   /** Group features by source and sourceLayer */
-  if (features == null) return null;
+  if (features == null || features.length == 0) {
+    return h(NonIdealState, "No nearby features");
+  }
 
   const groups = group(features, (d: any) => `${d.source} - ${d.sourceLayer}`);
 
