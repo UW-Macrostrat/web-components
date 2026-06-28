@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1.2] - 2026-06-28
+
+- Supports macrostrat terms id
+
 ## [2.1.1] - 2026-05-08
 
 - Supports global entity id
