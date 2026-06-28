@@ -167,7 +167,7 @@ function Package({
 }) {
   return h("g.package", { transform: `translate(0 ${offset})` }, [
     // Disable the SVG overlay for now
-    //h(PackageSVGOverlay, { data, columnSpacing }),
+    //h(PackageSVGOverlay, { columnData, columnSpacing }),
     h("g.column-units", [
       columnData.map((data, i) => {
         return h(Column, {
@@ -237,7 +237,7 @@ function Column(props: ColumnProps) {
         unitComponentProps: {
           nColumns: 2,
           width: columnWidth,
-          showLabel: false,
+          showLabel: true,
         },
       }),
     ),

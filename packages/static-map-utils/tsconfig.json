@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "declarationDir": "dist"
+  },
+  "include": [
+    "src",
+    "stories"
+  ],
+  "references": [
+    { "path": "../mapbox-react" },
+    { "path": "../mapbox-utils" },
+    { "path": "../ui-components" }
+  ]
+}

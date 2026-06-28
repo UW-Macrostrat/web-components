@@ -1,13 +1,29 @@
-import hyper from "@macrostrat/hyper";
-import styles from "./main.module.sass";
+import h from "./main.module.sass";
 import { Button } from "@blueprintjs/core";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { multiLineTextKeyHandler } from "../utils";
 
-const h = hyper.styled(styles);
+export type DataEditorProps = {
+  value: string;
+  editable: boolean;
+  onChange: (value: string) => void;
+  isEdited?: boolean;
+  resetValue?: () => void;
+};
 
-export function EditableTextArea({ value, onChange }) {
+export function EditableTextArea({
+  value,
+  onChange,
+  isEdited,
+  resetValue,
+}: DataEditorProps) {
   const ref = useRef(null);
+
+  // const [_value, setValue] = useState(value);
+  //
+  // useEffect(() => {
+  //   setValue(value);
+  // }, [value]);
 
   useEffect(() => {
     if (ref.current == null) return;
@@ -21,26 +37,25 @@ export function EditableTextArea({ value, onChange }) {
   return h("div.editable-text-area", [
     h("textarea.bp6-input", {
       ref,
-      value: value ?? "",
-      onChange: (evt) => onChange(evt.target.value),
+      defaultValue: value ?? "",
+      //onChange: (evt) => setValue(evt.target.value),
+      onBlur: (evt) => {
+        if (evt.target.value !== value) {
+          onChange(evt.target.value);
+        }
+      },
       onKeyDown: multiLineTextKeyHandler,
     }),
     h("div.tools", [
+      // Tool to reset the value to the default
       h(Button, {
-        icon: "key-enter",
+        icon: "undo",
         minimal: true,
         small: true,
-        onClick() {
-          // Get cursor position
-          let _value = value ?? "";
-
-          const cursorPos = ref.current.selectionStart ?? _value.length;
-          // Insert a newline at the cursor position
-          onChange(_value.slice(0, cursorPos) + "\n" + _value.slice(cursorPos));
-          // Re-focus the textarea
-          ref.current.focus();
-          // Move the cursor to the end of the line
-          ref.current.setSelectionRange(cursorPos + 1, cursorPos + 1);
+        intent: isEdited ? "success" : "none",
+        disabled: !isEdited,
+        onClick(evt) {
+          resetValue?.();
         },
       }),
     ]),

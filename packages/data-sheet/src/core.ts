@@ -1,9 +1,9 @@
 import {
   Button,
-  ButtonGroup,
   HotkeysProvider,
   InputGroup,
-  Intent,
+  OverlaysProvider,
+  useHotkeys,
 } from "@blueprintjs/core";
 import {
   Column,
@@ -14,21 +14,41 @@ import {
   TableProps,
 } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
-import update from "immutability-helper";
-import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { DataSheetAction } from "./components";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { DataSheetAction, InfoBar } from "./components";
+import {
+  autoFilterId,
+  renderColumnHeaderCell,
+  SortFilterBar,
+} from "./renderers";
 import h from "./main.module.sass";
 import {
+  columnSpecAtom,
   DataSheetProvider,
   storeAtom,
-  useAtomValue,
   useSelector,
   useStoreAPI,
-  atom,
+  ctx,
+  tableActionsAtom,
 } from "./provider";
-import { DataSheetProviderProps, VisibleCells } from "./types.ts";
+import { atom } from "jotai";
+import {
+  DataSheetProviderProps,
+  TableElementStatus,
+  VisibleCells,
+} from "./types.ts";
 import { basicCellRenderer } from "./cell-renderer.ts";
-import { tableKeyHandlerAtom } from "./utils";
+import { tableHotkeysAtom } from "./utils";
+import { clipboardActions, TableAction, TableFilter } from "./actions";
+import { ActionsToolbar, FilterBar } from "./actions";
+import { useScrollHandler } from "./postgrest-table";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -48,14 +68,28 @@ interface DataSheetInternalProps<T> extends TableProps {
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
   enableColumnReordering?: boolean;
+  enableClipboard?: boolean;
   enableFocusedCell?: boolean;
   dataSheetActions?: ReactNode | null;
   editable?: boolean;
   autoFocusEditor?: boolean;
   density?: DataSheetDensity;
+  /** Configurable table actions shown in a selection-aware toolbar.
+   * When provided, the actions toolbar renders alongside the existing
+   * edit toolbar. Actions are filtered by the current selection cardinality. */
+  actions?: TableAction<T>[];
+  /** Available column/table filters shown in a filter bar.
+   * Filters can also be defined per-column via `ColumnSpec.filters`. */
+  filters?: TableFilter<T>[];
+  /** Optional custom column header cell renderer, called for each column.
+   * Receives the ColumnSpec and column index; should return a React element
+   * (typically a Blueprint ColumnHeaderCell). */
+  columnHeaderCellRenderer?: (col: any, colIndex: number) => ReactNode;
 }
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
+
+const emptyData: any[] = [];
 
 export function DataSheet<T>(props: DataSheetProps<T>) {
   const {
@@ -66,29 +100,28 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     enableColumnReordering = false,
     enableFocusedCell = false,
     defaultColumnWidth = 150,
+    children,
     ...rest
   } = props;
 
   return h(
-    HotkeysProvider,
-    h(
-      DataSheetProvider<T>,
-      {
-        data,
-        columnSpec,
-        columnSpecOptions,
-        enableColumnReordering,
-        defaultColumnWidth,
-        editable,
-        ...rest,
-      },
-      h(_DataSheet, {
-        ...rest,
-        editable,
-        enableColumnReordering,
-        enableFocusedCell,
-      }),
-    ),
+    DataSheetProvider<T>,
+    {
+      data: data ?? emptyData,
+      columnSpec,
+      columnSpecOptions,
+      enableColumnReordering,
+      defaultColumnWidth,
+      editable,
+      ...rest,
+    },
+    h(_DataSheet<any>, {
+      ...rest,
+      children,
+      editable,
+      enableColumnReordering,
+      enableFocusedCell,
+    }),
   );
 }
 
@@ -106,8 +139,14 @@ function _DataSheet<T>({
   dataSheetActions = null,
   enableFocusedCell,
   autoFocusEditor = true,
+  enableClipboard = true,
+  showInfoBar = false,
   density = DataSheetDensity.HIGH,
   selectionModes,
+  actions,
+  filters,
+  columnHeaderCellRenderer,
+  children,
   ...rest
 }: DataSheetInternalProps<T>) {
   /**
@@ -116,14 +155,34 @@ function _DataSheet<T>({
    * @param columnSpecOptions: Options for generating a column spec from data
    */
 
+  // Turn on debug features
+  const debugMode = false;
+
+  // Sync table actions to atom
+  const _actions: TableAction[] = useMemo(() => {
+    const _actions = [];
+    if (actions != null) {
+      _actions.push(...actions);
+    }
+    if (enableClipboard) {
+      _actions.push(...clipboardActions);
+    }
+    return _actions;
+  }, [actions, enableClipboard]);
+
+  ctx.useSync(tableActionsAtom, _actions);
+
+  const hotkeysConfig = ctx.useValue(tableHotkeysAtom);
+  const { handleKeyDown, handleKeyUp } = useHotkeys(hotkeysConfig);
+
   // For now, we only consider a single cell "focused" when we have one cell selected.
   // Multi-cell selections have a different set of "bulk" actions.
-  const selectedRegions = useSelector<T>((state) => state.selection);
+  const selectedRegions = useSelector<T>((state) => state.selection ?? []);
 
   const data = useSelector((state) => state.data);
   const editable = useSelector((state) => state.editable);
 
-  const deletedRows = useSelector((state) => state.deletedRows);
+  const rowStatus = useSelector((state) => state.rowStatus);
 
   const focusedCell = useSelector((state) => state.focusedCell);
 
@@ -134,44 +193,19 @@ function _DataSheet<T>({
   // A sparse array to hold updates
   // TODO: create a "changeset" concept to facilitate undo/redo
   const updatedData = useSelector((state) => state.updatedData);
-  const setUpdatedData = useSelector((state) => state.setUpdatedData);
 
   const onSelection = useSelector((state) => state.onSelection);
 
   const storeAPI = useStoreAPI<T>();
 
-  const _onSaveData = useMemo(() => {
-    if (onSaveData == null) return null;
-    return () => {
-      onSaveData(updatedData, data);
-      setUpdatedData([]);
-    };
-  }, [updatedData, data, onSaveData]);
-
-  const setVisibleCells = useSelector((state) => state.setVisibleCells);
-
+  const onScroll = useScrollHandler();
   const _onVisibleCellsChange = useCallback(
     (visibleCells: VisibleCells) => {
-      setVisibleCells(visibleCells);
+      onScroll(visibleCells);
       onVisibleCellsChange?.(visibleCells);
     },
-    [onVisibleCellsChange, setVisibleCells],
+    [onVisibleCellsChange, onScroll],
   );
-
-  const onAddRow = useCallback(() => {
-    setUpdatedData((updatedData: any[]): any[] => {
-      const ix = Math.max(updatedData.length, data.length);
-      const addRowSpec = { [ix]: { $set: {} } };
-      const newUpdatedData = update(updatedData, addRowSpec);
-      return newUpdatedData;
-    });
-  }, [setUpdatedData]);
-
-  const deleteSelectedRows = useSelector((state) => state.deleteSelectedRows);
-  const _onDeleteRows = useCallback(() => {
-    deleteSelectedRows();
-    onDeleteRows?.(selectedRegions);
-  }, [onDeleteRows, selectedRegions, deleteSelectedRows]);
 
   useEffect(() => {
     if (!verbose) return;
@@ -187,43 +221,68 @@ function _DataSheet<T>({
     console.log("Selected regions", selectedRegions);
   }, [selectedRegions]);
 
-  const nDeletionCandidates = useMemo(
-    () => getRowsToDelete(selectedRegions).length,
-    [selectedRegions],
-  );
+  const tableElementRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    // Return the focus to the table
+    tableElementRef.current?.focus();
+  }, [focusedCell]);
 
-  const columnWidths = useAtomValue(columnWidthsAtom);
+  const columnWidths = ctx.useValue(columnWidthsAtom);
 
-  const numRows = Math.max(updatedData.length, data.length);
+  // When filters are active, only show matching rows
+  const filteredRowIndices = useSelector((state) => state.filteredRowIndices);
+  const totalRows = Math.max(updatedData.length, data.length);
+  const numRows =
+    filteredRowIndices != null ? filteredRowIndices.length : totalRows;
 
   let className = `${density}-density`;
 
-  let rowHeight = 20;
-  let defaultColumnWidth = 150;
-  let style = {
-    "--data-sheet-row-height": "20px",
-    "--data-sheet-font-size": "12px",
-  };
-  if (density === DataSheetDensity.MEDIUM) {
-    rowHeight = 24;
-    style = {
-      "--data-sheet-row-height": "24px",
-      "--data-sheet-font-size": "14px",
-    };
-  } else if (density === DataSheetDensity.LOW) {
-    rowHeight = 30;
-    style = {
-      "--data-sheet-row-height": "30px",
-      "--data-sheet-font-size": "18px",
-    };
-  }
+  const { rowHeight, style } = styleParamsForDensity(density);
 
   const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
 
-  const children = useMemo(() => {
+  // Auto-detect if any columns have sortable/filterable set.
+  // If so and no explicit columnHeaderCellRenderer was provided,
+  // use the built-in client-side sort/filter header.
+  const hasSortableOrFilterable = useMemo(
+    () => columnSpec.some((col) => col.sortable || col.filterable),
+    [columnSpec],
+  );
+
+  const columnSorts = useSelector((state) => state.columnSorts);
+  const activeFilters = useSelector((state) => state.activeFilters);
+
+  const realizedColumns = useMemo(() => {
     return columnSpec.map((col, colIndex) => {
+      let fn =
+        col.headerCellRenderer ??
+        columnHeaderCellRenderer ??
+        renderColumnHeaderCell;
+      let activeSort = null;
+      let activeFilter = null;
+      if (col.sortable) {
+        activeSort = columnSorts?.find((s) => s.key === col.key);
+      }
+      if (col.filterable) {
+        // The autoFilterID implementation is too complicated
+        activeFilter =
+          activeFilters?.get(col.key) ??
+          activeFilters?.get(autoFilterId(col.key));
+      }
+
+      const _columnHeaderCellRenderer = (colIndex) => {
+        return fn({
+          col,
+          colIndex,
+          activeSort,
+          activeFilter,
+        });
+      };
+
       return h(Column, {
+        id: col.key,
         name: col.name,
+        columnHeaderCellRenderer: _columnHeaderCellRenderer,
         cellRenderer: (rowIndex) => {
           const state = storeAPI.getState();
           return basicCellRenderer<T>(
@@ -232,11 +291,20 @@ function _DataSheet<T>({
             col,
             state,
             autoFocusEditor,
+            filteredRowIndices,
           );
         },
       });
     });
-  }, [columnSpec, storeAPI, autoFocusEditor]);
+  }, [
+    columnSpec,
+    columnSorts,
+    activeFilters,
+    storeAPI,
+    autoFocusEditor,
+    filteredRowIndices,
+    columnHeaderCellRenderer,
+  ]);
 
   const onColumnWidthChanged = useSelector(
     (state) => state.onColumnWidthChanged,
@@ -244,19 +312,24 @@ function _DataSheet<T>({
 
   const rowHeaderCellRenderer = useCallback(
     (rowIndex: number) => {
-      const style = deletedRows.has(rowIndex) ? deletedRowHeaderStyle : null;
+      const dataRowIndex =
+        filteredRowIndices != null
+          ? (filteredRowIndices[rowIndex] ?? rowIndex)
+          : rowIndex;
+      const style =
+        rowStatus[dataRowIndex] == TableElementStatus.DELETED
+          ? deletedRowHeaderStyle
+          : null;
 
       return h(RowHeaderCell, {
         enableRowReordering: false,
         index: rowIndex,
-        name: `${rowIndex + 1}`,
+        name: `${dataRowIndex + 1}`,
         style,
       });
     },
-    [deletedRows],
+    [rowStatus, filteredRowIndices],
   );
-
-  const onKeyDown = useAtomValue(tableKeyHandlerAtom);
 
   let _selectionModes = selectionModes;
   if (
@@ -268,15 +341,28 @@ function _DataSheet<T>({
     // Ensure selection mode includes "cells"
   }
 
+  const cellRendererDependencies = [
+    data,
+    updatedData,
+    focusedCell,
+    rowStatus,
+    filteredRowIndices,
+  ];
+
   return h("div.data-sheet-container", { className, style }, [
-    h.if(editable)(DataSheetEditToolbar, {
-      onSaveData: _onSaveData,
-      onDeleteRows: nDeletionCandidates > 0 ? _onDeleteRows : null,
-    }),
+    h.if(actions != null)(ActionsToolbar, { actions }),
+    h.if(filters != null && filters.length > 0)(FilterBar, { filters }),
+    h.if(hasSortableOrFilterable)(SortFilterBar),
     dataSheetActions,
+    children,
     h(
       "div.data-sheet-holder",
-      { onKeyDown },
+      {
+        tabIndex: 0,
+        onKeyDown: handleKeyDown,
+        onKeyUp: handleKeyUp,
+        ref: tableElementRef,
+      },
       h(
         Table,
         {
@@ -292,40 +378,34 @@ function _DataSheet<T>({
           columnWidths,
           onColumnWidthChanged,
           onSelection,
+          /** TODO: we could enable this, but we need a use-case first... */
           enableRowReordering: false,
           enableRowResizing: false,
           // The cell renderer is memoized internally based on these data dependencies
-          cellRendererDependencies: [
-            data,
-            //selection,
-            updatedData,
-            focusedCell,
-            deletedRows,
-          ],
+          cellRendererDependencies,
           onVisibleCellsChange: _onVisibleCellsChange,
           rowHeaderCellRenderer,
           selectionModes: _selectionModes,
           ...rest,
+          getCellClipboardData: null,
         },
-        children,
+        realizedColumns,
       ),
     ),
+    h.if(showInfoBar)(InfoBar),
+    h.if(debugMode)(CellRendererDebugOverlay, {
+      cellRendererDependencies,
+      names: [
+        "data",
+        "updatedData",
+        "focusedCell",
+        "rowStatus",
+        "filteredRowIndices",
+      ],
+    }),
   ]);
 }
 
-/** Atoms for efficient sub-selection of state */
-
-const deletedRowsAtom = atom((get) => get(storeAtom).deletedRows);
-const updatedDataAtom = atom((get) => get(storeAtom).updatedData);
-
-const hasUpdatesAtom = atom((get) => {
-  // Readable atom to indicate whether there are any updates in the updatedData array
-  const deletedRows = get(deletedRowsAtom);
-  const updatedData = get(updatedDataAtom);
-  return updatedData.length > 0 || deletedRows.size > 0;
-});
-
-const columnSpecAtom = atom((get) => get(storeAtom).columnSpec);
 const columnWidthsIndexAtom = atom((get) => get(storeAtom).columnWidthsIndex);
 const defaultColumnWidthAtom = atom((get) => get(storeAtom).defaultColumnWidth);
 
@@ -336,50 +416,25 @@ const columnWidthsAtom = atom((get) => {
   );
 });
 
-function DataSheetEditToolbar({ onSaveData, onDeleteRows }) {
-  const selection = useSelector((state) => state.selection);
-  const resetChanges = useSelector((state) => state.resetChanges);
-
-  const hasUpdates = useAtomValue(hasUpdatesAtom);
-
-  return h("div.data-sheet-toolbar", [
-    h(ButtonGroup, { minimal: true }, [
-      h(AddRowButton),
-      h(
-        Button,
-        {
-          intent: Intent.DANGER,
-          disabled: onDeleteRows == null,
-          onClick() {
-            onDeleteRows?.();
-          },
-        },
-        "Delete",
-      ),
-    ]),
-    h("div.spacer"),
-    h(ButtonGroup, [
-      h(
-        Button,
-        {
-          intent: Intent.WARNING,
-          disabled: !hasUpdates,
-          onClick: resetChanges,
-        },
-        "Reset",
-      ),
-      h.if(onSaveData != null)(
-        Button,
-        {
-          intent: Intent.SUCCESS,
-          icon: "floppy-disk",
-          disabled: !hasUpdates,
-          onClick: onSaveData,
-        },
-        "Save",
-      ),
-    ]),
-  ]);
+function CellRendererDebugOverlay({ cellRendererDependencies, names }) {
+  /** Debug overlay for cell renderer dependencies */
+  const lastRenderDependencies = useRef<any[]>(cellRendererDependencies);
+  useEffect(() => {
+    let changeDepNames = [];
+    for (const [i, dep] of cellRendererDependencies.entries()) {
+      if (dep !== lastRenderDependencies.current[i]) {
+        changeDepNames.push(names[i]);
+      }
+    }
+    if (changeDepNames.length > 0) {
+      console.log(
+        "Cell renderer dependencies changed:",
+        changeDepNames.join(", "),
+      );
+    }
+    lastRenderDependencies.current = cellRendererDependencies;
+  }, cellRendererDependencies);
+  return null;
 }
 
 export function ScrollToRowControl() {
@@ -409,16 +464,34 @@ export function ScrollToRowControl() {
   ]);
 }
 
-function AddRowButton() {
-  const addRow = useSelector((state) => state.addRow);
-  return h(
-    Button,
-    {
-      icon: "plus",
-      onClick: addRow,
-    },
-    "Add row",
-  );
+function styleParamsForDensity(density: DataSheetDensity) {
+  switch (density) {
+    case DataSheetDensity.MEDIUM:
+      return {
+        rowHeight: 24,
+        style: {
+          "--data-sheet-row-height": "24px",
+          "--data-sheet-font-size": "14px",
+        },
+      };
+    case DataSheetDensity.LOW:
+      return {
+        rowHeight: 30,
+        style: {
+          "--data-sheet-row-height": "30px",
+          "--data-sheet-font-size": "18px",
+        },
+      };
+    case DataSheetDensity.HIGH:
+    default:
+      return {
+        rowHeight: 20,
+        style: {
+          "--data-sheet-row-height": "20px",
+          "--data-sheet-font-size": "12px",
+        },
+      };
+  }
 }
 
 export function getRowsToDelete(selection) {

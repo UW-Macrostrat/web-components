@@ -10,6 +10,8 @@ import {
   readPackageJSON,
 } from "./check-entries.js";
 import chalk from "chalk";
+
+// @ts-ignore
 import hyperStyles from "../../vite-plugin-hyperstyles/src/index.js";
 
 const module = import.meta.url;
@@ -97,8 +99,8 @@ function buildStandardViteConfig(
     plugins: [
       dts({
         rollupTypes: false,
-        tsconfigPath: resolve(workspaceRoot, "tsconfig.base.json"),
-        include: [resolve(root, "src"), globalTypes],
+        tsconfigPath: resolve(root, "tsconfig.json"),
+        include: [resolve(root, "src")],
         // Exclude storybook files
         exclude: [
           resolve(root, "src", "**/*.stories.ts"),
