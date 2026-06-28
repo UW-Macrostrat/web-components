@@ -16,6 +16,10 @@ type UnitSelectDispatch = (
   target: HTMLElement | null,
 ) => void;
 
+export function useUnitSelection() {
+  return scope.use(selectedUnitAtom);
+}
+
 export function useUnitSelectionDispatch(): UnitSelectDispatch {
   return scope.useSetAtom(selectedUnitAtom);
 }
@@ -44,6 +48,7 @@ export interface UnitSelectionCallbacks {
 export const allowUnitSelectionAtom = atom<boolean>(true);
 
 export const selectedUnitIDAtom = atom<number | null>();
+export const selectedUnitElementAtom = atom<HTMLElement | null>();
 
 const overlayPositionAtom = atom<RectBounds | null>();
 
@@ -70,9 +75,10 @@ const selectedUnitAtom = atom(
   ): BaseUnit | null => {
     if (!get(allowUnitSelectionAtom)) {
       console.error("Unit selection is disabled.");
+      return null;
     }
 
-    let unitID: number | null;
+    let unitID: number | null = null;
     let unit: BaseUnit | null = null;
     if (selectedUnit == null) {
       unitID = null;
@@ -83,8 +89,8 @@ const selectedUnitAtom = atom(
     }
 
     if (unitID != null) {
-      // Verify that the unit exists in the current colum, else throw
       const unitsMap = get(columnUnitsMapAtom);
+      // Verify that the unit exists in the current colum, else throw
       if (!unitsMap?.has(unitID)) {
         throw new Error(
           `Unit with ID ${unitID} not found in current column units.`,
@@ -108,6 +114,7 @@ const selectedUnitAtom = atom(
       };
     }
 
+    set(selectedUnitElementAtom, target);
     set(selectedUnitIDAtom, unitID);
     set(overlayPositionAtom, overlayPosition);
 
@@ -150,10 +157,10 @@ if (props.onClickedColumn) {
 export function useUnitSelectionTarget(
   unit: IUnit,
 ): [React.RefObject<HTMLElement>, boolean, (evt: Event) => void] {
-  const ref = useRef<HTMLElement>();
-  const selectedUnit = useSelectedUnit();
-  const selectUnit = useUnitSelectionDispatch();
+  const ref = useRef<HTMLElement>(null);
+  const [selectedUnit, selectUnit] = useUnitSelection();
   const selected = selectedUnit?.unit_id == unit.unit_id;
+  const selectedUnitElement = scope.useAtomValue(selectedUnitElementAtom);
 
   const onClick = useCallback(
     (evt: Event) => {
@@ -164,17 +171,19 @@ export function useUnitSelectionTarget(
   );
 
   useEffect(() => {
-    if (!selected || selectUnit == null) return;
-    // In case we haven't set the position of the unit (if we don't have a target), set the selected unit
-    selectUnit(unit, ref.current);
+    // Sync selection with unit element...
+    if (!selected) return;
+    selectUnit?.(unit, ref.current);
+  }, [ref.current, selected, selectUnit]);
 
+  useEffect(() => {
     // Scroll the unit into view
-    ref.current?.scrollIntoView({
+    selectedUnitElement?.scrollIntoView({
       behavior: "smooth",
       block: "center",
       inline: "nearest",
     });
-  }, [selected, selectUnit]);
+  }, [selectedUnitElement]);
 
   return [ref, selected, onClick];
 }

@@ -4,10 +4,21 @@ import { Meta, StoryObj } from "@storybook/react-vite";
 import { FlexRow, JSONView } from "@macrostrat/ui-components";
 
 import "@macrostrat/style-system";
-import { useState } from "react";
-import { AgeCursor, AgeLabel, ColoredUnitComponent } from "../src";
+import { useRef, useState } from "react";
+import {
+  AgeCursor,
+  AgeLabel,
+  ColoredUnitComponent,
+  Column,
+  ColumnRef,
+  MergeSectionsMode,
+  UnitComponent,
+} from "../src";
 
 import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
+import { Button } from "@blueprintjs/core";
+import { BaseUnit, UnitLithology } from "@macrostrat/api-types";
+import { useGeologicPattern } from "@macrostrat/column-components";
 
 const h = hyper.styled(styles);
 
@@ -107,6 +118,36 @@ export const WithUnitSelectionPopover: Story = {
     showUnitPopover: true,
   },
 };
+
+export function WithTriggeredScrollToUnit() {
+  const [unitID, setUnitID] = useState<number | null>(13102);
+  const [unit, setSelectedUnit] = useState(null);
+
+  const ref = useRef<ColumnRef>(null);
+
+  const scrollToSelectedUnit = () => {
+    ref.current?.scrollSelectedUnitIntoView();
+  };
+
+  return h("div", [
+    h(Button, { onClick: scrollToSelectedUnit }, "Scroll to selected unit"),
+    h(StandaloneColumn, {
+      id: 432,
+      showLabelColumn: true,
+      selectedUnit: unitID,
+      onUnitSelected(unitID, unit) {
+        setSelectedUnit(unit);
+        setUnitID(unitID);
+      },
+      showUnitPopover: true,
+      keyboardNavigation: true,
+      unitComponentProps: {
+        nColumns: 12,
+      },
+      ref,
+    }),
+  ]);
+}
 
 export function WithControlledPopover() {
   const [unitID, setUnitID] = useState(13102);

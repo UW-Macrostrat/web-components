@@ -1,5 +1,118 @@
 # Changelog
 
+## [3.5.1] - 2026-05-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.5.0...@macrostrat/column-views-v3.5.1)
+
+### Patch Changes
+
+- Improve code for section merging
+  [14bde559](https://github.com/UW-Macrostrat/web-components/commit/14bde559db68f21beb0e0a58d57db03bf6e68e69)
+- Added a story for correlation diagram creation
+  [67fba54a](https://github.com/UW-Macrostrat/web-components/commit/67fba54a699a925f1bf5595051c9831dc789a4db)
+- Updated dependencies
+  [89bb4be0](https://github.com/UW-Macrostrat/web-components/commit/89bb4be0d6ae6a73ac22d47cb3d9f12964a05e36)
+  - @macrostrat/timescale@3.1.5
+
+## [3.5.0] - 2026-05-24 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.4.2...@macrostrat/column-views-v3.5.0)
+
+### Minor Changes
+
+- Createa a basic ColumnRef interface
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @macrostrat/data-components@1.1.12
+  - @macrostrat/data-provider@1.1.0
+
+## [3.4.2] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.4.1...@macrostrat/column-views-v3.4.2)
+
+### Patch Changes
+
+- Fix interval provision for timescales
+- Updated dependencies
+  - @macrostrat/data-provider@1.0.5
+  - @macrostrat/timescale@3.1.4
+
+## [3.4.1] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.4.0...@macrostrat/column-views-v3.4.1)
+
+### Patch Changes
+
+- Remove stray console log statements
+- Updated dependencies
+  - @macrostrat/data-components@1.1.11
+
+## [3.4.0] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.3.5...@macrostrat/column-views-v3.4.0)
+
+### Minor Changes
+
+- Update layout for column units overlaps
+  [01048d6f](https://github.com/UW-Macrostrat/web-components/commit/01048d6ffa1335f58334c5c855b86e7a97b3e9c1)
+
+### Patch Changes
+
+- Fixed error with strat name viewer
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Update blueprintjs dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Improved types for API outputs
+  [225ed9a4](https://github.com/UW-Macrostrat/web-components/commit/225ed9a4534b2d1f8be8af6ab7e4035352825614)
+- Updated `jotai` and `jotai-scope` dependencies
+  [fb1c5ceb](https://github.com/UW-Macrostrat/web-components/commit/fb1c5ceb37c59aba5ee8dab1cca1d7a09b5b5fb3)
+- Updated dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated dependencies
+  [225ed9a4](https://github.com/UW-Macrostrat/web-components/commit/225ed9a4534b2d1f8be8af6ab7e4035352825614)
+- Updated dependencies
+  [01048d6f](https://github.com/UW-Macrostrat/web-components/commit/01048d6ffa1335f58334c5c855b86e7a97b3e9c1)
+- Updated dependencies
+  [fb1c5ceb](https://github.com/UW-Macrostrat/web-components/commit/fb1c5ceb37c59aba5ee8dab1cca1d7a09b5b5fb3)
+  - @macrostrat/data-provider@1.0.4
+  - @macrostrat/column-components@2.0.8
+  - @macrostrat/data-components@1.1.10
+  - @macrostrat/map-interface@2.2.6
+  - @macrostrat/ui-components@5.0.10
+  - @macrostrat/mapbox-react@3.2.2
+  - @macrostrat/api-types@1.2.0
+  - @macrostrat/stratigraphy-utils@1.3.0
+  - @macrostrat/map-styles@2.2.3
+
+## [3.3.5] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.3.4...@macrostrat/column-views-v3.3.5)
+
+### Patch Changes
+
+- Improved typescript type bundling across the board
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updates to internal typings
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+- Updated dependencies
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+  - @macrostrat/column-components@2.0.7
+  - @macrostrat/data-components@1.1.9
+  - @macrostrat/data-provider@1.0.3
+  - @macrostrat/map-interface@2.2.5
+  - @macrostrat/ui-components@5.0.9
+  - @macrostrat/api-types@1.1.6
+  - @macrostrat/color-utils@1.2.2
+  - @macrostrat/map-styles@2.2.2
+  - @macrostrat/mapbox-react@3.2.1
+  - @macrostrat/mapbox-utils@1.7.4
+  - @macrostrat/stratigraphy-utils@1.2.2
+  - @macrostrat/svg-map-components@2.0.3
+  - @macrostrat/timescale@3.1.3
+
+## [3.3.4] - 2026-05-11 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.3.3...@macrostrat/column-views-v3.3.4)
+
+### Patch Changes
+
+- Simplify handling of nested scoped stores
+- Updated dependencies
+  - @macrostrat/data-components@1.1.8
+
 ## [3.3.3] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.3.2...@macrostrat/column-views-v3.3.3)
 
 ### Patch Changes

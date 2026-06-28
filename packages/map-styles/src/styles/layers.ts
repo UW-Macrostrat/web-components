@@ -106,22 +106,20 @@ export function buildMacrostratStyleLayers({
       source: "burwell",
       "source-layer": "units",
       minzoom: 6,
-      maxzoom: 16,
       paint: {
         "line-color": "#000000",
         "line-width": {
           stops: [
-            [6, 0.5],
-            [8, 0.75],
-            [12, 1],
-            [16, 2],
+            [6, 0.25],
+            [12, 0.5],
+            [16, 0.75],
           ],
         },
         "line-opacity": {
           stops: [
-            [0, 0.25],
-            [8, 0.4],
-            [16, 0.75],
+            [0, 0.1],
+            [8, 0.25],
+            [16, 0.5],
           ],
         },
       },

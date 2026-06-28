@@ -37,9 +37,6 @@ const IsotopesDataArea = function (props: DataAreaProps) {
   let { corrected, system, children, getHeight, clipY = false } = props;
   if (getHeight == null) {
     getHeight = function (d) {
-      if (d.height == null) {
-        console.log(d);
-      }
       return d.height;
     };
   }

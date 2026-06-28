@@ -1,5 +1,55 @@
 # Changelog
 
+## [1.1.12] - 2026-05-24 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.11...@macrostrat/data-components-v1.1.12)
+
+### Patch Changes
+
+- Createa a basic ColumnRef interface
+
+## [1.1.11] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.10...@macrostrat/data-components-v1.1.11)
+
+### Patch Changes
+
+- Remove stray console log statements
+
+## [1.1.10] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.9...@macrostrat/data-components-v1.1.10)
+
+### Patch Changes
+
+- Update blueprintjs dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated `jotai` and `jotai-scope` dependencies
+  [fb1c5ceb](https://github.com/UW-Macrostrat/web-components/commit/fb1c5ceb37c59aba5ee8dab1cca1d7a09b5b5fb3)
+- Updated dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated dependencies
+  [01048d6f](https://github.com/UW-Macrostrat/web-components/commit/01048d6ffa1335f58334c5c855b86e7a97b3e9c1)
+  - @macrostrat/ui-components@5.0.10
+  - @macrostrat/stratigraphy-utils@1.3.0
+
+## [1.1.9] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.8...@macrostrat/data-components-v1.1.9)
+
+### Patch Changes
+
+- Improved typescript type bundling across the board
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updates to internal typings
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+- Updated dependencies
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+  - @macrostrat/ui-components@5.0.9
+  - @macrostrat/color-utils@1.2.2
+  - @macrostrat/mapbox-utils@1.7.4
+  - @macrostrat/stratigraphy-utils@1.2.2
+
+## [1.1.8] - 2026-05-11 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.7...@macrostrat/data-components-v1.1.8)
+
+### Patch Changes
+
+- Simplify handling of nested scoped stores
+
 ## [1.1.7] - 2026-05-07 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.6...@macrostrat/data-components-v1.1.7)
 
 ### Patch Changes

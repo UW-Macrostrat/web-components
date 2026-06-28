@@ -24,7 +24,7 @@ interface JotaiScope {
   useSetAtom: any;
 }
 
-interface StateIsolation extends JotaiScope {
+export interface StateIsolation extends JotaiScope {
   Provider: (props: ProviderProps) => ReactNode;
   useAtomValueIfExists: <T>(atom: WritableAtom<T, any, any>) => T | null;
   use: JotaiScope["useAtom"];
@@ -78,24 +78,15 @@ function ScopedProvider({
   // Always use the same store instance in this tree. We can set inherit = false
   // to allow multiple stores to be nested.
   const store = useStore(scope, inherit);
-  const isMounted = useRef(false);
-
-  const updater = keepUpdated ? h(AtomUpdater, { atoms, scope }) : null;
 
   if (store != null) {
-    // Set initial values on mount
-    if (!isMounted.current && atoms != null && atoms.length > 0) {
-      console.log("Setting initial values");
-      isMounted.current = true;
-      if (atoms) {
-        for (const [atom, value] of atoms) {
-          store.set(atom, value);
-        }
-      }
-    }
-
-    return h([updater, children]);
+    /* NOTE: we no longer set initial values on mount because it causes weird situations when the store
+     inherits a parent store */
+    return children;
   }
+
+  const updater =
+    keepUpdated && atoms != null ? h(AtomUpdater, { atoms, scope }) : null;
 
   return h(scope.Provider, { store, initialValues: atoms }, [
     updater,
@@ -115,13 +106,7 @@ function useStore(scope: JotaiScope, inherit: boolean = true) {
   }
 }
 
-function AtomUpdater({
-  scope,
-  atoms,
-}: {
-  scope: JotaiScope;
-  atoms: [WritableAtom<any, any, any>, any][];
-}) {
+function AtomUpdater({ scope, atoms }: { scope: JotaiScope; atoms: AtomMap }) {
   /**
    * A generic updater to sync Jotai atoms with state passed as props.
    * Useful for scoped providers where state needs to be synced outside

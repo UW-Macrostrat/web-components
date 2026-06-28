@@ -166,13 +166,20 @@ const PointHandle = function (props) {
 };
 
 function PositionEditorInner(props) {
-  let updateModel;
-  let { note, margin } = props;
+  let { margin } = props;
   if (margin == null) {
     margin = 3;
   }
   const { scaleClamped: scale } = useContext(ColumnContext);
-  ({ updateModel, editedModel: note } = useModelEditor());
+  const ctx = useModelEditor();
+  if (ctx == null) {
+    return null;
+  }
+
+  const { updatedModel, editedModel } = ctx;
+
+  const note = editedModel ?? props.note;
+
   if (note == null) {
     return null;
   }

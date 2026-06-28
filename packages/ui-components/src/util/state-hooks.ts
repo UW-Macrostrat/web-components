@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, RefObject } from "react";
 import { isEqual } from "underscore";
 import update, { Spec } from "immutability-helper";
 import { useAsyncEffect } from "use-async-effect";
-import { Component, MutableRefObject } from "react";
+import { Component } from "react";
 // Re-export useAsyncEffect
 export { useAsyncEffect };
 
@@ -22,7 +22,7 @@ export function useMemoizedValue(
 ) {
   /** Hook to keep a dependency up to date using a deep equals approach */
   const ref = useRef(obj);
-  if ((obj == ref.current, equalityFunction(obj, ref.current))) {
+  if (obj == ref.current || equalityFunction(obj, ref.current)) {
     return ref.current;
   } else {
     ref.current = obj;
@@ -45,7 +45,7 @@ export class StatefulComponent<Props, State> extends Component<Props, State> {
 }
 
 export function usePrevious<T>(value: T) {
-  const ref: MutableRefObject<T> = useRef();
+  const ref: RefObject<T | undefined> = useRef(undefined);
   useEffect(() => {
     ref.current = value;
   });

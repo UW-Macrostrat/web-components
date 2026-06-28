@@ -1,8 +1,37 @@
 # Changelog
 
-## [2.1.2] - 2026-06-28
+## [2.1.4] - 2026-06-28
 
 - Supports macrostrat terms id
+
+## [2.1.3] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/feedback-components-v2.1.2...@macrostrat/feedback-components-v2.1.3)
+
+### Patch Changes
+
+- Update blueprintjs dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated dependencies
+  [fb1c5ceb](https://github.com/UW-Macrostrat/web-components/commit/fb1c5ceb37c59aba5ee8dab1cca1d7a09b5b5fb3)
+  - @macrostrat/data-components@1.1.10
+  - @macrostrat/ui-components@5.0.10
+  - @macrostrat/data-sheet@4.0.0
+
+## [2.1.2] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/feedback-components-v2.1.1...@macrostrat/feedback-components-v2.1.2)
+
+### Patch Changes
+
+- Improved typescript type bundling across the board
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+  - @macrostrat/data-components@1.1.9
+  - @macrostrat/ui-components@5.0.9
+  - @macrostrat/color-utils@1.2.2
+  - @macrostrat/data-sheet@4.0.0
 
 ## [2.1.1] - 2026-05-08
 

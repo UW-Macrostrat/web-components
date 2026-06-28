@@ -2,7 +2,8 @@
 import baseFetch from "cross-fetch";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import h from "@macrostrat/hyper";
-import { create, useStore } from "zustand";
+import { StoreApi, useStore } from "zustand";
+import { createStore } from "zustand/vanilla";
 import {
   ColumnGeoJSONRecord,
   ColumnGeoJSONRecordWithID,
@@ -20,12 +21,13 @@ import {
   fetchStratNames,
   type ColumnStatusCode,
 } from "./fetch";
-import { APIProvider } from "@macrostrat/ui-components";
+import { APIProvider, usePrevious } from "@macrostrat/ui-components";
 
 import type { ReactNode } from "react";
 
 export interface MacrostratDataProviderProps {
-  baseURL: string;
+  baseURL?: string;
+  store?: StoreApi<MacrostratStore>;
   children: React.ReactNode;
 }
 
@@ -65,10 +67,10 @@ interface MacrostratStore extends RefsSlice {
   getStratNames(ids: number[] | null): Promise<StratName[]>;
 }
 
-function createMacrostratStore(
+export function createMacrostratStore(
   baseURL: string = "https://macrostrat.org/api/v2",
 ) {
-  return create<MacrostratStore>((set, get): MacrostratStore => {
+  return createStore<MacrostratStore>((set, get): MacrostratStore => {
     return {
       baseURL,
       inFlightRequests: new Set(),
@@ -99,7 +101,7 @@ function createMacrostratStore(
   });
 }
 
-function createRefsSlice(set, get) {
+function createRefsSlice(set: any, get: any) {
   return {
     refs: new Map(),
     async getRefs(ids: number[]): Promise<MacrostratRef[]> {
@@ -200,10 +202,11 @@ function createEnvironmentsSlice(set, get) {
 function createIntervalsSlice(set, get) {
   return {
     intervals: null,
+    fetchedTimescales: new Set(),
     async getIntervals(ids: number[] | null, timescaleID: number | null) {
-      const { intervals, fetch } = get();
+      const { intervals, fetch, fetchedTimescales } = get();
       let _intervals = intervals;
-      if (intervals == null || !includesTimescale(intervals, timescaleID)) {
+      if (timescaleID != null && !fetchedTimescales.has(timescaleID)) {
         // Fetch the intervals
         const data = await fetchIntervals(timescaleID, { fetch });
         if (data == null) {
@@ -214,18 +217,28 @@ function createIntervalsSlice(set, get) {
           intervalMap.set(d.int_id, d);
         }
         _intervals = intervalMap;
-        set({ intervals: _intervals });
+        set({
+          intervals: _intervals,
+          fetchedTimescales: new Set([...fetchedTimescales, timescaleID]),
+        });
       }
-      if (ids == null && timescaleID == null)
-        return Array.from(_intervals.values());
-      if (timescaleID != null) {
-        return Array.from(_intervals.values() as any[]).filter(
-          (d) => d.timescale_id == timescaleID,
+      if (ids != null) {
+        return ids.map((id) => intervals.get(id));
+      } else if (timescaleID != null) {
+        return Array.from(_intervals.values() as any[]).filter((d) =>
+          intervalIsInTimescale(d, timescaleID),
         );
+      } else {
+        return Array.from(_intervals?.values() ?? []);
       }
-      return ids.map((id) => intervals.get(id));
     },
   };
+}
+
+function intervalIsInTimescale(interval: Interval, timescaleID: number) {
+  return (
+    interval.timescales?.some((t) => t.timescale_id === timescaleID) ?? false
+  );
 }
 
 function createStratNamesSlice(set, get) {
@@ -233,12 +246,16 @@ function createStratNamesSlice(set, get) {
     stratNames: null,
     async getStratNames(ids: number[] | null): Promise<StratName[]> {
       const { stratNames, fetch } = get();
+      if (ids == null) {
+        return stratNames?.values() ?? [];
+      }
       let nameMap = stratNames ?? new Map();
-      let stratNamesAlreadyLoaded = [];
-      let stratNamesToLoad = [];
+      let stratNamesAlreadyLoaded: StratName[] = [];
+      let stratNamesToLoad: number[] = [];
       for (const id of ids) {
-        if (nameMap.has(id)) {
-          stratNamesAlreadyLoaded.push(nameMap.get(id));
+        const nameForID = nameMap.get(id);
+        if (nameForID != null) {
+          stratNamesAlreadyLoaded.push(nameForID);
         } else {
           stratNamesToLoad.push(id);
         }
@@ -257,15 +274,19 @@ function createStratNamesSlice(set, get) {
 }
 
 export function useStratNames(ids: number[] | null) {
-  const stratNames = useMemo(() => ids, ids);
+  const stratNames = useMemo(() => ids, ids ?? []);
   return useMacrostratData("strat_names", stratNames);
 }
 
-function includesTimescale(intervals: Map<number, any>, timescaleID: number) {
+function includesTimescale(
+  intervals: Map<number, any>,
+  timescaleID: number | null,
+) {
+  /** TODO: we should keep records of which timescales we have fetched */
   if (intervals == null) return false;
   if (timescaleID == null) return true;
-  return Array.from(intervals.values()).some(
-    (d) => d.timescale_id == timescaleID,
+  return Array.from(intervals.values()).some((d) =>
+    intervalIsInTimescale(d, timescaleID),
   );
 }
 
@@ -373,7 +394,7 @@ export function useMacrostratColumnInfo(
   }, [columnsMap, columnID]);
 }
 
-export function useMacrostratData(dataType: DataTypeKey, ...args: any[]) {
+export function useMacrostratData(dataType: DataTypeKey, ...args: any[]): any {
   const selector = dataTypeMapping[dataType];
   const operator = useMacrostratStore(selector);
 
@@ -394,15 +415,22 @@ export function useMacrostratData(dataType: DataTypeKey, ...args: any[]) {
 const MacrostratDataProviderContext = createContext(createMacrostratStore());
 
 export function MacrostratDataProvider(props: MacrostratDataProviderProps) {
-  const { baseURL = "https://dev.macrostrat.org/api/v2", children } = props;
+  const {
+    baseURL = "https://macrostrat.org/api/v2",
+    store: _initStore,
+    children,
+  } = props;
 
-  const [store] = useState(() => createMacrostratStore(baseURL));
+  const store = _initStore ?? useState(() => createMacrostratStore(baseURL))[0];
 
-  return h(
-    MacrostratAPIProvider,
-    { baseURL },
-    h(MacrostratDataProviderContext.Provider, { value: store }, children),
-  );
+  return h(MacrostratDataProviderContext.Provider, { value: store }, [
+    h(_StoreAPIProvider, { children }),
+  ]);
+}
+
+function _StoreAPIProvider({ children }) {
+  const baseURL = useMacrostratStore((s) => s.baseURL);
+  return h(MacrostratAPIProvider, { baseURL }, [children]);
 }
 
 /** Legacy API provider so useAPIResult can work */

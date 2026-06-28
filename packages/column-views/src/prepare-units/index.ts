@@ -6,6 +6,7 @@ import {
   mergeOverlappingSections,
   preprocessSectionUnit,
   preprocessUnits,
+  UnitWithLayoutHints,
 } from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { useMemo } from "react";
@@ -43,7 +44,7 @@ export function usePreparedColumnUnits(
 }
 
 export function prepareColumnUnits(
-  units: UnitLong[],
+  units: UnitWithLayoutHints<UnitLong>[],
   options: PrepareColumnOptions,
 ): PreparedColumnData {
   /** Prepare units for rendering into Macrostrat columns */
@@ -59,7 +60,7 @@ export function prepareColumnUnits(
     scale,
   } = options;
 
-  let _totalHeight = null;
+  let _totalHeight: number | null = null;
 
   if (scale != null) {
     // Set t_age and b_age based on scale domain if not already set
@@ -184,6 +185,8 @@ export function prepareColumnUnits(
    * We do this after merging sections so that we can
    * handle cases where there are overlapping units across sections
    * */
+  console.log(sections2, "sections");
+
   const sectionsOut = sections2.map((section) => {
     return {
       ...section,

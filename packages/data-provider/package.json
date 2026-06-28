@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-provider",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Data views for Macrostrat stratigraphic columns",
   "repository": {
     "type": "git",
@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@macrostrat/api-types": "workspace:^",
-    "@macrostrat/hyper": "^3.1.0",
+    "@macrostrat/hyper": "^3.1.1",
     "@macrostrat/ui-components": "workspace:^",
     "@types/topojson-client": "^3.1.5",
     "cross-fetch": "^4.1.0",

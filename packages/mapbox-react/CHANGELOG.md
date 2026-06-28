@@ -1,5 +1,30 @@
 # Changelog
 
+## [3.2.2] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.2.1...@macrostrat/mapbox-react-v3.2.2)
+
+### Patch Changes
+
+- Update blueprintjs dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+  - @macrostrat/ui-components@5.0.10
+  - @macrostrat/map-styles@2.2.3
+
+## [3.2.1] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.2.0...@macrostrat/mapbox-react-v3.2.1)
+
+### Patch Changes
+
+- Improved typescript type bundling across the board
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+  - @macrostrat/ui-components@5.0.9
+  - @macrostrat/map-styles@2.2.2
+  - @macrostrat/mapbox-utils@1.7.4
+
 ## [3.2.0] - 2026-04-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.1.3...@macrostrat/mapbox-react-v3.2.0)
 
 ### Minor Changes

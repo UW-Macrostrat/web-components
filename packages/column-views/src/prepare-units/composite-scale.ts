@@ -346,7 +346,7 @@ export function createCompositeScale(
         pixelHeight > Math.min(...range) &&
         pixelHeight <= Math.max(...range)
       ) {
-        console.log("Inverting scale at pixel height", pixelHeight);
+        //console.log("Inverting scale at pixel height", pixelHeight);
         return scale.invert(pixelHeight);
       }
     }

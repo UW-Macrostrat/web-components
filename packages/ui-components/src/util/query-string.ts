@@ -18,7 +18,8 @@ export type QueryParams =
 function buildQueryString(
   params: QueryParams,
   opts: StringifyOptions = {},
-): string {
+): string | null {
+  if (params == null) return null;
   let p: string;
   if (typeof params === "string") {
     p = params;

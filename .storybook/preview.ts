@@ -8,6 +8,7 @@ import {
 } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import "@macrostrat/style-system/src/main.sass";
+import "./preview.scss";
 import { DarkModeProvider } from "@macrostrat/ui-components";
 import { useDarkMode } from "@vueless/storybook-dark-mode";
 import { DocsContainer } from "./docs-container";

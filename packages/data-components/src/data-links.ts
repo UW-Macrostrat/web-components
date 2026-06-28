@@ -60,15 +60,18 @@ function identifierFields(
   throw new Error("Invalid MacrostratItemIdentifier");
 }
 
-export function itemTypeHandlers<T = HrefBuilder | ClickHandlerBuilder>(
+type InteractionBuilder = HrefBuilder | ClickHandlerBuilder;
+
+export function itemTypeHandlers<T extends InteractionBuilder>(
   builders: Partial<Record<MacrostratItemType, T>>,
-): T {
+): any {
   /** Helper to build either hrefs or click handlers based on item type */
-  return ((item: MacrostratItemIdentifier) => {
+  return (item: MacrostratItemIdentifier): any => {
     const [itemType] = identifierFields(item);
-    const builder = builders[itemType] as T | undefined;
+    const builder = builders[itemType];
+
     return builder?.(item);
-  }) as T;
+  };
 }
 
 export interface ItemInteractionProps {
@@ -77,7 +80,9 @@ export interface ItemInteractionProps {
   onClick?: (event: MouseEvent) => void;
 }
 
-type HrefBuilder = (item: MacrostratItemIdentifier) => string | null;
+type HrefBuilder = (
+  item: MacrostratItemIdentifier,
+) => string | null | undefined;
 type ClickHandlerBuilder = (
   item: MacrostratItemIdentifier,
 ) => ((event: MouseEvent) => void) | undefined;
@@ -124,7 +129,10 @@ export function MacrostratInteractionProvider({
   );
 }
 
-export function useInteractionManager(): MacrostratInteractionManager | null {
+export function useInteractionManager():
+  | MacrostratInteractionManager
+  | null
+  | undefined {
   /** Hook to access the MacrostratInteractionManager from context */
   return scope.useAtomValueIfExists(interactionManagerAtom);
 }
@@ -142,7 +150,7 @@ export function useInteractionProps(
   }, [interactive, manager, ...identifierFields(item)]);
 }
 
-interface InteractionManagerOptions {
+export interface InteractionManagerOptions {
   linkDomain?: string;
   hrefForItem?: (item: MacrostratItemIdentifier) => string | null;
   clickHandlerForItem?: (
@@ -157,21 +165,20 @@ interface InteractionManagerOptions {
 
 export class MacrostratInteractionManager implements MacrostratInteractionCtx {
   /** Class to build interaction properties (links, click handlers, etc.) for Macrostrat items */
-  readonly #linkDomain: string;
+  readonly #linkDomain: string | undefined;
   readonly #hrefForItem: HrefBuilder | undefined;
   readonly #clickHandlerForItem: ClickHandlerBuilder | undefined;
   readonly #interactionPropsForItem:
     | MacrostratItemInteractionBuilder
     | undefined;
   readonly #parent: MacrostratInteractionManager | null;
-  readonly #targetForItem: (
-    item: MacrostratItemIdentifier,
-    href: string,
-  ) => string;
+  readonly #targetForItem:
+    | ((item: MacrostratItemIdentifier, href: string) => string | undefined)
+    | undefined;
 
   constructor(
     options: InteractionManagerOptions & {
-      parent?: MacrostratInteractionManager | null;
+      parent?: MacrostratInteractionManager | null | undefined;
     } = {},
   ) {
     const {
@@ -205,7 +212,6 @@ export class MacrostratInteractionManager implements MacrostratInteractionCtx {
     // If there are custom interaction props, use them and then return
     if (this.#interactionPropsForItem != null) {
       const customProps = this.#interactionPropsForItem(item) ?? {};
-      console.log("Applying custom props");
       return {
         ...res,
         ...customProps,
@@ -242,7 +248,7 @@ export class MacrostratInteractionManager implements MacrostratInteractionCtx {
   }
 }
 
-function createItemHref(item: MacrostratItemIdentifier): string {
+function createItemHref(item: MacrostratItemIdentifier): string | null {
   /** Build a relative link to a Macrostrat item. Designed for the URL
    * structure of Macrostrat's v2 website */
   if ("strat_name_id" in item) {
@@ -259,6 +265,7 @@ function createItemHref(item: MacrostratItemIdentifier): string {
     if (item.unit_id != null) {
       href += `#unit=${item.unit_id}`;
     }
+    return href;
   } else if ("unit_id" in item) {
     return `/lex/units/${item.unit_id}`;
   } else if ("int_id" in item) {

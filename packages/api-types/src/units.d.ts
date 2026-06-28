@@ -1,4 +1,5 @@
 import type { LithologyCore } from "./lithologies.d";
+import { TypeIdentifier } from "./utils";
 
 export interface BaseUnit {
   unit_id: number;
@@ -122,3 +123,6 @@ export interface StratNameConcept {
   url: string;
   author: string;
 }
+
+type AnyUnit = BaseUnit;
+export type UnitIdentifier = TypeIdentifier<AnyUnit, "unit_id">;

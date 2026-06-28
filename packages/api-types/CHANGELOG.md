@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.2.0] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/api-types-v1.1.6...@macrostrat/api-types-v1.2.0)
+
+### Minor Changes
+
+- Update layout for column units overlaps
+  [01048d6f](https://github.com/UW-Macrostrat/web-components/commit/01048d6ffa1335f58334c5c855b86e7a97b3e9c1)
+
+### Patch Changes
+
+- Improved types for API outputs
+  [225ed9a4](https://github.com/UW-Macrostrat/web-components/commit/225ed9a4534b2d1f8be8af6ab7e4035352825614)
+
+## [1.1.6] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/api-types-v1.1.5...@macrostrat/api-types-v1.1.6)
+
+### Patch Changes
+
+- Improved typescript type bundling across the board
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updates to internal typings
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),

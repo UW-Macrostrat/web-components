@@ -1,9 +1,7 @@
-import { hyperStyled } from "@macrostrat/hyper";
-import styles from "./main.module.scss";
+import h from "./main.module.scss";
 import { format } from "d3-format";
 import Select from "react-select";
 import { ColumnDivision } from "../context";
-const h = hyperStyled(styles);
 
 const LabeledControl = function (props) {
   const { title, children, ...rest } = props;

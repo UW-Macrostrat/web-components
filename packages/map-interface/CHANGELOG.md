@@ -1,5 +1,45 @@
 # Changelog
 
+## [2.2.7] - 2026-06-23 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.6...@macrostrat/map-interface-v2.2.7)
+
+### Patch Changes
+
+- Fix bug with map interface sidebar clicks
+
+## [2.2.6] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.5...@macrostrat/map-interface-v2.2.6)
+
+### Patch Changes
+
+- Update blueprintjs dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated `jotai` and `jotai-scope` dependencies
+  [fb1c5ceb](https://github.com/UW-Macrostrat/web-components/commit/fb1c5ceb37c59aba5ee8dab1cca1d7a09b5b5fb3)
+- Updated dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated dependencies
+  [fb1c5ceb](https://github.com/UW-Macrostrat/web-components/commit/fb1c5ceb37c59aba5ee8dab1cca1d7a09b5b5fb3)
+  - @macrostrat/data-components@1.1.10
+  - @macrostrat/ui-components@5.0.10
+  - @macrostrat/mapbox-react@3.2.2
+
+## [2.2.5] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.4...@macrostrat/map-interface-v2.2.5)
+
+### Patch Changes
+
+- Improved typescript type bundling across the board
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updates to internal typings
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+- Updated dependencies
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+  - @macrostrat/data-components@1.1.9
+  - @macrostrat/ui-components@5.0.9
+  - @macrostrat/color-utils@1.2.2
+  - @macrostrat/mapbox-react@3.2.1
+  - @macrostrat/mapbox-utils@1.7.4
+
 ## [2.2.4] - 2026-04-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.3...@macrostrat/map-interface-v2.2.4)
 
 ### Patch Changes

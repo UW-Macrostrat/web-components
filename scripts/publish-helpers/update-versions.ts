@@ -39,7 +39,7 @@ export function updateVersions() {
 
     // First header
     const firstHeaderRow = changelogText.match(
-      /^## \[?(?<version>[\d.]+)\]?.*$/m,
+      /^## \[?(?<version>[\d.]+(-\w+)?)\]?.*$/m,
     );
     if (!firstHeaderRow) {
       console.error(
@@ -81,7 +81,7 @@ export function updateVersions() {
     let newHeader = `## [${pkg.version}] - ${date}`;
 
     // Try to get changes since the last release
-    const sealedHeaderRegex = /^## \[(?<version>[\d.]+)]?.*$/m;
+    const sealedHeaderRegex = /^## \[(?<version>[\d.]+(-\w+)?)]?.*$/m;
     const changelogTextBelowCurrentEntry =
       changelogText.split(changelogHeader)[1];
     const versionMatch =

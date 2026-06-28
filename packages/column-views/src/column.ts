@@ -1,5 +1,4 @@
 import { ColumnAxisType } from "@macrostrat/column-components";
-import { hyperStyled } from "@macrostrat/hyper";
 import {
   Box,
   extractPadding,
@@ -12,10 +11,12 @@ import {
   useCallback,
   CSSProperties,
   ComponentType,
+  RefObject,
 } from "react";
-import styles from "./column.module.sass";
+import h from "./column.module.sass";
 import { UnitComponent } from "./units";
 import {
+  ColumnRef,
   UnitKeyboardNavigation,
   useColumnRef,
   useUnitSelectionDispatch,
@@ -47,8 +48,6 @@ import { UnitLong } from "@macrostrat/api-types";
 import { NonIdealState } from "@blueprintjs/core";
 import { DataField } from "@macrostrat/data-components";
 import { ScaleContinuousNumeric } from "d3-scale";
-
-const h = hyperStyled(styles);
 
 interface BaseColumnProps extends Omit<
   SectionSharedProps,
@@ -88,6 +87,7 @@ export interface ColumnProps
   // Unconformity height in pixels
   unconformityHeight?: number;
   scale?: ScaleContinuousNumeric<number, number>;
+  ref?: RefObject<ColumnRef>;
 }
 
 export function Column(props: ColumnProps) {
@@ -113,12 +113,13 @@ export function Column(props: ColumnProps) {
     hybridScale,
     scale,
     axisType,
+    ref,
     ...rest
   } = props;
 
   /* Make pixelScale and targetUnitHeight mutually exclusive. PixelScale implies
    * standardization of scales in all sections */
-  let _targetUnitHeight = targetUnitHeight;
+  let _targetUnitHeight: number | null = targetUnitHeight;
   let _minSectionHeight = minSectionHeight;
   let _minPixelScale = minPixelScale;
   if (pixelScale != null) {
@@ -178,6 +179,7 @@ export function Column(props: ColumnProps) {
       allowUnitSelection: showUnitPopover || allowUnitSelection,
       onUnitSelected,
       selectedUnit,
+      ref,
     },
     h(ColumnInner, { ageAxisComponent, ...rest }, [
       children,

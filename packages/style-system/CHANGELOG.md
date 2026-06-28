@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.4.0] - 2026-06-09
+
+Remove management of fonts entirely. Now, we need to manage font loading in the
+consuming application.
+
+## [0.3.4] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/style-system-v0.3.3...@macrostrat/style-system-v0.3.4)
+
+### Patch Changes
+
+- Update blueprintjs dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+
+## [0.3.3] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/style-system-v0.3.2...@macrostrat/style-system-v0.3.3)
+
+### Patch Changes
+
+- Improved typescript type bundling across the board
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+
 ## [0.3.2] - 2026-04-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/style-system-v0.3.1...@macrostrat/style-system-v0.3.2)
 
 ### Patch Changes
