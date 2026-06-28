@@ -95,7 +95,7 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
     if (!inputValue || inputValue.length < 3) return;
 
     fetch(
-      "https://dev.macrostrat.org/api/pg/kg_global_entity?name=ilike.*" +
+      "https://dev.macrostrat.org/api/pg/kg_macrostrat_terms?name=ilike.*" +
         inputValue +
         "*"
     )
@@ -191,16 +191,12 @@ interface MatchTagProps {
 export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
   if (data == undefined || Object.keys(data).length === 0) return;
 
-  const { entity_id, entity_table, global_entity_id, name } = data
-
-  const type = entity_table
-            .split(".")
-            .pop()
+  const { entity_id, entity_type, macrostrat_terms_id, name } = data
 
   const newPayload = {
     entity_id,
-    entity_table: type,
-    global_entity_id,
+    entity_type,
+    macrostrat_terms_id,
     name,
   }
 
@@ -211,12 +207,12 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
       },
       h(DataField, {
         className: "match-item",
-        label: type.replace(/^./, (c) => c.toUpperCase()),
+        label: entity_type.replace(/^./, (c) => c.toUpperCase()),
         value: h(LithologyTag, {
-          data: { name: data.name, id: data.global_entity_id, lith_id: 1 },
+          data: { name: data.name, id: data.macrostrat_terms_id, lith_id: 1 },
           onClick: () =>
             window.open(
-              matchLinks.type + "/" + data.entity_id,
+              matchLinks.entity_type + "/" + data.entity_id,
               "_blank",
             ),
         }),

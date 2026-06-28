@@ -17,7 +17,7 @@ export const matchData = {
 "name": "abelsonite",
 "entity_id": 1,
 "entity_table": "minerals",
-"global_entity_id": 1
+"macrostrat_terms_id": 1
 },
 "indices": [
 65,

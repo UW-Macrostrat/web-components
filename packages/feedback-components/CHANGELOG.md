@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1.4] - 2026-06-28
+
+- Supports macrostrat terms id
+
 ## [2.1.3] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/feedback-components-v2.1.2...@macrostrat/feedback-components-v2.1.3)
 
 ### Patch Changes
