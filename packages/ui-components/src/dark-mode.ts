@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useState,
 } from "react";
 import { useStoredState } from "./util/local-storage";
 
@@ -188,8 +189,14 @@ const DarkModeButton = (
 ) => {
   const { allowReset = true, showText = false, children, ...rest } = props;
   const { isEnabled, isAutoset } = useDarkMode();
-  const icon = isEnabled ? "flash" : "moon";
   const update = darkModeUpdater();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // Use stable defaults until after hydration to avoid server/client mismatch
+  const icon = mounted && isEnabled ? "flash" : "moon";
+  const active = mounted && !isAutoset;
+
   const onClick: React.MouseEventHandler = (event) => {
     if (update == null) {
       console.warn("No DarkModeProvider is available");
@@ -201,7 +208,6 @@ const DarkModeButton = (
     }
     update(!isEnabled);
   };
-  const active = !isAutoset;
 
   return h(Button, { active, ...rest, icon, onClick }, [
     h.if(showText)([isEnabled ? "Light" : "Dark"]),

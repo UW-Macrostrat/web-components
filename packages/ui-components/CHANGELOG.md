@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.0.11] - 2026-06-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.0.10...@macrostrat/ui-components-v5.0.11)
+
+### Patch Changes
+
+- Fix dark mode button styles
+
 ## [5.0.10] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.0.9...@macrostrat/ui-components-v5.0.10)
 
 ### Patch Changes
