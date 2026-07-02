@@ -1,11 +1,13 @@
 /** A scoped state that wraps several Jotai atoms together, creating an isolated state
  * context.
  */
-import type { Atom, WritableAtom } from "jotai";
+import { Atom, WritableAtom } from "jotai";
 import { ReactNode, useEffect, useRef } from "react";
 import h from "@macrostrat/hyper";
 
 import { createIsolation } from "jotai-scope";
+import { createStore } from "jotai/vanilla";
+import type { Store } from "jotai/vanilla/store";
 
 export function createScopedStore(): StateIsolation {
   /** A typed wrapper around Jotai-Scope's createIsolation function */
@@ -78,13 +80,6 @@ function ScopedProvider({
   // Always use the same store instance in this tree. We can set inherit = false
   // to allow multiple stores to be nested.
   const store = useStore(scope, inherit);
-
-  if (store != null) {
-    /* NOTE: we no longer set initial values on mount because it causes weird situations when the store
-     inherits a parent store */
-    return children;
-  }
-
   const updater =
     keepUpdated && atoms != null ? h(AtomUpdater, { atoms, scope }) : null;
 
@@ -96,14 +91,19 @@ function ScopedProvider({
 
 function useStore(scope: JotaiScope, inherit: boolean = true) {
   /** A scoped provider for a store */
-  if (!inherit) {
-    return null;
-  }
+  const storeRef = useRef<Store | null>(null);
   try {
-    return scope.useStore();
+    const store = scope.useStore();
+    if (inherit && storeRef.current == null) {
+      storeRef.current = store;
+    }
   } catch (e) {
-    return null;
+    // The parent store is not defined
   }
+  if (storeRef.current == null) {
+    storeRef.current = createStore();
+  }
+  return storeRef.current;
 }
 
 function AtomUpdater({ scope, atoms }: { scope: JotaiScope; atoms: AtomMap }) {
