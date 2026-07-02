@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.13] - 2026-07-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.12...@macrostrat/data-components-v1.1.13)
+
+### Patch Changes
+
+- Fix scoped store propagation error
+  [3c1b00a5](https://github.com/UW-Macrostrat/web-components/commit/3c1b00a5d301eda83e1713154f36713e234e4001)
+
 ## [1.1.12] - 2026-05-24 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.11...@macrostrat/data-components-v1.1.12)
 
 ### Patch Changes
