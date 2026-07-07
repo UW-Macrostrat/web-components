@@ -1,4 +1,4 @@
-import { ColumnSpec, editorKeyHandlerAtom } from "./utils";
+import { ColumnSpec, CellRenderContext, editorKeyHandlerAtom } from "./utils";
 import { DataSheetStore, TableElementStatus } from "./types.ts";
 import h from "./main.module.sass";
 import { ReactNode, useEffect, useState } from "react";
@@ -37,7 +37,27 @@ export function basicCellRenderer<T>(
   const value: T | undefined =
     updatedData[dataRowIndex]?.[col.key] ?? data[dataRowIndex]?.[col.key];
   const isEmpty = value == null || value === "";
-  const _renderedValue = isEmpty ? null : (col.valueRenderer?.(value) ?? value);
+
+  const edited =
+    updatedData[dataRowIndex]?.[col.key] != null ||
+    state.rowStatus[dataRowIndex] === TableElementStatus.ADDED;
+
+  // Context passed to custom renderers so they can render based on the
+  // row/column position and cell status (and, with the editing API, write
+  // edits back). `rowIndex` is the data-row index, stable under sort/filter.
+  const cellContext: CellRenderContext<T> = {
+    value,
+    rowIndex: dataRowIndex,
+    colIndex,
+    column: col,
+    row,
+    isEdited: edited,
+    isDeleted,
+  };
+
+  const _renderedValue = isEmpty
+    ? null
+    : (col.valueRenderer?.(value, cellContext) ?? value);
 
   // Clone so we never mutate the caller's column-spec style object
   let style = { ...(col.style ?? {}) };
@@ -55,15 +75,17 @@ export function basicCellRenderer<T>(
 
   const tableIsEditable = state.editable;
 
-  const edited =
-    updatedData[dataRowIndex]?.[col.key] != null ||
-    state.rowStatus[dataRowIndex] === TableElementStatus.ADDED;
   let intent = edited ? "success" : undefined;
   if (isDeleted) {
     intent = "danger";
   }
 
   const _Cell = col.cellComponent ?? Cell;
+
+  // Only forward the render context to a custom cell component; the default
+  // Blueprint Cell would spread unknown props onto the DOM.
+  const cellComponentProps =
+    col.cellComponent != null ? { cellContext } : {};
 
   let inlineEditor = editable ? (col.inlineEditor ?? true) : false;
 
@@ -77,6 +99,7 @@ export function basicCellRenderer<T>(
         style,
         disabled: tableIsEditable && !editable,
         interactive: false,
+        ...cellComponentProps,
       },
       _renderedValue,
     );
@@ -127,6 +150,7 @@ export function basicCellRenderer<T>(
         style,
         className,
         interactive: false,
+        ...cellComponentProps,
       },
       cellContents,
     );
@@ -188,6 +212,7 @@ export function basicCellRenderer<T>(
       className,
       style,
       interactive: true,
+      ...cellComponentProps,
       //truncated: false,
     },
     [

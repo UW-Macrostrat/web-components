@@ -28,13 +28,42 @@ export type ColumnDataType =
   | "object"
   | "array";
 
+/**
+ * Context handed to per-cell renderers (`valueRenderer`, and — as the
+ * `cellContext` prop — a custom `cellComponent`). It lets a renderer draw
+ * based on the row/column position and the cell's edit status, and, combined
+ * with the editing API, write edits back for a specific cell.
+ *
+ * `rowIndex` is the underlying **data-row index** (the value edit methods
+ * expect), so it stays stable when a sort or filter reorders the view.
+ */
+export interface CellRenderContext<T = any> {
+  /** The cell's current value (the edited value if present, else the base). */
+  value: any;
+  /** Underlying data-row index — stable under sort/filter. */
+  rowIndex: number;
+  /** Column index within the active column spec. */
+  colIndex: number;
+  /** The full column spec for this cell's column. */
+  column: ColumnSpec;
+  /** The full row object backing this cell (may be undefined while loading). */
+  row: T | undefined;
+  /** Whether this cell has an uncommitted edit. */
+  isEdited: boolean;
+  /** Whether this cell's row is marked for deletion. */
+  isDeleted: boolean;
+}
+
 export interface ColumnSpec {
   name: string;
   key: string;
   required?: boolean;
   isValid?: (d: any) => boolean;
   transformValue?: (d: any) => any;
-  valueRenderer?: (d: any) => string | React.ReactNode;
+  valueRenderer?: (
+    d: any,
+    ctx?: CellRenderContext,
+  ) => string | React.ReactNode;
   headerRenderer?: (d: any) => string | React.ReactNode;
   dataEditor?: any;
   cellComponent?: any;

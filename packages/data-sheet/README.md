@@ -38,15 +38,15 @@ recorded in the `CHANGELOG`. See the design doc in the Workbench
 
 Workstreams, in sequence:
 
-- [ ] **G — Bugfixes** (small, low-risk, land first)
-  - [ ] `onCellEdited` empty↔null normalization (no phantom edit when an
+- [x] **G — Bugfixes** (small, low-risk, land first)
+  - [x] `onCellEdited` empty↔null normalization (no phantom edit when an
         empty cell stays empty) — _story:_ `Data sheet/Editing`
-  - [ ] Filter-aware edit methods (`clearSelection` / `onSelectionEdited` /
+  - [x] Filter-aware edit methods (`clearSelection` / `onSelectionEdited` /
         `fillValues` target the correct data row under sort/filter) —
         _story:_ `Data sheet/Editing`, `Data sheet/Filters`
-  - [ ] `col.style` clone (stop mutating the caller's style object)
-  - [ ] Remove dead `onSaveData` prop (never invoked; save is a table action)
-- [ ] **B — Rich cell-render context** (pass `{ rowIndex, colIndex, column,
+  - [x] `col.style` clone (stop mutating the caller's style object)
+  - [x] Remove dead `onSaveData` prop (never invoked; save is a table action)
+- [x] **B — Rich cell-render context** (pass `{ rowIndex, colIndex, column,
       row, isEdited, isDeleted }` to renderers)
 - [ ] **C — Editor UX** (decouple editor open from input-focus; per-cell
       editor selection)

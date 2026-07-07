@@ -4,6 +4,17 @@
 
 Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
 
+### Workstream B — Rich cell-render context
+
+- **Per-cell renderers now receive a `CellRenderContext`.** `valueRenderer`
+  takes an optional second argument `{ value, rowIndex, colIndex, column, row,
+  isEdited, isDeleted }`, and a custom `cellComponent` receives the same object
+  as a `cellContext` prop. `rowIndex` is the underlying data-row index (stable
+  under sort/filter), so renderers can style based on sibling columns or edit
+  status — and, with the editing API, address a specific cell. Additive: the
+  default Blueprint `Cell` is unaffected and existing single-argument
+  `valueRenderer`s keep working. _Story:_ `Data sheet/Cell rendering`.
+
 ### Workstream G — Bugfixes
 
 - **Empty↔null edits are no longer recorded.** `onCellEdited` now treats `""`
