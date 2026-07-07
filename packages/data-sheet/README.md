@@ -24,3 +24,36 @@ it can be used, at minimum, as a design reference.
   feature-rich table component library.
 - In particular, the BlueprintJS table natively supports virtualization, which
   is important for performance when rendering large tables.
+
+## Evolution roadmap (v4)
+
+Ongoing work to generalize capabilities that consumers (notably the Macrostrat
+map-ingestion tables) have had to hand-roll. The guiding architecture is **two
+orthogonal APIs**: the **column spec** is the primary, atomic, backend-agnostic
+description of table _behavior_ (render / edit / validate + capability flags),
+and the **data source** is how rows flow in (`data` and/or a fetch function).
+Every change is additive and opt-in, ships with a Storybook example, and is
+recorded in the `CHANGELOG`. See the design doc in the Workbench
+(`Feature areas/Data sheet library evolution.md`) for full rationale.
+
+Workstreams, in sequence:
+
+- [ ] **G — Bugfixes** (small, low-risk, land first)
+  - [ ] `onCellEdited` empty↔null normalization (no phantom edit when an
+        empty cell stays empty) — _story:_ `Data sheet/Editing`
+  - [ ] Filter-aware edit methods (`clearSelection` / `onSelectionEdited` /
+        `fillValues` target the correct data row under sort/filter) —
+        _story:_ `Data sheet/Editing`, `Data sheet/Filters`
+  - [ ] `col.style` clone (stop mutating the caller's style object)
+  - [ ] Remove dead `onSaveData` prop (never invoked; save is a table action)
+- [ ] **B — Rich cell-render context** (pass `{ rowIndex, colIndex, column,
+      row, isEdited, isDeleted }` to renderers)
+- [ ] **C — Editor UX** (decouple editor open from input-focus; per-cell
+      editor selection)
+- [ ] **A — Controlled editing** (`onEdit(event)` + controlled
+      `updatedData` / `rowStatus` overlay; read/write symmetry)
+- [ ] **D+E — Data source & view state** (unified
+      `fetchChunk({ offset, limit, sorts, filters, group, signal })` +
+      column-declared sort / filter / group / hide; scroll-to-row gated on
+      source length/addressing traits)
+- [ ] **F — Row-header customization** (group-key labels, omit styling)

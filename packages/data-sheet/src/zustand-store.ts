@@ -184,8 +184,11 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         if (!editable) return {};
         let rowSpec: any;
 
-        // Check to see if the new value is the same as the old one
-        if (value !== data[rowIndex]?.[columnName]) {
+        // Check to see if the new value is meaningfully different from the old
+        // one. Empty string and null/undefined are treated as equivalent, so
+        // focusing (and blurring) an empty cell doesn't record a phantom edit.
+        const oldValue = data[rowIndex]?.[columnName];
+        if (!valuesAreEquivalent(value, oldValue)) {
           const rowOp = updatedData[rowIndex] != null ? "$merge" : "$set";
           rowSpec = { [rowOp]: { [columnName]: value } };
         } else {
@@ -199,12 +202,15 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       set((state) => {
         // Delete all selected cells
         const { selection, updatedData, columnSpec, data } = state;
+        const numVisible = visibleRowCount(state);
         let spec = {};
         for (const region of selection) {
           const { cols, rows } = region;
-          const rowRange = range(rows ?? [0, updatedData.length - 1]);
+          const rowRange = range(rows ?? [0, numVisible - 1]);
           const colRange = range(cols ?? [0, columnSpec.length - 1]);
-          for (const row of rowRange) {
+          for (const visibleRow of rowRange) {
+            // Selection indices are visible positions; map to the data row.
+            const row = toDataRowIndex(state, visibleRow);
             // Don't clear row if it has been deleted
             const rowIsDeleted =
               state.rowStatus[row] === TableElementStatus.DELETED;
@@ -254,12 +260,15 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       set((state) => {
         const { selection, updatedData, columnSpec, editable } = state;
         if (!editable) return {};
+        const numVisible = visibleRowCount(state);
         let spec = {};
         for (const region of selection) {
           const { cols, rows } = region;
-          const rowRange = range(rows ?? [0, updatedData.length - 1]);
+          const rowRange = range(rows ?? [0, numVisible - 1]);
           const colRange = range(cols ?? [0, columnSpec.length - 1]);
-          for (const row of rowRange) {
+          for (const visibleRow of rowRange) {
+            // Selection indices are visible positions; map to the data row.
+            const row = toDataRowIndex(state, visibleRow);
             let vals = {};
             for (const col of colRange) {
               const key = columnSpec[col].key;
@@ -479,18 +488,51 @@ function fillValues<T>(state: DataSheetStore<T>, selection: Region[]) {
 
   // Fill values downwards
   if (!editable || fillValueBaseCell == null) return updatedData;
-  const { col, row } = fillValueBaseCell;
+  const { col, row: baseVisibleRow } = fillValueBaseCell;
+  // The base cell and target rows are visible positions; map to data rows.
+  const baseRow = toDataRowIndex(state, baseVisibleRow);
   const key = columnSpec[col].key;
-  const value = updatedData[row]?.[key] ?? data[row][key];
+  const value = updatedData[baseRow]?.[key] ?? data[baseRow]?.[key];
   const spec = {};
   for (const region of regions) {
-    const { cols, rows } = region;
-    for (const row of range(rows)) {
+    const { rows } = region;
+    for (const visibleRow of range(rows)) {
+      const row = toDataRowIndex(state, visibleRow);
       let op = updatedData[row] == null ? "$set" : "$merge";
       spec[row] = { [op]: { [key]: value } };
     }
   }
   return update(updatedData, spec);
+}
+
+/** Number of rows currently visible (post-filter/sort), or the full data
+ * length when no view transform is active. */
+function visibleRowCount<T>(state: DataSheetStore<T>): number {
+  const { filteredRowIndices, updatedData } = state;
+  return filteredRowIndices != null
+    ? filteredRowIndices.length
+    : updatedData.length;
+}
+
+/** Map a visible (post-filter/sort) row position to its underlying data
+ * index. Edit methods receive selection indices in visible space, so they
+ * must translate before writing to `updatedData`/`data`. */
+function toDataRowIndex<T>(
+  state: DataSheetStore<T>,
+  visibleRow: number,
+): number {
+  const { filteredRowIndices } = state;
+  if (filteredRowIndices == null) return visibleRow;
+  return filteredRowIndices[visibleRow] ?? visibleRow;
+}
+
+/** Treat empty string and null/undefined as equivalent so clearing an
+ * already-empty cell is a no-op rather than a recorded edit. */
+function valuesAreEquivalent(a: any, b: any): boolean {
+  if (a === b) return true;
+  const aBlank = a == null || a === "";
+  const bBlank = b == null || b === "";
+  return aBlank && bBlank;
 }
 
 function resetChangesForSelection<T>(

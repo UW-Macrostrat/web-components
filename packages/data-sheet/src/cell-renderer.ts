@@ -39,7 +39,8 @@ export function basicCellRenderer<T>(
   const isEmpty = value == null || value === "";
   const _renderedValue = isEmpty ? null : (col.valueRenderer?.(value) ?? value);
 
-  let style = col.style ?? {};
+  // Clone so we never mutate the caller's column-spec style object
+  let style = { ...(col.style ?? {}) };
 
   if (isDeleted) {
     style.opacity = 0.5;

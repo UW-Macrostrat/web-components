@@ -252,25 +252,6 @@ function _PostgRESTTableView<T>({
         let query = client.delete().in(identityKey, ids);
         finishResponse(query, { $delete: Array.from(rowIndices.keys()) });
       },
-      onSaveData(updates, data) {
-        if (!editable) return;
-
-        // Augment updates with primary key
-
-        let changes: Spec<any[]> = {};
-        let updateRows: any[] = [];
-        for (let [key, update] of Object.entries(updates)) {
-          const value = { ...data[key], ...update };
-          updateRows.push(value);
-          changes[key] = { $set: value };
-        }
-
-        dispatch({ type: "start-loading" });
-        const client = getClient();
-        // Save data
-        let query = client.upsert(updateRows, { defaultToNull: false });
-        finishResponse(query, changes);
-      },
     },
     [
       h.if(hasActiveFilters || hasActiveSort)(ServerFilterBar, {

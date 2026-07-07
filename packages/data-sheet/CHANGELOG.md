@@ -1,5 +1,28 @@
 # Changelog
 
+## [Unreleased]
+
+Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
+
+### Workstream G — Bugfixes
+
+- **Empty↔null edits are no longer recorded.** `onCellEdited` now treats `""`
+  and `null`/`undefined` as equivalent, so focusing and blurring an empty cell
+  (or typing then deleting) no longer registers a phantom edit. Clearing a
+  populated cell still registers. _Story:_ `Data sheet/Editing` →
+  `EmptyCellNormalization`.
+- **Filter-aware bulk edits.** `clearSelection`, `onSelectionEdited`, and the
+  fill-handle (`fillValues`) now map visible selection indices to the
+  underlying data rows, so bulk edits target the correct rows when a sort or
+  filter is active. _Story:_ `Data sheet/Editing` →
+  `EditsUnderSortAndFilter`.
+- **`col.style` is no longer mutated.** `basicCellRenderer` clones the
+  column-spec `style` before applying deleted-row styling, so a shared style
+  object isn't mutated across cells.
+- **Removed the dead `onSaveData` prop.** It was declared on `DataSheet` but
+  never invoked; saving is driven by table actions. Consumers relying on it
+  were already no-ops. (Breaking, but within the `4.0.0` pre-release line.)
+
 ## [4.0.0-dev3] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.0.0-dev2...@macrostrat/data-sheet-v4.0.0)
 
 ### Patch Changes

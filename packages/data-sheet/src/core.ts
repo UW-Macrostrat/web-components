@@ -63,7 +63,6 @@ export enum DataSheetDensity {
 
 interface DataSheetInternalProps<T> extends TableProps {
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
-  onSaveData?: (updatedData: any[], data: T[]) => void;
   onUpdateData?: (updatedData: any[], data: T[]) => void;
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
@@ -132,7 +131,6 @@ const deletedRowHeaderStyle = {
 
 function _DataSheet<T>({
   onVisibleCellsChange,
-  onSaveData,
   onUpdateData,
   onDeleteRows,
   verbose = false,
