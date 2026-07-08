@@ -3,6 +3,7 @@ import {
   CellRenderContext,
   CellDetailContext,
   editorKeyHandlerAtom,
+  validateCell,
 } from "./utils";
 import { DataSheetStore, TableElementStatus } from "./types.ts";
 import h from "./main.module.sass";
@@ -53,6 +54,9 @@ export function basicCellRenderer<T>(
     updatedData[dataRowIndex]?.[col.key] != null ||
     state.rowStatus[dataRowIndex] === TableElementStatus.ADDED;
 
+  // Validate the cell (skipped for deleted rows). Orthogonal to edit status.
+  const validation = isDeleted ? null : validateCell(col, value, row, dataRowIndex);
+
   // Context passed to custom renderers so they can render based on the
   // row/column position and cell status (and, with the editing API, write
   // edits back). `rowIndex` is the data-row index, stable under sort/filter.
@@ -64,6 +68,7 @@ export function basicCellRenderer<T>(
     row,
     isEdited: edited,
     isDeleted,
+    validation,
   };
 
   const _renderedValue = isEmpty
@@ -86,9 +91,17 @@ export function basicCellRenderer<T>(
 
   const tableIsEditable = state.editable;
 
-  let intent = edited ? "success" : undefined;
-  if (isDeleted) {
+  // Intent precedence: error > warning > deleted > edited. Validation state
+  // overrides the edited-green so an edited-but-invalid cell reads as invalid.
+  let intent: string | undefined;
+  if (validation?.severity === "error") {
     intent = "danger";
+  } else if (validation?.severity === "warning") {
+    intent = "warning";
+  } else if (isDeleted) {
+    intent = "danger";
+  } else if (edited) {
+    intent = "success";
   }
 
   const _Cell = col.cellComponent ?? Cell;

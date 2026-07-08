@@ -233,8 +233,13 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         if (!valuesAreEquivalent(value, oldValue)) {
           const rowOp = updatedData[rowIndex] != null ? "$merge" : "$set";
           rowSpec = { [rowOp]: { [columnName]: value } };
-        } else {
+        } else if (updatedData[rowIndex] != null) {
+          // No change — drop any prior override for this cell.
           rowSpec = { $unset: [columnName] };
+        } else {
+          // No change and no prior override: nothing to do. (`$unset` on an
+          // absent row would throw in immutability-helper.)
+          return {};
         }
         const spec: Spec<T[]> = { [rowIndex]: rowSpec };
         return { updatedData: update(updatedData, spec) };

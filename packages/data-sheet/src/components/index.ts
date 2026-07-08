@@ -3,4 +3,4 @@ export * from "./cell-detail";
 export * from "./colors";
 export * from "./text-areas";
 export * from "./actions";
-export { InfoBar } from "./view-info.ts";
+export { InfoBar, LoadProgressIndicator } from "./view-info.ts";

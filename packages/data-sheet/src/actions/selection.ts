@@ -5,6 +5,7 @@ import type {
   CellEdit,
   ColumnSort,
   SelectionCardinality,
+  SelectionShape,
   TableAction,
   TableActionContext,
   TableFilter,
@@ -25,6 +26,19 @@ export function getSelectionCardinality(
   if (hasRows && !hasCols) return RegionCardinality.FULL_ROWS;
   if (!hasRows && hasCols) return RegionCardinality.FULL_COLUMNS;
   return RegionCardinality.FULL_TABLE;
+}
+
+/** Compute the concrete shape of a selection (cardinality + column/row spans). */
+export function computeSelectionShape(regions: Region[]): SelectionShape {
+  const cardinality = getSelectionCardinality(regions) ?? "none";
+  const region = regions?.[0];
+  const cols = region?.cols;
+  const rows = region?.rows;
+  return {
+    cardinality,
+    columns: cols != null ? cols[1] - cols[0] + 1 : 0,
+    rows: rows != null ? rows[1] - rows[0] + 1 : 0,
+  };
 }
 
 /** Filter actions to those applicable for the current selection cardinality
@@ -108,9 +122,42 @@ export function buildActionContext<T>(
     return _filteredRowIndices;
   }
 
+  const shape = computeSelectionShape(state.selection);
+
   return {
     selection: state.selection,
     selectionCardinality: getSelectionCardinality(state.selection),
+    selectionShape: shape,
+    // Resolved single-target identity (lazy — mapping rows through filters is
+    // only paid when accessed).
+    get columnKey() {
+      return shape.columns === 1
+        ? (getSelectedColumnKeys(state.selection, state.columnSpec)[0] ?? null)
+        : null;
+    },
+    get rowIndex() {
+      return shape.rows === 1
+        ? (getSelectedRowIndices(state.selection, getFilteredRowIndices())[0] ??
+            null)
+        : null;
+    },
+    get cell() {
+      if (
+        shape.cardinality !== RegionCardinality.CELLS ||
+        shape.columns !== 1 ||
+        shape.rows !== 1
+      ) {
+        return null;
+      }
+      const columnKey =
+        getSelectedColumnKeys(state.selection, state.columnSpec)[0] ?? null;
+      const rowIndex =
+        getSelectedRowIndices(state.selection, getFilteredRowIndices())[0] ??
+        null;
+      return columnKey != null && rowIndex != null
+        ? { rowIndex, columnKey }
+        : null;
+    },
     data: state.data,
     updatedData: state.updatedData,
     rowStatus: state.rowStatus,

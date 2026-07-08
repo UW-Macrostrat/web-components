@@ -95,6 +95,19 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
     })
     .filter(Boolean) as HotkeyConfig[];
 
+  // Backspace/Delete: on a whole-row selection, delete the row(s); otherwise
+  // clear the selected cells.
+  const clearOrDeleteSelection = keyHandler((e, state) => {
+    const sel = state.selection ?? [];
+    const isRowSelection =
+      sel.length > 0 && sel.every((r) => r.cols == null && r.rows != null);
+    if (isRowSelection) {
+      state.deleteSelectedRows();
+    } else {
+      state.clearSelection();
+    }
+  });
+
   return [
     {
       combo: "esc",
@@ -123,13 +136,19 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
     },
     {
       combo: "backspace",
-      label: "Clear selection",
+      label: "Clear cells / delete rows",
       group: "Selection",
       allowInInput: true,
       disabled: !editable,
-      onKeyDown: keyHandler((e, state) => {
-        state.clearSelection();
-      }),
+      onKeyDown: clearOrDeleteSelection,
+    },
+    {
+      combo: "del",
+      label: "Clear cells / delete rows",
+      group: "Selection",
+      allowInInput: true,
+      disabled: !editable,
+      onKeyDown: clearOrDeleteSelection,
     },
     {
       combo: "tab",

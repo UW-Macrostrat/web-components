@@ -44,18 +44,7 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
     h.if(availableFilters.length > 0)(AddFilterPopover, {
       filters: availableFilters,
     }),
-    h.if(hasActive)(
-      Button,
-      {
-        minimal: true,
-        small: true,
-        icon: "cross",
-        onClick() {
-          storeAPI.getState().clearFilters();
-        },
-      },
-      "Clear filters",
-    ),
+    // No "clear all" — each active filter tag is individually removable.
   ]);
 }
 
@@ -72,6 +61,10 @@ function ActiveFilterChip<T>({
   const [configOpen, setConfigOpen] = useState(false);
   const { filter, state: filterState } = entry;
 
+  // Summarize the active filter's window (e.g. "0–250") next to its name, so
+  // the tag conveys not just what is filtered but the current setting.
+  const summary = filter.describeState?.(filterState);
+
   const tag = h(
     Tag,
     {
@@ -83,7 +76,12 @@ function ActiveFilterChip<T>({
       intent: "primary",
       onClick: filter.filterForm ? () => setConfigOpen(!configOpen) : undefined,
     },
-    filter.name,
+    [
+      filter.name,
+      summary != null && summary !== ""
+        ? h("span.filter-window", [": ", summary])
+        : null,
+    ],
   );
 
   if (filter.filterForm == null) return tag;

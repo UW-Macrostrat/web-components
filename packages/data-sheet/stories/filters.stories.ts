@@ -49,6 +49,7 @@ const nameFilter: TableFilter = {
   columnKey: "name",
   description: "Show only rows where the name contains a string.",
   defaultState: { search: "" },
+  describeState: (state) => (state?.search ? `"${state.search}"` : null),
   filterForm({ state, setState }) {
     return h(FormGroup, { label: "Name contains" }, [
       h(InputGroup, {
@@ -113,6 +114,7 @@ const categoryFilter: TableFilter = {
   columnKey: "category",
   description: "Show only rows matching a specific rock category.",
   defaultState: { category: "Igneous" },
+  describeState: (state) => state?.category ?? null,
   filterForm({ state, setState }) {
     return h(
       FormGroup,
@@ -140,6 +142,7 @@ const depthFilter: TableFilter<any, { min: number; max: number }> = {
   columnKey: "depth",
   description: "Show rows with depth within a range.",
   defaultState: { min: 0, max: 250 },
+  describeState: (state) => `${state.min}–${state.max}`,
   filterForm({ state, setState }) {
     return h("div", { style: { display: "flex", gap: "8px" } }, [
       h(

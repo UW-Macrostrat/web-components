@@ -52,8 +52,9 @@ Workstreams, in sequence:
       per-cell editor selection; focus flow-through with Escape→nav-mode,
       direction-of-travel cursor, Enter/F2 to edit, click-to-toggle;
       read-only `detailRenderer` panels)
-- [ ] **A — Controlled editing** (`onEdit(event)` + controlled
-      `updatedData` / `rowStatus` overlay; read/write symmetry)
+- [x] **A — Controlled editing** (`onEdit(event)` + controlled
+      `updatedData` / `rowStatus` overlay; unified `cellDetail` /
+      `detailPresentation` surface API)
 - [ ] **D+E — Data source & view state** (unified
       `fetchChunk({ offset, limit, sorts, filters, group, signal })` +
       column-declared sort / filter / group / hide; scroll-to-row gated on

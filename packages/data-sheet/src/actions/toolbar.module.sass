@@ -1,9 +1,17 @@
 .actions-toolbar
   display: flex
   flex-direction: row
-  gap: 4px
+  gap: 8px
   margin-bottom: 4px
   align-items: center
+
+// Leading label naming the current selection shape (no icon) — reads as the
+// toolbar's title.
+.toolbar-title
+  font-weight: 600
+  font-size: 0.9em
+  opacity: 0.7
+  white-space: nowrap
 
 .spacer
   flex-grow: 1
@@ -28,3 +36,8 @@
   gap: 4px
   margin-bottom: 4px
   align-items: center
+
+// The current filter window shown after the filter name on its tag
+.filter-window
+  opacity: 0.8
+  font-variant-numeric: tabular-nums

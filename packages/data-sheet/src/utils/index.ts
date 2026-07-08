@@ -1,5 +1,6 @@
 export * from "./column-spec";
 export * from "./key-handling";
+export * from "./validation";
 
 export function range(arr: number[]) {
   if (arr.length != 2) throw new Error("Range must have two elements");

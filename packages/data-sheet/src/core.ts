@@ -22,7 +22,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { DataSheetAction, InfoBar } from "./components";
+import { DataSheetAction, InfoBar, LoadProgressIndicator } from "./components";
 import {
   autoFilterId,
   renderColumnHeaderCell,
@@ -47,9 +47,17 @@ import {
 } from "./types.ts";
 import { basicCellRenderer } from "./cell-renderer.ts";
 import { tableHotkeysAtom } from "./utils";
-import { clipboardActions, TableAction, TableFilter } from "./actions";
+import {
+  clipboardActions,
+  columnControlActions,
+  createSaveAction,
+  resetChangesAction,
+  TableAction,
+  TableActionContext,
+  TableFilter,
+} from "./actions";
 import { ActionsToolbar, FilterBar } from "./actions";
-import { useScrollHandler } from "./postgrest-table";
+import { useScrollHandler, tableFooterAtom } from "./postgrest-table";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -61,6 +69,10 @@ export enum DataSheetDensity {
   MEDIUM = "medium",
   LOW = "low",
 }
+
+/** Approximate column-header + scrollbar allowance, used to size the table to
+ * its content in paged mode. */
+const COLUMN_HEADER_HEIGHT = 34;
 
 /**
  * How selecting a cell activates its surface (an editor, or a read-only detail
@@ -91,6 +103,10 @@ interface DataSheetInternalProps<T> extends TableProps {
   /** Controlled row-status overlay (edited / added / deleted), the companion
    * to `updatedData`. */
   rowStatus?: TableElementStatus[];
+  /** Persistence handler for the built-in Save action. When provided, a Save
+   * control is added to the toolbar (always visible, disabled when there are
+   * no pending changes). */
+  onSave?: (ctx: TableActionContext<T>) => void | Promise<void>;
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
   enableColumnReordering?: boolean;
@@ -165,6 +181,7 @@ function _DataSheet<T>({
   onVisibleCellsChange,
   onUpdateData,
   onEdit,
+  onSave,
   updatedData: updatedDataProp,
   rowStatus: rowStatusProp,
   onDeleteRows,
@@ -175,6 +192,7 @@ function _DataSheet<T>({
   cellInteraction,
   enableClipboard = true,
   showInfoBar = false,
+  showLoadProgress = false,
   density = DataSheetDensity.HIGH,
   selectionModes,
   actions,
@@ -192,17 +210,31 @@ function _DataSheet<T>({
   // Turn on debug features
   const debugMode = false;
 
-  // Sync table actions to atom
+  const editable = useSelector((state) => state.editable);
+
+  // Sync table actions to atom. Consumer actions come first (they override a
+  // built-in by reusing its id); the built-in column controls (sort/filter)
+  // fill in the rest — so both the toolbar and the header dropdown source from
+  // one registry. Built-ins self-gate (single sortable/filterable column).
   const _actions: TableAction[] = useMemo(() => {
-    const _actions = [];
-    if (actions != null) {
-      _actions.push(...actions);
-    }
-    if (enableClipboard) {
-      _actions.push(...clipboardActions);
+    const _actions: TableAction[] = [];
+    const add = (list: TableAction[]) => {
+      for (const a of list) {
+        if (!_actions.some((x) => x.id === a.id)) _actions.push(a);
+      }
+    };
+    if (actions != null) add(actions);
+    add(columnControlActions);
+    if (enableClipboard) add(clipboardActions);
+    // Save/reset last — they're the most significant actions — and present for
+    // every cardinality (editable), so the toolbar stays mounted regardless of
+    // selection.
+    if (editable) {
+      if (onSave != null) add([createSaveAction(onSave)]);
+      add([resetChangesAction]);
     }
     return _actions;
-  }, [actions, enableClipboard]);
+  }, [actions, enableClipboard, editable, onSave]);
 
   ctx.useSync(tableActionsAtom, _actions);
 
@@ -214,7 +246,6 @@ function _DataSheet<T>({
   const selectedRegions = useSelector<T>((state) => state.selection ?? []);
 
   const data = useSelector((state) => state.data);
-  const editable = useSelector((state) => state.editable);
 
   const rowStatus = useSelector((state) => state.rowStatus);
 
@@ -272,6 +303,17 @@ function _DataSheet<T>({
   let className = `${density}-density`;
 
   const { rowHeight, style } = styleParamsForDensity(density);
+
+  // In paged mode the row count is small and fixed, so let the table size to
+  // its content (header + rows) instead of filling the viewport.
+  const footerInfo = ctx.useValue(tableFooterAtom);
+  const holderStyle =
+    footerInfo.mode === "paged"
+      ? {
+          flex: "0 0 auto" as const,
+          height: numRows * rowHeight + COLUMN_HEADER_HEIGHT,
+        }
+      : undefined;
 
   const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
 
@@ -413,9 +455,14 @@ function _DataSheet<T>({
   ];
 
   return h("div.data-sheet-container", { className, style }, [
-    h.if(actions != null)(ActionsToolbar, { actions }),
+    // Global sort/filter status bars sit above the (selection-modal)
+    // actions/tools toolbar.
     h.if(filters != null && filters.length > 0)(FilterBar, { filters }),
     h.if(hasSortableOrFilterable)(SortFilterBar),
+    // Rendered from the merged action set (built-ins included) so it reflects
+    // sort/filter/save/reset even without a consumer `actions` prop; it
+    // self-gates (renders nothing when no action applies).
+    h(ActionsToolbar, { actions: _actions }),
     dataSheetActions,
     children,
     h(
@@ -425,6 +472,7 @@ function _DataSheet<T>({
         onKeyDown: handleKeyDown,
         onKeyUp: handleKeyUp,
         ref: tableElementRef,
+        style: holderStyle,
       },
       h(
         Table,
@@ -456,6 +504,7 @@ function _DataSheet<T>({
       ),
     ),
     h.if(showInfoBar)(InfoBar),
+    h.if(showLoadProgress)(LoadProgressIndicator),
     h.if(debugMode)(CellRendererDebugOverlay, {
       cellRendererDependencies,
       names: [

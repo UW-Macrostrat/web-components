@@ -4,6 +4,114 @@
 
 Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
 
+### Cell validation
+
+- **`columnSpec[].validate(value, row, ctx)`** returns `{ severity, message } |
+  null` (`"warning"` | `"error"`); **`required`** is sugar for an empty-is-error
+  check. The bare `isValid` boolean is deprecated in favor of `validate`.
+- Validation is **orthogonal to edit status** — exposed on
+  `CellRenderContext.validation` (a cell can be edited *and* invalid). The cell
+  intent is derived with precedence **error → warning → deleted → edited**, so
+  an edited-but-invalid cell reads red, not green.
+- **Errors block saving** (warnings don't): the built-in Save action refuses
+  when `collectValidationErrors` finds any error, surfacing a summary; the
+  offending cells are already highlighted. _Story:_ `Data sheet/Validation`.
+
+### Cardinality-scoped controls (backbone, in progress)
+
+- **Modality by selection cardinality — via `TableAction`.** Rather than a
+  parallel abstraction, `TableAction` gained an optional `render(ctx)` for
+  live/stateful controls (`run` is now optional). The existing `ActionsToolbar`
+  surfaces exactly the actions whose `targets` match the current selection, and
+  shows a **capsule** (Column / Rows / Cells / Table) naming the polarity.
+- **Scoped by selection *shape*, not just cardinality.** `TableAction` gained
+  `appliesTo(ctx)`, refining `targets` against the selection shape. The context
+  exposes **resolved single-target identity** — `ctx.columnKey`, `ctx.rowIndex`,
+  `ctx.cell` (each `null` unless exactly one is scoped) — plus counts on
+  `ctx.selectionShape` (`cardinality`, `columns`, `rows`). Presence of the
+  resolved fields is the discriminator, so there are no `single*` booleans:
+  sort/filter use `appliesTo: ctx => ctx.columnKey != null`; a cell editor uses
+  `ctx.cell != null` and reads `ctx.cell.{rowIndex,columnKey}` to adapt to the
+  specific cell — one control, active for every cell, addressing its identity.
+- **Built-in column controls** `columnControlActions` (sort + filter) are
+  `FULL_COLUMNS` `TableAction`s with `render`, gated by `sortable`/`filterable`
+  and overridable. Sort is a compact popover (Ascending / Descending / Clear);
+  filter is a popover whose text box clears itself. The toolbar's focus is
+  actions that _aren't_ keyboard-accessible (clearing/deleting stay on the
+  keyboard).
+- **Toolbar layout.** The toolbar leads with a text **title** naming the
+  selection shape (e.g. a column's name, "3 rows", "Cell") — no icon capsule —
+  and sits **below** the global sort/filter status bars.
+- **Column-header dropdown driven by the same actions.** The header menu now
+  renders the `FULL_COLUMNS` controls from the shared registry, scoped to that
+  column (a synthetic single-column context) — one source of truth for header
+  and toolbar; the bespoke header menu is retired. The built-in column controls
+  are auto-included (overridable by reusing their id). The header uses
+  Blueprint's **persistent interaction bar**, so the menu caret is clickable
+  even when the column is selected (fixes the hover-caret-blocked bug).
+  _Stories:_ `Data sheet/Controls`, `Data sheet/Filters`.
+- **Built-in Save / Reset actions.** The existing `resetChangesAction` now
+  targets every cardinality (incl. `"none"`), and a Save action (via the new
+  `onSave` prop) does too — so for editable tables they're always present,
+  keeping the toolbar mounted regardless of selection (no show/hide layout
+  motion). They render **last** (most significant), and **Reset is greyed out
+  unless there are pending changes within the applicable selection** (scoped:
+  cells / rows / columns / whole table). `onSave` receives the action context.
+- **Toolbar omits keyboard-accessible actions.** Any action with a `hotkey`
+  (copy/cut/paste, …) is left out of the toolbar — it's reachable via its
+  shortcut — so the toolbar focuses on non-keyboard actions. (Reset lost its
+  `mod+r`, which conflicted with reload, and now shows in the toolbar.)
+  _Story:_ `Data sheet/Controls` → `ModalByCardinality`.
+  _(Next — the major step: migrate all examples onto this API. Then: sort/filter
+  popover/collapse render style; group-by/hide as built-in controls; context
+  menus. Deferred: an actions queue + proxied column copy/paste.)_
+
+### Workstream D+E — Data source & view state (in progress)
+
+- **Unified `fetchChunk` data source.** `useChunkLoader(fetchChunk, {chunkSize})`
+  (and the `ChunkLoaderManager` convenience component) drive windowed loading
+  from a single backend-agnostic function:
+  `fetchChunk({ offset, limit, sorts, filters, signal }) → { rows, totalCount? }`.
+  It loads the chunk covering the first unloaded visible row, pre-sizes the
+  sparse array from `totalCount` (or grows when length is unknown), threads the
+  active sorts/filters through so the source applies them server-side, aborts
+  superseded requests, and re-fetches from scratch on a view-state change. This
+  is the seam that upstreams bespoke lazy loaders. _Story:_
+  `Data sheet/Chunk loader` → `ServerBackedTable`.
+- **Fixed: column-header sort/filter menu never rendered.** `renderColumnHeaderCell`
+  had a stray early `return` that short-circuited the whole renderer, so no
+  column ever got its sort/filter dropdown (sorting was inaccessible — filters
+  only worked via the separate global "Add filter" bar). Removed it (and a
+  latent `activeFilterEntry` typo it was masking).
+- **Sort/filter creation lives in the column headers**, not a universal "add"
+  button. Sort/filter directives are created and reconfigured from each
+  column's header dropdown; the sort/filter bar just shows removable tags. Sort
+  labels now read "Ascending"/"Descending" (type-agnostic) rather than
+  "A→Z"/"Z→A". Removed the "Clear all" / "Clear filters" buttons — each tag's
+  `×` clears it individually. _Story:_ `Data sheet/Filters`.
+- **Delete/Backspace on a whole-row selection deletes the row(s)**; on a cell
+  selection it clears the cells (previously it always cleared cells).
+- **Filter tags show their window.** `TableFilter.describeState(state)` renders
+  the current setting (e.g. `Depth: 0–250`) on the active-filter tag, so a tag
+  conveys not just _what_ is filtered but the current window. _Story:_
+  `Data sheet/Filters`.
+- **Optional load-progress indicator.** `showLoadProgress` renders a minimal
+  bottom-of-table line — rows loaded, "of _total_" when known, with a status
+  icon (spinner loading / check complete / dots incomplete), reflecting the
+  `useChunkLoader` source. _Story:_ `Data sheet/Chunk loader`.
+- **Fetch modes: scroll or paged.** `useChunkLoader(fetchChunk, { chunkSize,
+  mode })` accepts `mode: "scroll"` (default; infinite windows) or `"paged"`
+  (one page at a time). In paged mode the footer becomes a prev/next pager
+  ("Page X of Y") and the table sizes to its rows (content height) rather than
+  filling the viewport; `chunkSize` is the tunable page/window size. The mode
+  can be flipped at runtime (the loader resets and re-fetches). A good fallback
+  for low-interaction contexts. _Stories:_ `Data sheet/Chunk loader` →
+  `PagedTable`, `ModeToggle`.
+- **Scroll-to-row** works with the `fetchChunk` source: `ScrollToRowControl`
+  (backed by the store's `scrollToRow`) scrolls to a row index, which loads the
+  covering chunk. Meaningful when the source length is known (offset
+  addressing). _Story:_ `Data sheet/Chunk loader` → `ServerBackedTable`.
+
 ### Workstream A — Controlled editing
 
 - **`onEdit(event)` hook.** `DataSheet` accepts an `onEdit` callback that fires

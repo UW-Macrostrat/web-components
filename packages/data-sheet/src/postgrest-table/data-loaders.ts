@@ -10,14 +10,23 @@ import {
   PostgrestQueryBuilder,
 } from "@supabase/postgrest-js";
 import { adjustArraySize, RowRegion, sleep } from "./loading-utils.ts";
-import { ctx, tableDataAtom } from "../provider.ts";
+import { ctx, tableDataAtom, useSelector } from "../provider.ts";
 import { atom } from "jotai";
 import h from "./main.module.sass";
+import type { ColumnSort } from "../types.ts";
+
+export type FetchMode = "scroll" | "paged";
 
 interface LazyLoaderStateCore<T> {
   loading: boolean;
   error: Error | null;
   initialized: boolean;
+  /** Reported source length when known (null = unknown / not reported). */
+  totalCount: number | null;
+  /** Windowing style: infinite-scroll windows, or one fixed page at a time. */
+  fetchMode: FetchMode;
+  /** Rows per chunk/page. */
+  pageSize: number;
 }
 
 interface LazyLoaderState<T> extends LazyLoaderStateCore<T> {
@@ -91,11 +100,18 @@ export function applyColumnFilters(
 
 type LazyLoaderAction<T> =
   | { type: "start-loading" }
-  | { type: "loaded"; data: T[]; offset: number; totalSize: number }
+  | {
+      type: "loaded";
+      data: T[];
+      offset: number;
+      totalSize: number;
+      totalCount?: number | null;
+    }
   | { type: "error"; error: Error }
   | { type: "update-data"; changes: Spec<T[]> }
   | { type: "reset" }
-  | { type: "start-reload" };
+  | { type: "start-reload" }
+  | { type: "configure"; fetchMode: FetchMode; pageSize: number };
 
 function lazyLoadingReducer<T>(
   state: LazyLoaderState<T>,
@@ -127,6 +143,16 @@ function lazyLoadingReducer<T>(
         ...state,
         data,
         loading: false,
+        totalCount:
+          action.totalCount !== undefined
+            ? action.totalCount
+            : state.totalCount,
+      };
+    case "configure":
+      return {
+        ...state,
+        fetchMode: action.fetchMode,
+        pageSize: action.pageSize,
       };
     case "start-reload":
       // Preserve the table dimensions but show ghost/skeleton cells
@@ -143,6 +169,9 @@ function lazyLoadingReducer<T>(
         loading: false,
         error: null,
         initialized: false,
+        totalCount: null,
+        fetchMode: state.fetchMode,
+        pageSize: state.pageSize,
       };
     case "error":
       return {
@@ -241,10 +270,54 @@ const defaultVisibleRegion: RowRegion = {
 /** Atom to house the current visible region of the table */
 const visibleRegionAtom = atom<RowRegion>(defaultVisibleRegion);
 
-const lazyLoaderCoreStateAtom = atom<LazyLoaderCoreState<any>>({
+const lazyLoaderCoreStateAtom = atom<LazyLoaderStateCore<any>>({
   loading: false,
   error: null,
   initialized: false,
+  totalCount: null,
+  fetchMode: "scroll",
+  pageSize: 100,
+});
+
+/** Current page index (0-based) for paged fetch mode. */
+export const chunkPageAtom = atom(0);
+
+/** Footer state for the optional bottom-of-table indicator: rows loaded, the
+ * source total when known, load status, and — in paged mode — the current
+ * page and total pages. */
+export interface TableFooterInfo {
+  mode: FetchMode;
+  loaded: number;
+  total: number | null;
+  loading: boolean;
+  page: number;
+  pageSize: number;
+  totalPages: number | null;
+}
+
+export const tableFooterAtom = atom<TableFooterInfo>((get) => {
+  const core = get(lazyLoaderCoreStateAtom);
+  const data = get(tableDataAtom) ?? [];
+  let loaded = 0;
+  let hasGaps = false;
+  for (const row of data) {
+    if (row != null) loaded++;
+    else hasGaps = true;
+  }
+  // Total is known when the source reported it, or (scroll mode) when the array
+  // is fully populated — otherwise it's still being discovered.
+  const total = core.totalCount ?? (hasGaps ? null : data.length);
+  const totalPages =
+    core.totalCount != null ? Math.ceil(core.totalCount / core.pageSize) : null;
+  return {
+    mode: core.fetchMode,
+    loaded,
+    total,
+    loading: core.loading,
+    page: get(chunkPageAtom),
+    pageSize: core.pageSize,
+    totalPages,
+  };
 });
 
 export interface ViewInfo {
@@ -459,6 +532,179 @@ export function usePostgRESTLazyLoader(
     dispatch,
     getClient,
   };
+}
+
+/** The active view state (a filter's id / column / config), passed to a
+ * `fetchChunk` so it can filter server-side. */
+export interface FetchChunkFilter {
+  id: string;
+  columnKey?: string;
+  state: any;
+}
+
+/** Parameters passed to a `fetchChunk` implementation for one window. */
+export interface FetchChunkParams {
+  /** Row offset of the requested chunk (chunk-aligned). */
+  offset: number;
+  /** Maximum rows to return. */
+  limit: number;
+  /** Aborts when the request is superseded (view change / unmount). */
+  signal: AbortSignal;
+  /** Active sorts, in priority order. */
+  sorts: ColumnSort[];
+  /** Active filters (id + column + config). */
+  filters: FetchChunkFilter[];
+}
+
+/** Result of a `fetchChunk` call. `totalCount` reports the source length when
+ * known (drives sparse-array pre-sizing and a proportional scrollbar); omit it
+ * for unknown-length sources (the array grows as chunks arrive). */
+export interface ChunkResult<T = any> {
+  rows: T[];
+  totalCount?: number | null;
+}
+
+export type FetchChunk<T = any> = (
+  params: FetchChunkParams,
+) => Promise<ChunkResult<T>>;
+
+/**
+ * A generic, backend-agnostic windowed data source. Give it a `fetchChunk`
+ * function and it drives the sheet's lazy loading: it loads the chunk covering
+ * the first unloaded visible row, pre-sizes the sparse array from `totalCount`,
+ * threads the active sorts/filters through so the source can apply them
+ * server-side, and re-fetches from scratch when the view state changes. This
+ * is the unified seam that upstreams bespoke loaders (`fetchChunk` receives the
+ * view state; there's no separate adapter object).
+ *
+ * Call it from a component rendered inside `DataSheet` (see `ChunkLoaderManager`).
+ */
+export function useChunkLoader<T = any>(
+  fetchChunk: FetchChunk<T>,
+  options: { chunkSize?: number; mode?: FetchMode } = {},
+) {
+  const { chunkSize = 100, mode = "scroll" } = options;
+  const [state, dispatch] = useLazyLoaderReducer();
+  const visibleRegion = ctx.useValue(visibleRegionAtom);
+  const page = ctx.useValue(chunkPageAtom);
+  const setPage = ctx.useSet(chunkPageAtom);
+  const columnSorts = useSelector((s) => s.columnSorts);
+  const activeFilters = useSelector((s) => s.activeFilters);
+  const abortRef = useRef<AbortController | null>(null);
+  // Tracks the (page, viewKey) already loaded in paged mode, so the effect
+  // doesn't re-fetch on unrelated re-renders.
+  const loadedRef = useRef<{ page: number; viewKey: string }>({
+    page: -1,
+    viewKey: "",
+  });
+
+  const filters: FetchChunkFilter[] = useMemo(
+    () =>
+      Array.from(activeFilters.entries()).map(([id, entry]) => ({
+        id,
+        columnKey: entry.filter?.columnKey,
+        state: entry.state,
+      })),
+    [activeFilters],
+  );
+
+  // Publish the windowing config so the footer/pager can read it.
+  useEffect(() => {
+    dispatch({ type: "configure", fetchMode: mode, pageSize: chunkSize });
+  }, [mode, chunkSize]);
+
+  // Reset (re-fetch from scratch) when sorts/filters change, or when the fetch
+  // mode switches (paged holds a dense page; scroll needs to re-initialize and
+  // pre-size) — so a table can flip between modes cleanly.
+  const viewKey = useMemo(
+    () => JSON.stringify({ sorts: columnSorts, filters }),
+    [columnSorts, filters],
+  );
+  useEffect(() => {
+    dispatch({ type: "reset" });
+    setPage(0);
+  }, [viewKey, mode]);
+
+  useAsyncEffect(async () => {
+    if (state.loading) return;
+
+    // Determine the chunk offset to fetch.
+    let offset: number;
+    if (mode === "paged") {
+      // Fetch the current page once; skip if already loaded for this view.
+      if (
+        loadedRef.current.page === page &&
+        loadedRef.current.viewKey === viewKey
+      ) {
+        return;
+      }
+      offset = page * chunkSize;
+    } else {
+      const rowIndex = indexOfFirstNullInRegion(state.data, visibleRegion);
+      if (rowIndex == null && state.initialized) return;
+      offset = Math.floor((rowIndex ?? 0) / chunkSize) * chunkSize;
+    }
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    dispatch({ type: "start-loading" });
+    try {
+      const result = await fetchChunk({
+        offset,
+        limit: chunkSize,
+        signal: controller.signal,
+        sorts: columnSorts,
+        filters,
+      });
+      if (controller.signal.aborted) return;
+      const rows = result.rows ?? [];
+      if (mode === "paged") {
+        loadedRef.current = { page, viewKey };
+        // The sheet shows just this page's rows (dense, from index 0); the
+        // real source length is tracked separately for the pager.
+        dispatch({
+          type: "loaded",
+          data: rows,
+          offset: 0,
+          totalSize: rows.length,
+          totalCount: result.totalCount ?? null,
+        });
+      } else {
+        dispatch({
+          type: "loaded",
+          data: rows,
+          offset,
+          totalSize:
+            result.totalCount ??
+            Math.max(state.data.length, offset + rows.length),
+          totalCount: result.totalCount ?? null,
+        });
+      }
+    } catch (err) {
+      if (!controller.signal.aborted) {
+        dispatch({ type: "error", error: err as Error });
+      }
+    }
+  }, [state.data, visibleRegion, viewKey, page, mode]);
+
+  return { data: state.data, loading: state.loading, error: state.error };
+}
+
+/** Convenience component: runs `useChunkLoader` from inside a `DataSheet`.
+ * Render as a child of `DataSheet` (it renders nothing itself). */
+export function ChunkLoaderManager<T = any>({
+  fetchChunk,
+  chunkSize,
+  mode,
+}: {
+  fetchChunk: FetchChunk<T>;
+  chunkSize?: number;
+  mode?: FetchMode;
+}) {
+  useChunkLoader(fetchChunk, { chunkSize, mode });
+  return null;
 }
 
 function indexOfFirstNullInRegion(

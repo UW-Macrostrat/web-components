@@ -28,6 +28,16 @@ export type ColumnDataType =
   | "object"
   | "array";
 
+/** Severity of a cell validation result. `warning` is soft (flagged, doesn't
+ * block saving); `error` is hard (blocks saving). */
+export type ValidationSeverity = "warning" | "error";
+
+/** The result of validating a cell. `null` means valid. */
+export interface CellValidation {
+  severity: ValidationSeverity;
+  message?: string;
+}
+
 /**
  * Context handed to per-cell renderers (`valueRenderer`, and — as the
  * `cellContext` prop — a custom `cellComponent`). It lets a renderer draw
@@ -52,6 +62,9 @@ export interface CellRenderContext<T = any> {
   isEdited: boolean;
   /** Whether this cell's row is marked for deletion. */
   isDeleted: boolean;
+  /** Validation result for this cell, or `null` when valid. Orthogonal to the
+   * edit status — a cell can be both edited and invalid. */
+  validation: CellValidation | null;
 }
 
 /**
@@ -87,7 +100,18 @@ export type DetailPresentation = "popover" | "modal" | "inline";
 export interface ColumnSpec {
   name: string;
   key: string;
+  /** When true, an empty value is an error (sugar over `validate`). */
   required?: boolean;
+  /** Validate a cell's value. Return a `{ severity, message }` for a
+   * warning/error, or `null` when valid. Runs after the `required` check.
+   * `warning` flags the cell but allows saving; `error` blocks saving. */
+  validate?: (
+    value: any,
+    row: any,
+    ctx: { rowIndex: number },
+  ) => CellValidation | null;
+  /** @deprecated Prefer `validate`, which carries severity + a message.
+   * A falsy result maps to an `error`. */
   isValid?: (d: any) => boolean;
   transformValue?: (d: any) => any;
   valueRenderer?: (

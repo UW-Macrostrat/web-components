@@ -421,7 +421,7 @@ function ServerFilterBar({
           onRemove: () => onClearFilter(s.key),
           minimal: true,
         },
-        `${s.key}: ${s.ascending ? "A→Z" : "Z→A"}`,
+        `${s.key}: ${s.ascending ? "Ascending" : "Descending"}`,
       ),
     ),
     columnFilters.map((f) =>

@@ -204,7 +204,7 @@ function ColumnActionsMenu({
                   }
                 },
               },
-              "A→Z",
+              "Ascending",
             ),
             h(
               Button,
@@ -220,7 +220,7 @@ function ColumnActionsMenu({
                   }
                 },
               },
-              "Z→A",
+              "Descending",
             ),
           ]),
         ]),

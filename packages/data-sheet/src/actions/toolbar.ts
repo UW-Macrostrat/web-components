@@ -13,14 +13,40 @@ import { RegionCardinality } from "@blueprintjs/table";
 import { useToaster } from "../notifications.ts";
 import { DataSheetStore } from "../types.ts";
 
-/** Toolbar that renders applicable table actions based on the
- * current selection cardinality and edit mode.
- * Automatically merges column-specific actions from `ColumnSpec.actions`
- * when the corresponding columns are in the selection. */
+/** A short title describing the current selection (its shape), shown as the
+ * toolbar's leading label — no icon. */
+function selectionTitle<T>(ctx: TableActionContext<T>): string {
+  const sh = ctx.selectionShape;
+  switch (sh.cardinality) {
+    case RegionCardinality.FULL_COLUMNS: {
+      if (ctx.columnKey != null) {
+        const col = ctx.columnSpec.find((c) => c.key === ctx.columnKey);
+        return col?.name ?? "Column";
+      }
+      return `${sh.columns} columns`;
+    }
+    case RegionCardinality.FULL_ROWS:
+      return ctx.rowIndex != null ? "1 row" : `${sh.rows} rows`;
+    case RegionCardinality.CELLS:
+      return ctx.cell != null ? "Cell" : `${sh.columns}×${sh.rows} cells`;
+    case RegionCardinality.FULL_TABLE:
+      return "Table";
+    default:
+      return "";
+  }
+}
+
+/** Toolbar that renders the actions/controls applicable to the current
+ * selection cardinality (modal by selection) and edit mode. Actions with a
+ * `render` show their live control; others show a button (with an optional
+ * `detailsForm` popover). Column-specific actions from `ColumnSpec.actions`
+ * are merged when their columns are selected. A capsule on the left shows the
+ * current selection polarity. */
 export function ActionsToolbar<T>({ actions }: { actions: TableAction<T>[] }) {
   const selection = useSelector((state) => state.selection);
   const editable = useSelector((state) => state.editable);
   const columnSpec = useSelector((state) => state.columnSpec);
+  const storeAPI = useStoreAPI();
 
   const cardinality = useMemo(
     () => getSelectionCardinality(selection) ?? RegionCardinality.FULL_TABLE,
@@ -38,18 +64,39 @@ export function ActionsToolbar<T>({ actions }: { actions: TableAction<T>[] }) {
     [allActions, cardinality, editable],
   );
 
-  if (applicableActions.length === 0) return null;
+  const hasSelection = selection.length > 0;
 
-  return h(
-    "div.actions-toolbar",
+  // Context for `render`-style controls (they subscribe to the store
+  // themselves; this resolves the selected column/rows).
+  const ctx = buildActionContext(
+    storeAPI.getState(),
+    storeAPI.setState,
+  ) as TableActionContext<T>;
+
+  // The toolbar is for actions that AREN'T keyboard-accessible: any action
+  // with a `hotkey` (copy/cut/paste, etc.) is reachable from the keyboard and
+  // is omitted here (it still works via its shortcut). Then refine by selection
+  // shape beyond cardinality (e.g. single column only).
+  const shown = applicableActions.filter(
+    (action) => action.hotkey == null && (action.appliesTo?.(ctx) ?? true),
+  );
+
+  // Show the bar for any selection (the title conveys the shape) or when
+  // there are applicable actions.
+  if (shown.length === 0 && !hasSelection) return null;
+
+  const title = selectionTitle(ctx);
+
+  return h("div.actions-toolbar", [
+    hasSelection && title
+      ? h("span.toolbar-title", { key: "title" }, title)
+      : null,
     h(
       ButtonGroup,
-      { minimal: true },
-      applicableActions.map((action) =>
-        h(ActionButton, { key: action.id, action }),
-      ),
+      { key: "actions", minimal: true },
+      shown.map((action) => h(ActionButton, { key: action.id, action, ctx })),
     ),
-  );
+  ]);
 }
 
 function getMessageForError(e: any) {
@@ -83,7 +130,7 @@ export function runActionWrapper<T>(
     return;
   }
   try {
-    const res = action.run(ctx, configState);
+    const res = action.run?.(ctx, configState);
     if (res instanceof Promise) {
       res
         .then(() => {})
@@ -96,9 +143,23 @@ export function runActionWrapper<T>(
   }
 }
 
-/** A single action button. Handles both simple actions (direct click)
- * and actions with a `detailsForm` (popover with config + run). */
-function ActionButton<T>({ action }: { action: TableAction<T> }) {
+/** Dispatcher: a live control (`action.render`) or a run/detailsForm button.
+ * Kept hook-free so the two paths don't share a hook order. */
+function ActionButton<T>({
+  action,
+  ctx,
+}: {
+  action: TableAction<T>;
+  ctx: TableActionContext<T>;
+}) {
+  if (action.render != null) {
+    return action.render(ctx) as any;
+  }
+  return h(RunActionButton, { action });
+}
+
+/** A run/detailsForm action rendered as a button. */
+function RunActionButton<T>({ action }: { action: TableAction<T> }) {
   const storeAPI = useStoreAPI();
   const toaster = useToaster();
 

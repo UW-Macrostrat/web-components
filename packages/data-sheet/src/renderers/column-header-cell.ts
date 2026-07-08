@@ -7,17 +7,15 @@
  * predicate filters for simple text search.
  */
 import h from "@macrostrat/hyper";
-import { ColumnHeaderCell } from "@blueprintjs/table";
+import { ColumnHeaderCell, RegionCardinality } from "@blueprintjs/table";
+import { Button, Icon, Menu, MenuItem, Tag as BPTag } from "@blueprintjs/core";
 import {
-  Button,
-  ButtonGroup,
-  Icon,
-  InputGroup,
-  Menu,
-  Tag as BPTag,
-} from "@blueprintjs/core";
-import { useCallback, useRef } from "react";
-import { useSelector, useStoreAPI } from "../provider";
+  ctx,
+  tableActionsAtom,
+  useSelector,
+  useStoreAPI,
+} from "../provider";
+import { buildActionContext } from "../actions/selection";
 import type { ColumnSpec } from "../utils/column-spec";
 import type { ColumnSort, TableFilter } from "../actions/types";
 import type {
@@ -38,22 +36,6 @@ export interface ColumnHeaderRendererProps extends ColumnActionsConfig {
 
 // ---- Auto-generated column filter helpers ----
 
-/** Build a simple text-contains filter for a column. */
-function buildAutoFilter(col: ColumnSpec): TableFilter {
-  return {
-    id: autoFilterId(col.key),
-    name: col.name,
-    columnKey: col.key,
-    icon: "filter",
-    defaultState: { search: "" },
-    predicate(row, state) {
-      if (!state?.search) return true;
-      const val = String(row[col.key] ?? "").toLowerCase();
-      return val.includes(state.search.toLowerCase());
-    },
-  };
-}
-
 /** Stable filter-ID prefix for auto-generated column filters. */
 export function autoFilterId(key: string) {
   return `__col_${key}`;
@@ -61,22 +43,22 @@ export function autoFilterId(key: string) {
 
 // ---- Column header cell ----
 
-/** Client-side column header cell with sort/filter controls.
- * Reads sort state from the store and manages column filters via
- * the existing `setFilter`/`removeFilter` store methods. */
+/** Column header cell whose dropdown renders the `FULL_COLUMNS` controls
+ * (sort/filter + any custom column actions) from the shared action registry,
+ * scoped to this column. */
 export function renderColumnHeaderCell({
   col,
   colIndex,
   activeSort,
   activeFilter,
 }: ColumnHeaderRendererProps) {
-  return h(ColumnHeaderCell, { name: col.name });
-
   const isSortable = col.sortable === true;
   const isFilterable =
     col.filterable === true || typeof col.filterable === "object";
+  const hasCustomActions =
+    Array.isArray((col as any).actions) && (col as any).actions.length > 0;
 
-  if (!isSortable && !isFilterable) {
+  if (!isSortable && !isFilterable && !hasCustomActions) {
     return h(ColumnHeaderCell, { name: col.name });
   }
 
@@ -84,21 +66,17 @@ export function renderColumnHeaderCell({
     activeFilter != null &&
     activeFilter.state?.search !== "" &&
     activeFilter.state?.search != null;
-
   const hasSortActive = activeSort != null;
 
   return h(ColumnHeaderCell, {
     name: col.name,
+    // Persistent interaction bar so the menu caret is always clickable — the
+    // hover-triggered caret was blocked by the selection overlay when the
+    // column was selected.
+    enableColumnInteractionBar: true,
     nameRenderer: () =>
       h(ColumnHeaderName, { col, hasSortActive, hasFilterActive, activeSort }),
-    menuRenderer: () =>
-      h(ClientColumnActionsMenu, {
-        col,
-        isSortable,
-        isFilterable,
-        activeSort,
-        activeFilter,
-      }),
+    menuRenderer: () => h(ColumnHeaderControls, { colIndex }),
   });
 }
 
@@ -148,153 +126,66 @@ function ColumnHeaderName({ col, hasSortActive, hasFilterActive, activeSort }) {
   );
 }
 
-interface ClientColumnActionsMenuProps extends ColumnActionsConfig {
-  col: ColumnSpec;
-  isSortable: boolean;
-  isFilterable: boolean;
-}
-
-/** Menu content rendered inside ColumnHeaderCell's built-in dropdown. */
-function ClientColumnActionsMenu({
-  col,
-  isSortable,
-  isFilterable,
-  activeSort,
-  activeFilter,
-}) {
+/** Dropdown content: the `FULL_COLUMNS` controls for this column, sourced from
+ * the shared action registry and scoped to the column via a synthetic
+ * single-column selection context — so the header and toolbar render the same
+ * sort/filter (and custom column) controls. */
+function ColumnHeaderControls({ colIndex }: { colIndex: number }) {
   const storeAPI = useStoreAPI();
-  const filterInputRef = useRef<HTMLInputElement>(null);
+  const actions = ctx.useValue(tableActionsAtom);
 
-  const applyFilter = useCallback(() => {
-    const val = filterInputRef.current?.value ?? "";
-    const store = storeAPI.getState();
-    if (val.trim() === "") {
-      store.removeFilter(autoFilterId(col.key));
-    } else {
-      const filter = buildAutoFilter(col);
-      store.setFilter(filter.id, filter, { search: val });
-    }
-  }, [col, storeAPI]);
+  // Scope the action context to this column (as if it were the selection).
+  const actionCtx = buildActionContext(
+    {
+      ...storeAPI.getState(),
+      selection: [{ cols: [colIndex, colIndex], rows: undefined }],
+    } as any,
+    storeAPI.setState,
+  );
 
-  const hasAnyActive =
-    activeSort != null ||
-    (activeFilter != null &&
-      activeFilter.state?.search !== "" &&
-      activeFilter.state?.search != null);
+  const controls = actions.filter(
+    (a) =>
+      a.targets.includes(RegionCardinality.FULL_COLUMNS) &&
+      (a.appliesTo?.(actionCtx) ?? true),
+  );
 
-  return h(Menu, { className: "column-actions-menu" }, [
-    h("div", { style: { padding: "12px", minWidth: "220px" } }, [
-      h.if(isSortable)("div", { style: { marginBottom: "12px" } }, [
-        h("div", { style: sortFilterLabelStyle }, "Sort"),
-        h("div", { style: { display: "flex", gap: "4px" } }, [
-          h(ButtonGroup, { minimal: true }, [
-            h(
-              Button,
-              {
-                icon: "sort-asc",
-                active: activeSort?.ascending === true,
-                intent: activeSort?.ascending === true ? "primary" : "none",
-                onClick() {
-                  const store = storeAPI.getState();
-                  if (activeSort?.ascending === true) {
-                    store.setColumnSort(col.key, null);
-                  } else {
-                    store.setColumnSort(col.key, true);
-                  }
-                },
-              },
-              "A→Z",
-            ),
-            h(
-              Button,
-              {
-                icon: "sort-desc",
-                active: activeSort?.ascending === false,
-                intent: activeSort?.ascending === false ? "primary" : "none",
-                onClick() {
-                  const store = storeAPI.getState();
-                  if (activeSort?.ascending === false) {
-                    store.setColumnSort(col.key, null);
-                  } else {
-                    store.setColumnSort(col.key, false);
-                  }
-                },
-              },
-              "Z→A",
-            ),
-          ]),
-        ]),
-      ]),
-      h.if(isFilterable)("div", { style: { marginBottom: "12px" } }, [
-        h("div", { style: sortFilterLabelStyle }, "Filter"),
-        h(
-          "div",
-          { style: { display: "flex", gap: "4px", alignItems: "center" } },
-          [
-            h(InputGroup, {
-              className: "filter-value-input",
-              small: true,
-              placeholder: "Search…",
-              defaultValue: activeFilterEntry?.state?.search ?? "",
-              inputRef: filterInputRef,
-              onKeyDown(e) {
-                if (e.key === "Enter") {
-                  applyFilter();
-                }
-              },
-              rightElement: h(Button, {
-                icon: "arrow-right",
-                minimal: true,
-                small: true,
-                onClick: applyFilter,
-              }),
-            }),
-          ],
-        ),
-      ]),
-      h.if(hasAnyActive)(
-        "div",
-        {
-          style: {
-            display: "flex",
-            justifyContent: "flex-end",
-            paddingTop: "4px",
-            borderTop: "1px solid var(--divider-color, rgba(16, 22, 26, 0.15))",
-          },
-        },
-        [
-          h(
+  const rendered = controls
+    .map((a) =>
+      a.render != null
+        ? a.render(actionCtx)
+        : h(
             Button,
             {
+              key: a.id,
               small: true,
               minimal: true,
-              intent: "danger",
-              icon: "cross",
-              onClick() {
-                const store = storeAPI.getState();
-                store.setColumnSort(col.key, null);
-                store.removeFilter(autoFilterId(col.key));
-                if (filterInputRef.current) {
-                  filterInputRef.current.value = "";
-                }
-              },
+              icon: a.icon,
+              intent: a.intent,
+              onClick: () => a.run?.(actionCtx),
             },
-            "Clear all",
+            a.name,
           ),
-        ],
-      ),
-    ]),
-  ]);
-}
+    )
+    .filter(Boolean);
 
-const sortFilterLabelStyle = {
-  fontWeight: 600,
-  fontSize: "11px",
-  textTransform: "uppercase" as const,
-  letterSpacing: "0.5px",
-  color: "var(--secondary-color, #5c7080)",
-  marginBottom: "6px",
-};
+  if (rendered.length === 0) {
+    return h(Menu, [h(MenuItem, { text: "No options", disabled: true })]);
+  }
+
+  return h(
+    "div.column-header-controls",
+    {
+      style: {
+        padding: "8px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "6px",
+        alignItems: "flex-start",
+      },
+    },
+    rendered,
+  );
+}
 
 // ---- Sort/filter state bar ----
 
@@ -320,6 +211,9 @@ export function SortFilterBar() {
   const hasAnything = columnSorts.length > 0 || columnFilterEntries.length > 0;
   if (!hasAnything) return null;
 
+  // Each directive is individually clearable (the tag's × button); creation and
+  // reconfiguration live in the column-header controls, so no "add" or "clear
+  // all" buttons here.
   return h(
     "div",
     {
@@ -345,7 +239,7 @@ export function SortFilterBar() {
             },
             minimal: true,
           },
-          `${s.key}: ${s.ascending ? "A→Z" : "Z→A"}`,
+          `${s.key}: ${s.ascending ? "Ascending" : "Descending"}`,
         ),
       ),
       columnFilterEntries.map((f) =>
@@ -362,26 +256,6 @@ export function SortFilterBar() {
           },
           `${f.key} contains "${f.search}"`,
         ),
-      ),
-      h(
-        Button,
-        {
-          minimal: true,
-          small: true,
-          icon: "cross",
-          onClick() {
-            const store = storeAPI.getState();
-            // Clear all column sorts
-            store.clearColumnSorts();
-            // Clear auto-generated column filters
-            for (const [id] of activeFilters) {
-              if (id.startsWith("__col_")) {
-                store.removeFilter(id);
-              }
-            }
-          },
-        },
-        "Clear all",
       ),
     ],
   );
