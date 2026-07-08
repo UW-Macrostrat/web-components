@@ -87,7 +87,20 @@ export function basicCellRenderer<T>(
   const cellComponentProps =
     col.cellComponent != null ? { cellContext } : {};
 
-  let inlineEditor = editable ? (col.inlineEditor ?? true) : false;
+  // Allow a column to pick the editor per-cell (e.g. textarea only when the
+  // value is long). A returned key overrides the static column field even
+  // when its value is false/null, so use `in` rather than nullish-coalesce.
+  const perCellEditors = col.editorForCell?.(cellContext);
+  const dataEditorSpec =
+    perCellEditors != null && "dataEditor" in perCellEditors
+      ? perCellEditors.dataEditor
+      : col.dataEditor;
+  const inlineEditorSpec =
+    perCellEditors != null && "inlineEditor" in perCellEditors
+      ? perCellEditors.inlineEditor
+      : col.inlineEditor;
+
+  let inlineEditor = editable ? (inlineEditorSpec ?? true) : false;
 
   if (!topLeft) {
     return h(
@@ -112,7 +125,7 @@ export function basicCellRenderer<T>(
   let _dataEditor = null;
   let className = null;
 
-  if (col.dataEditor != null) {
+  if (dataEditorSpec != null) {
     _dataEditor = h(
       EditorPopup,
       {
@@ -120,7 +133,7 @@ export function basicCellRenderer<T>(
         valueViewer: _renderedValue,
       },
       [
-        h(col.dataEditor, {
+        h(dataEditorSpec, {
           value,
           editable,
           isEdited: edited,

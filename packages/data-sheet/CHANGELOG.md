@@ -4,6 +4,16 @@
 
 Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
 
+### Workstream C — Editor UX
+
+- **Per-cell editor selection.** A new `columnSpec[].editorForCell(ctx)` picks
+  the editor for an individual cell from its `CellRenderContext`, overriding
+  the static `dataEditor` / `inlineEditor` — e.g. show a textarea only for
+  cells whose value is long. Returned keys are respected even when `false` /
+  `null`; omit a key (or return `undefined`) to fall back to the static
+  column config. Additive. _Story:_ `Data sheet/Editors` → `PerCellEditor`.
+  _(Editor open-vs-focus decoupling lands as a follow-up in this workstream.)_
+
 ### Workstream B — Rich cell-render context
 
 - **Per-cell renderers now receive a `CellRenderContext`.** `valueRenderer`

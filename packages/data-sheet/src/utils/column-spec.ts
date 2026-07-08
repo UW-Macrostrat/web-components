@@ -54,6 +54,16 @@ export interface CellRenderContext<T = any> {
   isDeleted: boolean;
 }
 
+/**
+ * The editor configuration for a cell. Mirrors the static `dataEditor` /
+ * `inlineEditor` column fields so a per-cell resolver (`editorForCell`) can
+ * override either one for an individual cell.
+ */
+export interface CellEditors {
+  dataEditor?: any;
+  inlineEditor?: boolean | React.ComponentType<any> | string | null;
+}
+
 export interface ColumnSpec {
   name: string;
   key: string;
@@ -66,6 +76,14 @@ export interface ColumnSpec {
   ) => string | React.ReactNode;
   headerRenderer?: (d: any) => string | React.ReactNode;
   dataEditor?: any;
+  /**
+   * Choose the editor for an individual cell from its render context,
+   * overriding the static `dataEditor` / `inlineEditor` for that cell. Return
+   * `undefined` (or omit a key) to fall back to the static configuration —
+   * e.g. show a textarea only for cells whose value is long. A returned key is
+   * respected even when its value is `false`/`null` (i.e. "no editor here").
+   */
+  editorForCell?: (ctx: CellRenderContext) => CellEditors | undefined;
   cellComponent?: any;
   category?: string;
   editable?: boolean;
