@@ -83,3 +83,57 @@ export const PerCellEditor: StoryObj = {
     });
   },
 };
+
+// ---- Editor interaction modes (open vs. focus decoupling) ----
+
+const interactionColumns = [
+  { name: "Name", key: "name", width: 200 },
+  {
+    name: "Note",
+    key: "note",
+    width: 420,
+    dataEditor: EditableTextArea,
+  },
+];
+
+/**
+ * **Workstream C: `cellInteraction: "auto"` (default).**
+ *
+ * Selecting a `Note` cell opens the textarea and focuses it. Arrow keys move
+ * the cursor **within** the text; when the cursor reaches the start (↑/←) or
+ * end (↓/→) of the text, one more press hands focus back to the table and
+ * moves to the adjacent cell — so the keyboard stays operable without the
+ * mouse. `Escape` also returns focus to the table.
+ *
+ * Compare with the single-line and Color editors in `Data sheet/Data sheet`:
+ * they relinquish focus the same way.
+ */
+export const EditorInteractionAuto: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      data: testData,
+      columnSpec: interactionColumns,
+      editable: true,
+      cellInteraction: "auto",
+      actions: defaultTableActions,
+    }),
+};
+
+/**
+ * **Workstream C: `cellInteraction: "manual"`.**
+ *
+ * Selecting a `Note` cell does **not** open the editor; arrow keys navigate
+ * the table. Click the cell to open the textarea, which then takes focus;
+ * `Escape` (or arrowing off the text edge) returns focus to the table. This
+ * matches the legacy `autoFocusEditor: false` behavior.
+ */
+export const EditorInteractionManual: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      data: testData,
+      columnSpec: interactionColumns,
+      editable: true,
+      cellInteraction: "manual",
+      actions: defaultTableActions,
+    }),
+};

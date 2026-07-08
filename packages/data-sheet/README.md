@@ -48,8 +48,10 @@ Workstreams, in sequence:
   - [x] Remove dead `onSaveData` prop (never invoked; save is a table action)
 - [x] **B — Rich cell-render context** (pass `{ rowIndex, colIndex, column,
       row, isEdited, isDeleted }` to renderers)
-- [ ] **C — Editor UX** (decouple editor open from input-focus; per-cell
-      editor selection)
+- [x] **C — Cell interaction & editor UX** (`cellInteraction` auto/manual;
+      per-cell editor selection; focus flow-through with Escape→nav-mode,
+      direction-of-travel cursor, Enter/F2 to edit, click-to-toggle;
+      read-only `detailRenderer` panels)
 - [ ] **A — Controlled editing** (`onEdit(event)` + controlled
       `updatedData` / `rowStatus` overlay; read/write symmetry)
 - [ ] **D+E — Data source & view state** (unified

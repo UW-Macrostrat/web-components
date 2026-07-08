@@ -1,31 +1,37 @@
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { PopoverNext } from "@blueprintjs/core";
 import h from "./main.module.sass";
-import { useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { useSelector } from "../provider";
 
 export function EditorPopup(props) {
-  const {
-    children,
-    targetClassName,
-    autoFocus,
-    valueViewer,
-    placement = "right-start",
-  } = props;
+  const { children, targetClassName, valueViewer, placement = "right-start" } =
+    props;
 
-  const [isOpen, setIsOpen] = useState(autoFocus);
-  const keyHandler = useSelector((state) => state.keyHandler);
+  // Open state is owned by the store (not local), so navigation, clicks, and
+  // the Escape handler all agree on whether the focused cell's surface is
+  // open. We never render a focus-stealing element, so keyboard focus stays on
+  // the Blueprint table until an editor takes it — that's what keeps arrow-key
+  // navigation working (cf. the Color column and read-only detail panels).
+  const isOpen = useSelector((s) => s.cellSurfaceOpen);
+  const tableElement = useSelector((s) => s.tableElement);
+  const openCellSurface = useSelector((s) => s.openCellSurface);
+  const closeCellSurface = useSelector((s) => s.closeCellSurface);
 
   const ref = useRef(null);
+  // Whether the surface was open at mousedown. `onSelection` doesn't change
+  // open-state for a click on the already-selected cell, so this reflects the
+  // true pre-click state and the click toggles cleanly (no flash).
+  const wasOpenRef = useRef(false);
 
-  const inlineEditor = h([
-    h("span.editor-value.bp6-table-cell", valueViewer),
-    h("input.hidden-editor", {
-      defaultValue: "",
-      autoFocus: true,
-      onKeyDown: keyHandler,
-    }),
-  ]);
+  const close = useCallback(
+    (suppress: boolean) => {
+      closeCellSurface?.({ suppress });
+      // Return focus to the table so arrow keys navigate again.
+      tableElement?.focus();
+    },
+    [closeCellSurface, tableElement],
+  );
 
   return h(
     PopoverNext,
@@ -38,9 +44,7 @@ export function EditorPopup(props) {
           },
           onKeyDown(evt) {
             if (evt.key === "Escape") {
-              if (isOpen) {
-                setIsOpen(false);
-              }
+              close(true);
               evt.stopPropagation();
               evt.preventDefault();
               return;
@@ -59,7 +63,9 @@ export function EditorPopup(props) {
       //   offset: { enabled: true, options: { offset: [0, 8] } },
       // },
       placement,
-      interactionKind: "hover-target",
+      // Fully controlled via `isOpen`; use click (not hover) so hovering the
+      // target can't momentarily preview/dismiss the popover.
+      interactionKind: "click",
       isOpen,
       // Portal must be used to avoid issues with the editor being clipped to the bounds of the cell
       //usePortal: true,
@@ -68,11 +74,19 @@ export function EditorPopup(props) {
       "span.editor-popup-target",
       {
         className: targetClassName,
-        onClick: () => setIsOpen(!isOpen),
+        onMouseDown: () => {
+          wasOpenRef.current = isOpen;
+        },
+        // Toggle on click of the already-selected cell: clicking an open cell
+        // dismisses it (without entering nav mode); clicking a closed one
+        // reopens it. New-cell clicks are opened by `onSelection` instead.
+        onClick: () => {
+          if (wasOpenRef.current) close(false);
+          else openCellSurface?.();
+        },
         ref,
       },
-      // If the editor is open, show the inline editor, otherwise show the value viewer
-      isOpen ? valueViewer : (inlineEditor ?? valueViewer),
+      valueViewer,
     ),
   );
 }

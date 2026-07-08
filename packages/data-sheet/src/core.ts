@@ -41,6 +41,7 @@ import {
 import { atom } from "jotai";
 import {
   DataSheetProviderProps,
+  EditEvent,
   TableElementStatus,
   VisibleCells,
 } from "./types.ts";
@@ -61,9 +62,27 @@ export enum DataSheetDensity {
   LOW = "low",
 }
 
+/**
+ * How selecting a cell activates its surface (an editor, or a read-only detail
+ * panel):
+ * - `"auto"` (default when `autoFocusEditor` is `true`): open the surface on
+ *   selection and, for editors, focus it. Editors relinquish focus at their
+ *   edges — arrow past the start/end of a text cell, or press Escape, and focus
+ *   returns to the table — so the keyboard stays operable without the mouse.
+ *   Pressing Escape drops into navigation mode (surfaces stop auto-opening)
+ *   until the next click.
+ * - `"manual"` (default when `autoFocusEditor` is `false`): the surface stays
+ *   closed until the cell is clicked; arrow keys always navigate the table.
+ */
+export type CellInteraction = "auto" | "manual";
+
 interface DataSheetInternalProps<T> extends TableProps {
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
   onUpdateData?: (updatedData: any[], data: T[]) => void;
+  /** Observer called for every user edit as a structured `EditEvent`
+   * (Workstream A). Additive: the built-in `updatedData` overlay still
+   * applies. */
+  onEdit?: (event: EditEvent<T>) => void;
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
   enableColumnReordering?: boolean;
@@ -71,7 +90,12 @@ interface DataSheetInternalProps<T> extends TableProps {
   enableFocusedCell?: boolean;
   dataSheetActions?: ReactNode | null;
   editable?: boolean;
+  /** @deprecated Prefer `cellInteraction`. `true` maps to `"auto"`,
+   * `false` to `"manual"`. */
   autoFocusEditor?: boolean;
+  /** How selecting a cell activates its surface (editor or detail panel).
+   * Defaults from `autoFocusEditor` for backward compatibility. */
+  cellInteraction?: CellInteraction;
   density?: DataSheetDensity;
   /** Configurable table actions shown in a selection-aware toolbar.
    * When provided, the actions toolbar renders alongside the existing
@@ -132,11 +156,13 @@ const deletedRowHeaderStyle = {
 function _DataSheet<T>({
   onVisibleCellsChange,
   onUpdateData,
+  onEdit,
   onDeleteRows,
   verbose = false,
   dataSheetActions = null,
   enableFocusedCell,
   autoFocusEditor = true,
+  cellInteraction,
   enableClipboard = true,
   showInfoBar = false,
   density = DataSheetDensity.HIGH,
@@ -250,6 +276,27 @@ function _DataSheet<T>({
   const columnSorts = useSelector((state) => state.columnSorts);
   const activeFilters = useSelector((state) => state.activeFilters);
 
+  // Cell activation mode, defaulting from the legacy `autoFocusEditor` boolean
+  // so existing consumers are unaffected. Synced into the store so the cell
+  // renderer, editors, and key handlers all read it consistently.
+  const cellInteractionMode: CellInteraction =
+    cellInteraction ?? (autoFocusEditor ? "auto" : "manual");
+
+  const storeState = storeAPI;
+  useEffect(() => {
+    storeState.setState({ cellInteraction: cellInteractionMode });
+  }, [storeState, cellInteractionMode]);
+
+  useEffect(() => {
+    // Give the store a handle to the focusable holder so editors can return
+    // keyboard focus to the table when the cursor leaves them.
+    storeState.setState({ tableElement: tableElementRef.current });
+  }, [storeState]);
+
+  useEffect(() => {
+    storeState.setState({ onEdit });
+  }, [storeState, onEdit]);
+
   const realizedColumns = useMemo(() => {
     return columnSpec.map((col, colIndex) => {
       let fn =
@@ -288,7 +335,6 @@ function _DataSheet<T>({
             colIndex,
             col,
             state,
-            autoFocusEditor,
             filteredRowIndices,
           );
         },
@@ -299,7 +345,6 @@ function _DataSheet<T>({
     columnSorts,
     activeFilters,
     storeAPI,
-    autoFocusEditor,
     filteredRowIndices,
     columnHeaderCellRenderer,
   ]);

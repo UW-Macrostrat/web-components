@@ -1,7 +1,7 @@
 import { ColumnSpec, CellRenderContext, editorKeyHandlerAtom } from "./utils";
 import { DataSheetStore, TableElementStatus } from "./types.ts";
 import h from "./main.module.sass";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { EditorPopup } from "./components";
 import { singleFocusedCell } from "./zustand-store.ts";
 import { Cell } from "@blueprintjs/table";
@@ -12,9 +12,15 @@ export function basicCellRenderer<T>(
   colIndex: number,
   columnSpec: ColumnSpec,
   state: DataSheetStore<T>,
-  autoFocusEditor = true,
   filteredRowIndices?: number[] | null,
 ): any {
+  // Auto-activation is on when the mode is "auto" and it hasn't been suppressed
+  // (Escape enters navigation mode until the next click).
+  // Whether the inline editor grabs focus. It follows the store-owned surface
+  // open state, so it focuses on selection in auto mode and on click in manual
+  // mode, and not at all in navigation mode. The popover surfaces read the
+  // same state directly.
+  const focusOnOpen = state.cellSurfaceOpen;
   // When filters are active, `rowIndex` is the visible row position.
   // Map it to the actual data index for data access.
   const dataRowIndex =
@@ -120,6 +126,31 @@ export function basicCellRenderer<T>(
 
   // The rest is for the top-left cell of a selection or the focused cell
 
+  // Read-only detail panel: a surface that opens on selection (auto) or click,
+  // shows arbitrary content, and never takes keyboard focus — so arrow keys
+  // keep navigating the table. Uses the same open/close machinery as editors.
+  if (col.detailRenderer != null) {
+    const panel = h(
+      EditorPopup,
+      { valueViewer: _renderedValue },
+      col.detailRenderer(cellContext),
+    );
+    return h(
+      _Cell,
+      {
+        intent,
+        value,
+        style,
+        // Use the editor-cell popover layout so the target fills the cell
+        // without the double-padding offset of `value-viewer-cell`.
+        className: "editor-cell",
+        interactive: false,
+        ...cellComponentProps,
+      },
+      panel,
+    );
+  }
+
   let cellContents: ReactNode = _renderedValue;
 
   let _dataEditor = null;
@@ -129,7 +160,6 @@ export function basicCellRenderer<T>(
     _dataEditor = h(
       EditorPopup,
       {
-        autoFocus: autoFocusEditor,
         valueViewer: _renderedValue,
       },
       [
@@ -193,7 +223,7 @@ export function basicCellRenderer<T>(
     _inlineEditor = h(EditorInput, {
       className: "main-editor",
       value: _value ?? "",
-      autoFocus: autoFocusEditor,
+      autoFocus: focusOnOpen,
       onChange,
     });
   } else {
@@ -239,11 +269,27 @@ export function basicCellRenderer<T>(
 function EditorInput(props) {
   const { value, onChange, ...rest } = props;
   const onKeyDown = ctx.useValue(editorKeyHandlerAtom);
+  const navDirection = useSelector((s) => s.lastNavDirection);
+  const surfaceOpen = useSelector((s) => s.cellSurfaceOpen);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [_value, setValue] = useState(value);
   useEffect(() => {
     setValue(value);
   }, [value]);
+  useEffect(() => {
+    // Focus when the cell's surface is open (on mount, and when reopened via
+    // click/F2 while already mounted), placing the cursor on the side we're
+    // travelling toward so another arrow in that direction leaves the cell.
+    const el = inputRef.current;
+    if (el == null || !surfaceOpen) return;
+    el.focus();
+    const atStart = navDirection === "up" || navDirection === "left";
+    const pos = atStart ? 0 : (el.value?.length ?? 0);
+    el.setSelectionRange(pos, pos);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [surfaceOpen]);
   return h("input", {
+    ref: inputRef,
     onKeyDown,
     onBlur: onChange,
     value: _value ?? value,

@@ -84,6 +84,14 @@ export interface ColumnSpec {
    * respected even when its value is `false`/`null` (i.e. "no editor here").
    */
   editorForCell?: (ctx: CellRenderContext) => CellEditors | undefined;
+  /**
+   * Render a read-only detail panel for a cell. When set, selecting the cell
+   * opens a popover with this content (following the table's `cellInteraction`
+   * mode). The panel never takes keyboard focus, so arrow keys keep navigating
+   * the table; Escape closes it. Mutually distinct from `dataEditor` — use this
+   * for non-editable surfaces (previews, summaries, links).
+   */
+  detailRenderer?: (ctx: CellRenderContext) => React.ReactNode;
   cellComponent?: any;
   category?: string;
   editable?: boolean;

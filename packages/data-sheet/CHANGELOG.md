@@ -4,6 +4,19 @@
 
 Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
 
+### Workstream A — Controlled editing (in progress)
+
+- **`onEdit(event)` hook.** `DataSheet` now accepts an `onEdit` callback that
+  fires for every user edit as a structured `EditEvent` — `setCells`,
+  `deleteRows`, `addRow`, `resetChanges` — in addition to the built-in
+  `updatedData` overlay. `rowIndex` is the underlying data-row index (stable
+  under sort/filter). This is the write half of the data-sheet's read/write
+  contract: consumers can capture edits as revertible operations instead of
+  diffing `updatedData`. Additive; no behavior change when `onEdit` is unset.
+  _Story:_ `Data sheet/Controlled editing` → `EditEvents`. _(Next in A: a
+  controlled `updatedData`/`rowStatus` overlay, and the unified
+  `cellDetail` / `detailPresentation` surface API.)_
+
 ### Workstream C — Editor UX
 
 - **Per-cell editor selection.** A new `columnSpec[].editorForCell(ctx)` picks
@@ -12,7 +25,36 @@ Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
   cells whose value is long. Returned keys are respected even when `false` /
   `null`; omit a key (or return `undefined`) to fall back to the static
   column config. Additive. _Story:_ `Data sheet/Editors` → `PerCellEditor`.
-  _(Editor open-vs-focus decoupling lands as a follow-up in this workstream.)_
+- **`cellInteraction` mode + focus flow-through + read-only detail panels.**
+  New table prop `cellInteraction: "auto" | "manual"` governs how selecting a
+  cell activates its _surface_ — an editor **or** a read-only detail panel.
+  Replaces the editor-specific `editorInteraction`. Defaults from
+  `autoFocusEditor` (`true` → `"auto"`, `false` → `"manual"`); `autoFocusEditor`
+  is now deprecated.
+  - **Flow-through focus.** In `"auto"`, a text editor focuses on selection but
+    arrow keys move **within** the text and only hand off to the table at the
+    boundary (cursor at start → ↑/←; at end → ↓/→), in one press. Applies to
+    the inline editor and `EditableTextArea`.
+  - **Escape → navigation mode.** Escape (or an edge hand-off) returns keyboard
+    focus to the table so arrows navigate, and suppresses auto-activation until
+    the next click — so cancelling one cell prioritizes fast navigation.
+    Clicking a cell re-arms auto-activation.
+  - **Direction-of-travel cursor.** Entering a text cell via ↓/→ places the
+    cursor at the end; via ↑/← at the start — so continuing in the same
+    direction leaves the cell with one more press.
+  - **Keyboard entry.** In navigation mode, `Enter` enters edit mode (opens +
+    focuses the surface, Google-Sheets style); while a surface is open it
+    advances downward as before. `F2` also opens/focuses. Clicking an
+    already-open cell dismisses its surface.
+  - **Read-only detail panels.** New `columnSpec[].detailRenderer(ctx)` renders
+    a popover surface that opens/closes with the same machinery but never takes
+    keyboard focus (arrow keys keep navigating). For previews/summaries/links.
+  - Shared focus state (table element, arming, travel direction) now lives in
+    the store; removed the internal focus-stealing hidden input in
+    `EditorPopup` that silently broke arrow navigation.
+
+  _Stories:_ `Data sheet/Editors` → `EditorInteractionAuto` / `Manual`;
+  `Data sheet/Detail panels` → `AutoDetailPanel` / `ManualDetailPanel`.
 
 ### Workstream B — Rich cell-render context
 
@@ -27,15 +69,17 @@ Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
 
 ### Workstream G — Bugfixes
 
-- **Empty↔null edits are no longer recorded.** `onCellEdited` now treats `""`
-  and `null`/`undefined` as equivalent, so focusing and blurring an empty cell
-  (or typing then deleting) no longer registers a phantom edit. Clearing a
-  populated cell still registers. _Story:_ `Data sheet/Editing` →
-  `EmptyCellNormalization`.
+- **No phantom "edited" state.** `onCellEdited` treats `""` and
+  `null`/`undefined` as equivalent, and compares non-blank values by string
+  form — so focusing/blurring an empty cell, or retyping an integer's existing
+  value (`"42"` vs `42`), no longer marks the cell edited. Real changes still
+  register. _Story:_ `Data sheet/Editing` → `EmptyCellNormalization`.
 - **Filter-aware bulk edits.** `clearSelection`, `onSelectionEdited`, and the
   fill-handle (`fillValues`) now map visible selection indices to the
   underlying data rows, so bulk edits target the correct rows when a sort or
-  filter is active. _Story:_ `Data sheet/Editing` →
+  filter is active. Whole-column edits now cover **all** rows (the row count is
+  taken from `data`, not the sparse `updatedData`, which previously stopped at
+  the last already-edited row). _Story:_ `Data sheet/Editing` →
   `EditsUnderSortAndFilter`.
 - **`col.style` is no longer mutated.** `basicCellRenderer` clones the
   column-spec `style` before applying deleted-row styling, so a shared style
