@@ -4,18 +4,29 @@
 
 Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
 
-### Workstream A — Controlled editing (in progress)
+### Workstream A — Controlled editing
 
-- **`onEdit(event)` hook.** `DataSheet` now accepts an `onEdit` callback that
-  fires for every user edit as a structured `EditEvent` — `setCells`,
-  `deleteRows`, `addRow`, `resetChanges` — in addition to the built-in
-  `updatedData` overlay. `rowIndex` is the underlying data-row index (stable
-  under sort/filter). This is the write half of the data-sheet's read/write
-  contract: consumers can capture edits as revertible operations instead of
-  diffing `updatedData`. Additive; no behavior change when `onEdit` is unset.
-  _Story:_ `Data sheet/Controlled editing` → `EditEvents`. _(Next in A: a
-  controlled `updatedData`/`rowStatus` overlay, and the unified
-  `cellDetail` / `detailPresentation` surface API.)_
+- **`onEdit(event)` hook.** `DataSheet` accepts an `onEdit` callback that fires
+  for every user edit as a structured `EditEvent` — `setCells`, `deleteRows`,
+  `addRow`, `resetChanges` — in addition to the built-in `updatedData` overlay.
+  `rowIndex` is the underlying data-row index (stable under sort/filter). The
+  write half of the read/write contract: consumers capture edits as revertible
+  operations instead of diffing `updatedData`. Additive. _Story:_
+  `Data sheet/Controlled editing` → `EditEvents`.
+- **Controlled `updatedData` / `rowStatus` overlay.** Pass these props to own
+  edit state externally (e.g. an ops model): they're synced into the store as
+  the source of truth, so pairing them with `onEdit` gives a full controlled
+  loop (edit → `onEdit` → your state → back down). Optimistic in-table edits
+  are superseded by the value you pass back. _Story:_
+  `Data sheet/Controlled editing` → `ControlledOverlay`.
+- **Unified `cellDetail` / `detailPresentation` surface API.** A single
+  `columnSpec[].cellDetail(ctx)` renders a cell's surface as an **editor** when
+  `ctx.editable` and a **read-only viewer** otherwise (ctx carries `onChange` /
+  `resetValue` / `close`), superseding `dataEditor` / `detailRenderer` /
+  `editorForCell` (still supported, now deprecated). Presentation is orthogonal
+  via `detailPresentation: "popover" | "modal" | "inline"` — so modal overlays
+  and inline/omnibar surfaces add no new content props, and the same component
+  composes into a future row editor. _Story:_ `Data sheet/Cell detail`.
 
 ### Workstream C — Editor UX
 

@@ -83,6 +83,14 @@ interface DataSheetInternalProps<T> extends TableProps {
    * (Workstream A). Additive: the built-in `updatedData` overlay still
    * applies. */
   onEdit?: (event: EditEvent<T>) => void;
+  /** Controlled edited-cell overlay (Workstream A). When provided, it is
+   * synced into the store as the source of truth for edited values — pair with
+   * `onEdit` to own edit state externally (e.g. an ops model). Optimistic
+   * in-table edits are superseded by the next value you pass back. */
+  updatedData?: T[];
+  /** Controlled row-status overlay (edited / added / deleted), the companion
+   * to `updatedData`. */
+  rowStatus?: TableElementStatus[];
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
   enableColumnReordering?: boolean;
@@ -157,6 +165,8 @@ function _DataSheet<T>({
   onVisibleCellsChange,
   onUpdateData,
   onEdit,
+  updatedData: updatedDataProp,
+  rowStatus: rowStatusProp,
   onDeleteRows,
   verbose = false,
   dataSheetActions = null,
@@ -296,6 +306,16 @@ function _DataSheet<T>({
   useEffect(() => {
     storeState.setState({ onEdit });
   }, [storeState, onEdit]);
+
+  useEffect(() => {
+    // Controlled overlay: mirror the caller's edited state into the store as
+    // the source of truth. Optimistic in-table edits are superseded on the
+    // next render when the caller passes an updated value back.
+    const patch: Record<string, unknown> = {};
+    if (updatedDataProp !== undefined) patch.updatedData = updatedDataProp;
+    if (rowStatusProp !== undefined) patch.rowStatus = rowStatusProp;
+    if (Object.keys(patch).length > 0) storeState.setState(patch);
+  }, [storeState, updatedDataProp, rowStatusProp]);
 
   const realizedColumns = useMemo(() => {
     return columnSpec.map((col, colIndex) => {

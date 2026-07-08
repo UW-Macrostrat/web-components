@@ -120,3 +120,106 @@ function EditLogDemo() {
 export const EditEvents: StoryObj = {
   render: () => h(EditLogDemo),
 };
+
+// ---- Controlled overlay ----
+
+// Minimal reducer applying EditEvents to an externally-owned overlay — stands
+// in for a consumer's ops model.
+function applyEdit(updated: any[], event: EditEvent): any[] {
+  if (event.type === "resetChanges") return [];
+  const next = updated.slice();
+  if (event.type === "setCells") {
+    for (const cell of event.cells) {
+      next[cell.rowIndex] = {
+        ...(next[cell.rowIndex] ?? {}),
+        [cell.column]: cell.value,
+      };
+    }
+  }
+  return next;
+}
+
+/**
+ * **Workstream A: controlled `updatedData` overlay.**
+ *
+ * The parent owns the edited state: it starts empty, applies each `onEdit`
+ * event to its own overlay, and passes that overlay back as the `updatedData`
+ * prop — the store treats it as the source of truth. Editing a cell round-trips
+ * out through `onEdit` and back through `updatedData` (the cell shows edited
+ * from the controlled value, not internal store state). "Reset" clears the
+ * parent's overlay and the table follows. This is the read/write symmetry that
+ * replaces diffing `updatedData` to recover operations.
+ */
+function ControlledOverlayDemo() {
+  const [updated, setUpdated] = useState<any[]>([]);
+  const entries = updated
+    .map((row, i) => (row == null ? null : { i, ...row }))
+    .filter(Boolean);
+  return h(
+    "div",
+    {
+      style: {
+        display: "flex",
+        gap: "1em",
+        height: "100vh",
+        padding: "2em",
+        boxSizing: "border-box",
+      },
+    },
+    [
+      h(
+        "div",
+        {
+          style: {
+            flex: 1,
+            minWidth: 0,
+            display: "flex",
+            flexDirection: "column",
+          },
+        },
+        h(DataSheet, {
+          data: testData,
+          columnSpec,
+          editable: true,
+          actions: defaultTableActions,
+          updatedData: updated,
+          onEdit: (event) => setUpdated((u) => applyEdit(u, event)),
+        }),
+      ),
+      h(
+        "div",
+        {
+          style: {
+            width: 340,
+            overflow: "auto",
+            fontFamily: "monospace",
+            fontSize: 11,
+            borderLeft: "1px solid var(--muted-border-color, #ccc)",
+            paddingLeft: "1em",
+          },
+        },
+        [
+          h(
+            "div",
+            { style: { display: "flex", justifyContent: "space-between" } },
+            [
+              h("strong", `controlled overlay (${entries.length} rows)`),
+              h("button", { onClick: () => setUpdated([]) }, "reset"),
+            ],
+          ),
+          ...entries.map((e: any) =>
+            h(
+              "pre",
+              { key: e.i, style: { margin: "0.3em 0", whiteSpace: "pre-wrap" } },
+              JSON.stringify(e),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+export const ControlledOverlay: StoryObj = {
+  render: () => h(ControlledOverlayDemo),
+};

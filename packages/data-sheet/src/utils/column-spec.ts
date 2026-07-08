@@ -64,6 +64,26 @@ export interface CellEditors {
   inlineEditor?: boolean | React.ComponentType<any> | string | null;
 }
 
+/**
+ * Context for a cell's detail surface (`cellDetail`). Extends the render
+ * context with the edit affordances and controls a surface needs, so one
+ * component can act as an editor (when `editable`) or a read-only viewer
+ * (otherwise). This is the write side of the read/write contract, per-cell.
+ */
+export interface CellDetailContext<T = any> extends CellRenderContext<T> {
+  /** Whether this cell is editable (column × table × not-deleted). */
+  editable: boolean;
+  /** Commit a new value for this cell. */
+  onChange: (value: any) => void;
+  /** Reset this cell (and selection) to its base value. */
+  resetValue: () => void;
+  /** Close the surface and return focus to the table. */
+  close: () => void;
+}
+
+/** How a cell's detail surface is presented. Orthogonal to what it renders. */
+export type DetailPresentation = "popover" | "modal" | "inline";
+
 export interface ColumnSpec {
   name: string;
   key: string;
@@ -90,8 +110,20 @@ export interface ColumnSpec {
    * mode). The panel never takes keyboard focus, so arrow keys keep navigating
    * the table; Escape closes it. Mutually distinct from `dataEditor` — use this
    * for non-editable surfaces (previews, summaries, links).
+   *
+   * @deprecated Prefer `cellDetail`, which unifies editor and viewer.
    */
   detailRenderer?: (ctx: CellRenderContext) => React.ReactNode;
+  /**
+   * The unified cell surface (Workstream A): one renderer that acts as an
+   * editor when `ctx.editable` and a read-only viewer otherwise, superseding
+   * `dataEditor` / `detailRenderer` / `editorForCell`. Presentation is chosen
+   * separately via `detailPresentation` (popover / modal / inline), so the
+   * same component works in any container.
+   */
+  cellDetail?: (ctx: CellDetailContext) => React.ReactNode;
+  /** How `cellDetail` is presented. Defaults to `"popover"`. */
+  detailPresentation?: DetailPresentation;
   cellComponent?: any;
   category?: string;
   editable?: boolean;

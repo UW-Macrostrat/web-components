@@ -1,8 +1,13 @@
-import { ColumnSpec, CellRenderContext, editorKeyHandlerAtom } from "./utils";
+import {
+  ColumnSpec,
+  CellRenderContext,
+  CellDetailContext,
+  editorKeyHandlerAtom,
+} from "./utils";
 import { DataSheetStore, TableElementStatus } from "./types.ts";
 import h from "./main.module.sass";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { EditorPopup } from "./components";
+import { EditorPopup, CellDetailModal } from "./components";
 import { singleFocusedCell } from "./zustand-store.ts";
 import { Cell } from "@blueprintjs/table";
 import { ctx, useSelector } from "./provider.ts";
@@ -108,7 +113,41 @@ export function basicCellRenderer<T>(
 
   let inlineEditor = editable ? (inlineEditorSpec ?? true) : false;
 
+  // Build the detail context for the unified `cellDetail` surface.
+  const makeDetailCtx = (editableFlag: boolean): CellDetailContext<T> => ({
+    ...cellContext,
+    editable: editableFlag,
+    onChange(v: any) {
+      if (editableFlag) onCellEdited(dataRowIndex, col.key, v);
+    },
+    resetValue() {
+      state.resetChanges();
+    },
+    close() {
+      state.closeCellSurface();
+      state.tableElement?.focus?.();
+    },
+  });
+  const detailPresentation =
+    col.cellDetail != null ? (col.detailPresentation ?? "popover") : null;
+
   if (!topLeft) {
+    // An inline surface is a persistent in-cell renderer, so it draws on every
+    // cell (read-only when not the focused/editing cell).
+    if (detailPresentation === "inline") {
+      return h(
+        _Cell,
+        {
+          intent,
+          value,
+          style,
+          className: "value-viewer-cell",
+          interactive: false,
+          ...cellComponentProps,
+        },
+        col.cellDetail!(makeDetailCtx(false)),
+      );
+    }
     return h(
       _Cell,
       {
@@ -125,6 +164,64 @@ export function basicCellRenderer<T>(
   }
 
   // The rest is for the top-left cell of a selection or the focused cell
+
+  // Unified cell surface: one renderer that acts as editor (when editable) or
+  // viewer (otherwise), presented as a popover / modal / inline. Supersedes
+  // dataEditor / detailRenderer / editorForCell.
+  if (col.cellDetail != null) {
+    const content = col.cellDetail(makeDetailCtx(editable));
+
+    if (detailPresentation === "inline") {
+      // Persistent in-cell surface (editable on the focused cell). No popover.
+      return h(
+        _Cell,
+        {
+          intent,
+          value,
+          style,
+          className: editable ? "input-cell" : "value-viewer-cell",
+          interactive: editable,
+          ...cellComponentProps,
+        },
+        content,
+      );
+    }
+
+    if (detailPresentation === "modal") {
+      // CellDetailModal subscribes to the store so the dialog closes reactively.
+      return h(
+        _Cell,
+        {
+          intent,
+          value,
+          style,
+          className: "value-viewer-cell",
+          interactive: false,
+          ...cellComponentProps,
+        },
+        h(
+          CellDetailModal,
+          { title: col.name, valueViewer: _renderedValue },
+          content,
+        ),
+      );
+    }
+
+    // Default: popover (same open/close machinery as editors and panels).
+    const panel = h(EditorPopup, { valueViewer: _renderedValue }, content);
+    return h(
+      _Cell,
+      {
+        intent,
+        value,
+        style,
+        className: "editor-cell",
+        interactive: editable,
+        ...cellComponentProps,
+      },
+      panel,
+    );
+  }
 
   // Read-only detail panel: a surface that opens on selection (auto) or click,
   // shows arbitrary content, and never takes keyboard focus — so arrow keys
