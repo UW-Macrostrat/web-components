@@ -44,6 +44,9 @@ import {
 import {
   ChunkLoaderManager,
   createLocalProvider,
+  FetchData,
+  FetchChunkOptions,
+  FetchDataParams,
   tableFooterAtom,
   useScrollHandler,
 } from "./postgrest-table";
@@ -77,10 +80,12 @@ const COLUMN_HEADER_HEIGHT = 34;
  */
 export type CellInteraction = "auto" | "manual";
 
-interface DataSheetInternalProps<T> extends TableProps {
+interface DataSheetInternalProps<T> extends TableProps, FetchChunkOptions {
   /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
    * driven through the same loader as any other source. */
   data?: T[];
+  // function to fetch chunk of data
+  fetchChunk?: FetchData<T>;
   // An optional table name that will be used in toolbars if given
   name?: string;
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
@@ -178,6 +183,9 @@ const deletedRowHeaderStyle = {
 
 function _DataSheet<T>({
   data: sourceData,
+  fetchChunk,
+  pageSize,
+  fetchMode,
   onVisibleCellsChange,
   onUpdateData,
   onEdit,
@@ -494,13 +502,19 @@ function _DataSheet<T>({
 
   // Drive in-memory data through the local provider + loader (loads the whole
   // array at once). Absent when `data` is empty (an external loader drives).
-  // Hoisted because `h.if(...)` evaluates its props eagerly.
-  let localLoader: ReactNode = null;
+  // Manager to manage this chunk loader
+  let dataLoader: ReactNode = null;
   if (localProvider != null) {
-    localLoader = h(ChunkLoaderManager, {
+    dataLoader = h(ChunkLoaderManager, {
       key: "__local_loader",
-      fetchChunk: localProvider.fetchChunk,
+      fetchChunk: localProvider.fetchData,
       pageSize: Math.max(sourceData?.length ?? 1, 1),
+    });
+  } else if (fetchChunk != null) {
+    dataLoader = h(ChunkLoaderManager, {
+      fetchChunk,
+      pageSize,
+      fetchMode,
     });
   }
 
@@ -516,7 +530,7 @@ function _DataSheet<T>({
     // sort/filter/save/reset even without a consumer `actions` prop; it
     // self-gates (renders nothing when no action applies).
     h(ActionsToolbar, { actions: _actions, tableName: name }),
-    localLoader,
+    dataLoader,
     children,
     h(
       "div.data-sheet-holder",

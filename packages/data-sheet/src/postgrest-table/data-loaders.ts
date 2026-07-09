@@ -12,7 +12,6 @@ import {
 import { adjustArraySize, RowRegion } from "./loading-utils.ts";
 import { ctx, tableDataAtom, useSelector } from "../provider.ts";
 import { atom } from "jotai";
-import h from "./main.module.sass";
 import type { ColumnSort } from "../types.ts";
 
 export type FetchMode = "scroll" | "paged";
@@ -438,7 +437,7 @@ export function useScrollHandler() {
  * `fetchChunk`. A server provider translates `columnKey` + `state` into a
  * query; a local (in-memory) provider applies `predicate` directly. Both come
  * from the same `TableFilter`, so one filter definition serves either target. */
-export interface FetchChunkFilter {
+export interface FetchDataFilter {
   id: string;
   columnKey?: string;
   state: any;
@@ -448,7 +447,7 @@ export interface FetchChunkFilter {
 }
 
 /** Parameters passed to a `fetchChunk` implementation for one window. */
-export interface FetchChunkParams {
+export interface FetchDataParams {
   /** Row offset of the requested chunk (chunk-aligned). */
   offset: number;
   /** Maximum rows to return. */
@@ -458,7 +457,7 @@ export interface FetchChunkParams {
   /** Active sorts, in priority order. */
   sorts: ColumnSort[];
   /** Active filters (id + column + config). */
-  filters: FetchChunkFilter[];
+  filters: FetchDataFilter[];
   /** In scroll mode, the already-loaded row immediately before this chunk
    * (and its data-array index), or `null` at the start / in paged mode. Keyset
    * sources can page from this cursor (e.g. `WHERE key > cursor`) instead of a
@@ -469,14 +468,14 @@ export interface FetchChunkParams {
 /** Result of a `fetchChunk` call. `totalCount` reports the source length when
  * known (drives sparse-array pre-sizing and a proportional scrollbar); omit it
  * for unknown-length sources (the array grows as chunks arrive). */
-export interface ChunkResult<T = any> {
+export interface FetchDataResult<T = any> {
   rows: T[];
   totalCount?: number | null;
 }
 
-export type FetchChunk<T = any> = (
-  params: FetchChunkParams,
-) => Promise<ChunkResult<T>>;
+export type FetchData<T = any> = (
+  params: FetchDataParams,
+) => Promise<FetchDataResult<T>>;
 
 /**
  * A table's data source, addressed uniformly whether it's an in-memory array or
@@ -488,7 +487,7 @@ export type FetchChunk<T = any> = (
  * degenerate implementation, so local and server tables share one path.
  */
 export interface TableDataProvider<T = any> {
-  fetchChunk(params: FetchChunkParams): Promise<ChunkResult<T>>;
+  fetchData(params: FetchDataParams): Promise<FetchDataResult<T>>;
   identity(row: T): string | number;
   saveRows?(rows: T[]): Promise<void>;
   deleteRows?(ids: Array<string | number>): Promise<void>;
@@ -508,7 +507,7 @@ export function createLocalProvider<T = any>(
   const identity = options.identity ?? defaultLocalIdentity;
   return {
     identity,
-    async fetchChunk({ offset, limit, sorts, filters }) {
+    async fetchData({ offset, limit, sorts, filters }) {
       let rows = data;
       if (filters != null && filters.length > 0) {
         rows = rows.filter((row) =>
@@ -562,7 +561,7 @@ export function compareRowsBySorts(sorts: ColumnSort[]) {
   };
 }
 
-interface FetchChunkOptions {
+export interface FetchChunkOptions {
   pageSize?: number;
   fetchMode?: FetchMode;
 }
@@ -578,8 +577,8 @@ interface FetchChunkOptions {
  *
  * Call it from a component rendered inside `DataSheet` (see `ChunkLoaderManager`).
  */
-export function useChunkLoader<T = any>(
-  fetchChunk: FetchChunk<T>,
+export function useDataLoader<T = any>(
+  fetchChunk: FetchData<T>,
   options: FetchChunkOptions = {},
 ) {
   const { pageSize = 100, fetchMode = "scroll" } = options;
@@ -598,7 +597,7 @@ export function useChunkLoader<T = any>(
     viewKey: "",
   });
 
-  const filters: FetchChunkFilter[] = useMemo(
+  const filters: FetchDataFilter[] = useMemo(
     () =>
       (Array.from(activeFilters.entries()) as [any, any][]).map(
         ([id, entry]) => ({
@@ -723,9 +722,9 @@ export function ChunkLoaderManager<T = any>({
   pageSize,
   fetchMode,
 }: {
-  fetchChunk: FetchChunk<T>;
+  fetchChunk: FetchData<T>;
 } & FetchChunkOptions) {
-  useChunkLoader(fetchChunk, { pageSize: pageSize, fetchMode: fetchMode });
+  useDataLoader(fetchChunk, { pageSize: pageSize, fetchMode: fetchMode });
   return null;
 }
 
@@ -750,8 +749,8 @@ export function createPostgRESTFetchChunk<T = any>(config: {
   ) => PostgrestFilterBuilder<any, any, any, any>;
   /** Translate a stored filter entry to a `PostgrestFilter` (return `null` to
    * skip). Defaults to the `{ key, operator, value }` column-filter shape. */
-  translateFilter?: (f: FetchChunkFilter) => PostgrestFilter | null;
-}): FetchChunk<T> {
+  translateFilter?: (f: FetchDataFilter) => PostgrestFilter | null;
+}): FetchData<T> {
   const translate = config.translateFilter ?? standardColumnFilter;
   return async ({ limit, signal, sorts, filters, cursor }) => {
     const client = new PostgrestClient(config.endpoint).from(config.table);
@@ -794,7 +793,7 @@ export function createPostgRESTFetchChunk<T = any>(config: {
 /** Default filter translation for the built-in operator `columnFilter`: its
  * column is `f.columnKey`, its state is `{ operator, value }`. (Also accepts a
  * `key` in state for hand-rolled filters.) */
-function standardColumnFilter(f: FetchChunkFilter): PostgrestFilter | null {
+function standardColumnFilter(f: FetchDataFilter): PostgrestFilter | null {
   const s = f.state;
   if (s == null) return null;
   const key = f.columnKey ?? s.key;

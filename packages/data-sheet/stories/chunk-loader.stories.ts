@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
 import { DataSheet, ChunkLoaderManager, ScrollToRowControl } from "../src";
-import type { FetchChunkParams, TableFilter } from "../src";
+import type { FetchDataParams, TableFilter } from "../src";
 import { FormGroup, NumericInput, SegmentedControl } from "@blueprintjs/core";
 import { useState } from "react";
 import "@blueprintjs/table/lib/css/table.css";
@@ -29,7 +29,7 @@ const ALL_ROWS = Array.from({ length: 20000 }, (_, i) => ({
 
 const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
-async function fetchChunk(params: FetchChunkParams) {
+async function fetchChunk(params: FetchDataParams) {
   const { offset, limit, sorts, filters, signal } = params;
   await sleep(250); // simulate network latency
   if (signal.aborted) return { rows: [], totalCount: 0 };
@@ -324,7 +324,7 @@ const growingColumns = [
   { name: "Comments", key: "comments", width: 320 },
 ];
 
-async function fetchGrowingChunk(params: FetchChunkParams) {
+async function fetchGrowingChunk(params: FetchDataParams) {
   const { offset, limit, signal } = params;
   await sleep(500); // simulate an on-demand append
   if (signal.aborted) return { rows: [] };
