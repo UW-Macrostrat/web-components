@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
-import { DataSheet, ScrollToRowControl } from "../src";
+import { DataSheet, scrollToRowAction } from "../src";
 import type { FetchDataParams, TableFilter } from "../src";
 import { FormGroup, NumericInput, SegmentedControl } from "@blueprintjs/core";
 import { useState } from "react";
@@ -165,18 +165,16 @@ export const ServerBackedTable: StoryObj = {
           flexDirection: "column",
         },
       },
-      h(
-        DataSheet,
-        {
-          data: [],
-          columnSpec,
-          editable: false,
-          showLoadProgress: true,
-          fetchData: fetchChunk,
-          pageSize: 100,
-        },
-        h(ScrollToRowControl, { key: "scroll-to-row" }),
-      ),
+      h(DataSheet, {
+        data: [],
+        columnSpec,
+        editable: false,
+        showLoadProgress: true,
+        fetchData: fetchChunk,
+        pageSize: 100,
+        // Scroll-to-row is an ordinary table-scoped action now.
+        actions: [scrollToRowAction],
+      }),
     ),
 };
 

@@ -9,4 +9,3 @@ export * from "./filters/operators";
 
 export { Cell } from "@blueprintjs/table";
 export { CellRendererDebugOverlay } from "./utils";
-export { ScrollToRowControl } from "./components";

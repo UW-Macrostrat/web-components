@@ -23,8 +23,20 @@ import { ColorCell } from "../components";
 import { DataSheetProviderProps } from "../types.ts";
 import { atom } from "jotai";
 import { columnSpecAtom, ctx, tableDataAtom } from "../provider.ts";
+import { ALL_CARDINALITIES, TableAction } from "../actions";
 
 export * from "./data-loaders";
+
+/** Full-text search across the table's text columns, expressed as a
+ * table-scoped action (rendered in the standard toolbar, not bespoke chrome). */
+export const fullTextSearchAction: TableAction = {
+  id: "full-text-search",
+  name: "Search",
+  icon: "search",
+  targets: ALL_CARDINALITIES,
+  requiresEditable: false,
+  render: () => h(SearchAction),
+};
 
 interface PostgRESTTableViewProps<
   T extends object,
@@ -37,7 +49,7 @@ interface PostgRESTTableViewProps<
   editable?: boolean;
   identityKey?: string;
   enableFullTableSearch?: boolean;
-  dataSheetActions?: any;
+  actions?: TableAction<T>[];
   filter(
     query: PostgrestFilterBuilder<T, any, any, any>,
   ): PostgrestFilterBuilder<T, any, any, any>;
@@ -99,7 +111,7 @@ function _PostgRESTTableView<T>({
   columns,
   editable = false,
   enableFullTableSearch = false,
-  dataSheetActions,
+  actions,
   identityKey = null,
   filter: userFilter,
   ...rest
@@ -198,12 +210,15 @@ function _PostgRESTTableView<T>({
     [getClient, toaster, bumpRefresh],
   );
 
+  // Full-text search joins the standard actions toolbar (no bespoke chrome).
+  const mergedActions = enableFullTableSearch
+    ? [fullTextSearchAction, ...(actions ?? [])]
+    : actions;
+
   return h(DataSheet, {
     ...rest,
     fetchData,
-    dataSheetActions: enableFullTableSearch
-      ? h(SearchAction)
-      : dataSheetActions,
+    actions: mergedActions,
     columnSpecOptions: columnOptions,
     editable,
     // Row identity for the edit overlay, so edits survive a re-ordered

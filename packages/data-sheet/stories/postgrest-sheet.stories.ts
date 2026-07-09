@@ -4,14 +4,13 @@ import {
   ColorCell,
   ColorPicker,
   colorSwatchRenderer,
-  DataSheetAction,
-  DataSheetActionsRow,
   ExpandedLithologies,
   IntervalCell,
   lithologyRenderer,
   LongTextViewer,
   PostgRESTTableView,
-  ScrollToRowControl,
+  scrollToRowAction,
+  TableAction,
   wrapWithErrorHandling,
 } from "../src";
 import { useSelector } from "../src/provider";
@@ -19,6 +18,7 @@ import { useRef, useState } from "react";
 import { Button, InputGroup } from "@blueprintjs/core";
 import { PostgrestClient } from "@supabase/postgrest-js";
 import { useToaster } from "@macrostrat/ui-components";
+import { RegionCardinality } from "@blueprintjs/table";
 
 const endpoint = "https://dev.macrostrat.org/api/pg";
 
@@ -123,13 +123,21 @@ export const SortAndFilter = {
   },
 };
 
+/** Story-local example of a custom table-scoped action (jump to a legend id). */
+const selectLegendIdAction: TableAction = {
+  id: "select-legend-id",
+  name: "Legend ID",
+  icon: "flow-review",
+  targets: [RegionCardinality.FULL_TABLE, "none"],
+  requiresEditable: false,
+  render: () => h(SelectLegendIDControl),
+};
+
 export const ScrollToRow = {
   args: {
     columnOptions: defaultColumnOptions,
-    dataSheetActions: h(DataSheetActionsRow, [
-      h(ScrollToRowControl),
-      h(SelectLegendIDControl),
-    ]),
+    // Table-scoped controls are ordinary actions now (no `dataSheetActions`).
+    actions: [scrollToRowAction, selectLegendIdAction],
   },
 };
 
@@ -173,30 +181,31 @@ function SelectLegendIDControl() {
   // This should be provided by the table context
   const queryBuilder = useRef(new PostgrestClient(endpoint));
 
-  return h(DataSheetAction, [
-    h(InputGroup, {
-      type: "number",
-      placeholder: "Legend ID",
-      value,
-      onValueChange(value) {
-        setValue(value);
-      },
-      rightElement: h(Button, {
-        icon: "arrow-right",
-        onClick() {
-          // Get offset
-          const query = queryBuilder.current
-            .from("legend")
-            .select("count()")
-            .lte("legend_id", value);
+  return h(InputGroup, {
+    type: "number",
+    placeholder: "Legend ID",
+    small: true,
+    value,
+    onValueChange(value) {
+      setValue(value);
+    },
+    rightElement: h(Button, {
+      icon: "arrow-right",
+      minimal: true,
+      small: true,
+      onClick() {
+        // Get offset
+        const query = queryBuilder.current
+          .from("legend")
+          .select("count()")
+          .lte("legend_id", value);
 
-          wrapWithErrorHandling(toaster, query).then((res) => {
-            if (!res?.data) return null;
-            const rowCount = res.data[0].count;
-            scrollToRow(rowCount - 1);
-          });
-        },
-      }),
+        wrapWithErrorHandling(toaster, query).then((res) => {
+          if (!res?.data) return null;
+          const rowCount = res.data[0].count;
+          scrollToRow(rowCount - 1);
+        });
+      },
     }),
-  ]);
+  });
 }

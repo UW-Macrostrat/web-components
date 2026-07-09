@@ -43,9 +43,11 @@ import {
 } from "./actions";
 import {
   createLocalProvider,
+  dataRefreshTokenAtom,
   FetchData,
   FetchDataOptions,
   tableFooterAtom,
+  TableDataProvider,
   useScrollHandler,
   useDataLoader,
 } from "./postgrest-table";
@@ -83,8 +85,14 @@ interface DataSheetInternalProps<T> extends TableProps, FetchDataOptions {
   /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
    * driven through the same loader as any other source. */
   data?: T[];
-  // function to fetch chunk of data
+  // function to fetch a chunk of data (the read side of a data provider)
   fetchData?: FetchData<T>;
+  /** A data provider instantiated separately and passed in — bundles the read
+   * side (`fetchData` + `identity`) and, optionally, the persistence side
+   * (`saveRows` / `deleteRows` / `insertRow`) that drives the Save action. An
+   * explicit alternative to the loose `data` / `fetchData` / `identity` props;
+   * takes precedence when given. */
+  provider?: TableDataProvider<T>;
   // An optional table name that will be used in toolbars if given
   name?: string;
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
@@ -114,7 +122,6 @@ interface DataSheetInternalProps<T> extends TableProps, FetchDataOptions {
   enableColumnReordering?: boolean;
   enableClipboard?: boolean;
   enableFocusedCell?: boolean;
-  dataSheetActions?: ReactNode | null;
   editable?: boolean;
   /** @deprecated Prefer `cellInteraction`. `true` maps to `"auto"`,
    * `false` to `"manual"`. */
@@ -180,9 +187,51 @@ const deletedRowHeaderStyle = {
   textDecoration: "line-through",
 };
 
+/** Persist all pending changes through a data provider: added rows via
+ * `insertRow`, edited rows via `saveRows`, deleted rows via `deleteRows`
+ * (addressed by `provider.identity`). Used by the built-in Save action when an
+ * explicit provider owns persistence. */
+async function persistViaProvider<T>(
+  provider: TableDataProvider<T>,
+  ctx: TableActionContext<T>,
+): Promise<void> {
+  const base = (ctx.data ?? []) as any[];
+  const updates = (ctx.updatedData ?? []) as any[];
+  const status = (ctx.rowStatus ?? []) as any[];
+  const n = Math.max(base.length, updates.length, status.length);
+  const toSave: T[] = [];
+  const toInsert: T[] = [];
+  const toDelete: Array<string | number> = [];
+  for (let i = 0; i < n; i++) {
+    if (status[i] === TableElementStatus.DELETED) {
+      const id = provider.identity(base[i]);
+      if (id != null) toDelete.push(id);
+      continue;
+    }
+    const upd = updates[i];
+    const hasEdit =
+      upd != null && typeof upd === "object" && Object.keys(upd).length > 0;
+    if (status[i] === TableElementStatus.ADDED) {
+      toInsert.push({ ...base[i], ...upd } as T);
+    } else if (hasEdit) {
+      toSave.push({ ...base[i], ...upd } as T);
+    }
+  }
+  if (toDelete.length > 0 && provider.deleteRows != null) {
+    await provider.deleteRows(toDelete);
+  }
+  for (const row of toInsert) {
+    if (provider.insertRow != null) await provider.insertRow(row);
+  }
+  if (toSave.length > 0 && provider.saveRows != null) {
+    await provider.saveRows(toSave);
+  }
+}
+
 function _DataSheet<T>({
   data: sourceData,
   fetchData,
+  provider,
   pageSize,
   fetchMode,
   onVisibleCellsChange,
@@ -195,7 +244,6 @@ function _DataSheet<T>({
   onDeleteRows,
   name,
   verbose = false,
-  dataSheetActions = null,
   enableFocusedCell,
   autoFocusEditor = true,
   cellInteraction,
@@ -219,6 +267,45 @@ function _DataSheet<T>({
 
   const editable = useSelector((state) => state.editable);
 
+  // Resolve the active data provider: an explicit `provider` prop wins; else a
+  // loose `fetchData` (+ identity) is wrapped as one; else in-memory `data`
+  // becomes a local provider. Local and remote thus share one path, and the
+  // provider is an explicit contract rather than a set of scattered props.
+  const isLocalProvider = provider == null && fetchData == null;
+  const activeProvider = useMemo<TableDataProvider<any> | null>(() => {
+    if (provider != null) return provider;
+    if (fetchData != null) {
+      return { fetchData, identity: identity ?? ((r: any) => r?.id) };
+    }
+    if (sourceData != null && sourceData.length > 0) {
+      return createLocalProvider(
+        sourceData,
+        identity != null ? { identity } : undefined,
+      );
+    }
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provider, fetchData, sourceData, identity]);
+
+  // When an explicit provider owns persistence, its methods drive the built-in
+  // Save (batch: edits→saveRows, added→insertRow, deleted→deleteRows), then a
+  // refresh. Otherwise the loose `onSave` handler is used.
+  const bumpRefresh = ctx.useSet(dataRefreshTokenAtom);
+  const providerSave = useMemo(() => {
+    const p = provider;
+    if (
+      p == null ||
+      (p.saveRows == null && p.deleteRows == null && p.insertRow == null)
+    ) {
+      return null;
+    }
+    return async (actionCtx: TableActionContext<T>) => {
+      await persistViaProvider(p, actionCtx);
+      bumpRefresh((v) => v + 1);
+    };
+  }, [provider, bumpRefresh]);
+  const saveHandler = onSave ?? providerSave;
+
   // Sync table actions to atom. Consumer actions come first (they override a
   // built-in by reusing its id); the built-in column controls (sort/filter)
   // fill in the rest — so both the toolbar and the header dropdown source from
@@ -237,11 +324,11 @@ function _DataSheet<T>({
     // every cardinality (editable), so the toolbar stays mounted regardless of
     // selection.
     if (editable) {
-      if (onSave != null) add([createSaveAction(onSave)]);
+      if (saveHandler != null) add([createSaveAction(saveHandler)]);
       add([resetChangesAction]);
     }
     return _actions;
-  }, [actions, enableClipboard, editable, onSave]);
+  }, [actions, enableClipboard, editable, saveHandler]);
 
   ctx.useSync(tableActionsAtom, _actions);
 
@@ -375,29 +462,11 @@ function _DataSheet<T>({
     storeState.setState(patch);
   }, [storeState, updatedDataProp, rowStatusProp]);
 
+  // The active provider supplies the row identity for the edit overlay.
   useEffect(() => {
-    if (identity != null) storeState.setState({ identity });
-  }, [storeState, identity]);
-
-  // In-memory data is the degenerate provider case: wrap it in a local provider
-  // and drive it through the same loader as any other source (sort/filter are
-  // applied by the provider's fetchChunk, in memory). An external loader child
-  // (server sources) passes empty `data`, so this doesn't double-drive.
-  const localProvider = useMemo(
-    () =>
-      sourceData != null && sourceData.length > 0
-        ? createLocalProvider(
-            sourceData,
-            identity != null ? { identity } : undefined,
-          )
-        : null,
-    [sourceData, identity],
-  );
-  useEffect(() => {
-    if (localProvider != null) {
-      storeState.setState({ identity: localProvider.identity });
-    }
-  }, [storeState, localProvider]);
+    const id = activeProvider?.identity ?? identity;
+    if (id != null) storeState.setState({ identity: id });
+  }, [storeState, activeProvider, identity]);
 
   const realizedColumns = useMemo(() => {
     return columnSpec.map((col, colIndex) => {
@@ -497,24 +566,20 @@ function _DataSheet<T>({
     filteredRowIndices,
   ];
 
-  // Drive in-memory data through the local provider + loader (loads the whole
-  // array at once). Absent when `data` is empty (an external loader drives).
-  // Manager to manage this chunk loader
+  // Drive the table from the active provider's `fetchData`. A local (in-memory)
+  // provider loads the whole array at once; a remote one uses the `pageSize` /
+  // `fetchMode` props and shows load progress.
   let _showLoadProgress: boolean = false;
   let dataLoader: ReactNode = null;
-  if (localProvider != null) {
-    dataLoader = h(_DataLoaderManager, {
-      key: "__local_loader",
-      fetchData: localProvider.fetchData,
-      pageSize: Math.max(sourceData?.length ?? 1, 1),
-    });
-  } else if (fetchData != null) {
-    _showLoadProgress = true;
+  if (activeProvider != null) {
+    _showLoadProgress = !isLocalProvider;
     dataLoader = h(_DataLoaderManager, {
       key: "__data_loader",
-      fetchData,
-      pageSize,
-      fetchMode,
+      fetchData: activeProvider.fetchData,
+      pageSize: isLocalProvider
+        ? Math.max(sourceData?.length ?? 1, 1)
+        : pageSize,
+      fetchMode: isLocalProvider ? undefined : fetchMode,
     });
   }
   const showFilterBar =
@@ -526,12 +591,8 @@ function _DataSheet<T>({
   }
 
   return h("div.data-sheet-container", { className, style }, [
-    // Global sort/filter status bars sit above the (selection-modal)
-    // actions/tools toolbar.
-    dataSheetActions,
-    // Rendered from the merged action set (built-ins included) so it reflects
-    // sort/filter/save/reset even without a consumer `actions` prop; it
-    // self-gates (renders nothing when no action applies).
+    // The actions/tools toolbar (selection-modal). Table-scoped controls like
+    // scroll-to-row / full-text search live here as ordinary actions.
     h(ActionsToolbar, { actions: _actions, tableName: name }),
     dataLoader,
     children,
