@@ -175,7 +175,7 @@ export const ServerBackedTable: StoryObj = {
         },
         [
           h(ScrollToRowControl, { key: "scroll-to-row" }),
-          h(ChunkLoaderManager, { key: "loader", fetchChunk, chunkSize: 100 }),
+          h(ChunkLoaderManager, { key: "loader", fetchChunk, pageSize: 100 }),
         ],
       ),
     ),
@@ -238,7 +238,12 @@ function ModeToggleDemo() {
       h(
         "div",
         {
-          style: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column" },
+          style: {
+            flex: 1,
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+          },
         },
         h(
           DataSheet,
@@ -248,7 +253,14 @@ function ModeToggleDemo() {
             editable: false,
             showLoadProgress: true,
           },
-          [h(ChunkLoaderManager, { key: "loader", fetchChunk, chunkSize, mode })],
+          [
+            h(ChunkLoaderManager, {
+              key: "loader",
+              fetchChunk,
+              pageSize: chunkSize,
+              fetchMode: mode,
+            }),
+          ],
         ),
       ),
     ],
@@ -289,8 +301,8 @@ export const PagedTable: StoryObj = {
           h(ChunkLoaderManager, {
             key: "loader",
             fetchChunk,
-            chunkSize: 25,
-            mode: "paged",
+            pageSize: 25,
+            fetchMode: "paged",
           }),
         ],
       ),
@@ -358,7 +370,7 @@ export const InfiniteScroll: StoryObj = {
           h(ChunkLoaderManager, {
             key: "loader",
             fetchChunk: fetchGrowingChunk,
-            chunkSize: 100,
+            pageSize: 100,
           }),
         ],
       ),

@@ -562,6 +562,11 @@ export function compareRowsBySorts(sorts: ColumnSort[]) {
   };
 }
 
+interface FetchChunkOptions {
+  pageSize?: number;
+  fetchMode?: FetchMode;
+}
+
 /**
  * A generic, backend-agnostic windowed data source. Give it a `fetchChunk`
  * function and it drives the sheet's lazy loading: it loads the chunk covering
@@ -575,9 +580,9 @@ export function compareRowsBySorts(sorts: ColumnSort[]) {
  */
 export function useChunkLoader<T = any>(
   fetchChunk: FetchChunk<T>,
-  options: { chunkSize?: number; mode?: FetchMode } = {},
+  options: FetchChunkOptions = {},
 ) {
-  const { chunkSize = 100, mode = "scroll" } = options;
+  const { pageSize = 100, fetchMode = "scroll" } = options;
   const [state, dispatch] = useLazyLoaderReducer();
   const visibleRegion = ctx.useValue(visibleRegionAtom);
   const page = ctx.useValue(chunkPageAtom);
@@ -595,19 +600,21 @@ export function useChunkLoader<T = any>(
 
   const filters: FetchChunkFilter[] = useMemo(
     () =>
-      Array.from(activeFilters.entries()).map(([id, entry]) => ({
-        id,
-        columnKey: entry.filter?.columnKey,
-        state: entry.state,
-        predicate: entry.filter?.predicate,
-      })),
+      (Array.from(activeFilters.entries()) as [any, any][]).map(
+        ([id, entry]) => ({
+          id,
+          columnKey: entry.filter?.columnKey,
+          state: entry.state,
+          predicate: entry.filter?.predicate,
+        }),
+      ),
     [activeFilters],
   );
 
   // Publish the windowing config so the footer/pager can read it.
   useEffect(() => {
-    dispatch({ type: "configure", fetchMode: mode, pageSize: chunkSize });
-  }, [mode, chunkSize]);
+    dispatch({ type: "configure", fetchMode, pageSize: pageSize });
+  }, [fetchMode, pageSize]);
 
   // Reset (re-fetch from scratch) when sorts/filters change, or when the fetch
   // mode switches (paged holds a dense page; scroll needs to re-initialize and
@@ -619,7 +626,7 @@ export function useChunkLoader<T = any>(
   useEffect(() => {
     dispatch({ type: "reset" });
     setPage(0);
-  }, [viewKey, mode, refreshToken]);
+  }, [viewKey, fetchMode, refreshToken]);
 
   useAsyncEffect(async () => {
     if (state.loading) return;
@@ -629,7 +636,7 @@ export function useChunkLoader<T = any>(
     // from it instead of a slow OFFSET.
     let offset: number;
     let cursor: { row: any; index: number } | null = null;
-    if (mode === "paged") {
+    if (fetchMode === "paged") {
       // Fetch the current page once; skip if already loaded for this view.
       if (
         loadedRef.current.page === page &&
@@ -637,11 +644,11 @@ export function useChunkLoader<T = any>(
       ) {
         return;
       }
-      offset = page * chunkSize;
+      offset = page * pageSize;
     } else {
       const rowIndex = indexOfFirstNullInRegion(state.data, visibleRegion);
       if (rowIndex == null && state.initialized) return;
-      offset = Math.floor((rowIndex ?? 0) / chunkSize) * chunkSize;
+      offset = Math.floor((rowIndex ?? 0) / pageSize) * pageSize;
       const prev = offset > 0 ? state.data[offset - 1] : null;
       if (prev != null) cursor = { row: prev, index: offset - 1 };
     }
@@ -654,7 +661,7 @@ export function useChunkLoader<T = any>(
     try {
       const result = await fetchChunk({
         offset,
-        limit: chunkSize,
+        limit: pageSize,
         signal: controller.signal,
         sorts: columnSorts,
         filters,
@@ -662,7 +669,7 @@ export function useChunkLoader<T = any>(
       });
       if (controller.signal.aborted) return;
       const rows = result.rows ?? [];
-      if (mode === "paged") {
+      if (fetchMode === "paged") {
         loadedRef.current = { page, viewKey };
         // The sheet shows just this page's rows (dense, from index 0); the
         // real source length is tracked separately for the pager.
@@ -685,8 +692,8 @@ export function useChunkLoader<T = any>(
         if (result.totalCount != null) {
           totalSize = result.totalCount;
         } else {
-          const reachedEnd = rows.length < chunkSize;
-          totalSize = reachedEnd ? loadedEnd : loadedEnd + chunkSize;
+          const reachedEnd = rows.length < pageSize;
+          totalSize = reachedEnd ? loadedEnd : loadedEnd + pageSize;
         }
         dispatch({
           type: "loaded",
@@ -704,7 +711,7 @@ export function useChunkLoader<T = any>(
         dispatch({ type: "error", error: err as Error });
       }
     }
-  }, [state.data, visibleRegion, viewKey, page, mode]);
+  }, [state.data, visibleRegion, viewKey, page, fetchMode]);
 
   return { data: state.data, loading: state.loading, error: state.error };
 }
@@ -713,14 +720,12 @@ export function useChunkLoader<T = any>(
  * Render as a child of `DataSheet` (it renders nothing itself). */
 export function ChunkLoaderManager<T = any>({
   fetchChunk,
-  chunkSize,
-  mode,
+  pageSize,
+  fetchMode,
 }: {
   fetchChunk: FetchChunk<T>;
-  chunkSize?: number;
-  mode?: FetchMode;
-}) {
-  useChunkLoader(fetchChunk, { chunkSize, mode });
+} & FetchChunkOptions) {
+  useChunkLoader(fetchChunk, { pageSize: pageSize, fetchMode: fetchMode });
   return null;
 }
 

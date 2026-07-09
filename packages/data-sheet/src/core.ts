@@ -512,7 +512,7 @@ function _DataSheet<T>({
     localLoader = h(ChunkLoaderManager, {
       key: "__local_loader",
       fetchChunk: localProvider.fetchChunk,
-      chunkSize: Math.max(sourceData?.length ?? 1, 1),
+      pageSize: Math.max(sourceData?.length ?? 1, 1),
     });
   }
 

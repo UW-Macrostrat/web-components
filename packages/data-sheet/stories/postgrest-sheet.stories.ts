@@ -98,6 +98,7 @@ export const Simple = {
 
 export const FullTableSearch = {
   args: {
+    name: "Table with full-text search",
     enableFullTableSearch: true,
   },
 };
