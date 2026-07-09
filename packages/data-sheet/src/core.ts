@@ -42,13 +42,12 @@ import {
   TableFilter,
 } from "./actions";
 import {
-  ChunkLoaderManager,
   createLocalProvider,
   FetchData,
-  FetchChunkOptions,
-  FetchDataParams,
+  FetchDataOptions,
   tableFooterAtom,
   useScrollHandler,
+  useDataLoader,
 } from "./postgrest-table";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
@@ -80,12 +79,12 @@ const COLUMN_HEADER_HEIGHT = 34;
  */
 export type CellInteraction = "auto" | "manual";
 
-interface DataSheetInternalProps<T> extends TableProps, FetchChunkOptions {
+interface DataSheetInternalProps<T> extends TableProps, FetchDataOptions {
   /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
    * driven through the same loader as any other source. */
   data?: T[];
   // function to fetch chunk of data
-  fetchChunk?: FetchData<T>;
+  fetchData?: FetchData<T>;
   // An optional table name that will be used in toolbars if given
   name?: string;
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
@@ -183,7 +182,7 @@ const deletedRowHeaderStyle = {
 
 function _DataSheet<T>({
   data: sourceData,
-  fetchChunk,
+  fetchData,
   pageSize,
   fetchMode,
   onVisibleCellsChange,
@@ -505,14 +504,15 @@ function _DataSheet<T>({
   // Manager to manage this chunk loader
   let dataLoader: ReactNode = null;
   if (localProvider != null) {
-    dataLoader = h(ChunkLoaderManager, {
+    dataLoader = h(_DataLoaderManager, {
       key: "__local_loader",
-      fetchChunk: localProvider.fetchData,
+      fetchData: localProvider.fetchData,
       pageSize: Math.max(sourceData?.length ?? 1, 1),
     });
-  } else if (fetchChunk != null) {
-    dataLoader = h(ChunkLoaderManager, {
-      fetchChunk,
+  } else if (fetchData != null) {
+    dataLoader = h(_DataLoaderManager, {
+      key: "__data_loader",
+      fetchData,
       pageSize,
       fetchMode,
     });
@@ -623,6 +623,18 @@ function styleParamsForDensity(density: DataSheetDensity) {
         },
       };
   }
+}
+
+/** Convenience component: runs `useChunkLoader` from inside a `DataSheet`.
+ * Render as a child of `DataSheet` (it renders nothing itself). */
+function _DataLoaderManager<T = any>({
+  fetchData,
+  ...rest
+}: {
+  fetchData: FetchData<T>;
+} & FetchDataOptions) {
+  useDataLoader(fetchData, rest);
+  return null;
 }
 
 export function getRowsToDelete(selection) {

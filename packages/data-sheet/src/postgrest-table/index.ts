@@ -3,7 +3,7 @@ import h from "./main.module.sass";
 import { DataSheet, getRowsToDelete } from "../core";
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import {
-  ChunkLoaderManager,
+  DataLoaderManager,
   createPostgRESTFetchChunk,
   dataRefreshTokenAtom,
   PostgrestFilter,
@@ -15,7 +15,10 @@ import {
   ToasterContext,
   useToaster,
 } from "@macrostrat/ui-components";
-import { PostgrestClient, PostgrestFilterBuilder } from "@supabase/postgrest-js";
+import {
+  PostgrestClient,
+  PostgrestFilterBuilder,
+} from "@supabase/postgrest-js";
 import { ColorCell, InfoBar } from "../components";
 import { DataSheetProviderProps } from "../types.ts";
 import { atom } from "jotai";
@@ -150,7 +153,7 @@ function _PostgRESTTableView<T>({
   );
 
   const orderKey = JSON.stringify(_order);
-  const fetchChunk = useMemo(
+  const fetchData = useMemo(
     () =>
       createPostgRESTFetchChunk({
         endpoint,
@@ -195,35 +198,32 @@ function _PostgRESTTableView<T>({
     [getClient, toaster, bumpRefresh],
   );
 
-  return h(
-    DataSheet,
-    {
-      ...rest,
-      dataSheetActions: enableFullTableSearch
-        ? h(SearchAction)
-        : dataSheetActions,
-      columnSpecOptions: columnOptions,
-      editable,
-      // Row identity for the edit overlay, so edits survive a re-ordered
-      // re-fetch (the server returns re-ordered windows on sort/filter).
-      identity: (row: any) => row?.[_identityKey!],
-      onSave: editable ? handleSave : undefined,
-      // Sort/filter now use the generic store-driven column header + FilterBar
-      // (columns are auto-inferred `sortable`/`filterable`); no PostgREST-only
-      // header or bar.
-      onDeleteRows(selection) {
-        if (!editable) return;
+  return h(DataSheet, {
+    ...rest,
+    fetchData,
+    dataSheetActions: enableFullTableSearch
+      ? h(SearchAction)
+      : dataSheetActions,
+    columnSpecOptions: columnOptions,
+    editable,
+    // Row identity for the edit overlay, so edits survive a re-ordered
+    // re-fetch (the server returns re-ordered windows on sort/filter).
+    identity: (row: any) => row?.[_identityKey!],
+    onSave: editable ? handleSave : undefined,
+    // Sort/filter now use the generic store-driven column header + FilterBar
+    // (columns are auto-inferred `sortable`/`filterable`); no PostgREST-only
+    // header or bar.
+    onDeleteRows(selection) {
+      if (!editable) return;
 
-        const rowIndices = getRowsToDelete(selection);
-        const ids = rowIndices.map((i) => data[i]?.[_identityKey!]);
-        const query = getClient().delete().in(_identityKey!, ids);
-        wrapWithErrorHandling(toaster, query).then((res) => {
-          if (res != null) bumpRefresh((v) => v + 1);
-        });
-      },
+      const rowIndices = getRowsToDelete(selection);
+      const ids = rowIndices.map((i) => data[i]?.[_identityKey!]);
+      const query = getClient().delete().in(_identityKey!, ids);
+      wrapWithErrorHandling(toaster, query).then((res) => {
+        if (res != null) bumpRefresh((v) => v + 1);
+      });
     },
-    [h(ChunkLoaderManager, { key: "loader", fetchChunk })],
-  );
+  });
 }
 
 export function notifyOnError(toaster: OverlayToaster, error: any) {
@@ -328,4 +328,3 @@ export function SearchAction() {
     },
   });
 }
-

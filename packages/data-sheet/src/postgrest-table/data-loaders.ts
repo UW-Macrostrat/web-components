@@ -561,7 +561,7 @@ export function compareRowsBySorts(sorts: ColumnSort[]) {
   };
 }
 
-export interface FetchChunkOptions {
+export interface FetchDataOptions {
   pageSize?: number;
   fetchMode?: FetchMode;
 }
@@ -579,7 +579,7 @@ export interface FetchChunkOptions {
  */
 export function useDataLoader<T = any>(
   fetchChunk: FetchData<T>,
-  options: FetchChunkOptions = {},
+  options: FetchDataOptions = {},
 ) {
   const { pageSize = 100, fetchMode = "scroll" } = options;
   const [state, dispatch] = useLazyLoaderReducer();
@@ -713,19 +713,6 @@ export function useDataLoader<T = any>(
   }, [state.data, visibleRegion, viewKey, page, fetchMode]);
 
   return { data: state.data, loading: state.loading, error: state.error };
-}
-
-/** Convenience component: runs `useChunkLoader` from inside a `DataSheet`.
- * Render as a child of `DataSheet` (it renders nothing itself). */
-export function ChunkLoaderManager<T = any>({
-  fetchChunk,
-  pageSize,
-  fetchMode,
-}: {
-  fetchChunk: FetchData<T>;
-} & FetchChunkOptions) {
-  useDataLoader(fetchChunk, { pageSize: pageSize, fetchMode: fetchMode });
-  return null;
 }
 
 /**

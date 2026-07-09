@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
-import { DataSheet, ChunkLoaderManager, ScrollToRowControl } from "../src";
+import { DataSheet, ScrollToRowControl } from "../src";
 import type { FetchDataParams, TableFilter } from "../src";
 import { FormGroup, NumericInput, SegmentedControl } from "@blueprintjs/core";
 import { useState } from "react";
@@ -172,11 +172,10 @@ export const ServerBackedTable: StoryObj = {
           columnSpec,
           editable: false,
           showLoadProgress: true,
+          fetchData: fetchChunk,
+          pageSize: 100,
         },
-        [
-          h(ScrollToRowControl, { key: "scroll-to-row" }),
-          h(ChunkLoaderManager, { key: "loader", fetchChunk, pageSize: 100 }),
-        ],
+        h(ScrollToRowControl, { key: "scroll-to-row" }),
       ),
     ),
 };
@@ -245,23 +244,15 @@ function ModeToggleDemo() {
             flexDirection: "column",
           },
         },
-        h(
-          DataSheet,
-          {
-            data: [],
-            columnSpec,
-            editable: false,
-            showLoadProgress: true,
-          },
-          [
-            h(ChunkLoaderManager, {
-              key: "loader",
-              fetchChunk,
-              pageSize: chunkSize,
-              fetchMode: mode,
-            }),
-          ],
-        ),
+        h(DataSheet, {
+          data: [],
+          columnSpec,
+          editable: false,
+          showLoadProgress: true,
+          fetchData: fetchChunk,
+          pageSize: chunkSize,
+          fetchMode: mode,
+        }),
       ),
     ],
   );
@@ -289,23 +280,15 @@ export const PagedTable: StoryObj = {
           flexDirection: "column",
         },
       },
-      h(
-        DataSheet,
-        {
-          data: [],
-          columnSpec,
-          editable: false,
-          showLoadProgress: true,
-        },
-        [
-          h(ChunkLoaderManager, {
-            key: "loader",
-            fetchChunk,
-            pageSize: 25,
-            fetchMode: "paged",
-          }),
-        ],
-      ),
+      h(DataSheet, {
+        data: [],
+        fetchData: fetchChunk,
+        pageSize: 25,
+        fetchMode: "paged",
+        columnSpec,
+        editable: false,
+        showLoadProgress: true,
+      }),
     ),
 };
 
@@ -358,21 +341,13 @@ export const InfiniteScroll: StoryObj = {
           flexDirection: "column",
         },
       },
-      h(
-        DataSheet,
-        {
-          data: [],
-          columnSpec: growingColumns,
-          editable: false,
-          showLoadProgress: true,
-        },
-        [
-          h(ChunkLoaderManager, {
-            key: "loader",
-            fetchChunk: fetchGrowingChunk,
-            pageSize: 100,
-          }),
-        ],
-      ),
+      h(DataSheet, {
+        data: [],
+        columnSpec: growingColumns,
+        editable: false,
+        showLoadProgress: true,
+        fetchData: fetchGrowingChunk,
+        pageSize: 100,
+      }),
     ),
 };
