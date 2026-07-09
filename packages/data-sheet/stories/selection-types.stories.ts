@@ -176,8 +176,6 @@ function buildColumnSpec() {
     {
       name: "Color",
       key: "color",
-      required: false,
-      isValid: (d) => true, //getColor(d) != null,
       transform: (d) => d,
       dataEditor: ColorPicker,
       valueRenderer: (d) => {

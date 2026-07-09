@@ -71,9 +71,11 @@ export const WithLongEditableText = {
   },
 };
 
-export const WithoutAutoFocus = {
+// `cellInteraction: "manual"` — the editor surface opens on click rather than
+// on selection (the successor to the old `autoFocusEditor: false`).
+export const ManualCellInteraction = {
   args: {
-    autoFocusEditor: false,
+    cellInteraction: "manual",
     columnSpec: extColumnSpec,
   },
 };
@@ -135,8 +137,6 @@ function buildColumnSpec() {
     {
       name: "Color",
       key: "color",
-      required: false,
-      isValid: (d) => true, //getColor(d) != null,
       transform: (d) => d,
       dataEditor: ColorPicker,
       valueRenderer: (d) => {

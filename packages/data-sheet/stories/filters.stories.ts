@@ -49,6 +49,7 @@ const nameFilter: TableFilter = {
   columnKey: "name",
   description: "Show only rows where the name contains a string.",
   defaultState: { search: "" },
+  describeState: (state) => (state?.search ? `"${state.search}"` : null),
   filterForm({ state, setState }) {
     return h(FormGroup, { label: "Name contains" }, [
       h(InputGroup, {
@@ -66,27 +67,6 @@ const nameFilter: TableFilter = {
   },
 };
 
-const columnSpec = [
-  { name: "Name", key: "name", width: 200, sortable: true, filterable: true },
-  {
-    name: "Value",
-    key: "value",
-    valueRenderer: (d) => d?.toFixed?.(2) ?? `${d}`,
-    width: 100,
-    sortable: true,
-    filterable: true,
-    filters: [nameFilter],
-  },
-  { name: "Category", key: "category", width: 130, sortable: true, filterable: true },
-  {
-    name: "Depth (m)",
-    key: "depth",
-    valueRenderer: (d) => d?.toFixed?.(0) ?? `${d}`,
-    width: 100,
-    sortable: true,
-    filterable: true,
-  },
-];
 
 function Wrapper(props) {
   return h(
@@ -113,6 +93,7 @@ const categoryFilter: TableFilter = {
   columnKey: "category",
   description: "Show only rows matching a specific rock category.",
   defaultState: { category: "Igneous" },
+  describeState: (state) => state?.category ?? null,
   filterForm({ state, setState }) {
     return h(
       FormGroup,
@@ -140,6 +121,7 @@ const depthFilter: TableFilter<any, { min: number; max: number }> = {
   columnKey: "depth",
   description: "Show rows with depth within a range.",
   defaultState: { min: 0, max: 250 },
+  describeState: (state) => `${state.min}–${state.max}`,
   filterForm({ state, setState }) {
     return h("div", { style: { display: "flex", gap: "8px" } }, [
       h(
@@ -178,6 +160,42 @@ const depthFilter: TableFilter<any, { min: number; max: number }> = {
   },
 };
 
+// Rich, column-specific filters live on the column spec, so they show as modal
+// filters in each column's header dropdown. `value` has no rich filter, so it
+// falls back to the built-in operator filter (it's `filterable`).
+const columnSpec = [
+  {
+    name: "Name",
+    key: "name",
+    width: 200,
+    sortable: true,
+    filters: [nameFilter],
+  },
+  {
+    name: "Value",
+    key: "value",
+    valueRenderer: (d) => d?.toFixed?.(2) ?? `${d}`,
+    width: 100,
+    sortable: true,
+    filterable: true,
+  },
+  {
+    name: "Category",
+    key: "category",
+    width: 130,
+    sortable: true,
+    filters: [categoryFilter],
+  },
+  {
+    name: "Depth (m)",
+    key: "depth",
+    valueRenderer: (d) => d?.toFixed?.(0) ?? `${d}`,
+    width: 100,
+    sortable: true,
+    filters: [depthFilter],
+  },
+];
+
 // ---- Stories ----
 
 /** A single category filter. Activate it from the "Add filter" button
@@ -189,7 +207,6 @@ export const CategoryFilter: StoryObj = {
       columnSpec,
       editable: true,
       actions: defaultTableActions,
-      filters: [categoryFilter],
     }),
 };
 
@@ -202,7 +219,6 @@ export const MultipleFilters: StoryObj = {
       columnSpec,
       editable: true,
       actions: defaultTableActions,
-      filters: [categoryFilter, depthFilter, nameFilter],
     }),
 };
 
@@ -227,7 +243,6 @@ export const ColumnSpecFilters: StoryObj = {
       editable: true,
       actions: [...defaultTableActions, copyAction, pasteAction],
       // No global filters — they come from the column spec
-      filters: [],
     });
   },
 };
@@ -241,7 +256,6 @@ export const FiltersWithClipboard: StoryObj = {
       columnSpec,
       editable: true,
       actions: [...defaultTableActions, copyAction, pasteAction],
-      filters: [categoryFilter, depthFilter],
     }),
 };
 
@@ -282,7 +296,6 @@ export const SortAndFilter: StoryObj = {
       columnSpec,
       editable: true,
       actions: defaultTableActions,
-      filters: [categoryFilter, depthFilter],
     }),
 };
 

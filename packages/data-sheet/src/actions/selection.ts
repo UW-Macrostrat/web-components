@@ -1,15 +1,14 @@
 import { type Region, RegionCardinality } from "@blueprintjs/table";
 import type { ColumnSpec } from "../utils";
 import type {
-  ActiveFilterEntry,
   CellEdit,
-  ColumnSort,
-  SelectionCardinality,
+  SelectionShape,
   TableAction,
   TableActionContext,
   TableFilter,
 } from "./types";
 import type { DataSheetStore } from "../types";
+import { columnFilter } from "./column-filter";
 import update from "immutability-helper";
 
 /** Derive the selection cardinality from the current set of selected regions.
@@ -25,6 +24,19 @@ export function getSelectionCardinality(
   if (hasRows && !hasCols) return RegionCardinality.FULL_ROWS;
   if (!hasRows && hasCols) return RegionCardinality.FULL_COLUMNS;
   return RegionCardinality.FULL_TABLE;
+}
+
+/** Compute the concrete shape of a selection (cardinality + column/row spans). */
+export function computeSelectionShape(regions: Region[]): SelectionShape {
+  const cardinality = getSelectionCardinality(regions) ?? "none";
+  const region = regions?.[0];
+  const cols = region?.cols;
+  const rows = region?.rows;
+  return {
+    cardinality,
+    columns: cols != null ? cols[1] - cols[0] + 1 : 0,
+    rows: rows != null ? rows[1] - rows[0] + 1 : 0,
+  };
 }
 
 /** Filter actions to those applicable for the current selection cardinality
@@ -58,9 +70,7 @@ export function getSelectedRowIndices(
   }
   const sorted = Array.from(indices).sort((a, b) => a - b);
   if (filteredRowIndices == null) return sorted;
-  return sorted
-    .map((i) => filteredRowIndices[i])
-    .filter((i) => i != null);
+  return sorted.map((i) => filteredRowIndices[i]).filter((i) => i != null);
 }
 
 /** Extract column keys covered by a set of selected regions. */
@@ -108,14 +118,48 @@ export function buildActionContext<T>(
     return _filteredRowIndices;
   }
 
+  const shape = computeSelectionShape(state.selection);
+
   return {
     selection: state.selection,
     selectionCardinality: getSelectionCardinality(state.selection),
+    selectionShape: shape,
+    // Resolved single-target identity (lazy — mapping rows through filters is
+    // only paid when accessed).
+    get columnKey() {
+      return shape.columns === 1
+        ? (getSelectedColumnKeys(state.selection, state.columnSpec)[0] ?? null)
+        : null;
+    },
+    get rowIndex() {
+      return shape.rows === 1
+        ? (getSelectedRowIndices(state.selection, getFilteredRowIndices())[0] ??
+            null)
+        : null;
+    },
+    get cell() {
+      if (
+        shape.cardinality !== RegionCardinality.CELLS ||
+        shape.columns !== 1 ||
+        shape.rows !== 1
+      ) {
+        return null;
+      }
+      const columnKey =
+        getSelectedColumnKeys(state.selection, state.columnSpec)[0] ?? null;
+      const rowIndex =
+        getSelectedRowIndices(state.selection, getFilteredRowIndices())[0] ??
+        null;
+      return columnKey != null && rowIndex != null
+        ? { rowIndex, columnKey }
+        : null;
+    },
     data: state.data,
     updatedData: state.updatedData,
     rowStatus: state.rowStatus,
     columnSpec: state.columnSpec,
     editable: state.editable,
+    canDeleteRows: state.canDeleteRows,
     getSelectedRowIndices: () =>
       getSelectedRowIndices(state.selection, getFilteredRowIndices()),
     getSelectedColumnKeys: () =>
@@ -215,57 +259,20 @@ export function collectAllFilters<T>(
   for (const col of columnSpec) {
     if (col.filters != null) {
       for (const f of col.filters as TableFilter<T>[]) {
-        const withKey: TableFilter<T> = { ...f, columnKey: f.columnKey ?? col.key };
+        const withKey: TableFilter<T> = {
+          ...f,
+          columnKey: f.columnKey ?? col.key,
+        };
         if (!result.some((r) => r.id === withKey.id)) {
           result.push(withKey);
         }
       }
     }
+    // Auto-generate the built-in operator filter for a `filterable` column,
+    // unless the column already supplies an explicit filter.
+    if (col.filterable && !result.some((r) => r.columnKey === col.key)) {
+      result.push(columnFilter(col) as TableFilter<T>);
+    }
   }
   return result;
 }
-
-/** Compute row indices after applying both filters and sorts.
- * Returns `null` when no filters or sorts are active (natural order). */
-export function computeTransformedRowIndices<T>(
-  data: T[],
-  updatedData: T[],
-  activeFilters: Map<string, { filter: any; state: any }>,
-  columnSorts: ColumnSort[],
-): number[] | null {
-  const hasFilters = activeFilters != null && activeFilters.size > 0;
-  const hasSorts = columnSorts != null && columnSorts.length > 0;
-
-  if (!hasFilters && !hasSorts) return null;
-
-  let indices: number[];
-  if (hasFilters) {
-    // Apply filter predicates
-    const filtered = computeFilteredRowIndices(data, updatedData, activeFilters);
-    indices = filtered ?? Array.from({ length: Math.max(data.length, updatedData.length) }, (_, i) => i);
-  } else {
-    const numRows = Math.max(data.length, updatedData.length);
-    indices = Array.from({ length: numRows }, (_, i) => i);
-  }
-
-  if (!hasSorts) return indices;
-
-  // Sort the indices by column values
-  return [...indices].sort((a, b) => {
-    for (const sort of columnSorts) {
-      const rowA = updatedData[a] != null ? { ...data[a], ...updatedData[a] } : data[a];
-      const rowB = updatedData[b] != null ? { ...data[b], ...updatedData[b] } : data[b];
-      const valA = rowA?.[sort.key];
-      const valB = rowB?.[sort.key];
-
-      if (valA == null && valB == null) continue;
-      if (valA == null) return sort.ascending ? -1 : 1;
-      if (valB == null) return sort.ascending ? 1 : -1;
-
-      const cmp = valA < valB ? -1 : valA > valB ? 1 : 0;
-      if (cmp !== 0) return sort.ascending ? cmp : -cmp;
-    }
-    return 0;
-  });
-}
-

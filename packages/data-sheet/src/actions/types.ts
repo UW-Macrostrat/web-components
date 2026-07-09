@@ -1,16 +1,27 @@
 import type { IconName, Intent } from "@blueprintjs/core";
 import type { Region, RegionCardinality } from "@blueprintjs/table";
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import type { ColumnSpec } from "../utils";
 import { ClipboardProxy, TableElementStatus } from "../types.ts";
 
 /** Selection cardinality including the case of no active selection */
 export type SelectionCardinality = RegionCardinality | "none";
 
+/** The concrete *shape* of the current selection — richer than cardinality
+ * alone. The "single X" cases are exposed as resolved identity fields on the
+ * action context (`columnKey`, `rowIndex`, `cell`); this carries the counts. */
+export interface SelectionShape {
+  cardinality: SelectionCardinality;
+  /** Number of columns the selection spans (0 when not column-scoped). */
+  columns: number;
+  /** Number of rows the selection spans (0 when not row-scoped). */
+  rows: number;
+}
+
 /** A single cell edit, used with `editCells` for batch updates. */
 export interface CellEdit {
   rowIndex: number;
-  columnKey: string;
+  column: string;
   value: any;
 }
 
@@ -37,6 +48,10 @@ export interface TableFilter<T = any, S = any> {
   /** Component for configuring the filter value.
    * Same `{ state, setState }` pattern as `TableAction.detailsForm`. */
   filterForm?: ComponentType<{ state: S; setState(state: S): void }>;
+  /** Summarize the current filter state for display on the active-filter tag
+   * (e.g. the range `0–250` or the search term). Keep it short — the tag also
+   * shows the filter name. Return `null` to show just the name. */
+  describeState?: (state: S) => import("react").ReactNode;
   /** Row predicate: return `true` if the row should be visible.
    * Receives the merged row (updatedData overlaid on data). */
   predicate(row: T, state: S): boolean;
@@ -60,6 +75,20 @@ export interface TableActionContext<T = any> {
   selection: Region[];
   /** Derived cardinality of the current selection */
   selectionCardinality: SelectionCardinality;
+  /** Concrete shape of the current selection (cardinality + column/row counts). */
+  selectionShape: SelectionShape;
+  /** The single selected column's key when exactly one column is scoped
+   * (a single full column, or cells within one column); otherwise `null`. */
+  columnKey: string | null;
+  /** The single selected data-row index when exactly one row is scoped;
+   * otherwise `null`. */
+  rowIndex: number | null;
+  /** The single selected cell (data-row index + column key) when exactly one
+   * cell is selected; otherwise `null`. Presence of these resolved fields is
+   * how actions discriminate selection shape — e.g. `appliesTo: ctx =>
+   * ctx.cell != null` for a single-cell control, or `ctx.columnKey != null`
+   * within a `FULL_COLUMNS` target for a single-column control. */
+  cell: { rowIndex: number; columnKey: string } | null;
   /** The table's base data */
   data: T[];
   /** Sparse overlay of edited data */
@@ -70,6 +99,8 @@ export interface TableActionContext<T = any> {
   columnSpec: ColumnSpec[];
   /** Whether the table is in edit mode */
   editable: boolean;
+  /** Whether row deletion is available (false when the provider can't delete). */
+  canDeleteRows: boolean;
 
   // Convenience methods (derived from selection)
   /** Row indices covered by the current selection */
@@ -131,6 +162,12 @@ export interface TableAction<T = any, S = null> {
    * should be available even with no active selection. */
   targets: SelectionCardinality[];
 
+  /** Optional refinement beyond `targets`, inspecting the resolved selection
+   * identity. Return `false` to hide the action for a given shape — e.g. sort
+   * and filter return `ctx.columnKey != null` (within their `FULL_COLUMNS`
+   * target), so they appear only for a single column. */
+  appliesTo?: (context: TableActionContext<T>) => boolean;
+
   /** Whether this action requires the table to be in edit mode.
    * Defaults to `true`. Set to `false` for read-only actions
    * (e.g., "open URL", "copy to clipboard"). */
@@ -149,10 +186,18 @@ export interface TableAction<T = any, S = null> {
   /** Check if the action is ready to run given its configuration state */
   isReady?: (state: S) => boolean;
 
+  /** For live/stateful controls (a column sort or filter widget, say): render
+   * bespoke UI for the current context instead of the default action button.
+   * When present, the toolbar renders this and ignores `detailsForm` (and
+   * `run`, unless the control itself invokes it). This is how sort/filter/group
+   * are expressed as `FULL_COLUMNS`-scoped controls in the one action system. */
+  render?: (context: TableActionContext<T>) => ReactNode;
+
   /** Execute the action. May be synchronous (local state manipulation)
    * or asynchronous (backend fulfillment). For lazy-loaded tables,
-   * async actions are required when targeting non-loaded cells. */
-  run(context: TableActionContext<T>, state?: S): void | Promise<void>;
+   * async actions are required when targeting non-loaded cells.
+   * Optional for `render`-only controls. */
+  run?(context: TableActionContext<T>, state?: S): void | Promise<void>;
   successMessage?: string;
   errorMessage?: string;
   hotkey?: string;

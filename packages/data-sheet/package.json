@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-sheet",
-  "version": "4.0.0-dev3",
+  "version": "4.0.0",
   "description": "Scalable data sheet with optional editing capabilities",
   "repository": {
     "type": "git",

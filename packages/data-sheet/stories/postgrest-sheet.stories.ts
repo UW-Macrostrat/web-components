@@ -4,21 +4,24 @@ import {
   ColorCell,
   ColorPicker,
   colorSwatchRenderer,
-  DataSheetAction,
-  DataSheetActionsRow,
+  createPostgRESTProvider,
+  DataSheet,
+  deleteRowsAction,
   ExpandedLithologies,
   IntervalCell,
   lithologyRenderer,
   LongTextViewer,
   PostgRESTTableView,
-  ScrollToRowControl,
+  scrollToRowAction,
+  TableAction,
   wrapWithErrorHandling,
 } from "../src";
 import { useSelector } from "../src/provider";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Button, InputGroup } from "@blueprintjs/core";
 import { PostgrestClient } from "@supabase/postgrest-js";
 import { useToaster } from "@macrostrat/ui-components";
+import { RegionCardinality } from "@blueprintjs/table";
 
 const endpoint = "https://dev.macrostrat.org/api/pg";
 
@@ -85,19 +88,13 @@ export const Primary: StoryObj<{}> = {
   },
 };
 
-export const WithInfoBar: StoryObj<{}> = {
-  args: {
-    columnOptions: defaultColumnOptions,
-    showInfoBar: true,
-  },
-};
-
 export const Simple = {
   args: {},
 };
 
 export const FullTableSearch = {
   args: {
+    name: "Table with full-text search",
     enableFullTableSearch: true,
   },
 };
@@ -129,14 +126,59 @@ export const SortAndFilter = {
   },
 };
 
+/** Story-local example of a custom table-scoped action (jump to a legend id). */
+const selectLegendIdAction: TableAction = {
+  id: "select-legend-id",
+  name: "Legend ID",
+  icon: "flow-review",
+  targets: [RegionCardinality.FULL_TABLE, "none"],
+  requiresEditable: false,
+  render: () => h(SelectLegendIDControl),
+};
+
 export const ScrollToRow = {
   args: {
     columnOptions: defaultColumnOptions,
-    dataSheetActions: h(DataSheetActionsRow, [
-      h(ScrollToRowControl),
-      h(SelectLegendIDControl),
-    ]),
+    // Table-scoped controls are ordinary actions now (no `dataSheetActions`).
+    actions: [scrollToRowAction, selectLegendIdAction],
   },
+};
+
+/**
+ * **Deletion gated by the provider.** This table is editable and driven by a
+ * PostgREST provider built with `createPostgRESTProvider`, but with `deleteRows`
+ * **removed** from the provider object. Because the provider can't delete, the
+ * "Delete rows" action is greyed out and the Delete/Backspace key is a no-op —
+ * deletion is disabled table-wide. (Editing still works; drop `deleteRows` back
+ * in and deletion returns.)
+ */
+function NoRowDeletionDemo() {
+  const provider = useMemo(() => {
+    const full = createPostgRESTProvider({
+      endpoint,
+      table: "legend",
+      identityKey: "legend_id",
+      baseOrder: [{ key: "legend_id", ascending: true }],
+    });
+    // Omit `deleteRows` → the sheet reports deletion as unavailable.
+    const { deleteRows, ...withoutDelete } = full;
+    return withoutDelete;
+  }, []);
+
+  return h(
+    "div.postgrest-sheet-container",
+    h(DataSheet, {
+      provider,
+      editable: true,
+      columnSpecOptions: defaultColumnOptions,
+      // Surface the delete action so you can see it disabled.
+      actions: [deleteRowsAction],
+    }),
+  );
+}
+
+export const NoRowDeletion: StoryObj = {
+  render: () => h(NoRowDeletionDemo),
 };
 
 export const MapboardPostgrestView = {
@@ -179,30 +221,31 @@ function SelectLegendIDControl() {
   // This should be provided by the table context
   const queryBuilder = useRef(new PostgrestClient(endpoint));
 
-  return h(DataSheetAction, [
-    h(InputGroup, {
-      type: "number",
-      placeholder: "Legend ID",
-      value,
-      onValueChange(value) {
-        setValue(value);
-      },
-      rightElement: h(Button, {
-        icon: "arrow-right",
-        onClick() {
-          // Get offset
-          const query = queryBuilder.current
-            .from("legend")
-            .select("count()")
-            .lte("legend_id", value);
+  return h(InputGroup, {
+    type: "number",
+    placeholder: "Legend ID",
+    small: true,
+    value,
+    onValueChange(value) {
+      setValue(value);
+    },
+    rightElement: h(Button, {
+      icon: "arrow-right",
+      minimal: true,
+      small: true,
+      onClick() {
+        // Get offset
+        const query = queryBuilder.current
+          .from("legend")
+          .select("count()")
+          .lte("legend_id", value);
 
-          wrapWithErrorHandling(toaster, query).then((res) => {
-            if (!res?.data) return null;
-            const rowCount = res.data[0].count;
-            scrollToRow(rowCount - 1);
-          });
-        },
-      }),
+        wrapWithErrorHandling(toaster, query).then((res) => {
+          if (!res?.data) return null;
+          const rowCount = res.data[0].count;
+          scrollToRow(rowCount - 1);
+        });
+      },
     }),
-  ]);
+  });
 }

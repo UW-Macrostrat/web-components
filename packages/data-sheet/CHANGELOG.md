@@ -1,5 +1,56 @@
 # Changelog
 
+## [4.0.0] - 2026-07-09
+
+Version 4 core evolution.
+
+### Unified `TableDataProvider`
+
+- Table recieves data provider (`provider` prop), with unified loader (`data` or
+  `fetchData`) and `identity` key for rows identity (inferred if not provided)
+- Load-progress indicator for progressively loading tables
+- Built-in support for offset or keyset pagination (Note: mixed arbitrary
+  loading is not yet supported)
+- `scroll` or `paged` fetch modes
+
+### Table controls and selection actions
+
+Unified table-scoped controls and contextual (selection-driven) controls.
+
+- `TableAction`s are driven by selection cardinality and shape (e.g.,
+  single/multi column, single/multi row, single cell)
+- Filter tags, with a `TableFilter` component and optional rendering of filter
+  state via `TableFilter.describeState(state)`
+- Different actions appear dependiing on the selection shape
+- Actions appear in toolbars and, if appropriate, column header dropdowns
+- Built-in Save / Reset actions.
+- Actions with a `hotkey` (copy/cut/paste) are omitted from the toolbar.
+- Cell validation via `columnSpec[].validate(value, row, ctx)`. Orthogonal to
+  edit status so a cell can be edited _and_ invalid
+- Toolbar strip above the table, and status bar below
+
+### Editing and validation
+
+- Opt-in controlled editing via `onEdit` hook and `rowStatus`/`updatedData`
+  props.
+- Automatic focus management when paging through a table (in
+  `cellInteraction: "auto"` mode): Click or enter into a cell to focus, and
+  focus is maintained on arrow navigation both within and between rows, until
+  `Esc` dismisses.
+- Improved cell-render context: Per-cell renderers now receive a
+  `CellRenderContext`. `valueRenderer` takes an optional second argument
+  `{ value, rowIndex, colIndex, column, row, isEdited, isDeleted }`, and a
+  custom `cellComponent` receives the same object as a `cellContext` prop.s
+- `columnSpec[].cellDetail(ctx)` renders a cell's surface as an editor when
+  `ctx.editable` and a read-only viewe otherwise, superseding `dataEditor` /
+  `detailRenderer` / `editorForCell` (still supported, now deprecated).
+- Cell viewer/editor presentation via
+  `detailPresentation: "popover" | "modal" | "inline"`. Starting point for
+  editors with a variety of presentations (e.g., inline/omnibar), leading into a
+  future row viewer/editor.
+- General bugfixes for editing interactions and state management, especially in
+  the presence of sorts and filters
+
 ## [4.0.0-dev3] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.0.0-dev2...@macrostrat/data-sheet-v4.0.0)
 
 ### Patch Changes

@@ -7,55 +7,77 @@ import {
   Tag,
 } from "@blueprintjs/core";
 import { useMemo, useState } from "react";
+import { RegionCardinality } from "@blueprintjs/table";
 import h from "./toolbar.module.sass";
 import { useSelector, useStoreAPI } from "../provider";
-import { collectAllFilters } from "./selection";
+import { collectAllFilters, getSelectionCardinality } from "./selection";
 import type { TableFilter } from "./types";
 
-/** Bar showing active filters as interactive tags, with a button to
- * add new filters from the available set (global + column-spec). */
+/** The single view-state bar: active **sorts** and **filters** shown as
+ * removable tags (filters reconfigurable in place via their `filterForm`). The
+ * "Add filter" button offers only **table-level** filters (no `columnKey`) and
+ * only when no column is selected — per-column filters are added/configured
+ * from the column header dropdown instead, so there's no redundancy. */
 export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
   const columnSpec = useSelector((state) => state.columnSpec);
   const storeAPI = useStoreAPI();
   const activeFilters = useSelector((state) => state.activeFilters);
+  const columnSorts = useSelector((state) => state.columnSorts);
+  const selection = useSelector((state) => state.selection);
+
+  const columnSelected =
+    getSelectionCardinality(selection) === RegionCardinality.FULL_COLUMNS;
 
   const allFilters = useMemo(
     () => collectAllFilters(filters, columnSpec),
     [filters, columnSpec],
   );
 
-  const activeIds = useMemo(() => new Set(activeFilters.keys()), [activeFilters]);
-
-  const availableFilters = useMemo(
-    () => allFilters.filter((f) => !activeIds.has(f.id)),
-    [allFilters, activeIds],
+  const activeIds = useMemo(
+    () => new Set(activeFilters.keys()),
+    [activeFilters],
   );
 
-  const hasActive = activeFilters.size > 0;
+  // Only table-level filters are addable from the bar; column filters live in
+  // the column header dropdown.
+  const availableFilters = useMemo(
+    () => allFilters.filter((f) => f.columnKey == null && !activeIds.has(f.id)),
+    [allFilters, activeIds],
+  );
+  const showAdd = !columnSelected && availableFilters.length > 0;
+
+  const hasAnything =
+    columnSorts.length > 0 || activeFilters.size > 0 || showAdd;
+  if (!hasAnything) return null;
 
   return h("div.filter-bar", [
     h(
-      ButtonGroup,
-      { minimal: true },
+      "div.group.sorts",
+      columnSorts.map((s) =>
+        h(
+          Tag,
+          {
+            key: `sort-${s.key}`,
+            icon: s.ascending ? "sort-asc" : "sort-desc",
+            intent: "primary",
+            minimal: true,
+            onRemove() {
+              storeAPI.getState().setColumnSort(s.key, null);
+            },
+          },
+          `${s.key}: ${s.ascending ? "Ascending" : "Descending"}`,
+        ),
+      ),
+    ),
+    h(
+      "div.group.filters",
       Array.from(activeFilters.entries()).map(([id, entry]) =>
         h(ActiveFilterChip, { key: id, filterId: id, entry }),
       ),
     ),
-    h.if(availableFilters.length > 0)(AddFilterPopover, {
+    h.if(showAdd)(AddFilterPopover, {
       filters: availableFilters,
     }),
-    h.if(hasActive)(
-      Button,
-      {
-        minimal: true,
-        small: true,
-        icon: "cross",
-        onClick() {
-          storeAPI.getState().clearFilters();
-        },
-      },
-      "Clear filters",
-    ),
   ]);
 }
 
@@ -72,6 +94,10 @@ function ActiveFilterChip<T>({
   const [configOpen, setConfigOpen] = useState(false);
   const { filter, state: filterState } = entry;
 
+  // Summarize the active filter's window (e.g. "0–250") next to its name, so
+  // the tag conveys not just what is filtered but the current setting.
+  const summary = filter.describeState?.(filterState);
+
   const tag = h(
     Tag,
     {
@@ -83,7 +109,12 @@ function ActiveFilterChip<T>({
       intent: "primary",
       onClick: filter.filterForm ? () => setConfigOpen(!configOpen) : undefined,
     },
-    filter.name,
+    [
+      filter.name,
+      summary != null && summary !== ""
+        ? h("span.filter-window", [": ", summary])
+        : null,
+    ],
   );
 
   if (filter.filterForm == null) return tag;
@@ -111,11 +142,7 @@ function ActiveFilterChip<T>({
 }
 
 /** Popover menu listing available (not-yet-active) filters. */
-function AddFilterPopover<T>({
-  filters,
-}: {
-  filters: TableFilter<T>[];
-}) {
+function AddFilterPopover<T>({ filters }: { filters: TableFilter<T>[] }) {
   const storeAPI = useStoreAPI();
 
   return h(
@@ -147,4 +174,3 @@ function AddFilterPopover<T>({
     ),
   );
 }
-

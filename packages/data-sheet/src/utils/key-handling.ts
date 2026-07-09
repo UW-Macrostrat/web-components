@@ -95,13 +95,36 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
     })
     .filter(Boolean) as HotkeyConfig[];
 
+  // Backspace/Delete: on a whole-row selection, delete the row(s); otherwise
+  // clear the selected cells.
+  const clearOrDeleteSelection = keyHandler((e, state) => {
+    const sel = state.selection ?? [];
+    const isRowSelection =
+      sel.length > 0 && sel.every((r) => r.cols == null && r.rows != null);
+    if (isRowSelection) {
+      state.deleteSelectedRows();
+    } else {
+      state.clearSelection();
+    }
+  });
+
   return [
     {
       combo: "esc",
-      label: "Clear selection",
+      label: "Exit editing / clear selection",
       group: "Selection",
       allowInInput: true,
       onKeyDown: keyHandler((e, state) => {
+        // First Escape closes the focused cell's open surface (editor/panel)
+        // while keeping the selection, so arrow keys keep working — in both
+        // auto and manual modes. A second Escape (nothing open) clears the
+        // selection.
+        if (state.cellSurfaceOpen) {
+          state.closeCellSurface();
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
         if (state.selection.length == 0) {
           // Focus goes back to parent
           return;
@@ -113,13 +136,19 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
     },
     {
       combo: "backspace",
-      label: "Clear selection",
+      label: "Clear cells / delete rows",
       group: "Selection",
       allowInInput: true,
       disabled: !editable,
-      onKeyDown: keyHandler((e, state) => {
-        state.clearSelection();
-      }),
+      onKeyDown: clearOrDeleteSelection,
+    },
+    {
+      combo: "del",
+      label: "Clear cells / delete rows",
+      group: "Selection",
+      allowInInput: true,
+      disabled: !editable,
+      onKeyDown: clearOrDeleteSelection,
     },
     {
       combo: "tab",
@@ -132,11 +161,33 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
     },
     {
       combo: "enter",
-      label: "Move focus down",
+      label: "Edit cell / move focus down",
       group: "Navigation",
       allowInInput: true,
       onKeyDown: keyHandler((e, state) => {
+        // In navigation mode (no surface open), Enter enters edit mode —
+        // opening and focusing the focused cell's surface (Google Sheets
+        // style). While a surface is open, Enter advances downward as usual
+        // (an inline editor blurs and this moves to the next row).
+        if (!state.cellSurfaceOpen) {
+          state.armAutoActivate();
+          state.openCellSurface();
+          e.preventDefault();
+          return;
+        }
         state.moveFocusedCell("down");
+      }),
+    },
+    {
+      combo: "f2",
+      label: "Edit / open cell",
+      group: "Editing",
+      onKeyDown: keyHandler((e, state) => {
+        // Enter edit mode from the keyboard: re-arm auto-activation and open
+        // the focused cell's surface (which focuses the editor).
+        state.armAutoActivate();
+        state.openCellSurface();
+        e.preventDefault();
       }),
     },
     ...directionCombos,
@@ -155,7 +206,20 @@ const isSingleCellSelectionAtom = atom((get) => {
 });
 
 export const editorKeyHandlerAtom = atom((get) => {
+  const store = get(storeAPIAtom);
   return (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      // Escape exits the inline editor: close the surface (which enters
+      // navigation mode in auto), keep the selection, and return focus to the
+      // table so arrow keys navigate. Stop propagation so the table's own
+      // Escape hotkey doesn't also fire.
+      const state = store?.getState();
+      state?.closeCellSurface();
+      state?.tableElement?.focus();
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
     const isSingleCellSelection = get(isSingleCellSelectionAtom);
     editorKeyHandler(e, isSingleCellSelection);
   };

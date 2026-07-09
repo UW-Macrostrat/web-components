@@ -5,7 +5,8 @@ import type {
   Table2,
 } from "@blueprintjs/table";
 import { ColumnSpec, ColumnSpecOptions } from "./utils";
-import { OverlayToaster, Toaster } from "@blueprintjs/core";
+import { OverlayToaster } from "@blueprintjs/core";
+import type { CellEdit } from "./actions";
 
 /** A single column sort entry for client-side sorting.
  * Defined here (rather than in actions/types) to avoid circular imports. */
@@ -13,6 +14,23 @@ export interface ColumnSort {
   key: string;
   ascending: boolean;
 }
+
+/** Direction of keyboard navigation between cells. */
+export type NavDirection = "up" | "down" | "left" | "right";
+
+/**
+ * A structured, revertible description of a user edit. Emitted via the
+ * `onEdit` hook so a consumer can capture edits as operations (and, with the
+ * controlled-overlay API, own the edited state) instead of diffing
+ * `updatedData`. This is the write half of the data-sheet's read/write
+ * contract — the mirror of how data flows in.
+ */
+export type EditEvent<T = any> =
+  | { type: "setCells"; cells: CellEdit[] }
+  | { type: "deleteRows"; rowIndices: number[] }
+  | { type: "restoreRows"; rowIndices: number[] }
+  | { type: "addRow"; rowIndex: number; value: Partial<T> }
+  | { type: "resetChanges" };
 
 export interface DataSheetCoreProps<T> {
   data: T[];
@@ -26,6 +44,11 @@ export enum TableElementStatus {
   DELETED = "deleted",
   ADDED = "added",
 }
+
+/** Property key holding a stable synthetic id on rows added in-table. Added
+ * rows aren't in the data provider, so they need their own identity to survive
+ * a provider re-fetch; it's carried on the row and preserved through edits. */
+export const DS_ROW_ID = "__dsRowId";
 
 /** Proxy stored during a copy operation, enabling backend-mediated paste
  * for lazy-loaded tables where not all data is available locally. */
@@ -67,6 +90,46 @@ export interface DataSheetState<T> {
   filteredRowIndices: number[] | null;
   /** Active column sort entries for client-side sorting. */
   columnSorts: ColumnSort[];
+  /** Whether selecting a cell automatically activates its surface (opens an
+   * editor/detail panel and, for editors, focuses it). `"manual"` opens only
+   * on click. */
+  cellInteraction: "auto" | "manual";
+  /** Runtime override of `cellInteraction`: while `false`, auto-activation is
+   * suppressed (set by pressing Escape, re-armed by clicking a cell) so the
+   * keyboard prioritizes navigation. */
+  autoActivateArmed: boolean;
+  /** Direction of the last keyboard navigation, used to place an editor's
+   * cursor on the side the user is travelling toward. `null` after a click. */
+  lastNavDirection: NavDirection | null;
+  /** The table's focusable holder element; editors return focus here when the
+   * cursor leaves them so arrow-key navigation resumes. */
+  tableElement: HTMLElement | null;
+  /** Whether the focused cell's surface (editor or detail panel) is open.
+   * Owned by the store — not per-popover — so navigation, clicks, and the
+   * Escape handler all agree on it. */
+  cellSurfaceOpen: boolean;
+  /** Optional observer called for every user edit as a structured
+   * `EditEvent`, in addition to the built-in `updatedData` overlay. Lets a
+   * consumer capture edits as revertible operations. */
+  onEdit?: (event: EditEvent<T>) => void;
+  /** Row identity for the edit overlay — stable across a provider re-sort,
+   * unlike an array index. Defaults to `(row) => row?.id`; a data provider
+   * supplies its own (e.g. a PostgREST identity key). Used to re-attach edits
+   * when the loader replaces `data` with a re-ordered window. */
+  identity: (row: any) => string | number | null | undefined;
+  /** Edits/statuses held by identity for rows not currently loaded (server
+   * sources), re-attached when their row next arrives. */
+  pendingOverlayById: Map<
+    string | number,
+    { edit?: any; status?: TableElementStatus }
+  >;
+  /** True when the consumer controls the `updatedData`/`rowStatus` overlay; the
+   * loader-boundary identity remap is skipped (the consumer owns it). */
+  controlledOverlay: boolean;
+  /** Whether row deletion is available. Set from the data provider: an explicit
+   * `provider` without `deleteRows` disables deletion entirely (the delete
+   * affordance greys out and the delete key is a no-op). Defaults to `true`. */
+  canDeleteRows: boolean;
 }
 
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
@@ -80,7 +143,18 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   onSelectionEdited(value: any): void;
   onColumnsReordered(oldIndex: number, newIndex: number, length: number): void;
   onColumnWidthChanged(columnIndex: number, newWidth: number): void;
-  moveFocusedCell(direction: "up" | "down" | "left" | "right"): void;
+  moveFocusedCell(direction: NavDirection): void;
+  /** Suppress auto-activation until the next click (Escape enters nav mode). */
+  suppressAutoActivate(): void;
+  /** Re-arm auto-activation (a click re-enables auto-focus). */
+  armAutoActivate(): void;
+  /** Open the focused cell's surface (editor or detail panel). */
+  openCellSurface(): void;
+  /** Close the focused cell's surface. When `suppress` is true (the default,
+   * as for Escape), auto mode also enters navigation mode (auto-activation is
+   * suppressed until the next click). A click-dismiss passes `suppress: false`
+   * so it just closes without changing the global mode. */
+  closeCellSurface(opts?: { suppress?: boolean }): void;
   deleteSelectedRows(): void;
   clearSelection(): void;
   resetChanges(): void;

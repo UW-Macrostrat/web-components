@@ -2,6 +2,7 @@ import {
   DataSheetState,
   DataSheetStore,
   DataSheetStoreMain,
+  DS_ROW_ID,
   StateUpdater,
   TableElementStatus,
   VisibleCells,
@@ -17,9 +18,10 @@ import {
   getSelectedColumnKeys,
   getSelectedRowIndices,
   getSelectionCardinality,
-  computeFilteredRowIndices,
-  computeTransformedRowIndices,
 } from "./actions";
+
+/** Monotonic counter for synthetic ids on in-table-added rows. */
+let _addedRowCounter = 0;
 
 export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
   return {
@@ -42,10 +44,40 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     columnSorts: [],
     clipboardProxy: null,
     filteredRowIndices: null,
+    cellInteraction: "auto",
+    autoActivateArmed: true,
+    lastNavDirection: null,
+    tableElement: null,
+    cellSurfaceOpen: false,
+    identity: (row: any) => row?.id,
+    pendingOverlayById: new Map(),
+    controlledOverlay: false,
+    canDeleteRows: true,
     setSelection(selection: Region[]) {
       set(updateSelection(selection));
     },
     columnWidthsIndex: new Map<string, number>(),
+    suppressAutoActivate() {
+      set({ autoActivateArmed: false });
+    },
+    armAutoActivate() {
+      set({ autoActivateArmed: true });
+    },
+    openCellSurface() {
+      set({ cellSurfaceOpen: true });
+    },
+    closeCellSurface(opts?: { suppress?: boolean }) {
+      const suppress = opts?.suppress ?? true;
+      set((state) => ({
+        cellSurfaceOpen: false,
+        // Escape (suppress) drops auto mode into navigation mode so surfaces
+        // stop auto-opening until the next click. A click-dismiss doesn't.
+        autoActivateArmed:
+          suppress && state.cellInteraction === "auto"
+            ? false
+            : state.autoActivateArmed,
+      }));
+    },
     moveFocusedCell(direction: "up" | "down" | "left" | "right") {
       set((state) => {
         const { topLeftCell } = state;
@@ -69,12 +101,21 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
             break;
         }
         const region: Region = { cols: [col, col], rows: [row, row] };
-        return updateSelection([region]);
+        // Record the travel direction (so the next editor places its cursor on
+        // the side we're moving toward) and open the new cell's surface only
+        // when auto-activation is armed.
+        return {
+          ...updateSelection([region]),
+          lastNavDirection: direction,
+          cellSurfaceOpen:
+            state.cellInteraction === "auto" && state.autoActivateArmed,
+        };
       });
     },
     addRow(row: Partial<T> = {} as T) {
       /** Add a new row. If there is a selection, use the last row index to determine
        * where to insert the new row. Otherwise, append to the end of the data. */
+      let newIndex = -1;
       set((state) => {
         const { updatedData, data, selection, rowStatus } = state;
 
@@ -83,11 +124,19 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           Math.max(data.length, updatedData.length) - 1;
         // Use $set at a specific index to correctly extend the sparse array.
         // $splice fails when the target index exceeds the array length.
-        const newIndex = lastRowIndex + 1;
+        newIndex = lastRowIndex + 1;
+
+        // Stamp a stable synthetic id so the added row survives a provider
+        // re-fetch (it has no provider row to match on). Its values live in the
+        // overlay (`updatedData`), which the loader-boundary remap re-appends.
+        const newRow = {
+          ...(row as any),
+          [DS_ROW_ID]: `__added_${_addedRowCounter++}`,
+        } as T;
 
         return {
-          updateData: insertItemAtIndex(updatedData, newIndex, row as T),
-          data: insertItemAtIndex(data, newIndex, row as T),
+          updatedData: insertItemAtIndex(updatedData, newIndex, newRow),
+          data: insertItemAtIndex(data, newIndex, newRow),
           rowStatus: insertItemAtIndex(
             rowStatus,
             newIndex,
@@ -95,6 +144,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           ),
         };
       });
+      get().onEdit?.({ type: "addRow", rowIndex: newIndex, value: row });
     },
     setUpdatedData(data: StateUpdater<T>) {
       if (Array.isArray(data)) {
@@ -106,10 +156,15 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       }
     },
     deleteSelectedRows() {
+      // Deletion is a provider capability: if the active data provider can't
+      // delete (no `deleteRows`), the whole affordance is disabled.
+      if (!get().canDeleteRows) return;
       // Remove selected rows from the data and updatedData arrays
+      let deletedIndices: number[] = [];
       set((state) => {
         const { selection, deletedRows } = state;
         const rowIndices = getRowIndices(selection);
+        deletedIndices = rowIndices;
 
         // Delete rows from both updatedData and data
 
@@ -158,10 +213,14 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           fillValueBaseCell: null,
         };
       });
+      if (deletedIndices.length > 0) {
+        get().onEdit?.({ type: "deleteRows", rowIndices: deletedIndices });
+      }
     },
     resetChanges(regions?: Region[]) {
       // Reset the updated data to the initial data
       set((state) => resetChangesForSelection(state, regions));
+      get().onEdit?.({ type: "resetChanges" });
     },
     onColumnWidthChanged(columnIx: number, newWidth: number) {
       set((state) => {
@@ -184,27 +243,45 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         if (!editable) return {};
         let rowSpec: any;
 
-        // Check to see if the new value is the same as the old one
-        if (value !== data[rowIndex]?.[columnName]) {
+        // Check to see if the new value is meaningfully different from the old
+        // one. Empty string and null/undefined are treated as equivalent, so
+        // focusing (and blurring) an empty cell doesn't record a phantom edit.
+        const oldValue = data[rowIndex]?.[columnName];
+        if (!valuesAreEquivalent(value, oldValue)) {
           const rowOp = updatedData[rowIndex] != null ? "$merge" : "$set";
           rowSpec = { [rowOp]: { [columnName]: value } };
-        } else {
+        } else if (updatedData[rowIndex] != null) {
+          // No change — drop any prior override for this cell.
           rowSpec = { $unset: [columnName] };
+        } else {
+          // No change and no prior override: nothing to do. (`$unset` on an
+          // absent row would throw in immutability-helper.)
+          return {};
         }
         const spec: Spec<T[]> = { [rowIndex]: rowSpec };
         return { updatedData: update(updatedData, spec) };
       });
+      if (get().editable) {
+        get().onEdit?.({
+          type: "setCells",
+          cells: [{ rowIndex, column: columnName, value }],
+        });
+      }
     },
     clearSelection() {
+      const edits: { rowIndex: number; column: string; value: any }[] = [];
       set((state) => {
         // Delete all selected cells
         const { selection, updatedData, columnSpec, data } = state;
+        const numVisible = visibleRowCount(state);
         let spec = {};
         for (const region of selection) {
           const { cols, rows } = region;
-          const rowRange = range(rows ?? [0, updatedData.length - 1]);
+          const rowRange = range(rows ?? [0, numVisible - 1]);
           const colRange = range(cols ?? [0, columnSpec.length - 1]);
-          for (const row of rowRange) {
+          for (const visibleRow of rowRange) {
+            // Selection indices are visible positions; map to the data row.
+            const row = toDataRowIndex(state, visibleRow);
             // Don't clear row if it has been deleted
             const rowIsDeleted =
               state.rowStatus[row] === TableElementStatus.DELETED;
@@ -215,6 +292,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
               const currentValue = updatedData[row]?.[key] ?? data[row]?.[key];
               if (currentValue != null && currentValue !== "") {
                 vals[key] = "";
+                edits.push({ rowIndex: row, column: key, value: "" });
               }
             }
             let op = updatedData[row] == null ? "$set" : "$merge";
@@ -225,6 +303,9 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           updatedData: update(updatedData, spec),
         };
       });
+      if (edits.length > 0) {
+        get().onEdit?.({ type: "setCells", cells: edits });
+      }
     },
     onSelection(selection: Region[]) {
       set((state) => {
@@ -239,6 +320,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
             focusedCell: null,
             topLeftCell: null,
             fillValueBaseCell: null,
+            cellSurfaceOpen: false,
           };
         }
 
@@ -246,24 +328,41 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         if (state.fillValueBaseCell != null) {
           spec.updatedData = fillValues(state, selection);
         }
+        // A click (user selection) re-arms auto-activation and clears the
+        // travel direction so the editor opens with a default cursor.
+        spec.autoActivateArmed = true;
+        spec.lastNavDirection = null;
+        // Only open when the selection actually MOVES to a (single) cell.
+        // A click on the already-selected cell leaves open-state to the
+        // target's click toggle — this avoids racing the selection event
+        // (which fires on mousedown, possibly more than once) and is what
+        // makes both re-focus-to-open and click-to-close reliable.
+        if (!selectionEquals(selection, state.selection)) {
+          spec.cellSurfaceOpen = singleFocusedCell(selection) != null;
+        }
         return spec;
       });
     },
     onSelectionEdited(value: any) {
       // Apply the same value to all selected cells
+      const edits: { rowIndex: number; column: string; value: any }[] = [];
       set((state) => {
         const { selection, updatedData, columnSpec, editable } = state;
         if (!editable) return {};
+        const numVisible = visibleRowCount(state);
         let spec = {};
         for (const region of selection) {
           const { cols, rows } = region;
-          const rowRange = range(rows ?? [0, updatedData.length - 1]);
+          const rowRange = range(rows ?? [0, numVisible - 1]);
           const colRange = range(cols ?? [0, columnSpec.length - 1]);
-          for (const row of rowRange) {
+          for (const visibleRow of rowRange) {
+            // Selection indices are visible positions; map to the data row.
+            const row = toDataRowIndex(state, visibleRow);
             let vals = {};
             for (const col of colRange) {
               const key = columnSpec[col].key;
               vals[key] = value;
+              edits.push({ rowIndex: row, column: key, value });
             }
             let op = updatedData[row] == null ? "$set" : "$merge";
             spec[row] = { [op]: vals };
@@ -273,6 +372,9 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           updatedData: update(updatedData, spec),
         };
       });
+      if (edits.length > 0) {
+        get().onEdit?.({ type: "setCells", cells: edits });
+      }
     },
     onColumnsReordered(oldIndex: number, newIndex: number, length: number) {
       set((state) => {
@@ -291,21 +393,17 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         rows: [rowIndex, rowIndex],
       });
     },
+    // Sort/filter state changes flow to the data provider (via the loader,
+    // which reads `activeFilters`/`columnSorts` and re-fetches). The library no
+    // longer computes a client-side `filteredRowIndices` view — `data` arrives
+    // already ordered from the provider (in memory for a local source).
     setFilter(filterId: string, filter: any, filterState: any) {
       set((state) => {
         const newFilters = new Map<string, { filter: any; state: any }>(
           state.activeFilters,
         );
         newFilters.set(filterId, { filter, state: filterState });
-        return {
-          activeFilters: newFilters,
-          filteredRowIndices: computeTransformedRowIndices(
-            state.data,
-            state.updatedData,
-            newFilters,
-            state.columnSorts,
-          ),
-        };
+        return { activeFilters: newFilters };
       });
     },
     removeFilter(filterId: string) {
@@ -314,26 +412,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           state.activeFilters,
         );
         newFilters.delete(filterId);
-        return {
-          activeFilters: newFilters,
-          filteredRowIndices: computeTransformedRowIndices(
-            state.data,
-            state.updatedData,
-            newFilters,
-            state.columnSorts,
-          ),
-        };
+        return { activeFilters: newFilters };
       });
     },
     clearFilters() {
-      set((state) => ({
+      set(() => ({
         activeFilters: new Map<string, { filter: any; state: any }>(),
-        filteredRowIndices: computeTransformedRowIndices(
-          state.data,
-          state.updatedData,
-          new Map(),
-          state.columnSorts,
-        ),
       }));
     },
     setColumnSort(key: string, ascending: boolean | null) {
@@ -345,27 +429,11 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           const without = state.columnSorts.filter((s) => s.key !== key);
           newSorts = [...without, { key, ascending }];
         }
-        return {
-          columnSorts: newSorts,
-          filteredRowIndices: computeTransformedRowIndices(
-            state.data,
-            state.updatedData,
-            state.activeFilters,
-            newSorts,
-          ),
-        };
+        return { columnSorts: newSorts };
       });
     },
     clearColumnSorts() {
-      set((state) => ({
-        columnSorts: [],
-        filteredRowIndices: computeTransformedRowIndices(
-          state.data,
-          state.updatedData,
-          state.activeFilters,
-          [],
-        ),
-      }));
+      set(() => ({ columnSorts: [] }));
     },
     setClipboardProxy(proxy) {
       set({ clipboardProxy: proxy });
@@ -479,18 +547,57 @@ function fillValues<T>(state: DataSheetStore<T>, selection: Region[]) {
 
   // Fill values downwards
   if (!editable || fillValueBaseCell == null) return updatedData;
-  const { col, row } = fillValueBaseCell;
+  const { col, row: baseVisibleRow } = fillValueBaseCell;
+  // The base cell and target rows are visible positions; map to data rows.
+  const baseRow = toDataRowIndex(state, baseVisibleRow);
   const key = columnSpec[col].key;
-  const value = updatedData[row]?.[key] ?? data[row][key];
+  const value = updatedData[baseRow]?.[key] ?? data[baseRow]?.[key];
   const spec = {};
   for (const region of regions) {
-    const { cols, rows } = region;
-    for (const row of range(rows)) {
+    const { rows } = region;
+    for (const visibleRow of range(rows)) {
+      const row = toDataRowIndex(state, visibleRow);
       let op = updatedData[row] == null ? "$set" : "$merge";
       spec[row] = { [op]: { [key]: value } };
     }
   }
   return update(updatedData, spec);
+}
+
+/** Number of rows currently visible (post-filter/sort), or the full data
+ * length when no view transform is active. Uses the max of `data` and
+ * `updatedData` lengths because `updatedData` is sparse — keying off it alone
+ * would stop a whole-column edit at the last already-edited row. */
+function visibleRowCount<T>(state: DataSheetStore<T>): number {
+  const { filteredRowIndices, updatedData, data } = state;
+  return filteredRowIndices != null
+    ? filteredRowIndices.length
+    : Math.max(data.length, updatedData.length);
+}
+
+/** Map a visible (post-filter/sort) row position to its underlying data
+ * index. Edit methods receive selection indices in visible space, so they
+ * must translate before writing to `updatedData`/`data`. */
+function toDataRowIndex<T>(
+  state: DataSheetStore<T>,
+  visibleRow: number,
+): number {
+  const { filteredRowIndices } = state;
+  if (filteredRowIndices == null) return visibleRow;
+  return filteredRowIndices[visibleRow] ?? visibleRow;
+}
+
+/** Whether two cell values are equivalent for edit-tracking. Empty string and
+ * null/undefined are equivalent (so clearing an empty cell is a no-op), and
+ * non-blank values are compared by string form so a text editor's `"42"`
+ * matches a numeric base `42` (otherwise the cell reads as edited when its
+ * value didn't actually change). */
+function valuesAreEquivalent(a: any, b: any): boolean {
+  if (a === b) return true;
+  const aBlank = a == null || a === "";
+  const bBlank = b == null || b === "";
+  if (aBlank || bBlank) return aBlank && bBlank;
+  return String(a) === String(b);
 }
 
 function resetChangesForSelection<T>(

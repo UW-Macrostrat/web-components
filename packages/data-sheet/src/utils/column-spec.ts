@@ -28,15 +28,126 @@ export type ColumnDataType =
   | "object"
   | "array";
 
+/** Severity of a cell validation result. `warning` is soft (flagged, doesn't
+ * block saving); `error` is hard (blocks saving). */
+export type ValidationSeverity = "warning" | "error";
+
+/** The result of validating a cell. `null` means valid. */
+export interface CellValidation {
+  severity: ValidationSeverity;
+  message?: string;
+}
+
+/**
+ * Context handed to per-cell renderers (`valueRenderer`, and — as the
+ * `cellContext` prop — a custom `cellComponent`). It lets a renderer draw
+ * based on the row/column position and the cell's edit status, and, combined
+ * with the editing API, write edits back for a specific cell.
+ *
+ * `rowIndex` is the underlying **data-row index** (the value edit methods
+ * expect), so it stays stable when a sort or filter reorders the view.
+ */
+export interface CellRenderContext<T = any> {
+  /** The cell's current value (the edited value if present, else the base). */
+  value: any;
+  /** Underlying data-row index — stable under sort/filter. */
+  rowIndex: number;
+  /** Column index within the active column spec. */
+  colIndex: number;
+  /** The full column spec for this cell's column. */
+  column: ColumnSpec;
+  /** The full row object backing this cell (may be undefined while loading). */
+  row: T | undefined;
+  /** Whether this cell has an uncommitted edit. */
+  isEdited: boolean;
+  /** Whether this cell's row is marked for deletion. */
+  isDeleted: boolean;
+  /** Validation result for this cell, or `null` when valid. Orthogonal to the
+   * edit status — a cell can be both edited and invalid. */
+  validation: CellValidation | null;
+}
+
+/**
+ * The editor configuration for a cell. Mirrors the static `dataEditor` /
+ * `inlineEditor` column fields so a per-cell resolver (`editorForCell`) can
+ * override either one for an individual cell.
+ */
+export interface CellEditors {
+  dataEditor?: any;
+  inlineEditor?: boolean | React.ComponentType<any> | string | null;
+}
+
+/**
+ * Context for a cell's detail surface (`cellDetail`). Extends the render
+ * context with the edit affordances and controls a surface needs, so one
+ * component can act as an editor (when `editable`) or a read-only viewer
+ * (otherwise). This is the write side of the read/write contract, per-cell.
+ */
+export interface CellDetailContext<T = any> extends CellRenderContext<T> {
+  /** Whether this cell is editable (column × table × not-deleted). */
+  editable: boolean;
+  /** Commit a new value for this cell. */
+  onChange: (value: any) => void;
+  /** Reset this cell (and selection) to its base value. */
+  resetValue: () => void;
+  /** Close the surface and return focus to the table. */
+  close: () => void;
+}
+
+/** How a cell's detail surface is presented. Orthogonal to what it renders. */
+export type DetailPresentation = "popover" | "modal" | "inline";
+
 export interface ColumnSpec {
   name: string;
   key: string;
+  /** When true, an empty value is an error (sugar over `validate`). */
   required?: boolean;
+  /** Validate a cell's value. Return a `{ severity, message }` for a
+   * warning/error, or `null` when valid. Runs after the `required` check.
+   * `warning` flags the cell but allows saving; `error` blocks saving. */
+  validate?: (
+    value: any,
+    row: any,
+    ctx: { rowIndex: number },
+  ) => CellValidation | null;
+  /** @deprecated Prefer `validate`, which carries severity + a message.
+   * A falsy result maps to an `error`. */
   isValid?: (d: any) => boolean;
   transformValue?: (d: any) => any;
-  valueRenderer?: (d: any) => string | React.ReactNode;
+  valueRenderer?: (
+    d: any,
+    ctx?: CellRenderContext,
+  ) => string | React.ReactNode;
   headerRenderer?: (d: any) => string | React.ReactNode;
   dataEditor?: any;
+  /**
+   * Choose the editor for an individual cell from its render context,
+   * overriding the static `dataEditor` / `inlineEditor` for that cell. Return
+   * `undefined` (or omit a key) to fall back to the static configuration —
+   * e.g. show a textarea only for cells whose value is long. A returned key is
+   * respected even when its value is `false`/`null` (i.e. "no editor here").
+   */
+  editorForCell?: (ctx: CellRenderContext) => CellEditors | undefined;
+  /**
+   * Render a read-only detail panel for a cell. When set, selecting the cell
+   * opens a popover with this content (following the table's `cellInteraction`
+   * mode). The panel never takes keyboard focus, so arrow keys keep navigating
+   * the table; Escape closes it. Mutually distinct from `dataEditor` — use this
+   * for non-editable surfaces (previews, summaries, links).
+   *
+   * @deprecated Prefer `cellDetail`, which unifies editor and viewer.
+   */
+  detailRenderer?: (ctx: CellRenderContext) => React.ReactNode;
+  /**
+   * The unified cell surface (Workstream A): one renderer that acts as an
+   * editor when `ctx.editable` and a read-only viewer otherwise, superseding
+   * `dataEditor` / `detailRenderer` / `editorForCell`. Presentation is chosen
+   * separately via `detailPresentation` (popover / modal / inline), so the
+   * same component works in any container.
+   */
+  cellDetail?: (ctx: CellDetailContext) => React.ReactNode;
+  /** How `cellDetail` is presented. Defaults to `"popover"`. */
+  detailPresentation?: DetailPresentation;
   cellComponent?: any;
   category?: string;
   editable?: boolean;
