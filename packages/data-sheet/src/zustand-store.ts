@@ -2,6 +2,7 @@ import {
   DataSheetState,
   DataSheetStore,
   DataSheetStoreMain,
+  DS_ROW_ID,
   StateUpdater,
   TableElementStatus,
   VisibleCells,
@@ -17,9 +18,10 @@ import {
   getSelectedColumnKeys,
   getSelectedRowIndices,
   getSelectionCardinality,
-  computeFilteredRowIndices,
-  computeTransformedRowIndices,
 } from "./actions";
+
+/** Monotonic counter for synthetic ids on in-table-added rows. */
+let _addedRowCounter = 0;
 
 export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
   return {
@@ -47,6 +49,9 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     lastNavDirection: null,
     tableElement: null,
     cellSurfaceOpen: false,
+    identity: (row: any) => row?.id,
+    pendingOverlayById: new Map(),
+    controlledOverlay: false,
     setSelection(selection: Region[]) {
       set(updateSelection(selection));
     },
@@ -120,9 +125,17 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         // $splice fails when the target index exceeds the array length.
         newIndex = lastRowIndex + 1;
 
+        // Stamp a stable synthetic id so the added row survives a provider
+        // re-fetch (it has no provider row to match on). Its values live in the
+        // overlay (`updatedData`), which the loader-boundary remap re-appends.
+        const newRow = {
+          ...(row as any),
+          [DS_ROW_ID]: `__added_${_addedRowCounter++}`,
+        } as T;
+
         return {
-          updateData: insertItemAtIndex(updatedData, newIndex, row as T),
-          data: insertItemAtIndex(data, newIndex, row as T),
+          updatedData: insertItemAtIndex(updatedData, newIndex, newRow),
+          data: insertItemAtIndex(data, newIndex, newRow),
           rowStatus: insertItemAtIndex(
             rowStatus,
             newIndex,
@@ -376,21 +389,17 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         rows: [rowIndex, rowIndex],
       });
     },
+    // Sort/filter state changes flow to the data provider (via the loader,
+    // which reads `activeFilters`/`columnSorts` and re-fetches). The library no
+    // longer computes a client-side `filteredRowIndices` view — `data` arrives
+    // already ordered from the provider (in memory for a local source).
     setFilter(filterId: string, filter: any, filterState: any) {
       set((state) => {
         const newFilters = new Map<string, { filter: any; state: any }>(
           state.activeFilters,
         );
         newFilters.set(filterId, { filter, state: filterState });
-        return {
-          activeFilters: newFilters,
-          filteredRowIndices: computeTransformedRowIndices(
-            state.data,
-            state.updatedData,
-            newFilters,
-            state.columnSorts,
-          ),
-        };
+        return { activeFilters: newFilters };
       });
     },
     removeFilter(filterId: string) {
@@ -399,26 +408,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           state.activeFilters,
         );
         newFilters.delete(filterId);
-        return {
-          activeFilters: newFilters,
-          filteredRowIndices: computeTransformedRowIndices(
-            state.data,
-            state.updatedData,
-            newFilters,
-            state.columnSorts,
-          ),
-        };
+        return { activeFilters: newFilters };
       });
     },
     clearFilters() {
-      set((state) => ({
+      set(() => ({
         activeFilters: new Map<string, { filter: any; state: any }>(),
-        filteredRowIndices: computeTransformedRowIndices(
-          state.data,
-          state.updatedData,
-          new Map(),
-          state.columnSorts,
-        ),
       }));
     },
     setColumnSort(key: string, ascending: boolean | null) {
@@ -430,27 +425,11 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           const without = state.columnSorts.filter((s) => s.key !== key);
           newSorts = [...without, { key, ascending }];
         }
-        return {
-          columnSorts: newSorts,
-          filteredRowIndices: computeTransformedRowIndices(
-            state.data,
-            state.updatedData,
-            state.activeFilters,
-            newSorts,
-          ),
-        };
+        return { columnSorts: newSorts };
       });
     },
     clearColumnSorts() {
-      set((state) => ({
-        columnSorts: [],
-        filteredRowIndices: computeTransformedRowIndices(
-          state.data,
-          state.updatedData,
-          state.activeFilters,
-          [],
-        ),
-      }));
+      set(() => ({ columnSorts: [] }));
     },
     setClipboardProxy(proxy) {
       set({ clipboardProxy: proxy });

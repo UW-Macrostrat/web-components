@@ -54,7 +54,12 @@ import {
   TableFilter,
 } from "./actions";
 import { ActionsToolbar, FilterBar } from "./actions";
-import { useScrollHandler, tableFooterAtom } from "./postgrest-table";
+import {
+  useScrollHandler,
+  tableFooterAtom,
+  ChunkLoaderManager,
+  createLocalProvider,
+} from "./postgrest-table";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -86,6 +91,9 @@ const COLUMN_HEADER_HEIGHT = 34;
 export type CellInteraction = "auto" | "manual";
 
 interface DataSheetInternalProps<T> extends TableProps {
+  /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
+   * driven through the same loader as any other source. */
+  data?: T[];
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
   onUpdateData?: (updatedData: any[], data: T[]) => void;
   /** Observer called for every user edit as a structured `EditEvent`
@@ -100,6 +108,10 @@ interface DataSheetInternalProps<T> extends TableProps {
   /** Controlled row-status overlay (edited / added / deleted), the companion
    * to `updatedData`. */
   rowStatus?: TableElementStatus[];
+  /** Row identity for the edit overlay — stable across a provider re-sort (a
+   * data provider supplies its own; defaults to `(row) => row?.id`). Lets edits
+   * survive a re-ordered re-fetch. */
+  identity?: (row: T) => string | number | null | undefined;
   /** Persistence handler for the built-in Save action. When provided, a Save
    * control is added to the toolbar (always visible, disabled when there are
    * no pending changes). */
@@ -161,6 +173,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     },
     h(_DataSheet<any>, {
       ...rest,
+      data: data ?? emptyData,
       children,
       editable,
       enableColumnReordering,
@@ -175,12 +188,14 @@ const deletedRowHeaderStyle = {
 };
 
 function _DataSheet<T>({
+  data: sourceData,
   onVisibleCellsChange,
   onUpdateData,
   onEdit,
   onSave,
   updatedData: updatedDataProp,
   rowStatus: rowStatusProp,
+  identity,
   onDeleteRows,
   verbose = false,
   dataSheetActions = null,
@@ -349,12 +364,39 @@ function _DataSheet<T>({
   useEffect(() => {
     // Controlled overlay: mirror the caller's edited state into the store as
     // the source of truth. Optimistic in-table edits are superseded on the
-    // next render when the caller passes an updated value back.
-    const patch: Record<string, unknown> = {};
+    // next render when the caller passes an updated value back. When the caller
+    // controls it, the loader-boundary identity remap steps aside.
+    const controlled =
+      updatedDataProp !== undefined || rowStatusProp !== undefined;
+    const patch: Record<string, unknown> = { controlledOverlay: controlled };
     if (updatedDataProp !== undefined) patch.updatedData = updatedDataProp;
     if (rowStatusProp !== undefined) patch.rowStatus = rowStatusProp;
-    if (Object.keys(patch).length > 0) storeState.setState(patch);
+    storeState.setState(patch);
   }, [storeState, updatedDataProp, rowStatusProp]);
+
+  useEffect(() => {
+    if (identity != null) storeState.setState({ identity });
+  }, [storeState, identity]);
+
+  // In-memory data is the degenerate provider case: wrap it in a local provider
+  // and drive it through the same loader as any other source (sort/filter are
+  // applied by the provider's fetchChunk, in memory). An external loader child
+  // (server sources) passes empty `data`, so this doesn't double-drive.
+  const localProvider = useMemo(
+    () =>
+      sourceData != null && sourceData.length > 0
+        ? createLocalProvider(
+            sourceData,
+            identity != null ? { identity } : undefined,
+          )
+        : null,
+    [sourceData, identity],
+  );
+  useEffect(() => {
+    if (localProvider != null) {
+      storeState.setState({ identity: localProvider.identity });
+    }
+  }, [storeState, localProvider]);
 
   const realizedColumns = useMemo(() => {
     return columnSpec.map((col, colIndex) => {
@@ -448,6 +490,18 @@ function _DataSheet<T>({
     filteredRowIndices,
   ];
 
+  // Drive in-memory data through the local provider + loader (loads the whole
+  // array at once). Absent when `data` is empty (an external loader drives).
+  // Hoisted because `h.if(...)` evaluates its props eagerly.
+  let localLoader: ReactNode = null;
+  if (localProvider != null) {
+    localLoader = h(ChunkLoaderManager, {
+      key: "__local_loader",
+      fetchChunk: localProvider.fetchChunk,
+      chunkSize: Math.max(sourceData?.length ?? 1, 1),
+    });
+  }
+
   return h("div.data-sheet-container", { className, style }, [
     // Global sort/filter status bars sit above the (selection-modal)
     // actions/tools toolbar.
@@ -460,6 +514,7 @@ function _DataSheet<T>({
     // self-gates (renders nothing when no action applies).
     h(ActionsToolbar, { actions: _actions }),
     dataSheetActions,
+    localLoader,
     children,
     h(
       "div.data-sheet-holder",

@@ -52,6 +52,11 @@ export enum TableElementStatus {
   ADDED = "added",
 }
 
+/** Property key holding a stable synthetic id on rows added in-table. Added
+ * rows aren't in the data provider, so they need their own identity to survive
+ * a provider re-fetch; it's carried on the row and preserved through edits. */
+export const DS_ROW_ID = "__dsRowId";
+
 /** Proxy stored during a copy operation, enabling backend-mediated paste
  * for lazy-loaded tables where not all data is available locally. */
 export interface ClipboardProxy {
@@ -114,6 +119,20 @@ export interface DataSheetState<T> {
    * `EditEvent`, in addition to the built-in `updatedData` overlay. Lets a
    * consumer capture edits as revertible operations. */
   onEdit?: (event: EditEvent<T>) => void;
+  /** Row identity for the edit overlay — stable across a provider re-sort,
+   * unlike an array index. Defaults to `(row) => row?.id`; a data provider
+   * supplies its own (e.g. a PostgREST identity key). Used to re-attach edits
+   * when the loader replaces `data` with a re-ordered window. */
+  identity: (row: any) => string | number | null | undefined;
+  /** Edits/statuses held by identity for rows not currently loaded (server
+   * sources), re-attached when their row next arrives. */
+  pendingOverlayById: Map<
+    string | number,
+    { edit?: any; status?: TableElementStatus }
+  >;
+  /** True when the consumer controls the `updatedData`/`rowStatus` overlay; the
+   * loader-boundary identity remap is skipped (the consumer owns it). */
+  controlledOverlay: boolean;
 }
 
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;

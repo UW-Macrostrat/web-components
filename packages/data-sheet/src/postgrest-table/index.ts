@@ -1,24 +1,15 @@
-import {
-  Button,
-  InputGroup,
-  OverlayToaster,
-  Tag as BPTag,
-} from "@blueprintjs/core";
+import { InputGroup, OverlayToaster } from "@blueprintjs/core";
 import h from "./main.module.sass";
 import { DataSheet, getRowsToDelete } from "../core";
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import {
-  applyColumnFilters,
   ChunkLoaderManager,
-  ColumnSortEntry,
   createPostgRESTFetchChunk,
   dataRefreshTokenAtom,
-  PostgrestColumnFilter,
   PostgrestFilter,
-  PostgrestFilterOperator,
   PostgrestOrder,
 } from "./data-loaders";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   ErrorBoundary,
   ToasterContext,
@@ -27,12 +18,6 @@ import {
 import { PostgrestClient, PostgrestFilterBuilder } from "@supabase/postgrest-js";
 import { ColorCell, InfoBar } from "../components";
 import { DataSheetProviderProps } from "../types.ts";
-import {
-  type ColumnHeaderActions,
-  ColumnHeaderRendererProps,
-  OPERATOR_LABELS,
-  renderPostgRESTColumnHeaderCell,
-} from "../renderers";
 import { atom } from "jotai";
 import { columnSpecAtom, ctx, tableDataAtom } from "../provider.ts";
 
@@ -119,23 +104,18 @@ function _PostgRESTTableView<T>({
   // Boundary of Jotai store
   ctx.useSync(enableFullTextSearchAtom, enableFullTableSearch);
 
-  // Server-side column sort/filter state (local; drives the fetchChunk query)
-  const [columnSorts, setColumnSorts] = useState<ColumnSortEntry[]>([]);
-  const [columnFilters, setColumnFilters] = useState<PostgrestColumnFilter[]>(
-    [],
-  );
-
   const ftsConfig = ctx.useValue(fullTextSearchFilterConfigAtom);
 
-  const _order = [];
+  // Base ordering from the `order` prop (active column sorts are added by the
+  // fetchChunk from the shared store, per-column identity appended last).
+  const _order: PostgrestOrder<any>[] = [];
   if (typeof order === "object" && "key" in order) {
-    _order.push(order);
+    _order.push(order as PostgrestOrder<any>);
   } else if (Array.isArray(order)) {
     _order.push(...order);
   }
-  _order.push(...columnSorts);
 
-  // Infer identity key
+  // Infer identity key from the order prop when not given explicitly.
   let _identityKey = identityKey;
   if (_identityKey == null) {
     if (_order.length == 0) {
@@ -155,45 +135,37 @@ function _PostgRESTTableView<T>({
   // resolve selected row indices to identity keys when deleting.
   const data = ctx.useValue(tableDataAtom);
 
-  // The base `filter` prop, active column filters, and full-text search applied
-  // as one query transform, fed to the PostgREST fetchChunk (server-side).
+  // Base query transform: the `filter` prop + full-text search. Column filters
+  // come from the shared store (as operator `columnFilter`s) via the loader's
+  // `params.filters`, so they aren't applied here.
   const baseFilter = useCallback(
     (q: PostgrestFilterBuilder<any, any, any, any>) => {
       let query = q;
       if (userFilter != null) query = userFilter(query as any) as any;
-      query = applyColumnFilters(query, columnFilters);
       const ff = buildFilter(ftsConfig);
       if (ff != null) query = ff.apply(query);
       return query;
     },
-    [userFilter, columnFilters, ftsConfig],
+    [userFilter, ftsConfig],
   );
 
-  // A key over everything that changes the query. The fetchChunk is rebuilt and
-  // the loader asked to re-fetch from scratch whenever it changes.
-  const viewKey = JSON.stringify({
-    o: _order,
-    f: columnFilters,
-    fts: ftsConfig,
-    k: _identityKey,
-  });
-
+  const orderKey = JSON.stringify(_order);
   const fetchChunk = useMemo(
     () =>
       createPostgRESTFetchChunk({
         endpoint,
         table,
         columns,
-        identityKey: _identityKey,
+        identityKey: _identityKey!,
         baseOrder: _order,
         baseFilter,
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [endpoint, table, columns, viewKey, baseFilter],
+    [endpoint, table, columns, _identityKey, orderKey, baseFilter],
   );
 
-  // Re-fetch when the query view changes (skip the initial mount — the loader
-  // does its own first fetch).
+  // Full-text search re-runs the query; the loader re-fetches on store
+  // sort/filter changes on its own, so only FTS needs a nudge here.
   const firstRun = useRef(true);
   useEffect(() => {
     if (firstRun.current) {
@@ -202,7 +174,7 @@ function _PostgRESTTableView<T>({
     }
     bumpRefresh((v) => v + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewKey]);
+  }, [ftsConfig]);
 
   // Save: upsert the edited rows, then re-fetch. Wired to the built-in Save
   // action via the DataSheet `onSave` prop (present only when editable).
@@ -223,56 +195,6 @@ function _PostgRESTTableView<T>({
     [getClient, toaster, bumpRefresh],
   );
 
-  // Column header actions for sort/filter
-  const columnHeaderActions: ColumnHeaderActions = useMemo(
-    () => ({
-      onSetSort(key: string, ascending: boolean | null) {
-        // Single-column sort: replace any existing sort
-        if (ascending == null) {
-          setColumnSorts([]);
-        } else {
-          setColumnSorts([{ key, ascending }]);
-        }
-      },
-      onSetFilter(
-        key: string,
-        operator: PostgrestFilterOperator | null,
-        value: string,
-      ) {
-        setColumnFilters((prev) => {
-          const without = prev.filter((f) => f.key !== key);
-          if (operator == null || value === "") return without;
-          return [...without, { key, operator, value }];
-        });
-      },
-      onClearColumn(key: string) {
-        setColumnSorts((prev) => prev.filter((s) => s.key !== key));
-        setColumnFilters((prev) => prev.filter((f) => f.key !== key));
-      },
-    }),
-    [],
-  );
-
-  // Column header cell renderer using sort/filter state
-  const columnHeaderCellRenderer = useCallback(
-    (props: ColumnHeaderRendererProps) => {
-      const { col, colIndex } = props;
-      const activeSort = columnSorts.find((s) => s.key === col.key);
-      const activeFilter = columnFilters.find((f) => f.key === col.key);
-      return renderPostgRESTColumnHeaderCell({
-        col,
-        colIndex,
-        activeSort,
-        activeFilter,
-        actions: columnHeaderActions,
-      });
-    },
-    [columnSorts, columnFilters, columnHeaderActions],
-  );
-
-  const hasActiveFilters = columnFilters.length > 0;
-  const hasActiveSort = columnSorts.length > 0;
-
   return h(
     DataSheet,
     {
@@ -282,33 +204,25 @@ function _PostgRESTTableView<T>({
         : dataSheetActions,
       columnSpecOptions: columnOptions,
       editable,
+      // Row identity for the edit overlay, so edits survive a re-ordered
+      // re-fetch (the server returns re-ordered windows on sort/filter).
+      identity: (row: any) => row?.[_identityKey!],
       onSave: editable ? handleSave : undefined,
-      columnHeaderCellRenderer,
+      // Sort/filter now use the generic store-driven column header + FilterBar
+      // (columns are auto-inferred `sortable`/`filterable`); no PostgREST-only
+      // header or bar.
       onDeleteRows(selection) {
         if (!editable) return;
 
         const rowIndices = getRowsToDelete(selection);
-        const ids = rowIndices.map((i) => data[i]?.[_identityKey]);
-        const query = getClient().delete().in(_identityKey, ids);
+        const ids = rowIndices.map((i) => data[i]?.[_identityKey!]);
+        const query = getClient().delete().in(_identityKey!, ids);
         wrapWithErrorHandling(toaster, query).then((res) => {
           if (res != null) bumpRefresh((v) => v + 1);
         });
       },
     },
-    [
-      h(ChunkLoaderManager, { key: "loader", fetchChunk }),
-      h.if(hasActiveFilters || hasActiveSort)(ServerFilterBar, {
-        columnSorts,
-        columnFilters,
-        onClearFilter(key: string) {
-          columnHeaderActions.onClearColumn(key);
-        },
-        onClearAll() {
-          setColumnSorts([]);
-          setColumnFilters([]);
-        },
-      }),
-    ],
+    [h(ChunkLoaderManager, { key: "loader", fetchChunk })],
   );
 }
 
@@ -415,54 +329,3 @@ export function SearchAction() {
   });
 }
 
-/** Bar showing active server-side sort and filter state as removable tags. */
-function ServerFilterBar({
-  columnSorts,
-  columnFilters,
-  onClearFilter,
-  onClearAll,
-}: {
-  columnSorts: ColumnSortEntry[];
-  columnFilters: PostgrestColumnFilter[];
-  onClearFilter: (key: string) => void;
-  onClearAll: () => void;
-}) {
-  return h("div.server-filter-bar", [
-    columnSorts.map((s) =>
-      h(
-        BPTag,
-        {
-          key: `sort-${s.key}`,
-          icon: s.ascending ? "sort-asc" : "sort-desc",
-          intent: "primary",
-          onRemove: () => onClearFilter(s.key),
-          minimal: true,
-        },
-        `${s.key}: ${s.ascending ? "Ascending" : "Descending"}`,
-      ),
-    ),
-    columnFilters.map((f) =>
-      h(
-        BPTag,
-        {
-          key: `filter-${f.key}`,
-          icon: "filter",
-          intent: "warning",
-          onRemove: () => onClearFilter(f.key),
-          minimal: true,
-        },
-        `${f.key} ${OPERATOR_LABELS[f.operator] ?? f.operator} ${f.value}`,
-      ),
-    ),
-    h(
-      Button,
-      {
-        minimal: true,
-        small: true,
-        icon: "cross",
-        onClick: onClearAll,
-      },
-      "Clear all",
-    ),
-  ]);
-}

@@ -503,7 +503,7 @@ export function createLocalProvider<T = any>(
   data: T[],
   options: { identity?: (row: T) => string | number } = {},
 ): TableDataProvider<T> {
-  const identity = options.identity ?? ((row: any) => row?.id);
+  const identity = options.identity ?? defaultLocalIdentity;
   return {
     identity,
     async fetchChunk({ offset, limit, sorts, filters }) {
@@ -526,8 +526,25 @@ export function createLocalProvider<T = any>(
   };
 }
 
+// Stable synthetic identity for in-memory rows lacking a natural `id`. Keyed by
+// object reference (a local data array keeps the same row objects across
+// re-sorts), so edits survive re-ordering even without an id field.
+const _syntheticRowIds = new WeakMap<object, string>();
+let _syntheticRowCounter = 0;
+function defaultLocalIdentity(row: any): string | number | undefined {
+  if (row == null) return undefined;
+  if (row.id != null) return row.id;
+  if (typeof row !== "object") return row;
+  let id = _syntheticRowIds.get(row);
+  if (id == null) {
+    id = `__row_${_syntheticRowCounter++}`;
+    _syntheticRowIds.set(row, id);
+  }
+  return id;
+}
+
 /** Multi-key row comparator (priority order; nulls first when ascending),
- * mirroring the client-side sort in `computeTransformedRowIndices`. */
+ * shared by the local provider and any other in-memory sort. */
 export function compareRowsBySorts(sorts: ColumnSort[]) {
   return (a: any, b: any): number => {
     for (const sort of sorts) {
@@ -755,21 +772,15 @@ export function createPostgRESTFetchChunk<T = any>(config: {
   };
 }
 
-/** Default filter translation: the `{ key, operator, value }` column-filter shape. */
+/** Default filter translation for the built-in operator `columnFilter`: its
+ * column is `f.columnKey`, its state is `{ operator, value }`. (Also accepts a
+ * `key` in state for hand-rolled filters.) */
 function standardColumnFilter(f: FetchChunkFilter): PostgrestFilter | null {
   const s = f.state;
   if (s == null) return null;
-  if (
-    s.key != null &&
-    s.operator != null &&
-    s.value != null &&
-    s.value !== ""
-  ) {
-    return standardizeFilter({
-      key: s.key,
-      operator: s.operator,
-      value: s.value,
-    });
+  const key = f.columnKey ?? s.key;
+  if (key != null && s.operator != null && s.value != null && s.value !== "") {
+    return standardizeFilter({ key, operator: s.operator, value: s.value });
   }
   return null;
 }
