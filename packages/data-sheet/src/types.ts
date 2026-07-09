@@ -5,7 +5,8 @@ import type {
   Table2,
 } from "@blueprintjs/table";
 import { ColumnSpec, ColumnSpecOptions } from "./utils";
-import { OverlayToaster, Toaster } from "@blueprintjs/core";
+import { OverlayToaster } from "@blueprintjs/core";
+import type { CellEdit } from "./actions";
 
 /** A single column sort entry for client-side sorting.
  * Defined here (rather than in actions/types) to avoid circular imports. */
@@ -16,14 +17,6 @@ export interface ColumnSort {
 
 /** Direction of keyboard navigation between cells. */
 export type NavDirection = "up" | "down" | "left" | "right";
-
-/** A single cell assignment within a `setCells` edit. `rowIndex` is the
- * underlying data-row index (stable under sort/filter). */
-export interface CellEdit {
-  rowIndex: number;
-  column: string;
-  value: any;
-}
 
 /**
  * A structured, revertible description of a user edit. Emitted via the

@@ -21,7 +21,7 @@ export interface SelectionShape {
 /** A single cell edit, used with `editCells` for batch updates. */
 export interface CellEdit {
   rowIndex: number;
-  columnKey: string;
+  column: string;
   value: any;
 }
 
