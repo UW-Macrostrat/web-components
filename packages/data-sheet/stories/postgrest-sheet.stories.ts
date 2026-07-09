@@ -85,13 +85,6 @@ export const Primary: StoryObj<{}> = {
   },
 };
 
-export const WithInfoBar: StoryObj<{}> = {
-  args: {
-    columnOptions: defaultColumnOptions,
-    showInfoBar: true,
-  },
-};
-
 export const Simple = {
   args: {},
 };

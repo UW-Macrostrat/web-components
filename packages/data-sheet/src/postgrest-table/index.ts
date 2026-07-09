@@ -19,7 +19,7 @@ import {
   PostgrestClient,
   PostgrestFilterBuilder,
 } from "@supabase/postgrest-js";
-import { ColorCell, InfoBar } from "../components";
+import { ColorCell } from "../components";
 import { DataSheetProviderProps } from "../types.ts";
 import { atom } from "jotai";
 import { columnSpecAtom, ctx, tableDataAtom } from "../provider.ts";

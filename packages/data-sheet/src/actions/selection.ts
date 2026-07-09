@@ -1,10 +1,7 @@
 import { type Region, RegionCardinality } from "@blueprintjs/table";
 import type { ColumnSpec } from "../utils";
 import type {
-  ActiveFilterEntry,
   CellEdit,
-  ColumnSort,
-  SelectionCardinality,
   SelectionShape,
   TableAction,
   TableActionContext,
@@ -73,9 +70,7 @@ export function getSelectedRowIndices(
   }
   const sorted = Array.from(indices).sort((a, b) => a - b);
   if (filteredRowIndices == null) return sorted;
-  return sorted
-    .map((i) => filteredRowIndices[i])
-    .filter((i) => i != null);
+  return sorted.map((i) => filteredRowIndices[i]).filter((i) => i != null);
 }
 
 /** Extract column keys covered by a set of selected regions. */
@@ -263,7 +258,10 @@ export function collectAllFilters<T>(
   for (const col of columnSpec) {
     if (col.filters != null) {
       for (const f of col.filters as TableFilter<T>[]) {
-        const withKey: TableFilter<T> = { ...f, columnKey: f.columnKey ?? col.key };
+        const withKey: TableFilter<T> = {
+          ...f,
+          columnKey: f.columnKey ?? col.key,
+        };
         if (!result.some((r) => r.id === withKey.id)) {
           result.push(withKey);
         }
@@ -277,4 +275,3 @@ export function collectAllFilters<T>(
   }
   return result;
 }
-

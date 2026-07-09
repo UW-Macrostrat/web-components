@@ -9,7 +9,7 @@ import {
 } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 import { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
-import { InfoBar, LoadProgressIndicator } from "./components";
+import { LoadProgressIndicator } from "./components";
 import { renderColumnHeaderCell } from "./renderers";
 import h from "./main.module.sass";
 import {
@@ -200,8 +200,6 @@ function _DataSheet<T>({
   autoFocusEditor = true,
   cellInteraction,
   enableClipboard = true,
-  showInfoBar = false,
-  showLoadProgress = false,
   density = DataSheetDensity.HIGH,
   selectionModes,
   actions,
@@ -502,6 +500,7 @@ function _DataSheet<T>({
   // Drive in-memory data through the local provider + loader (loads the whole
   // array at once). Absent when `data` is empty (an external loader drives).
   // Manager to manage this chunk loader
+  let _showLoadProgress: boolean = false;
   let dataLoader: ReactNode = null;
   if (localProvider != null) {
     dataLoader = h(_DataLoaderManager, {
@@ -510,6 +509,7 @@ function _DataSheet<T>({
       pageSize: Math.max(sourceData?.length ?? 1, 1),
     });
   } else if (fetchData != null) {
+    _showLoadProgress = true;
     dataLoader = h(_DataLoaderManager, {
       key: "__data_loader",
       fetchData,
@@ -517,14 +517,17 @@ function _DataSheet<T>({
       fetchMode,
     });
   }
+  const showFilterBar =
+    (filters != null && filters.length > 0) || hasSortableOrFilterable;
+
+  let filterStatus: ReactNode = null;
+  if (showFilterBar) {
+    filterStatus = h(FilterBar, { filters: filters ?? [] });
+  }
 
   return h("div.data-sheet-container", { className, style }, [
     // Global sort/filter status bars sit above the (selection-modal)
     // actions/tools toolbar.
-    h.if((filters != null && filters.length > 0) || hasSortableOrFilterable)(
-      FilterBar,
-      { filters: filters ?? [] },
-    ),
     dataSheetActions,
     // Rendered from the merged action set (built-ins included) so it reflects
     // sort/filter/save/reset even without a consumer `actions` prop; it
@@ -570,8 +573,11 @@ function _DataSheet<T>({
         realizedColumns,
       ),
     ),
-    h.if(showInfoBar)(InfoBar),
-    h.if(showLoadProgress)(LoadProgressIndicator),
+    h("div.status-bar", [
+      filterStatus,
+      h("div.spacer"),
+      h.if(_showLoadProgress)(LoadProgressIndicator),
+    ]),
     h.if(debugMode)(CellRendererDebugOverlay, {
       cellRendererDependencies,
       names: [
