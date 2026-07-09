@@ -8,22 +8,23 @@ import h from "./main.module.sass";
 import { DataSheet, getRowsToDelete } from "../core";
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import {
+  applyColumnFilters,
+  ChunkLoaderManager,
   ColumnSortEntry,
+  createPostgRESTFetchChunk,
+  dataRefreshTokenAtom,
   PostgrestColumnFilter,
   PostgrestFilter,
   PostgrestFilterOperator,
   PostgrestOrder,
-  standardizeFilter,
-  usePostgRESTLazyLoader,
 } from "./data-loaders";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ErrorBoundary,
   ToasterContext,
   useToaster,
 } from "@macrostrat/ui-components";
-import { Spec } from "immutability-helper";
-import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
+import { PostgrestClient, PostgrestFilterBuilder } from "@supabase/postgrest-js";
 import { ColorCell, InfoBar } from "../components";
 import { DataSheetProviderProps } from "../types.ts";
 import {
@@ -33,12 +34,9 @@ import {
   renderPostgRESTColumnHeaderCell,
 } from "../renderers";
 import { atom } from "jotai";
-import { columnSpecAtom, ctx } from "../provider.ts";
-import { TableAction } from "../actions";
-import { RegionCardinality } from "@blueprintjs/table";
+import { columnSpecAtom, ctx, tableDataAtom } from "../provider.ts";
 
 export * from "./data-loaders";
-export * from "./lazy-loader-table";
 
 interface PostgRESTTableViewProps<
   T extends object,
@@ -115,23 +113,19 @@ function _PostgRESTTableView<T>({
   enableFullTableSearch = false,
   dataSheetActions,
   identityKey = null,
+  filter: userFilter,
   ...rest
 }: PostgRESTTableViewProps<T>) {
   // Boundary of Jotai store
   ctx.useSync(enableFullTextSearchAtom, enableFullTableSearch);
 
-  // Server-side column sort/filter state
+  // Server-side column sort/filter state (local; drives the fetchChunk query)
   const [columnSorts, setColumnSorts] = useState<ColumnSortEntry[]>([]);
   const [columnFilters, setColumnFilters] = useState<PostgrestColumnFilter[]>(
     [],
   );
 
-  /** TODO: remove "full-text search" from filter options */
-  const ftsFilter = buildFilter(ctx.useValue(fullTextSearchFilterConfigAtom));
-  let filters = columnFilters.map(standardizeFilter);
-  if (ftsFilter != null) {
-    filters.push(ftsFilter);
-  }
+  const ftsConfig = ctx.useValue(fullTextSearchFilterConfigAtom);
 
   const _order = [];
   if (typeof order === "object" && "key" in order) {
@@ -151,32 +145,82 @@ function _PostgRESTTableView<T>({
     }
   }
 
-  const { data, dispatch, getClient } = usePostgRESTLazyLoader(
-    endpoint,
-    table,
-    {
-      order: _order,
-      columns,
-      filters,
-      identityKey: _identityKey,
+  const toaster = useToaster();
+  const bumpRefresh = ctx.useSet(dataRefreshTokenAtom);
+  const getClient = useCallback(
+    () => new PostgrestClient(endpoint).from(table),
+    [endpoint, table],
+  );
+  // Loaded rows (the chunk loader writes these into the shared store) — used to
+  // resolve selected row indices to identity keys when deleting.
+  const data = ctx.useValue(tableDataAtom);
+
+  // The base `filter` prop, active column filters, and full-text search applied
+  // as one query transform, fed to the PostgREST fetchChunk (server-side).
+  const baseFilter = useCallback(
+    (q: PostgrestFilterBuilder<any, any, any, any>) => {
+      let query = q;
+      if (userFilter != null) query = userFilter(query as any) as any;
+      query = applyColumnFilters(query, columnFilters);
+      const ff = buildFilter(ftsConfig);
+      if (ff != null) query = ff.apply(query);
+      return query;
     },
+    [userFilter, columnFilters, ftsConfig],
   );
 
-  const toaster = useToaster();
+  // A key over everything that changes the query. The fetchChunk is rebuilt and
+  // the loader asked to re-fetch from scratch whenever it changes.
+  const viewKey = JSON.stringify({
+    o: _order,
+    f: columnFilters,
+    fts: ftsConfig,
+    k: _identityKey,
+  });
 
-  const finishResponse = useCallback(
-    (promisedResult, changes) => {
-      wrapWithErrorHandling(toaster, promisedResult).then((res) => {
-        if (res == null) {
-          throw new Error("Could not complete action");
-        } else {
-          // Merge new data with old data
-          console.log("Updating data", changes);
-          dispatch({ type: "update-data", changes });
-        }
-      });
+  const fetchChunk = useMemo(
+    () =>
+      createPostgRESTFetchChunk({
+        endpoint,
+        table,
+        columns,
+        identityKey: _identityKey,
+        baseOrder: _order,
+        baseFilter,
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [endpoint, table, columns, viewKey, baseFilter],
+  );
+
+  // Re-fetch when the query view changes (skip the initial mount — the loader
+  // does its own first fetch).
+  const firstRun = useRef(true);
+  useEffect(() => {
+    if (firstRun.current) {
+      firstRun.current = false;
+      return;
+    }
+    bumpRefresh((v) => v + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewKey]);
+
+  // Save: upsert the edited rows, then re-fetch. Wired to the built-in Save
+  // action via the DataSheet `onSave` prop (present only when editable).
+  const handleSave = useCallback(
+    async (actionCtx: any) => {
+      const base = actionCtx.data ?? [];
+      const updates = actionCtx.updatedData ?? [];
+      const updateRows: any[] = [];
+      for (const [key, upd] of Object.entries(updates)) {
+        if (upd == null || Object.keys(upd).length === 0) continue;
+        updateRows.push({ ...base[key], ...(upd as object) });
+      }
+      if (updateRows.length === 0) return;
+      const query = getClient().upsert(updateRows, { defaultToNull: false });
+      const res = await wrapWithErrorHandling(toaster, query);
+      if (res != null) bumpRefresh((v) => v + 1);
     },
-    [dispatch, toaster],
+    [getClient, toaster, bumpRefresh],
   );
 
   // Column header actions for sort/filter
@@ -238,22 +282,21 @@ function _PostgRESTTableView<T>({
         : dataSheetActions,
       columnSpecOptions: columnOptions,
       editable,
+      onSave: editable ? handleSave : undefined,
       columnHeaderCellRenderer,
       onDeleteRows(selection) {
         if (!editable) return;
 
         const rowIndices = getRowsToDelete(selection);
-
-        const ids = rowIndices.map((i) => data[i][identityKey]);
-
-        dispatch({ type: "start-loading" });
-
-        const client = getClient();
-        let query = client.delete().in(identityKey, ids);
-        finishResponse(query, { $delete: Array.from(rowIndices.keys()) });
+        const ids = rowIndices.map((i) => data[i]?.[_identityKey]);
+        const query = getClient().delete().in(_identityKey, ids);
+        wrapWithErrorHandling(toaster, query).then((res) => {
+          if (res != null) bumpRefresh((v) => v + 1);
+        });
       },
     },
     [
+      h(ChunkLoaderManager, { key: "loader", fetchChunk }),
       h.if(hasActiveFilters || hasActiveSort)(ServerFilterBar, {
         columnSorts,
         columnFilters,
@@ -268,32 +311,6 @@ function _PostgRESTTableView<T>({
     ],
   );
 }
-
-const saveDataAction: TableAction = {
-  id: "save-data",
-  name: "Save changes",
-  icon: "floppy-disk",
-  intent: "success",
-  requiresEditable: true,
-  targets: [RegionCardinality.FULL_TABLE],
-  async run(ctx) {
-    const data = ctx.data;
-    const updates = ctx.updatedData;
-
-    let changes: Spec<any[]> = {};
-    let updateRows: any[] = [];
-    for (let [key, update] of Object.entries(updates)) {
-      const value = { ...data[key], ...update };
-      updateRows.push(value);
-      changes[key] = { $set: value };
-    }
-
-    dispatch({ type: "start-loading" });
-    const client = getClient();
-    // Save data
-    let query = client.upsert(updateRows, { defaultToNull: false });
-  },
-};
 
 export function notifyOnError(toaster: OverlayToaster, error: any) {
   console.error(error);

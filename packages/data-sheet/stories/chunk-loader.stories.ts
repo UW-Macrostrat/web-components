@@ -129,7 +129,7 @@ const valueFilter: TableFilter<any, { min: number; max: number }> = {
 };
 
 /**
- * **Workstream D+E: the unified `fetchChunk` data source.**
+ * **The unified `fetchChunk` data source.**
  *
  * The sheet has no `data` — a `ChunkLoaderManager` drives loading through a
  * single `fetchChunk({ offset, limit, sorts, filters, signal })` function.
@@ -280,6 +280,74 @@ export const PagedTable: StoryObj = {
             fetchChunk,
             chunkSize: 25,
             mode: "paged",
+          }),
+        ],
+      ),
+    ),
+};
+
+// ---- Unknown-total (append-on-scroll) source ----
+//
+// The predecessor to `ChunkLoaderManager` was a hand-rolled loader that
+// appended a chunk of rows whenever the last visible row neared the end of the
+// data array (via `onVisibleCellsChange`), with no notion of a total. That same
+// shape is a `fetchChunk` that returns rows but **no `totalCount`**: in scroll
+// mode the loader grows the sheet to `offset + rows.length` and keeps fetching
+// as you scroll, until the source runs dry (an empty chunk).
+
+const growingColumns = [
+  { name: "ID", key: "id", width: 80 },
+  { name: "Name", key: "name", width: 200 },
+  { name: "Comments", key: "comments", width: 320 },
+];
+
+async function fetchGrowingChunk(params: FetchChunkParams) {
+  const { offset, limit, signal } = params;
+  await sleep(500); // simulate an on-demand append
+  if (signal.aborted) return { rows: [] };
+  // A large-but-finite source: rows are generated on the fly, and the source
+  // runs dry at 5000 (an empty chunk stops the growth).
+  const remaining = Math.max(0, 5000 - offset);
+  const n = Math.min(limit, remaining);
+  const rows = Array.from({ length: n }, (_, i) => {
+    const id = offset + i + 1;
+    return { id, name: `Item ${id}`, comments: `Comments for item ${id}` };
+  });
+  return { rows }; // no totalCount → append-on-scroll (grows as you go)
+}
+
+/**
+ * **Append-on-scroll (unknown total).** The continuity case for the old
+ * hand-rolled lazy loader: a `fetchChunk` that returns no `totalCount`, so the
+ * sheet has no pre-sized scrollbar and simply grows a chunk at a time as you
+ * scroll, until an empty chunk ends it. Same `ChunkLoaderManager`, just a
+ * source that doesn't know its length up front.
+ */
+export const InfiniteScroll: StoryObj = {
+  render: () =>
+    h(
+      "div",
+      {
+        style: {
+          padding: "2em",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+        },
+      },
+      h(
+        DataSheet,
+        {
+          data: [],
+          columnSpec: growingColumns,
+          editable: false,
+          showLoadProgress: true,
+        },
+        [
+          h(ChunkLoaderManager, {
+            key: "loader",
+            fetchChunk: fetchGrowingChunk,
+            chunkSize: 100,
           }),
         ],
       ),

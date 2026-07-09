@@ -12,12 +12,16 @@ import { useSelector, useStoreAPI } from "../provider";
 import { collectAllFilters } from "./selection";
 import type { TableFilter } from "./types";
 
-/** Bar showing active filters as interactive tags, with a button to
- * add new filters from the available set (global + column-spec). */
+/** The single view-state bar: active **sorts** and **filters** shown as
+ * removable tags (filters reconfigurable in place via their `filterForm`),
+ * plus an "Add filter" popover over the available set (global + column-spec +
+ * the auto-generated operator filters for `filterable` columns). This is the
+ * one place active sort/filter state lives — there is no separate sort bar. */
 export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
   const columnSpec = useSelector((state) => state.columnSpec);
   const storeAPI = useStoreAPI();
   const activeFilters = useSelector((state) => state.activeFilters);
+  const columnSorts = useSelector((state) => state.columnSorts);
 
   const allFilters = useMemo(
     () => collectAllFilters(filters, columnSpec),
@@ -31,12 +35,35 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
     [allFilters, activeIds],
   );
 
-  const hasActive = activeFilters.size > 0;
+  const hasAnything =
+    columnSorts.length > 0 ||
+    activeFilters.size > 0 ||
+    availableFilters.length > 0;
+  if (!hasAnything) return null;
 
   return h("div.filter-bar", [
     h(
       ButtonGroup,
-      { minimal: true },
+      { minimal: true, key: "sorts" },
+      columnSorts.map((s) =>
+        h(
+          Tag,
+          {
+            key: `sort-${s.key}`,
+            icon: s.ascending ? "sort-asc" : "sort-desc",
+            intent: "primary",
+            minimal: true,
+            onRemove() {
+              storeAPI.getState().setColumnSort(s.key, null);
+            },
+          },
+          `${s.key}: ${s.ascending ? "Ascending" : "Descending"}`,
+        ),
+      ),
+    ),
+    h(
+      ButtonGroup,
+      { minimal: true, key: "filters" },
       Array.from(activeFilters.entries()).map(([id, entry]) =>
         h(ActiveFilterChip, { key: id, filterId: id, entry }),
       ),
@@ -44,7 +71,7 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
     h.if(availableFilters.length > 0)(AddFilterPopover, {
       filters: availableFilters,
     }),
-    // No "clear all" — each active filter tag is individually removable.
+    // No "clear all" — each active sort/filter tag is individually removable.
   ]);
 }
 

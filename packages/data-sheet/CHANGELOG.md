@@ -66,7 +66,7 @@ Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
   popover/collapse render style; group-by/hide as built-in controls; context
   menus. Deferred: an actions queue + proxied column copy/paste.)_
 
-### Workstream D+E — Data source & view state (in progress)
+### Data source & view state (`fetchChunk` loader)
 
 - **Unified `fetchChunk` data source.** `useChunkLoader(fetchChunk, {chunkSize})`
   (and the `ChunkLoaderManager` convenience component) drive windowed loading
@@ -111,8 +111,30 @@ Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
   (backed by the store's `scrollToRow`) scrolls to a row index, which loads the
   covering chunk. Meaningful when the source length is known (offset
   addressing). _Story:_ `Data sheet/Chunk loader` → `ServerBackedTable`.
+- **Keyset pagination support.** `fetchChunk` now also receives an optional
+  `cursor` — the already-loaded row (and index) immediately before the chunk in
+  scroll mode — so a source can page with `WHERE key > cursor` instead of a slow
+  `OFFSET`. Offset-based sources ignore it. A chunk that omits `totalCount`
+  (`undefined`) now _preserves_ the previously-known total rather than clearing
+  it, so keyset pages (which can't re-`count`) keep the sheet's dimensions.
+- **`dataRefreshTokenAtom`** — bump it to force the active loader to reset and
+  re-fetch from scratch (used after a mutation invalidates loaded rows).
+- **`PostgRESTTableView` now runs on the generic `useChunkLoader`.** A new
+  `createPostgRESTFetchChunk({ endpoint, table, identityKey, baseOrder,
+  baseFilter })` builds a keyset-paginating `fetchChunk` from the PostgREST
+  client; the view renders a `ChunkLoaderManager` and re-fetches (via the
+  refresh token) when its sort/filter view changes. The bespoke
+  `usePostgRESTLazyLoader` (and its `_loadMorePostgRESTData` chain) is retired.
+  Delete/save go through an inline client and trigger a re-fetch (replacing the
+  optimistic `update-data` merge). _Fix:_ the `filter` prop is now actually
+  applied to the query (it was previously dropped into `...rest` and ignored).
+- **Removed the redundant lazy-loader test-double.** The `Data sheet/Lazy
+  loader sheet` story and its `TestLazyLoaderTableView` / `useTestLazyLoader`
+  exports are gone — superseded by `Data sheet/Chunk loader`, which gains an
+  `InfiniteScroll` story demonstrating the append-on-scroll (unknown-total)
+  shape on `ChunkLoaderManager`.
 
-### Workstream A — Controlled editing
+### Controlled editing
 
 - **`onEdit(event)` hook.** `DataSheet` accepts an `onEdit` callback that fires
   for every user edit as a structured `EditEvent` — `setCells`, `deleteRows`,
@@ -136,7 +158,7 @@ Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
   and inline/omnibar surfaces add no new content props, and the same component
   composes into a future row editor. _Story:_ `Data sheet/Cell detail`.
 
-### Workstream C — Editor UX
+### Editor UX
 
 - **Per-cell editor selection.** A new `columnSpec[].editorForCell(ctx)` picks
   the editor for an individual cell from its `CellRenderContext`, overriding
@@ -175,7 +197,7 @@ Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
   _Stories:_ `Data sheet/Editors` → `EditorInteractionAuto` / `Manual`;
   `Data sheet/Detail panels` → `AutoDetailPanel` / `ManualDetailPanel`.
 
-### Workstream B — Rich cell-render context
+### Rich cell-render context
 
 - **Per-cell renderers now receive a `CellRenderContext`.** `valueRenderer`
   takes an optional second argument `{ value, rowIndex, colIndex, column, row,
@@ -186,7 +208,7 @@ Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
   default Blueprint `Cell` is unaffected and existing single-argument
   `valueRenderer`s keep working. _Story:_ `Data sheet/Cell rendering`.
 
-### Workstream G — Bugfixes
+### Editing bugfixes
 
 - **No phantom "edited" state.** `onCellEdited` treats `""` and
   `null`/`undefined` as equivalent, and compares non-blank values by string

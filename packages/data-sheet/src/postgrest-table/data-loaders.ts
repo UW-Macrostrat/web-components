@@ -9,7 +9,7 @@ import {
   PostgrestFilterBuilder,
   PostgrestQueryBuilder,
 } from "@supabase/postgrest-js";
-import { adjustArraySize, RowRegion, sleep } from "./loading-utils.ts";
+import { adjustArraySize, RowRegion } from "./loading-utils.ts";
 import { ctx, tableDataAtom, useSelector } from "../provider.ts";
 import { atom } from "jotai";
 import h from "./main.module.sass";
@@ -191,12 +191,6 @@ type SortAndFilterOptions = {
   filters?: PostgrestFilter[];
 };
 
-type LazyLoaderOptions = Omit<QueryConfig, "count" | "offset" | "limit"> &
-  SortAndFilterOptions & {
-    chunkSize?: number;
-    sortKey?: string;
-  };
-
 interface QueryConfig extends SortAndFilterOptions {
   columns?: string | string[];
   count?: "exact" | "estimated";
@@ -281,6 +275,10 @@ const lazyLoaderCoreStateAtom = atom<LazyLoaderStateCore<any>>({
 
 /** Current page index (0-based) for paged fetch mode. */
 export const chunkPageAtom = atom(0);
+
+/** Bump this to force the active chunk loader to reset and re-fetch from
+ * scratch — e.g. after a mutation (save/delete) that invalidates loaded rows. */
+export const dataRefreshTokenAtom = atom(0);
 
 /** Footer state for the optional bottom-of-table indicator: rows loaded, the
  * source total when known, load status, and — in paged mode — the current
@@ -411,64 +409,6 @@ function buildPostgrestOrderClauses(
   return clauses;
 }
 
-function _loadMorePostgRESTData<T>(
-  client: PostgrestQueryBuilder<T, any>,
-  config: QueryConfig & { chunkSize?: number },
-  state: LazyLoaderState<T>,
-  dispatch: any,
-) {
-  let rowIndex = indexOfFirstNullInRegion(state.data, state.visibleRegion);
-  if (state.loading || rowIndex == null) {
-    if (state.initialized) {
-      return;
-    }
-    // For initial/reload queries, default to loading from the start
-    rowIndex = rowIndex ?? 0;
-  }
-
-  const lastLoadedRowIndex: number = rowIndex - 1;
-  let lastLoadedRow = null;
-  if (lastLoadedRowIndex >= 0) {
-    lastLoadedRow = state.data[lastLoadedRowIndex];
-  }
-
-  const { chunkSize = 100, ...rest } = config;
-
-  // Determine the primary sort key from column sorts or the order prop
-  const sortKey = config.order?.key ?? "id";
-
-  let cfg: QueryConfig = {
-    ...rest,
-    limit: chunkSize,
-    lastLoadedRow,
-    lastLoadedRowIndex,
-  };
-
-  // Allows random seeking
-  const isInitialQuery = !state.initialized;
-  if (isInitialQuery) {
-    cfg.count = "exact";
-  }
-
-  dispatch({ type: "start-loading" });
-
-  const query = buildQuery(client, cfg);
-
-  query.then((res) => {
-    console.log(res);
-    const { data, count } = res;
-    dispatch({
-      type: "loaded",
-      data,
-      offset: rowIndex,
-      totalSize: count,
-    });
-  });
-}
-
-// Ensure only one data load is in progress at a time
-const loadMorePostgRESTData = debounce(_loadMorePostgRESTData, 100);
-
 export function useScrollHandler() {
   /** A standardized approach to holding onto the scroll position for the table */
   // Reference to hold onto the scroll position
@@ -492,54 +432,17 @@ export function useScrollHandler() {
   );
 }
 
-export function usePostgRESTLazyLoader(
-  endpoint: string,
-  table: string,
-  config: LazyLoaderOptions = {},
-) {
-  const getClient = useCallback(() => {
-    return new PostgrestClient(endpoint).from(table);
-  }, [endpoint, table]);
-
-  const [state, dispatch] = useLazyLoaderReducer();
-  const { data, loading } = state;
-
-  // Reset data whenever sort/filter configuration changes so we re-fetch
-  const sortFilterKey = useMemo(
-    () =>
-      JSON.stringify({
-        s: config.order,
-        v: config.filters,
-        i: config.identityKey,
-      }),
-    [config.order, config.filters, config.identityKey],
-  );
-
-  const visibleRegion = ctx.useValue(visibleRegionAtom);
-
-  useEffect(() => {
-    dispatch({ type: "reset" });
-  }, [sortFilterKey]);
-
-  useAsyncEffect(async () => {
-    const client = getClient();
-    loadMorePostgRESTData(client, config, state, dispatch);
-  }, [data, visibleRegion, sortFilterKey]);
-
-  return {
-    data,
-    loading,
-    dispatch,
-    getClient,
-  };
-}
-
 /** The active view state (a filter's id / column / config), passed to a
- * `fetchChunk` so it can filter server-side. */
+ * `fetchChunk`. A server provider translates `columnKey` + `state` into a
+ * query; a local (in-memory) provider applies `predicate` directly. Both come
+ * from the same `TableFilter`, so one filter definition serves either target. */
 export interface FetchChunkFilter {
   id: string;
   columnKey?: string;
   state: any;
+  /** Client-side row predicate (from the `TableFilter`). Server providers
+   * ignore it and translate `columnKey` + `state` instead. */
+  predicate?: (row: any, state: any) => boolean;
 }
 
 /** Parameters passed to a `fetchChunk` implementation for one window. */
@@ -554,6 +457,11 @@ export interface FetchChunkParams {
   sorts: ColumnSort[];
   /** Active filters (id + column + config). */
   filters: FetchChunkFilter[];
+  /** In scroll mode, the already-loaded row immediately before this chunk
+   * (and its data-array index), or `null` at the start / in paged mode. Keyset
+   * sources can page from this cursor (e.g. `WHERE key > cursor`) instead of a
+   * slow `OFFSET`; offset-based sources can ignore it. */
+  cursor?: { row: any; index: number } | null;
 }
 
 /** Result of a `fetchChunk` call. `totalCount` reports the source length when
@@ -567,6 +475,73 @@ export interface ChunkResult<T = any> {
 export type FetchChunk<T = any> = (
   params: FetchChunkParams,
 ) => Promise<ChunkResult<T>>;
+
+/**
+ * A table's data source, addressed uniformly whether it's an in-memory array or
+ * a remote backend. `fetchChunk` returns a window with the active sorts/filters
+ * already applied (in memory by the local provider, in SQL by a server one);
+ * `identity` addresses a row for edits/mutations — stable across re-sorts,
+ * unlike an array index. The mutation ops are present only for editable /
+ * persisting sources. The in-memory case (`createLocalProvider`) is just the
+ * degenerate implementation, so local and server tables share one path.
+ */
+export interface TableDataProvider<T = any> {
+  fetchChunk(params: FetchChunkParams): Promise<ChunkResult<T>>;
+  identity(row: T): string | number;
+  saveRows?(rows: T[]): Promise<void>;
+  deleteRows?(ids: Array<string | number>): Promise<void>;
+  insertRow?(row: Partial<T>): Promise<void>;
+}
+
+/**
+ * The degenerate provider: an in-memory array. `fetchChunk` applies the active
+ * filter predicates and sorts over the array and returns the requested slice
+ * plus the (fully-known) total — the same view engine used for client-side
+ * tables, expressed as a provider.
+ */
+export function createLocalProvider<T = any>(
+  data: T[],
+  options: { identity?: (row: T) => string | number } = {},
+): TableDataProvider<T> {
+  const identity = options.identity ?? ((row: any) => row?.id);
+  return {
+    identity,
+    async fetchChunk({ offset, limit, sorts, filters }) {
+      let rows = data;
+      if (filters != null && filters.length > 0) {
+        rows = rows.filter((row) =>
+          filters.every((f) =>
+            f.predicate != null ? f.predicate(row, f.state) : true,
+          ),
+        );
+      }
+      if (sorts != null && sorts.length > 0) {
+        rows = [...rows].sort(compareRowsBySorts(sorts));
+      }
+      return {
+        rows: rows.slice(offset, offset + limit),
+        totalCount: rows.length,
+      };
+    },
+  };
+}
+
+/** Multi-key row comparator (priority order; nulls first when ascending),
+ * mirroring the client-side sort in `computeTransformedRowIndices`. */
+export function compareRowsBySorts(sorts: ColumnSort[]) {
+  return (a: any, b: any): number => {
+    for (const sort of sorts) {
+      const av = a?.[sort.key];
+      const bv = b?.[sort.key];
+      if (av == null && bv == null) continue;
+      if (av == null) return sort.ascending ? -1 : 1;
+      if (bv == null) return sort.ascending ? 1 : -1;
+      const cmp = av < bv ? -1 : av > bv ? 1 : 0;
+      if (cmp !== 0) return sort.ascending ? cmp : -cmp;
+    }
+    return 0;
+  };
+}
 
 /**
  * A generic, backend-agnostic windowed data source. Give it a `fetchChunk`
@@ -588,6 +563,7 @@ export function useChunkLoader<T = any>(
   const visibleRegion = ctx.useValue(visibleRegionAtom);
   const page = ctx.useValue(chunkPageAtom);
   const setPage = ctx.useSet(chunkPageAtom);
+  const refreshToken = ctx.useValue(dataRefreshTokenAtom);
   const columnSorts = useSelector((s) => s.columnSorts);
   const activeFilters = useSelector((s) => s.activeFilters);
   const abortRef = useRef<AbortController | null>(null);
@@ -604,6 +580,7 @@ export function useChunkLoader<T = any>(
         id,
         columnKey: entry.filter?.columnKey,
         state: entry.state,
+        predicate: entry.filter?.predicate,
       })),
     [activeFilters],
   );
@@ -623,13 +600,16 @@ export function useChunkLoader<T = any>(
   useEffect(() => {
     dispatch({ type: "reset" });
     setPage(0);
-  }, [viewKey, mode]);
+  }, [viewKey, mode, refreshToken]);
 
   useAsyncEffect(async () => {
     if (state.loading) return;
 
-    // Determine the chunk offset to fetch.
+    // Determine the chunk offset to fetch, and (scroll mode) a keyset cursor:
+    // the already-loaded row just before the chunk, so keyset sources can page
+    // from it instead of a slow OFFSET.
     let offset: number;
+    let cursor: { row: any; index: number } | null = null;
     if (mode === "paged") {
       // Fetch the current page once; skip if already loaded for this view.
       if (
@@ -643,6 +623,8 @@ export function useChunkLoader<T = any>(
       const rowIndex = indexOfFirstNullInRegion(state.data, visibleRegion);
       if (rowIndex == null && state.initialized) return;
       offset = Math.floor((rowIndex ?? 0) / chunkSize) * chunkSize;
+      const prev = offset > 0 ? state.data[offset - 1] : null;
+      if (prev != null) cursor = { row: prev, index: offset - 1 };
     }
 
     abortRef.current?.abort();
@@ -657,6 +639,7 @@ export function useChunkLoader<T = any>(
         signal: controller.signal,
         sorts: columnSorts,
         filters,
+        cursor,
       });
       if (controller.signal.aborted) return;
       const rows = result.rows ?? [];
@@ -679,7 +662,10 @@ export function useChunkLoader<T = any>(
           totalSize:
             result.totalCount ??
             Math.max(state.data.length, offset + rows.length),
-          totalCount: result.totalCount ?? null,
+          // Preserve a previously-known total when a chunk omits it (undefined):
+          // keyset pages can't re-count (the cursor filter would skew it), so
+          // only the initial cursorless fetch reports the total.
+          totalCount: result.totalCount,
         });
       }
     } catch (err) {
@@ -707,6 +693,87 @@ export function ChunkLoaderManager<T = any>({
   return null;
 }
 
+/**
+ * Build a `fetchChunk` backed by a PostgREST endpoint, for use with
+ * `useChunkLoader` / `ChunkLoaderManager`. It reuses `buildQuery`, so it pages
+ * with **keyset pagination** (via the loader's `cursor`) whenever the query is
+ * ordered — falling back to `OFFSET` only when it isn't — and threads the
+ * active store sorts/filters into the query. The total count is requested only
+ * on the initial (cursorless) fetch, since a keyset cursor filter would skew it.
+ */
+export function createPostgRESTFetchChunk<T = any>(config: {
+  endpoint: string;
+  table: string;
+  identityKey: string;
+  columns?: string | string[];
+  /** Order applied before the active column sorts (identity key appended last). */
+  baseOrder?: PostgrestOrder<any>[];
+  /** A transform over the query builder, applied as a base filter (the `filter` prop). */
+  baseFilter?: (
+    q: PostgrestFilterBuilder<any, any, any, any>,
+  ) => PostgrestFilterBuilder<any, any, any, any>;
+  /** Translate a stored filter entry to a `PostgrestFilter` (return `null` to
+   * skip). Defaults to the `{ key, operator, value }` column-filter shape. */
+  translateFilter?: (f: FetchChunkFilter) => PostgrestFilter | null;
+}): FetchChunk<T> {
+  const translate = config.translateFilter ?? standardColumnFilter;
+  return async ({ limit, signal, sorts, filters, cursor }) => {
+    const client = new PostgrestClient(config.endpoint).from(config.table);
+
+    const order: PostgrestOrder<any>[] = [
+      ...(config.baseOrder ?? []),
+      ...sorts.map((s) => ({ key: s.key, ascending: s.ascending })),
+    ];
+
+    const pgFilters: PostgrestFilter[] = [];
+    if (config.baseFilter != null) {
+      const apply = config.baseFilter;
+      pgFilters.push({ type: "filter", apply });
+    }
+    for (const f of filters) {
+      const pf = translate(f);
+      if (pf != null) pgFilters.push(pf);
+    }
+
+    const query = buildQuery(client, {
+      columns: config.columns,
+      // Only the initial (cursorless) fetch reports an accurate total.
+      count: cursor == null ? "exact" : undefined,
+      limit,
+      identityKey: config.identityKey,
+      order,
+      filters: pgFilters,
+      lastLoadedRow: cursor?.row ?? null,
+      lastLoadedRowIndex: cursor?.index ?? -1,
+    });
+
+    const res: any = await query;
+    if (signal.aborted) return { rows: [] };
+    if (res?.error != null) throw res.error;
+    const rows = res?.data ?? [];
+    return res?.count != null ? { rows, totalCount: res.count } : { rows };
+  };
+}
+
+/** Default filter translation: the `{ key, operator, value }` column-filter shape. */
+function standardColumnFilter(f: FetchChunkFilter): PostgrestFilter | null {
+  const s = f.state;
+  if (s == null) return null;
+  if (
+    s.key != null &&
+    s.operator != null &&
+    s.value != null &&
+    s.value !== ""
+  ) {
+    return standardizeFilter({
+      key: s.key,
+      operator: s.operator,
+      value: s.value,
+    });
+  }
+  return null;
+}
+
 function indexOfFirstNullInRegion(
   data: any[],
   region: RowRegion,
@@ -717,118 +784,4 @@ function indexOfFirstNullInRegion(
     }
   }
   return null;
-}
-
-export function useTestLazyLoader(config: LazyLoaderOptions = {}) {
-  const [state, dispatch] = useLazyLoaderReducer();
-  const { data, loading } = state;
-
-  const visibleRegion = ctx.useValue(visibleRegionAtom);
-
-  useAsyncEffect(async () => {
-    testDataLoader(config, state, dispatch);
-  }, [data, visibleRegion]);
-
-  return {
-    data,
-    loading,
-    dispatch,
-  };
-}
-
-function testDataLoader(
-  config: { chunkSize: number },
-  state: LazyLoaderState<any>,
-  dispatch,
-) {
-  const sortKey = "id";
-  const rowIndex = indexOfFirstNullInRegion(state.data, state.visibleRegion);
-  if (state.loading || rowIndex == null) {
-    if (state.initialized) {
-      return;
-    }
-  }
-
-  const chunkSize = 10;
-
-  let cfg: QueryConfig = {
-    //...rest,
-    limit: chunkSize,
-    offset: null,
-  };
-
-  // Allows random seeking
-  const isInitialQuery = !state.initialized;
-  if (isInitialQuery) {
-    cfg.count = "exact";
-  }
-
-  // This only works for forward queries
-  if (!isInitialQuery) {
-    cfg.after = state.data[rowIndex - 1]?.[sortKey];
-    if (cfg.after == null) {
-      cfg.offset = rowIndex;
-    }
-  }
-
-  dispatch({ type: "start-loading" });
-
-  const query = testQueryFunc(cfg);
-  query.then((res) => {
-    console.log(res);
-    const { data, count } = res;
-    dispatch({
-      type: "loaded",
-      data,
-      offset: rowIndex,
-      totalSize: count,
-    });
-  });
-}
-
-interface QueryParams {
-  count: "exact" | "estimated";
-  limit: number;
-  offset?: number;
-  after?: number;
-}
-
-const testQueryFunc = async (
-  cfg: QueryParams,
-): Promise<{
-  data: any[];
-  count: number | null;
-}> => {
-  console.log(cfg);
-  let offset = null;
-  if (cfg.after) {
-    offset = cfg.after;
-  } else if (cfg.offset) {
-    offset = cfg.offset;
-  }
-
-  let count = cfg.limit;
-  const totalCount = 50000;
-  count = Math.min(count, totalCount - offset);
-
-  // wait for a little bit before returning
-  await sleep(100);
-
-  return {
-    data: buildSyntheticData(offset, count),
-    count: cfg.count != null ? 50000 : undefined,
-  };
-};
-
-function buildSyntheticData(offset: number, count: number | null) {
-  console.log(
-    `Getting data at indices between ${offset} and ${offset + count}`,
-  );
-  return range(offset, offset + count).map((i) => {
-    const id = i + 1;
-    return {
-      id,
-      name: `row ${id} has some long text content`,
-    };
-  });
 }

@@ -48,11 +48,11 @@ function Wrapper(props) {
 // ---- Stories ----
 
 /**
- * **Workstream C: per-cell editor selection.**
+ * **Per-cell editor selection (`editorForCell`).**
  *
  * `columnSpec[].editorForCell(ctx)` picks the editor for an individual cell
- * from its render context (Workstream B), overriding the static
- * `dataEditor` / `inlineEditor`. Here the `Note` column shows a multi-line
+ * from its render context, overriding the static `dataEditor` / `inlineEditor`.
+ * Here the `Note` column shows a multi-line
  * `EditableTextArea` (a `dataEditor` popover) only for cells whose value is
  * long; short cells fall back to the default single-line inline input.
  *
@@ -97,7 +97,7 @@ const interactionColumns = [
 ];
 
 /**
- * **Workstream C: `cellInteraction: "auto"` (default).**
+ * **`cellInteraction: "auto"` (default).**
  *
  * Selecting a `Note` cell opens the textarea and focuses it. Arrow keys move
  * the cursor **within** the text; when the cursor reaches the start (↑/←) or
@@ -120,12 +120,12 @@ export const EditorInteractionAuto: StoryObj = {
 };
 
 /**
- * **Workstream C: `cellInteraction: "manual"`.**
+ * **`cellInteraction: "manual"`.**
  *
  * Selecting a `Note` cell does **not** open the editor; arrow keys navigate
  * the table. Click the cell to open the textarea, which then takes focus;
- * `Escape` (or arrowing off the text edge) returns focus to the table. This
- * matches the legacy `autoFocusEditor: false` behavior.
+ * `Escape` (or arrowing off the text edge) returns focus to the table. This is
+ * the successor to the old `autoFocusEditor: false`.
  */
 export const EditorInteractionManual: StoryObj = {
   render: () =>

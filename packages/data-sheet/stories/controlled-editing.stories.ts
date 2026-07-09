@@ -35,7 +35,7 @@ const columnSpec = [
 ];
 
 /**
- * **Workstream A: the `onEdit(event)` hook.**
+ * **The `onEdit(event)` hook.**
  *
  * Every user edit is emitted as a structured `EditEvent` — `setCells`,
  * `deleteRows`, `addRow`, `resetChanges` — in addition to the built-in
@@ -140,7 +140,7 @@ function applyEdit(updated: any[], event: EditEvent): any[] {
 }
 
 /**
- * **Workstream A: controlled `updatedData` overlay.**
+ * **Controlled `updatedData` overlay.**
  *
  * The parent owns the edited state: it starts empty, applies each `onEdit`
  * event to its own overlay, and passes that overlay back as the `updatedData`

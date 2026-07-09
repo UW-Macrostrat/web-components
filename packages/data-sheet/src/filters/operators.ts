@@ -1,0 +1,127 @@
+/**
+ * The canonical column-filter operator vocabulary, shared by the client-side
+ * predicate (in-memory tables) and the server-side descriptor (a provider
+ * translates it to a query). Promoted to core from the PostgREST column header,
+ * so there is one operator model, not two.
+ */
+import type { ColumnSpec } from "../utils/column-spec";
+
+/** Column-filter operators. A superset that covers both in-memory comparison
+ * and common backend query operators (PostgREST maps onto these names). */
+export type FilterOperator =
+  | "eq"
+  | "neq"
+  | "like"
+  | "ilike"
+  | "gt"
+  | "lt"
+  | "gte"
+  | "lte"
+  | "is";
+
+/** Human-readable operator labels for menus and active-filter tags. */
+export const OPERATOR_LABELS: Record<FilterOperator, string> = {
+  eq: "=",
+  neq: "≠",
+  like: "like",
+  ilike: "contains",
+  gt: ">",
+  lt: "<",
+  gte: "≥",
+  lte: "≤",
+  is: "is",
+};
+
+const STRING_OPERATORS: FilterOperator[] = ["eq", "neq", "ilike"];
+const NUMERIC_OPERATORS: FilterOperator[] = [
+  "eq",
+  "neq",
+  "gt",
+  "lt",
+  "gte",
+  "lte",
+];
+const BOOLEAN_OPERATORS: FilterOperator[] = ["eq", "neq"];
+
+/** Fallback when the column has no type information. */
+export const DEFAULT_FILTER_OPERATORS: FilterOperator[] = [
+  "eq",
+  "neq",
+  "ilike",
+  "gt",
+  "lt",
+  "gte",
+  "lte",
+];
+
+const OPERATORS_BY_TYPE: Record<string, FilterOperator[]> = {
+  string: STRING_OPERATORS,
+  number: NUMERIC_OPERATORS,
+  integer: NUMERIC_OPERATORS,
+  boolean: BOOLEAN_OPERATORS,
+};
+
+/** Resolve the operators offered for a column: explicit `filterable.operators`
+ * first, else inferred from `dataType`, else the defaults. */
+export function getOperatorsForColumn(col: ColumnSpec): FilterOperator[] {
+  if (typeof col.filterable === "object" && col.filterable.operators?.length) {
+    return col.filterable.operators as FilterOperator[];
+  }
+  if (col.dataType != null) {
+    return OPERATORS_BY_TYPE[col.dataType] ?? DEFAULT_FILTER_OPERATORS;
+  }
+  return DEFAULT_FILTER_OPERATORS;
+}
+
+function looseEq(a: any, b: any): boolean {
+  if (a == null) return b == null || b === "";
+  // Compare numerically when both look numeric, else as strings.
+  const an = Number(a);
+  const bn = Number(b);
+  if (!Number.isNaN(an) && !Number.isNaN(bn) && String(a).trim() !== "") {
+    return an === bn;
+  }
+  return String(a).toLowerCase() === String(b).toLowerCase();
+}
+
+/**
+ * The client-side predicate for a `{ operator, value }` column filter — the
+ * in-memory equivalent of what a backend applies server-side. An empty filter
+ * value is treated as "no constraint" (matches everything).
+ */
+export function testFilterOperator(
+  cellValue: any,
+  operator: FilterOperator,
+  filterValue: any,
+): boolean {
+  if (filterValue === "" || filterValue == null) return true;
+  switch (operator) {
+    case "eq":
+      return looseEq(cellValue, filterValue);
+    case "neq":
+      return !looseEq(cellValue, filterValue);
+    case "gt":
+      return Number(cellValue) > Number(filterValue);
+    case "lt":
+      return Number(cellValue) < Number(filterValue);
+    case "gte":
+      return Number(cellValue) >= Number(filterValue);
+    case "lte":
+      return Number(cellValue) <= Number(filterValue);
+    case "like":
+      return String(cellValue ?? "").includes(String(filterValue));
+    case "ilike":
+      return String(cellValue ?? "")
+        .toLowerCase()
+        .includes(String(filterValue).toLowerCase());
+    case "is": {
+      const v = String(filterValue).toLowerCase();
+      if (v === "null") return cellValue == null;
+      if (v === "true") return cellValue === true;
+      if (v === "false") return cellValue === false;
+      return looseEq(cellValue, filterValue);
+    }
+    default:
+      return true;
+  }
+}

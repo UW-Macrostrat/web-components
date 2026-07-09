@@ -92,7 +92,7 @@ function Wrapper(props) {
 // ---- Stories ----
 
 /**
- * **Regression: empty↔null normalization (Workstream G).**
+ * **Empty↔null normalization.**
  *
  * The `Note` column has cells that start out `null` or `""`. Click into one
  * of those empty cells and tab/click away _without changing anything_ (or
@@ -114,7 +114,7 @@ export const EmptyCellNormalization: StoryObj = {
 };
 
 /**
- * **Regression: filter-aware edit methods (Workstream G).**
+ * **Filter-aware edit methods.**
  *
  * Sort by `Value` (or `Name`) from the column header menu, and/or activate
  * the `Category` filter. Then exercise the bulk edit paths against the

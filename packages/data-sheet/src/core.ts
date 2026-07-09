@@ -23,11 +23,8 @@ import {
   useState,
 } from "react";
 import { DataSheetAction, InfoBar, LoadProgressIndicator } from "./components";
-import {
-  autoFilterId,
-  renderColumnHeaderCell,
-  SortFilterBar,
-} from "./renderers";
+import { renderColumnHeaderCell } from "./renderers";
+import { columnFilterId } from "./actions/column-filter";
 import h from "./main.module.sass";
 import {
   columnSpecAtom,
@@ -371,10 +368,7 @@ function _DataSheet<T>({
         activeSort = columnSorts?.find((s) => s.key === col.key);
       }
       if (col.filterable) {
-        // The autoFilterID implementation is too complicated
-        activeFilter =
-          activeFilters?.get(col.key) ??
-          activeFilters?.get(autoFilterId(col.key));
+        activeFilter = activeFilters?.get(columnFilterId(col.key));
       }
 
       const _columnHeaderCellRenderer = (colIndex) => {
@@ -457,8 +451,10 @@ function _DataSheet<T>({
   return h("div.data-sheet-container", { className, style }, [
     // Global sort/filter status bars sit above the (selection-modal)
     // actions/tools toolbar.
-    h.if(filters != null && filters.length > 0)(FilterBar, { filters }),
-    h.if(hasSortableOrFilterable)(SortFilterBar),
+    h.if((filters != null && filters.length > 0) || hasSortableOrFilterable)(
+      FilterBar,
+      { filters: filters ?? [] },
+    ),
     // Rendered from the merged action set (built-ins included) so it reflects
     // sort/filter/save/reset even without a consumer `actions` prop; it
     // self-gates (renders nothing when no action applies).

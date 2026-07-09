@@ -6,11 +6,14 @@
  * omit them, replace them, or add their own controls at any cardinality.
  */
 import h from "@macrostrat/hyper";
-import { useEffect, useState } from "react";
-import { Button, InputGroup, Menu, MenuItem, PopoverNext } from "@blueprintjs/core";
+import { useMemo } from "react";
+import { Button, Menu, MenuItem, PopoverNext } from "@blueprintjs/core";
 import { RegionCardinality } from "@blueprintjs/table";
 import { useSelector, useStoreAPI } from "../provider";
 import type { TableAction, TableActionContext } from "./types";
+import type { ColumnSpec } from "../utils/column-spec";
+import { columnFilter, ColumnFilterState } from "./column-filter";
+import { OPERATOR_LABELS } from "../filters/operators";
 
 function selectedColumn(ctx: TableActionContext) {
   const key = ctx.getSelectedColumnKeys()[0];
@@ -90,40 +93,29 @@ export const columnSortAction: TableAction = {
 
 // ---- Filter ----
 
-function ColumnFilterControl({
-  columnKey,
-  columnName,
-}: {
-  columnKey: string;
-  columnName: string;
-}) {
+function ColumnFilterControl({ col }: { col: ColumnSpec }) {
   const storeAPI = useStoreAPI();
-  const id = `__col_${columnKey}`;
-  const active = useSelector((s) => s.activeFilters.get(id)?.state?.search ?? "");
-  const [val, setVal] = useState<string>(active);
-  useEffect(() => setVal(active), [active]);
+  // The built-in operator filter for this column — the same `TableFilter` the
+  // FilterBar and any server provider consume, so header and bar stay in sync.
+  const filter = useMemo(() => columnFilter(col), [col.key]);
+  const state = useSelector(
+    (s) => s.activeFilters.get(filter.id)?.state as ColumnFilterState | undefined,
+  );
+  const value = state?.value ?? "";
 
-  const apply = (v: string) => {
+  const setState = (next: ColumnFilterState) => {
     const store = storeAPI.getState();
-    if (v === "") {
-      store.removeFilter(id);
-      return;
+    if (next == null || next.value === "" || next.value == null) {
+      store.removeFilter(filter.id);
+    } else {
+      store.setFilter(filter.id, filter, next);
     }
-    store.setFilter(
-      id,
-      {
-        id,
-        name: columnName,
-        columnKey,
-        icon: "filter",
-        predicate: (row: any, st: any) =>
-          String(row[columnKey] ?? "")
-            .toLowerCase()
-            .includes(String(st?.search ?? "").toLowerCase()),
-      },
-      { search: v },
-    );
   };
+
+  const label =
+    value !== "" && state != null
+      ? `${OPERATOR_LABELS[state.operator] ?? state.operator} ${value}`
+      : "Filter";
 
   return h(
     PopoverNext,
@@ -131,29 +123,10 @@ function ColumnFilterControl({
       placement: "bottom-start",
       content: h(
         "div",
-        { style: { padding: "6px" } },
-        h(InputGroup, {
-          autoFocus: true,
-          leftIcon: "filter",
-          placeholder: `Filter ${columnName}…`,
-          value: val,
-          onValueChange: (v: string) => {
-            setVal(v);
-            apply(v);
-          },
-          // Clear directly from the text box.
-          rightElement:
-            val !== ""
-              ? h(Button, {
-                  icon: "cross",
-                  minimal: true,
-                  small: true,
-                  onClick: () => {
-                    setVal("");
-                    apply("");
-                  },
-                })
-              : undefined,
+        { style: { padding: "6px", minWidth: "220px" } },
+        h(filter.filterForm, {
+          state: state ?? (filter.defaultState as ColumnFilterState),
+          setState,
         }),
       ),
     },
@@ -164,9 +137,9 @@ function ColumnFilterControl({
         minimal: true,
         icon: "filter",
         rightIcon: "caret-down",
-        intent: active !== "" ? "warning" : "none",
+        intent: value !== "" ? "warning" : "none",
       },
-      active !== "" ? `Filter: ${active}` : "Filter",
+      label,
     ),
   );
 }
@@ -182,7 +155,7 @@ export const columnFilterAction: TableAction = {
   render(ctx) {
     const col = selectedColumn(ctx);
     if (!col?.filterable) return null;
-    return h(ColumnFilterControl, { columnKey: col.key, columnName: col.name });
+    return h(ColumnFilterControl, { col });
   },
 };
 

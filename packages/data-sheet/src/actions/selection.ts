@@ -11,6 +11,7 @@ import type {
   TableFilter,
 } from "./types";
 import type { DataSheetStore } from "../types";
+import { columnFilter } from "./column-filter";
 import update from "immutability-helper";
 
 /** Derive the selection cardinality from the current set of selected regions.
@@ -267,6 +268,11 @@ export function collectAllFilters<T>(
           result.push(withKey);
         }
       }
+    }
+    // Auto-generate the built-in operator filter for a `filterable` column,
+    // unless the column already supplies an explicit filter.
+    if (col.filterable && !result.some((r) => r.columnKey === col.key)) {
+      result.push(columnFilter(col) as TableFilter<T>);
     }
   }
   return result;

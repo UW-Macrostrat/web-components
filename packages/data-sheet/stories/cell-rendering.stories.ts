@@ -49,7 +49,7 @@ function Wrapper(props) {
 // ---- Stories ----
 
 /**
- * **Workstream B: render context passed to `valueRenderer`.**
+ * **Render context passed to `valueRenderer`.**
  *
  * `valueRenderer` now receives a second argument — a `CellRenderContext` with
  * `{ value, rowIndex, colIndex, column, row, isEdited, isDeleted }`. This
@@ -110,7 +110,7 @@ export const ValueRendererContext: StoryObj = {
 };
 
 /**
- * **Workstream B: render context passed to a custom `cellComponent`.**
+ * **Render context passed to a custom `cellComponent`.**
  *
  * A custom `cellComponent` receives the same context as a `cellContext` prop
  * (the default Blueprint `Cell` does not, to avoid leaking unknown props onto

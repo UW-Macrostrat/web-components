@@ -8,16 +8,10 @@
  */
 import h from "@macrostrat/hyper";
 import { ColumnHeaderCell, RegionCardinality } from "@blueprintjs/table";
-import { Button, Icon, Menu, MenuItem, Tag as BPTag } from "@blueprintjs/core";
-import {
-  ctx,
-  tableActionsAtom,
-  useSelector,
-  useStoreAPI,
-} from "../provider";
+import { Button, Icon, Menu, MenuItem } from "@blueprintjs/core";
+import { ctx, tableActionsAtom, useStoreAPI } from "../provider";
 import { buildActionContext } from "../actions/selection";
 import type { ColumnSpec } from "../utils/column-spec";
-import type { ColumnSort, TableFilter } from "../actions/types";
 import type {
   PostgrestColumnFilter,
   ColumnSortEntry,
@@ -32,13 +26,6 @@ export interface ColumnHeaderRendererProps extends ColumnActionsConfig {
   col: ColumnSpec;
   colIndex: number;
   //actions: ColumnHeaderActions;
-}
-
-// ---- Auto-generated column filter helpers ----
-
-/** Stable filter-ID prefix for auto-generated column filters. */
-export function autoFilterId(key: string) {
-  return `__col_${key}`;
 }
 
 // ---- Column header cell ----
@@ -62,10 +49,8 @@ export function renderColumnHeaderCell({
     return h(ColumnHeaderCell, { name: col.name });
   }
 
-  const hasFilterActive =
-    activeFilter != null &&
-    activeFilter.state?.search !== "" &&
-    activeFilter.state?.search != null;
+  const filterValue = (activeFilter as any)?.state?.value;
+  const hasFilterActive = filterValue != null && filterValue !== "";
   const hasSortActive = activeSort != null;
 
   return h(ColumnHeaderCell, {
@@ -184,79 +169,5 @@ function ColumnHeaderControls({ colIndex }: { colIndex: number }) {
       },
     },
     rendered,
-  );
-}
-
-// ---- Sort/filter state bar ----
-
-/** Bar showing active client-side sort and filter state as removable tags.
- * Rendered automatically by `_DataSheet` when sorts or column filters
- * are active. */
-export function SortFilterBar() {
-  const columnSorts = useSelector((state) => state.columnSorts);
-  const activeFilters = useSelector((state) => state.activeFilters);
-  const storeAPI = useStoreAPI();
-
-  // Collect auto-generated column filters
-  const columnFilterEntries: { key: string; search: string }[] = [];
-  for (const [id, entry] of activeFilters) {
-    if (id.startsWith("__col_") && entry.state?.search) {
-      columnFilterEntries.push({
-        key: id.replace("__col_", ""),
-        search: entry.state.search,
-      });
-    }
-  }
-
-  const hasAnything = columnSorts.length > 0 || columnFilterEntries.length > 0;
-  if (!hasAnything) return null;
-
-  // Each directive is individually clearable (the tag's × button); creation and
-  // reconfiguration live in the column-header controls, so no "add" or "clear
-  // all" buttons here.
-  return h(
-    "div",
-    {
-      style: {
-        display: "flex",
-        flexDirection: "row",
-        flexWrap: "wrap",
-        gap: "4px",
-        marginBottom: "4px",
-        alignItems: "center",
-      },
-    },
-    [
-      columnSorts.map((s) =>
-        h(
-          BPTag,
-          {
-            key: `sort-${s.key}`,
-            icon: s.ascending ? "sort-asc" : "sort-desc",
-            intent: "primary",
-            onRemove() {
-              storeAPI.getState().setColumnSort(s.key, null);
-            },
-            minimal: true,
-          },
-          `${s.key}: ${s.ascending ? "Ascending" : "Descending"}`,
-        ),
-      ),
-      columnFilterEntries.map((f) =>
-        h(
-          BPTag,
-          {
-            key: `filter-${f.key}`,
-            icon: "filter",
-            intent: "warning",
-            onRemove() {
-              storeAPI.getState().removeFilter(autoFilterId(f.key));
-            },
-            minimal: true,
-          },
-          `${f.key} contains "${f.search}"`,
-        ),
-      ),
-    ],
   );
 }
