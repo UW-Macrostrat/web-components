@@ -33,7 +33,10 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
     [filters, columnSpec],
   );
 
-  const activeIds = useMemo(() => new Set(activeFilters.keys()), [activeFilters]);
+  const activeIds = useMemo(
+    () => new Set(activeFilters.keys()),
+    [activeFilters],
+  );
 
   // Only table-level filters are addable from the bar; column filters live in
   // the column header dropdown.
@@ -49,8 +52,7 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
 
   return h("div.filter-bar", [
     h(
-      ButtonGroup,
-      { minimal: true, key: "sorts" },
+      "div.group.sorts",
       columnSorts.map((s) =>
         h(
           Tag,
@@ -68,8 +70,7 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
       ),
     ),
     h(
-      ButtonGroup,
-      { minimal: true, key: "filters" },
+      "div.group.filters",
       Array.from(activeFilters.entries()).map(([id, entry]) =>
         h(ActiveFilterChip, { key: id, filterId: id, entry }),
       ),
@@ -77,7 +78,6 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
     h.if(showAdd)(AddFilterPopover, {
       filters: availableFilters,
     }),
-    // No "clear all" — each active sort/filter tag is individually removable.
   ]);
 }
 
@@ -142,11 +142,7 @@ function ActiveFilterChip<T>({
 }
 
 /** Popover menu listing available (not-yet-active) filters. */
-function AddFilterPopover<T>({
-  filters,
-}: {
-  filters: TableFilter<T>[];
-}) {
+function AddFilterPopover<T>({ filters }: { filters: TableFilter<T>[] }) {
   const storeAPI = useStoreAPI();
 
   return h(
@@ -178,4 +174,3 @@ function AddFilterPopover<T>({
     ),
   );
 }
-

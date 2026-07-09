@@ -6,3 +6,4 @@ export * from "./clipboard";
 export * from "./filters";
 export * from "./column-controls";
 export * from "./edit-actions";
+export * from "./column-filter";

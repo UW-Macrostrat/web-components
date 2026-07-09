@@ -1,10 +1,4 @@
-import {
-  Button,
-  HotkeysProvider,
-  InputGroup,
-  OverlaysProvider,
-  useHotkeys,
-} from "@blueprintjs/core";
+import { useHotkeys } from "@blueprintjs/core";
 import {
   Column,
   Region,
@@ -14,25 +8,18 @@ import {
   TableProps,
 } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
-import {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { DataSheetAction, InfoBar, LoadProgressIndicator } from "./components";
+import { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
+import { InfoBar, LoadProgressIndicator } from "./components";
 import { renderColumnHeaderCell } from "./renderers";
 import h from "./main.module.sass";
 import {
   columnSpecAtom,
+  ctx,
   DataSheetProvider,
   storeAtom,
+  tableActionsAtom,
   useSelector,
   useStoreAPI,
-  ctx,
-  tableActionsAtom,
 } from "./provider";
 import { atom } from "jotai";
 import {
@@ -42,22 +29,23 @@ import {
   VisibleCells,
 } from "./types.ts";
 import { basicCellRenderer } from "./cell-renderer.ts";
-import { tableHotkeysAtom } from "./utils";
+import { CellRendererDebugOverlay, tableHotkeysAtom } from "./utils";
 import {
+  ActionsToolbar,
   clipboardActions,
   columnControlActions,
   createSaveAction,
+  FilterBar,
   resetChangesAction,
   TableAction,
   TableActionContext,
   TableFilter,
 } from "./actions";
-import { ActionsToolbar, FilterBar } from "./actions";
 import {
-  useScrollHandler,
-  tableFooterAtom,
   ChunkLoaderManager,
   createLocalProvider,
+  tableFooterAtom,
+  useScrollHandler,
 } from "./postgrest-table";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
@@ -592,54 +580,6 @@ const columnWidthsAtom = atom((get) => {
     (col) => ix.get(col.key) ?? col.width ?? get(defaultColumnWidthAtom),
   );
 });
-
-function CellRendererDebugOverlay({ cellRendererDependencies, names }) {
-  /** Debug overlay for cell renderer dependencies */
-  const lastRenderDependencies = useRef<any[]>(cellRendererDependencies);
-  useEffect(() => {
-    let changeDepNames = [];
-    for (const [i, dep] of cellRendererDependencies.entries()) {
-      if (dep !== lastRenderDependencies.current[i]) {
-        changeDepNames.push(names[i]);
-      }
-    }
-    if (changeDepNames.length > 0) {
-      console.log(
-        "Cell renderer dependencies changed:",
-        changeDepNames.join(", "),
-      );
-    }
-    lastRenderDependencies.current = cellRendererDependencies;
-  }, cellRendererDependencies);
-  return null;
-}
-
-export function ScrollToRowControl() {
-  const [value, setValue] = useState("");
-  const scrollToRow = useSelector((state) => state.scrollToRow);
-
-  return h(DataSheetAction, [
-    h(InputGroup, {
-      type: "number",
-      placeholder: "Row number",
-      value,
-      onValueChange(value) {
-        setValue(value);
-      },
-    }),
-    h(
-      Button,
-      {
-        icon: "arrow-right",
-        onClick() {
-          const row = parseInt(value);
-          scrollToRow(row - 1);
-        },
-      },
-      "Scroll to row",
-    ),
-  ]);
-}
 
 function styleParamsForDensity(density: DataSheetDensity) {
   switch (density) {
