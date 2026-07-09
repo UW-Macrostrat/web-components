@@ -427,7 +427,6 @@ export function useScrollHandler() {
       ) {
         return;
       }
-      console.log("Visible cells changed", visibleCells);
       setVisibleRegion(visibleCells);
       ref.current = visibleCells;
     }, 500),
@@ -675,13 +674,25 @@ export function useChunkLoader<T = any>(
           totalCount: result.totalCount ?? null,
         });
       } else {
+        // Size the (sparse) array. With a known total, size to it. Without one
+        // (keyset / infinite scroll), use the short-chunk heuristic: a chunk
+        // smaller than the page size means we've hit the end — size exactly to
+        // the loaded rows; otherwise pad one more page of nulls so scrolling
+        // into them triggers the next fetch. So an unknown-length source never
+        // needs a count — it grows a page at a time until a short chunk.
+        const loadedEnd = offset + rows.length;
+        let totalSize: number;
+        if (result.totalCount != null) {
+          totalSize = result.totalCount;
+        } else {
+          const reachedEnd = rows.length < chunkSize;
+          totalSize = reachedEnd ? loadedEnd : loadedEnd + chunkSize;
+        }
         dispatch({
           type: "loaded",
           data: rows,
           offset,
-          totalSize:
-            result.totalCount ??
-            Math.max(state.data.length, offset + rows.length),
+          totalSize,
           // Preserve a previously-known total when a chunk omits it (undefined):
           // keyset pages can't re-count (the cursor filter would skew it), so
           // only the initial cursorless fetch reports the total.

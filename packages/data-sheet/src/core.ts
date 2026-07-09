@@ -93,6 +93,8 @@ interface DataSheetInternalProps<T> extends TableProps {
   /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
    * driven through the same loader as any other source. */
   data?: T[];
+  // An optional table name that will be used in toolbars if given
+  name?: string;
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
   onUpdateData?: (updatedData: any[], data: T[]) => void;
   /** Observer called for every user edit as a structured `EditEvent`
@@ -196,6 +198,7 @@ function _DataSheet<T>({
   rowStatus: rowStatusProp,
   identity,
   onDeleteRows,
+  name,
   verbose = false,
   dataSheetActions = null,
   enableFocusedCell,
@@ -520,11 +523,11 @@ function _DataSheet<T>({
       FilterBar,
       { filters: filters ?? [] },
     ),
+    dataSheetActions,
     // Rendered from the merged action set (built-ins included) so it reflects
     // sort/filter/save/reset even without a consumer `actions` prop; it
     // self-gates (renders nothing when no action applies).
-    h(ActionsToolbar, { actions: _actions }),
-    dataSheetActions,
+    h(ActionsToolbar, { actions: _actions, tableName: name }),
     localLoader,
     children,
     h(

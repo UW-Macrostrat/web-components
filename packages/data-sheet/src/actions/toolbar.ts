@@ -12,10 +12,11 @@ import type { TableAction, TableActionContext } from "./types";
 import { RegionCardinality } from "@blueprintjs/table";
 import { useToaster } from "../notifications.ts";
 import { DataSheetStore } from "../types.ts";
+import { ColumnSpec } from "../utils";
 
 /** A short title describing the current selection (its shape), shown as the
  * toolbar's leading label — no icon. */
-function selectionTitle<T>(ctx: TableActionContext<T>): string {
+function selectionTitle<T>(ctx: TableActionContext<T>): string | null {
   const sh = ctx.selectionShape;
   switch (sh.cardinality) {
     case RegionCardinality.FULL_COLUMNS: {
@@ -30,9 +31,9 @@ function selectionTitle<T>(ctx: TableActionContext<T>): string {
     case RegionCardinality.CELLS:
       return ctx.cell != null ? "Cell" : `${sh.columns}×${sh.rows} cells`;
     case RegionCardinality.FULL_TABLE:
-      return "Table";
+      return null;
     default:
-      return "";
+      return null;
   }
 }
 
@@ -42,7 +43,13 @@ function selectionTitle<T>(ctx: TableActionContext<T>): string {
  * `detailsForm` popover). Column-specific actions from `ColumnSpec.actions`
  * are merged when their columns are selected. A capsule on the left shows the
  * current selection polarity. */
-export function ActionsToolbar<T>({ actions }: { actions: TableAction<T>[] }) {
+export function ActionsToolbar<T>({
+  actions,
+  tableName,
+}: {
+  actions: TableAction<T>[];
+  tableName?: string;
+}) {
   const selection = useSelector((state) => state.selection);
   const editable = useSelector((state) => state.editable);
   const columnSpec = useSelector((state) => state.columnSpec);
@@ -64,8 +71,6 @@ export function ActionsToolbar<T>({ actions }: { actions: TableAction<T>[] }) {
     [allActions, cardinality, editable],
   );
 
-  const hasSelection = selection.length > 0;
-
   // Context for `render`-style controls (they subscribe to the store
   // themselves; this resolves the selected column/rows).
   const ctx = buildActionContext(
@@ -77,23 +82,32 @@ export function ActionsToolbar<T>({ actions }: { actions: TableAction<T>[] }) {
   // with a `hotkey` (copy/cut/paste, etc.) is reachable from the keyboard and
   // is omitted here (it still works via its shortcut). Then refine by selection
   // shape beyond cardinality (e.g. single column only).
-  const shown = applicableActions.filter(
+  const shownActions = applicableActions.filter(
     (action) => action.hotkey == null && (action.appliesTo?.(ctx) ?? true),
   );
 
-  // The toolbar is always mounted (never returns null) so it can't flicker
+  const toolbarIsShown = useMemo(
+    () => hasAnyDisplayableActions(actions, columnSpec),
+    [actions, columnSpec],
+  );
+
+  if (!toolbarIsShown) {
+    return null;
+  }
+
+  // The toolbar is always mounted if actions are available, so it can't flicker
   // in/out as the selection or action set changes — the container is stable;
   // only its contents (title + buttons) change. Avoids layout jank.
-  const title = selectionTitle(ctx);
+  const title = selectionTitle(ctx) ?? tableName ?? "Table";
 
   return h("div.actions-toolbar", [
-    hasSelection && title
-      ? h("span.toolbar-title", { key: "title" }, title)
-      : null,
+    h("span.toolbar-title", { key: "title" }, title),
     h(
       ButtonGroup,
       { key: "actions", minimal: true },
-      shown.map((action) => h(ActionButton, { key: action.id, action, ctx })),
+      shownActions.map((action) =>
+        h(ActionButton, { key: action.id, action, ctx }),
+      ),
     ),
   ]);
 }
@@ -268,5 +282,28 @@ function ActionButtonWithForm<T, S>({
       },
       action.name,
     ),
+  );
+}
+
+function hasAnyDisplayableActions(
+  actions: TableAction[],
+  columnSpec: ColumnSpec[],
+) {
+  /** Check whether there are any actions that can be displayed in the toolbar.
+   * for the entire table. This is used to determine whether the toolbar should
+   * be rendered. If any actions are available, the toolbar is rendered in ALL
+   * selection modes to avoid flickering
+   */
+  const allActions = [
+    ...actions,
+    ...columnSpec.flatMap((c) => c.actions ?? []),
+  ];
+
+  if (allActions.length === 0) {
+    return false;
+  }
+  // Check whether any action doesn't have hotkey and is not disabled
+  return allActions.some(
+    (action) => action.hotkey == null && !isActionDisabled(action, {}),
   );
 }
