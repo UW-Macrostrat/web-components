@@ -24,7 +24,6 @@ import {
 } from "react";
 import { DataSheetAction, InfoBar, LoadProgressIndicator } from "./components";
 import { renderColumnHeaderCell } from "./renderers";
-import { columnFilterId } from "./actions/column-filter";
 import h from "./main.module.sass";
 import {
   columnSpecAtom,
@@ -333,7 +332,13 @@ function _DataSheet<T>({
   // If so and no explicit columnHeaderCellRenderer was provided,
   // use the built-in client-side sort/filter header.
   const hasSortableOrFilterable = useMemo(
-    () => columnSpec.some((col) => col.sortable || col.filterable),
+    () =>
+      columnSpec.some(
+        (col) =>
+          col.sortable ||
+          col.filterable ||
+          (Array.isArray(col.filters) && col.filters.length > 0),
+      ),
     [columnSpec],
   );
 
@@ -409,8 +414,14 @@ function _DataSheet<T>({
       if (col.sortable) {
         activeSort = columnSorts?.find((s) => s.key === col.key);
       }
-      if (col.filterable) {
-        activeFilter = activeFilters?.get(columnFilterId(col.key));
+      // The active filter for this column is whichever active filter targets
+      // it (a rich `col.filters` filter or the generic operator filter) — match
+      // by columnKey rather than a fixed id.
+      for (const entry of activeFilters?.values() ?? []) {
+        if ((entry as any)?.filter?.columnKey === col.key) {
+          activeFilter = entry;
+          break;
+        }
       }
 
       const _columnHeaderCellRenderer = (colIndex) => {

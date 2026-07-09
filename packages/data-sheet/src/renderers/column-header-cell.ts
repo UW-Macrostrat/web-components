@@ -41,7 +41,9 @@ export function renderColumnHeaderCell({
 }: ColumnHeaderRendererProps) {
   const isSortable = col.sortable === true;
   const isFilterable =
-    col.filterable === true || typeof col.filterable === "object";
+    col.filterable === true ||
+    typeof col.filterable === "object" ||
+    (Array.isArray(col.filters) && col.filters.length > 0);
   const hasCustomActions =
     Array.isArray((col as any).actions) && (col as any).actions.length > 0;
 
@@ -49,8 +51,9 @@ export function renderColumnHeaderCell({
     return h(ColumnHeaderCell, { name: col.name });
   }
 
-  const filterValue = (activeFilter as any)?.state?.value;
-  const hasFilterActive = filterValue != null && filterValue !== "";
+  // `activeFilter` is the active store entry targeting this column (any filter
+  // type), or null — so the indicator lights for rich and operator filters.
+  const hasFilterActive = activeFilter != null;
   const hasSortActive = activeSort != null;
 
   return h(ColumnHeaderCell, {

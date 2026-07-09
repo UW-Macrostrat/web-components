@@ -7,21 +7,26 @@ import {
   Tag,
 } from "@blueprintjs/core";
 import { useMemo, useState } from "react";
+import { RegionCardinality } from "@blueprintjs/table";
 import h from "./toolbar.module.sass";
 import { useSelector, useStoreAPI } from "../provider";
-import { collectAllFilters } from "./selection";
+import { collectAllFilters, getSelectionCardinality } from "./selection";
 import type { TableFilter } from "./types";
 
 /** The single view-state bar: active **sorts** and **filters** shown as
- * removable tags (filters reconfigurable in place via their `filterForm`),
- * plus an "Add filter" popover over the available set (global + column-spec +
- * the auto-generated operator filters for `filterable` columns). This is the
- * one place active sort/filter state lives — there is no separate sort bar. */
+ * removable tags (filters reconfigurable in place via their `filterForm`). The
+ * "Add filter" button offers only **table-level** filters (no `columnKey`) and
+ * only when no column is selected — per-column filters are added/configured
+ * from the column header dropdown instead, so there's no redundancy. */
 export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
   const columnSpec = useSelector((state) => state.columnSpec);
   const storeAPI = useStoreAPI();
   const activeFilters = useSelector((state) => state.activeFilters);
   const columnSorts = useSelector((state) => state.columnSorts);
+  const selection = useSelector((state) => state.selection);
+
+  const columnSelected =
+    getSelectionCardinality(selection) === RegionCardinality.FULL_COLUMNS;
 
   const allFilters = useMemo(
     () => collectAllFilters(filters, columnSpec),
@@ -30,15 +35,16 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
 
   const activeIds = useMemo(() => new Set(activeFilters.keys()), [activeFilters]);
 
+  // Only table-level filters are addable from the bar; column filters live in
+  // the column header dropdown.
   const availableFilters = useMemo(
-    () => allFilters.filter((f) => !activeIds.has(f.id)),
+    () => allFilters.filter((f) => f.columnKey == null && !activeIds.has(f.id)),
     [allFilters, activeIds],
   );
+  const showAdd = !columnSelected && availableFilters.length > 0;
 
   const hasAnything =
-    columnSorts.length > 0 ||
-    activeFilters.size > 0 ||
-    availableFilters.length > 0;
+    columnSorts.length > 0 || activeFilters.size > 0 || showAdd;
   if (!hasAnything) return null;
 
   return h("div.filter-bar", [
@@ -68,7 +74,7 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
         h(ActiveFilterChip, { key: id, filterId: id, entry }),
       ),
     ),
-    h.if(availableFilters.length > 0)(AddFilterPopover, {
+    h.if(showAdd)(AddFilterPopover, {
       filters: availableFilters,
     }),
     // No "clear all" — each active sort/filter tag is individually removable.

@@ -10,10 +10,9 @@ import { useMemo } from "react";
 import { Button, Menu, MenuItem, PopoverNext } from "@blueprintjs/core";
 import { RegionCardinality } from "@blueprintjs/table";
 import { useSelector, useStoreAPI } from "../provider";
-import type { TableAction, TableActionContext } from "./types";
+import type { TableAction, TableActionContext, TableFilter } from "./types";
 import type { ColumnSpec } from "../utils/column-spec";
-import { columnFilter, ColumnFilterState } from "./column-filter";
-import { OPERATOR_LABELS } from "../filters/operators";
+import { columnFilter } from "./column-filter";
 
 function selectedColumn(ctx: TableActionContext) {
   const key = ctx.getSelectedColumnKeys()[0];
@@ -93,29 +92,37 @@ export const columnSortAction: TableAction = {
 
 // ---- Filter ----
 
+/** The filter offered for a column: its own rich `TableFilter` (from
+ * `col.filters`) when present — so the header matches the top bar and the rich
+ * filter is prioritized — else the built-in operator `columnFilter`. */
+function resolveColumnFilter(col: ColumnSpec): TableFilter {
+  const rich = (col.filters as TableFilter[] | undefined)?.find(
+    (f) => (f.columnKey ?? col.key) === col.key,
+  );
+  if (rich != null) return { ...rich, columnKey: rich.columnKey ?? col.key };
+  return columnFilter(col);
+}
+
 function ColumnFilterControl({ col }: { col: ColumnSpec }) {
   const storeAPI = useStoreAPI();
-  // The built-in operator filter for this column — the same `TableFilter` the
-  // FilterBar and any server provider consume, so header and bar stay in sync.
-  const filter = useMemo(() => columnFilter(col), [col.key]);
-  const state = useSelector(
-    (s) => s.activeFilters.get(filter.id)?.state as ColumnFilterState | undefined,
-  );
-  const value = state?.value ?? "";
+  // Same `TableFilter` the FilterBar and any provider consume, so the header,
+  // the bar, and the query stay in sync (rich filter prioritized).
+  const filter = useMemo(() => resolveColumnFilter(col), [col]);
+  const state = useSelector((s) => s.activeFilters.get(filter.id)?.state);
+  const isActive = state != null;
+  const summary = isActive ? filter.describeState?.(state) : null;
 
-  const setState = (next: ColumnFilterState) => {
+  const setState = (next: any) => {
     const store = storeAPI.getState();
-    if (next == null || next.value === "" || next.value == null) {
+    // An empty operator-filter value clears; otherwise activate/update.
+    if (next == null || next.value === "") {
       store.removeFilter(filter.id);
     } else {
       store.setFilter(filter.id, filter, next);
     }
   };
 
-  const label =
-    value !== "" && state != null
-      ? `${OPERATOR_LABELS[state.operator] ?? state.operator} ${value}`
-      : "Filter";
+  const label = isActive ? String(summary ?? filter.name) : "Filter";
 
   return h(
     PopoverNext,
@@ -124,10 +131,12 @@ function ColumnFilterControl({ col }: { col: ColumnSpec }) {
       content: h(
         "div",
         { style: { padding: "6px", minWidth: "220px" } },
-        h(filter.filterForm, {
-          state: state ?? (filter.defaultState as ColumnFilterState),
-          setState,
-        }),
+        filter.filterForm != null
+          ? h(filter.filterForm, {
+              state: state ?? filter.defaultState,
+              setState,
+            })
+          : null,
       ),
     },
     h(
@@ -137,7 +146,7 @@ function ColumnFilterControl({ col }: { col: ColumnSpec }) {
         minimal: true,
         icon: "filter",
         rightIcon: "caret-down",
-        intent: value !== "" ? "warning" : "none",
+        intent: isActive ? "warning" : "none",
       },
       label,
     ),
@@ -154,10 +163,20 @@ export const columnFilterAction: TableAction = {
   appliesTo: (ctx) => ctx.columnKey != null,
   render(ctx) {
     const col = selectedColumn(ctx);
-    if (!col?.filterable) return null;
+    if (col == null || !isColumnFilterable(col)) return null;
     return h(ColumnFilterControl, { col });
   },
 };
+
+/** A column offers a filter when it declares `filterable`, or supplies its own
+ * `filters`. */
+export function isColumnFilterable(col: ColumnSpec): boolean {
+  return (
+    col.filterable === true ||
+    typeof col.filterable === "object" ||
+    (Array.isArray(col.filters) && col.filters.length > 0)
+  );
+}
 
 /** The built-in column controls (sort + filter), for inclusion in `actions`. */
 export const columnControlActions: TableAction[] = [

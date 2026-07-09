@@ -81,10 +81,9 @@ export function ActionsToolbar<T>({ actions }: { actions: TableAction<T>[] }) {
     (action) => action.hotkey == null && (action.appliesTo?.(ctx) ?? true),
   );
 
-  // Show the bar for any selection (the title conveys the shape) or when
-  // there are applicable actions.
-  if (shown.length === 0 && !hasSelection) return null;
-
+  // The toolbar is always mounted (never returns null) so it can't flicker
+  // in/out as the selection or action set changes — the container is stable;
+  // only its contents (title + buttons) change. Avoids layout jank.
   const title = selectionTitle(ctx);
 
   return h("div.actions-toolbar", [

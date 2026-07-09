@@ -62,13 +62,6 @@ async function fetchChunk(params: FetchChunkParams) {
   return { rows: rows.slice(offset, offset + limit), totalCount };
 }
 
-const columnSpec = [
-  { name: "ID", key: "id", width: 80, sortable: true },
-  { name: "Name", key: "name", width: 200, sortable: true },
-  { name: "Category", key: "category", width: 150, sortable: true },
-  { name: "Value", key: "value", width: 100, sortable: true },
-];
-
 const categoryFilter: TableFilter = {
   id: "category-filter",
   name: "Category",
@@ -128,6 +121,27 @@ const valueFilter: TableFilter<any, { min: number; max: number }> = {
   predicate: () => true,
 };
 
+// Rich, column-specific filters live on the column spec, so they appear as
+// modal column-header filters (not just in the top bar).
+const columnSpec = [
+  { name: "ID", key: "id", width: 80, sortable: true },
+  { name: "Name", key: "name", width: 200, sortable: true },
+  {
+    name: "Category",
+    key: "category",
+    width: 150,
+    sortable: true,
+    filters: [categoryFilter],
+  },
+  {
+    name: "Value",
+    key: "value",
+    width: 100,
+    sortable: true,
+    filters: [valueFilter],
+  },
+];
+
 /**
  * **The unified `fetchChunk` data source.**
  *
@@ -158,7 +172,6 @@ export const ServerBackedTable: StoryObj = {
           columnSpec,
           editable: false,
           showLoadProgress: true,
-          filters: [categoryFilter, valueFilter],
         },
         [
           h(ScrollToRowControl, { key: "scroll-to-row" }),
@@ -234,7 +247,6 @@ function ModeToggleDemo() {
             columnSpec,
             editable: false,
             showLoadProgress: true,
-            filters: [categoryFilter, valueFilter],
           },
           [h(ChunkLoaderManager, { key: "loader", fetchChunk, chunkSize, mode })],
         ),
@@ -272,7 +284,6 @@ export const PagedTable: StoryObj = {
           columnSpec,
           editable: false,
           showLoadProgress: true,
-          filters: [categoryFilter, valueFilter],
         },
         [
           h(ChunkLoaderManager, {

@@ -358,7 +358,10 @@ const lazyLoaderStateAtom = atom(
     if (visibleRegion != null) {
       set(visibleRegionAtom, visibleRegion);
     }
-    if (data != null && data.length > 0) {
+    // Propagate the data array even when empty — a `reset` (view change) must
+    // clear the stale rows so the re-fetch rebuilds a correctly-sized array
+    // (otherwise a filtered/sorted result splices over a stale, larger array).
+    if (data != null) {
       set(tableDataAtom, data);
     }
     if (Object.keys(rest).length > 1) {

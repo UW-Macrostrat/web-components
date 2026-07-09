@@ -9,6 +9,7 @@
  * (overridable via `filterable: { operators }`).
  */
 import hyper from "@macrostrat/hyper";
+import { useEffect, useState } from "react";
 import { ControlGroup, FormGroup, HTMLSelect, InputGroup } from "@blueprintjs/core";
 import type { ColumnSpec } from "../utils/column-spec";
 import type { TableFilter } from "./types";
@@ -62,6 +63,14 @@ function ColumnFilterForm({
   state: ColumnFilterState;
   setState: (s: ColumnFilterState) => void;
 }) {
+  // The value is edited in local state and only committed (which triggers a
+  // re-fetch for server sources) on blur or Enter — not on every keystroke.
+  // The operator select commits immediately (a discrete choice).
+  const [draft, setDraft] = useState(state.value ?? "");
+  useEffect(() => setDraft(state.value ?? ""), [state.value]);
+  const commit = () => {
+    if (draft !== state.value) setState({ ...state, value: draft });
+  };
   return h(
     FormGroup,
     { label: "Filter" },
@@ -74,14 +83,21 @@ function ColumnFilterForm({
           label: OPERATOR_LABELS[op] ?? op,
         })),
         onChange: (e) =>
-          setState({ ...state, operator: e.currentTarget.value as FilterOperator }),
+          setState({
+            ...state,
+            operator: e.currentTarget.value as FilterOperator,
+          }),
       }),
       h(InputGroup, {
         key: "val",
-        value: state.value,
+        value: draft,
         placeholder: "value",
         autoFocus: true,
-        onChange: (e) => setState({ ...state, value: e.target.value }),
+        onChange: (e) => setDraft(e.target.value),
+        onBlur: commit,
+        onKeyDown: (e) => {
+          if (e.key === "Enter") commit();
+        },
       }),
     ]),
   );
