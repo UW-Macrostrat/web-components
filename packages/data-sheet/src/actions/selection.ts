@@ -168,15 +168,27 @@ export function buildActionContext<T>(
     editCells(edits: CellEdit[]) {
       state.setUpdatedData((updatedData: T[]) => {
         const spec: Record<number, any> = {};
-        for (const { rowIndex, columnKey, value } of edits) {
+        for (const e of edits) {
+          const rowIndex = e.rowIndex;
+          const columnKey = (e as any).columnKey ?? e.column;
           if (spec[rowIndex] == null) {
             const op = updatedData[rowIndex] != null ? "$merge" : "$set";
             spec[rowIndex] = { [op]: {} };
           }
           const opKey = Object.keys(spec[rowIndex])[0];
-          spec[rowIndex][opKey][columnKey] = value;
+          spec[rowIndex][opKey][columnKey] = e.value;
         }
         return update(updatedData, spec);
+      });
+      // Emit a structured edit event so controlled consumers capture programmatic
+      // batch edits (clipboard paste, fill) the same as inline edits.
+      state.onEdit?.({
+        type: "setCells",
+        cells: edits.map((e) => ({
+          rowIndex: e.rowIndex,
+          column: (e as any).columnKey ?? e.column,
+          value: e.value,
+        })),
       });
     },
     deleteSelectedRows: state.deleteSelectedRows,

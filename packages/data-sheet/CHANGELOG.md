@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.0.1] - 2026-07-09
+
+Fixed small bug with the `editCells` api emitting `onEdit` events, which
+supports controlled editing.
+
 ## [4.0.0] - 2026-07-09
 
 Version 4 core evolution.
