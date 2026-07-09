@@ -2,268 +2,54 @@
 
 ## [Unreleased]
 
-Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
+Version 4 core evolution.
 
-### Data provider (`provider` prop) & unified loader
+### Unified `TableDataProvider`
 
-- **`TableDataProvider` is a first-class, passable contract:**
-  `provider={{ fetchData, identity, saveRows?, deleteRows?, insertRow? }}`.
-  `DataSheet` resolves the active provider as **`provider` → loose `fetchData`
-  (+ `identity`) → in-memory `data`** (auto-wrapped via `createLocalProvider`),
-  so local and remote sources share one path and the provider is explicit
-  rather than an implicit set of props. When the provider owns persistence, the
-  built-in **Save** batches pending changes through it (edits → `saveRows`,
-  added → `insertRow`, deleted → `deleteRows`) and refreshes.
-- **`fetchChunk` → `fetchData`** throughout (params `FetchDataParams`, result
-  `FetchDataResult`); the loader is driven by the `fetchData` / `pageSize` /
-  `fetchMode` props (no manually-mounted loader child on the main path).
-- **`createPostgRESTProvider`** bundles a PostgREST source (keyset `fetchData` +
-  `identity` + upsert `saveRows` + `deleteRows`). `PostgRESTTableView` now
-  passes it via `provider` — which also **fixes server-side delete**: the old
-  `onDeleteRows` was never wired, so deletes never persisted; they now persist
-  on Save through the provider.
-- **Unknown-length / keyset scroll needs no count.** In scroll mode without a
-  `totalCount`, a chunk shorter than the page size marks the end; otherwise one
-  page of nulls is padded so scrolling fetches the next chunk. A reported
-  `totalCount` still pre-sizes the sparse array as before.
-- **Deletion is a provider capability.** An explicit `provider` without
-  `deleteRows` disables row deletion table-wide — the Delete-rows action greys
-  out and the Delete/Backspace key is a no-op (rather than marking rows deleted
-  that then can't persist). Local / loose sources keep the local delete overlay.
-  _Story:_ `Data sheet/PostgREST sheet` → `NoRowDeletion`.
+- Table recieves data provider (`provider` prop), with unified loader (`data` or
+  `fetchData`) and `identity` key for rows identity (inferred if not provided)
+- Load-progress indicator for progressively loading tables
+- Built-in support for offset or keyset pagination (Note: mixed arbitrary
+  loading is not yet supported)
+- `scroll` or `paged` fetch modes
 
-### Table-scoped controls are ordinary actions
+### Table controls and selection actions
 
-- **`scrollToRowAction`** (core, opt-in) and **`fullTextSearchAction`**
-  (PostgREST, when `enableFullTableSearch`) are `TableAction`s rendered in the
-  standard toolbar. The bespoke **`dataSheetActions` prop is removed** — custom
-  chrome becomes an action (or `children`); `ScrollToRowControl` /
-  `DataSheetActionsRow` / `DataSheetAction` are gone.
+Unified table-scoped controls and contextual (selection-driven) controls.
 
-### Cell validation
+- `TableAction`s are driven by selection cardinality and shape (e.g.,
+  single/multi column, single/multi row, single cell)
+- Filter tags, with a `TableFilter` component and optional rendering of filter
+  state via `TableFilter.describeState(state)`
+- Different actions appear dependiing on the selection shape
+- Actions appear in toolbars and, if appropriate, column header dropdowns
+- Built-in Save / Reset actions.
+- Actions with a `hotkey` (copy/cut/paste) are omitted from the toolbar.
+- Cell validation via `columnSpec[].validate(value, row, ctx)`. Orthogonal to
+  edit status so a cell can be edited _and_ invalid
+- Toolbar strip above the table, and status bar below
 
-- **`columnSpec[].validate(value, row, ctx)`** returns `{ severity, message } |
-  null` (`"warning"` | `"error"`); **`required`** is sugar for an empty-is-error
-  check. The bare `isValid` boolean is deprecated in favor of `validate`.
-- Validation is **orthogonal to edit status** — exposed on
-  `CellRenderContext.validation` (a cell can be edited *and* invalid). The cell
-  intent is derived with precedence **error → warning → deleted → edited**, so
-  an edited-but-invalid cell reads red, not green.
-- **Errors block saving** (warnings don't): the built-in Save action refuses
-  when `collectValidationErrors` finds any error, surfacing a summary; the
-  offending cells are already highlighted. _Story:_ `Data sheet/Validation`.
+### Editing and validation
 
-### Cardinality-scoped controls (backbone, in progress)
-
-- **Modality by selection cardinality — via `TableAction`.** Rather than a
-  parallel abstraction, `TableAction` gained an optional `render(ctx)` for
-  live/stateful controls (`run` is now optional). The existing `ActionsToolbar`
-  surfaces exactly the actions whose `targets` match the current selection, and
-  shows a **capsule** (Column / Rows / Cells / Table) naming the polarity.
-- **Scoped by selection *shape*, not just cardinality.** `TableAction` gained
-  `appliesTo(ctx)`, refining `targets` against the selection shape. The context
-  exposes **resolved single-target identity** — `ctx.columnKey`, `ctx.rowIndex`,
-  `ctx.cell` (each `null` unless exactly one is scoped) — plus counts on
-  `ctx.selectionShape` (`cardinality`, `columns`, `rows`). Presence of the
-  resolved fields is the discriminator, so there are no `single*` booleans:
-  sort/filter use `appliesTo: ctx => ctx.columnKey != null`; a cell editor uses
-  `ctx.cell != null` and reads `ctx.cell.{rowIndex,columnKey}` to adapt to the
-  specific cell — one control, active for every cell, addressing its identity.
-- **Built-in column controls** `columnControlActions` (sort + filter) are
-  `FULL_COLUMNS` `TableAction`s with `render`, gated by `sortable`/`filterable`
-  and overridable. Sort is a compact popover (Ascending / Descending / Clear);
-  filter is a popover whose text box clears itself. The toolbar's focus is
-  actions that _aren't_ keyboard-accessible (clearing/deleting stay on the
-  keyboard).
-- **Toolbar layout.** The toolbar leads with a text **title** naming the
-  selection shape (e.g. a column's name, "3 rows", "Cell") — no icon capsule —
-  and sits **below** the global sort/filter status bars.
-- **Column-header dropdown driven by the same actions.** The header menu now
-  renders the `FULL_COLUMNS` controls from the shared registry, scoped to that
-  column (a synthetic single-column context) — one source of truth for header
-  and toolbar; the bespoke header menu is retired. The built-in column controls
-  are auto-included (overridable by reusing their id). The header uses
-  Blueprint's **persistent interaction bar**, so the menu caret is clickable
-  even when the column is selected (fixes the hover-caret-blocked bug).
-  _Stories:_ `Data sheet/Controls`, `Data sheet/Filters`.
-- **Built-in Save / Reset actions.** The existing `resetChangesAction` now
-  targets every cardinality (incl. `"none"`), and a Save action (via the new
-  `onSave` prop) does too — so for editable tables they're always present,
-  keeping the toolbar mounted regardless of selection (no show/hide layout
-  motion). They render **last** (most significant), and **Reset is greyed out
-  unless there are pending changes within the applicable selection** (scoped:
-  cells / rows / columns / whole table). `onSave` receives the action context.
-- **Toolbar omits keyboard-accessible actions.** Any action with a `hotkey`
-  (copy/cut/paste, …) is left out of the toolbar — it's reachable via its
-  shortcut — so the toolbar focuses on non-keyboard actions. (Reset lost its
-  `mod+r`, which conflicted with reload, and now shows in the toolbar.)
-  _Story:_ `Data sheet/Controls` → `ModalByCardinality`.
-  _(Next — the major step: migrate all examples onto this API. Then: sort/filter
-  popover/collapse render style; group-by/hide as built-in controls; context
-  menus. Deferred: an actions queue + proxied column copy/paste.)_
-
-### Data source & view state (`fetchChunk` loader)
-
-- **Unified `fetchChunk` data source.** `useChunkLoader(fetchChunk, {chunkSize})`
-  (and the `ChunkLoaderManager` convenience component) drive windowed loading
-  from a single backend-agnostic function:
-  `fetchChunk({ offset, limit, sorts, filters, signal }) → { rows, totalCount? }`.
-  It loads the chunk covering the first unloaded visible row, pre-sizes the
-  sparse array from `totalCount` (or grows when length is unknown), threads the
-  active sorts/filters through so the source applies them server-side, aborts
-  superseded requests, and re-fetches from scratch on a view-state change. This
-  is the seam that upstreams bespoke lazy loaders. _Story:_
-  `Data sheet/Chunk loader` → `ServerBackedTable`.
-- **Fixed: column-header sort/filter menu never rendered.** `renderColumnHeaderCell`
-  had a stray early `return` that short-circuited the whole renderer, so no
-  column ever got its sort/filter dropdown (sorting was inaccessible — filters
-  only worked via the separate global "Add filter" bar). Removed it (and a
-  latent `activeFilterEntry` typo it was masking).
-- **Sort/filter creation lives in the column headers**, not a universal "add"
-  button. Sort/filter directives are created and reconfigured from each
-  column's header dropdown; the sort/filter bar just shows removable tags. Sort
-  labels now read "Ascending"/"Descending" (type-agnostic) rather than
-  "A→Z"/"Z→A". Removed the "Clear all" / "Clear filters" buttons — each tag's
-  `×` clears it individually. _Story:_ `Data sheet/Filters`.
-- **Delete/Backspace on a whole-row selection deletes the row(s)**; on a cell
-  selection it clears the cells (previously it always cleared cells).
-- **Filter tags show their window.** `TableFilter.describeState(state)` renders
-  the current setting (e.g. `Depth: 0–250`) on the active-filter tag, so a tag
-  conveys not just _what_ is filtered but the current window. _Story:_
-  `Data sheet/Filters`.
-- **Optional load-progress indicator.** `showLoadProgress` renders a minimal
-  bottom-of-table line — rows loaded, "of _total_" when known, with a status
-  icon (spinner loading / check complete / dots incomplete), reflecting the
-  `useChunkLoader` source. _Story:_ `Data sheet/Chunk loader`.
-- **Fetch modes: scroll or paged.** `useChunkLoader(fetchChunk, { chunkSize,
-  mode })` accepts `mode: "scroll"` (default; infinite windows) or `"paged"`
-  (one page at a time). In paged mode the footer becomes a prev/next pager
-  ("Page X of Y") and the table sizes to its rows (content height) rather than
-  filling the viewport; `chunkSize` is the tunable page/window size. The mode
-  can be flipped at runtime (the loader resets and re-fetches). A good fallback
-  for low-interaction contexts. _Stories:_ `Data sheet/Chunk loader` →
-  `PagedTable`, `ModeToggle`.
-- **Scroll-to-row** works with the `fetchChunk` source: `ScrollToRowControl`
-  (backed by the store's `scrollToRow`) scrolls to a row index, which loads the
-  covering chunk. Meaningful when the source length is known (offset
-  addressing). _Story:_ `Data sheet/Chunk loader` → `ServerBackedTable`.
-- **Keyset pagination support.** `fetchChunk` now also receives an optional
-  `cursor` — the already-loaded row (and index) immediately before the chunk in
-  scroll mode — so a source can page with `WHERE key > cursor` instead of a slow
-  `OFFSET`. Offset-based sources ignore it. A chunk that omits `totalCount`
-  (`undefined`) now _preserves_ the previously-known total rather than clearing
-  it, so keyset pages (which can't re-`count`) keep the sheet's dimensions.
-- **`dataRefreshTokenAtom`** — bump it to force the active loader to reset and
-  re-fetch from scratch (used after a mutation invalidates loaded rows).
-- **`PostgRESTTableView` now runs on the generic `useChunkLoader`.** A new
-  `createPostgRESTFetchChunk({ endpoint, table, identityKey, baseOrder,
-  baseFilter })` builds a keyset-paginating `fetchChunk` from the PostgREST
-  client; the view renders a `ChunkLoaderManager` and re-fetches (via the
-  refresh token) when its sort/filter view changes. The bespoke
-  `usePostgRESTLazyLoader` (and its `_loadMorePostgRESTData` chain) is retired.
-  Delete/save go through an inline client and trigger a re-fetch (replacing the
-  optimistic `update-data` merge). _Fix:_ the `filter` prop is now actually
-  applied to the query (it was previously dropped into `...rest` and ignored).
-- **Removed the redundant lazy-loader test-double.** The `Data sheet/Lazy
-  loader sheet` story and its `TestLazyLoaderTableView` / `useTestLazyLoader`
-  exports are gone — superseded by `Data sheet/Chunk loader`, which gains an
-  `InfiniteScroll` story demonstrating the append-on-scroll (unknown-total)
-  shape on `ChunkLoaderManager`.
-
-### Controlled editing
-
-- **`onEdit(event)` hook.** `DataSheet` accepts an `onEdit` callback that fires
-  for every user edit as a structured `EditEvent` — `setCells`, `deleteRows`,
-  `addRow`, `resetChanges` — in addition to the built-in `updatedData` overlay.
-  `rowIndex` is the underlying data-row index (stable under sort/filter). The
-  write half of the read/write contract: consumers capture edits as revertible
-  operations instead of diffing `updatedData`. Additive. _Story:_
-  `Data sheet/Controlled editing` → `EditEvents`.
-- **Controlled `updatedData` / `rowStatus` overlay.** Pass these props to own
-  edit state externally (e.g. an ops model): they're synced into the store as
-  the source of truth, so pairing them with `onEdit` gives a full controlled
-  loop (edit → `onEdit` → your state → back down). Optimistic in-table edits
-  are superseded by the value you pass back. _Story:_
-  `Data sheet/Controlled editing` → `ControlledOverlay`.
-- **Unified `cellDetail` / `detailPresentation` surface API.** A single
-  `columnSpec[].cellDetail(ctx)` renders a cell's surface as an **editor** when
-  `ctx.editable` and a **read-only viewer** otherwise (ctx carries `onChange` /
-  `resetValue` / `close`), superseding `dataEditor` / `detailRenderer` /
-  `editorForCell` (still supported, now deprecated). Presentation is orthogonal
-  via `detailPresentation: "popover" | "modal" | "inline"` — so modal overlays
-  and inline/omnibar surfaces add no new content props, and the same component
-  composes into a future row editor. _Story:_ `Data sheet/Cell detail`.
-
-### Editor UX
-
-- **Per-cell editor selection.** A new `columnSpec[].editorForCell(ctx)` picks
-  the editor for an individual cell from its `CellRenderContext`, overriding
-  the static `dataEditor` / `inlineEditor` — e.g. show a textarea only for
-  cells whose value is long. Returned keys are respected even when `false` /
-  `null`; omit a key (or return `undefined`) to fall back to the static
-  column config. Additive. _Story:_ `Data sheet/Editors` → `PerCellEditor`.
-- **`cellInteraction` mode + focus flow-through + read-only detail panels.**
-  New table prop `cellInteraction: "auto" | "manual"` governs how selecting a
-  cell activates its _surface_ — an editor **or** a read-only detail panel.
-  Replaces the editor-specific `editorInteraction`. Defaults from
-  `autoFocusEditor` (`true` → `"auto"`, `false` → `"manual"`); `autoFocusEditor`
-  is now deprecated.
-  - **Flow-through focus.** In `"auto"`, a text editor focuses on selection but
-    arrow keys move **within** the text and only hand off to the table at the
-    boundary (cursor at start → ↑/←; at end → ↓/→), in one press. Applies to
-    the inline editor and `EditableTextArea`.
-  - **Escape → navigation mode.** Escape (or an edge hand-off) returns keyboard
-    focus to the table so arrows navigate, and suppresses auto-activation until
-    the next click — so cancelling one cell prioritizes fast navigation.
-    Clicking a cell re-arms auto-activation.
-  - **Direction-of-travel cursor.** Entering a text cell via ↓/→ places the
-    cursor at the end; via ↑/← at the start — so continuing in the same
-    direction leaves the cell with one more press.
-  - **Keyboard entry.** In navigation mode, `Enter` enters edit mode (opens +
-    focuses the surface, Google-Sheets style); while a surface is open it
-    advances downward as before. `F2` also opens/focuses. Clicking an
-    already-open cell dismisses its surface.
-  - **Read-only detail panels.** New `columnSpec[].detailRenderer(ctx)` renders
-    a popover surface that opens/closes with the same machinery but never takes
-    keyboard focus (arrow keys keep navigating). For previews/summaries/links.
-  - Shared focus state (table element, arming, travel direction) now lives in
-    the store; removed the internal focus-stealing hidden input in
-    `EditorPopup` that silently broke arrow navigation.
-
-  _Stories:_ `Data sheet/Editors` → `EditorInteractionAuto` / `Manual`;
-  `Data sheet/Detail panels` → `AutoDetailPanel` / `ManualDetailPanel`.
-
-### Rich cell-render context
-
-- **Per-cell renderers now receive a `CellRenderContext`.** `valueRenderer`
-  takes an optional second argument `{ value, rowIndex, colIndex, column, row,
-  isEdited, isDeleted }`, and a custom `cellComponent` receives the same object
-  as a `cellContext` prop. `rowIndex` is the underlying data-row index (stable
-  under sort/filter), so renderers can style based on sibling columns or edit
-  status — and, with the editing API, address a specific cell. Additive: the
-  default Blueprint `Cell` is unaffected and existing single-argument
-  `valueRenderer`s keep working. _Story:_ `Data sheet/Cell rendering`.
-
-### Editing bugfixes
-
-- **No phantom "edited" state.** `onCellEdited` treats `""` and
-  `null`/`undefined` as equivalent, and compares non-blank values by string
-  form — so focusing/blurring an empty cell, or retyping an integer's existing
-  value (`"42"` vs `42`), no longer marks the cell edited. Real changes still
-  register. _Story:_ `Data sheet/Editing` → `EmptyCellNormalization`.
-- **Filter-aware bulk edits.** `clearSelection`, `onSelectionEdited`, and the
-  fill-handle (`fillValues`) now map visible selection indices to the
-  underlying data rows, so bulk edits target the correct rows when a sort or
-  filter is active. Whole-column edits now cover **all** rows (the row count is
-  taken from `data`, not the sparse `updatedData`, which previously stopped at
-  the last already-edited row). _Story:_ `Data sheet/Editing` →
-  `EditsUnderSortAndFilter`.
-- **`col.style` is no longer mutated.** `basicCellRenderer` clones the
-  column-spec `style` before applying deleted-row styling, so a shared style
-  object isn't mutated across cells.
-- **Removed the dead `onSaveData` prop.** It was declared on `DataSheet` but
-  never invoked; saving is driven by table actions. Consumers relying on it
-  were already no-ops. (Breaking, but within the `4.0.0` pre-release line.)
+- Opt-in controlled editing via `onEdit` hook and `rowStatus`/`updatedData`
+  props.
+- Automatic focus management when paging through a table (in
+  `cellInteraction: "auto"` mode): Click or enter into a cell to focus, and
+  focus is maintained on arrow navigation both within and between rows, until
+  `Esc` dismisses.
+- Improved cell-render context: Per-cell renderers now receive a
+  `CellRenderContext`. `valueRenderer` takes an optional second argument
+  `{ value, rowIndex, colIndex, column, row, isEdited, isDeleted }`, and a
+  custom `cellComponent` receives the same object as a `cellContext` prop.s
+- `columnSpec[].cellDetail(ctx)` renders a cell's surface as an editor when
+  `ctx.editable` and a read-only viewe otherwise, superseding `dataEditor` /
+  `detailRenderer` / `editorForCell` (still supported, now deprecated).
+- Cell viewer/editor presentation via
+  `detailPresentation: "popover" | "modal" | "inline"`. Starting point for
+  editors with a variety of presentations (e.g., inline/omnibar), leading into a
+  future row viewer/editor.
+- General bugfixes for editing interactions and state management, especially in
+  the presence of sorts and filters
 
 ## [4.0.0-dev3] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.0.0-dev2...@macrostrat/data-sheet-v4.0.0)
 
