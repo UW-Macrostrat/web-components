@@ -52,6 +52,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     identity: (row: any) => row?.id,
     pendingOverlayById: new Map(),
     controlledOverlay: false,
+    canDeleteRows: true,
     setSelection(selection: Region[]) {
       set(updateSelection(selection));
     },
@@ -155,6 +156,9 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       }
     },
     deleteSelectedRows() {
+      // Deletion is a provider capability: if the active data provider can't
+      // delete (no `deleteRows`), the whole affordance is disabled.
+      if (!get().canDeleteRows) return;
       // Remove selected rows from the data and updatedData arrays
       let deletedIndices: number[] = [];
       set((state) => {

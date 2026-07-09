@@ -159,6 +159,7 @@ export function buildActionContext<T>(
     rowStatus: state.rowStatus,
     columnSpec: state.columnSpec,
     editable: state.editable,
+    canDeleteRows: state.canDeleteRows,
     getSelectedRowIndices: () =>
       getSelectedRowIndices(state.selection, getFilteredRowIndices()),
     getSelectedColumnKeys: () =>

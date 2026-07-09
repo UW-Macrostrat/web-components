@@ -4,6 +4,9 @@ import {
   ColorCell,
   ColorPicker,
   colorSwatchRenderer,
+  createPostgRESTProvider,
+  DataSheet,
+  deleteRowsAction,
   ExpandedLithologies,
   IntervalCell,
   lithologyRenderer,
@@ -14,7 +17,7 @@ import {
   wrapWithErrorHandling,
 } from "../src";
 import { useSelector } from "../src/provider";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Button, InputGroup } from "@blueprintjs/core";
 import { PostgrestClient } from "@supabase/postgrest-js";
 import { useToaster } from "@macrostrat/ui-components";
@@ -139,6 +142,43 @@ export const ScrollToRow = {
     // Table-scoped controls are ordinary actions now (no `dataSheetActions`).
     actions: [scrollToRowAction, selectLegendIdAction],
   },
+};
+
+/**
+ * **Deletion gated by the provider.** This table is editable and driven by a
+ * PostgREST provider built with `createPostgRESTProvider`, but with `deleteRows`
+ * **removed** from the provider object. Because the provider can't delete, the
+ * "Delete rows" action is greyed out and the Delete/Backspace key is a no-op —
+ * deletion is disabled table-wide. (Editing still works; drop `deleteRows` back
+ * in and deletion returns.)
+ */
+function NoRowDeletionDemo() {
+  const provider = useMemo(() => {
+    const full = createPostgRESTProvider({
+      endpoint,
+      table: "legend",
+      identityKey: "legend_id",
+      baseOrder: [{ key: "legend_id", ascending: true }],
+    });
+    // Omit `deleteRows` → the sheet reports deletion as unavailable.
+    const { deleteRows, ...withoutDelete } = full;
+    return withoutDelete;
+  }, []);
+
+  return h(
+    "div.postgrest-sheet-container",
+    h(DataSheet, {
+      provider,
+      editable: true,
+      columnSpecOptions: defaultColumnOptions,
+      // Surface the delete action so you can see it disabled.
+      actions: [deleteRowsAction],
+    }),
+  );
+}
+
+export const NoRowDeletion: StoryObj = {
+  render: () => h(NoRowDeletionDemo),
 };
 
 export const MapboardPostgrestView = {

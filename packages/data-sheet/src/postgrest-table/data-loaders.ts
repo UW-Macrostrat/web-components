@@ -504,7 +504,8 @@ export function createLocalProvider<T = any>(
   data: T[],
   options: { identity?: (row: T) => string | number } = {},
 ): TableDataProvider<T> {
-  const identity = options.identity ?? defaultLocalIdentity;
+  const identity: (row: T) => string | number =
+    options.identity ?? defaultLocalIdentity;
   return {
     identity,
     async fetchData({ offset, limit, sorts, filters }) {
@@ -774,6 +775,40 @@ export function createPostgRESTFetchChunk<T = any>(config: {
     if (res?.error != null) throw res.error;
     const rows = res?.data ?? [];
     return res?.count != null ? { rows, totalCount: res.count } : { rows };
+  };
+}
+
+/**
+ * A full PostgREST `TableDataProvider`: the read side (`fetchData` + row
+ * `identity`) plus persistence — `saveRows` (upsert) and `deleteRows` (by
+ * identity). Pass it to `DataSheet`'s `provider` prop. The mutation methods
+ * throw on error so the Save action surfaces it.
+ */
+export function createPostgRESTProvider<T = any>(config: {
+  endpoint: string;
+  table: string;
+  identityKey: string;
+  columns?: string | string[];
+  baseOrder?: PostgrestOrder<any>[];
+  baseFilter?: (
+    q: PostgrestFilterBuilder<any, any, any, any>,
+  ) => PostgrestFilterBuilder<any, any, any, any>;
+  translateFilter?: (f: FetchDataFilter) => PostgrestFilter | null;
+}): TableDataProvider<T> {
+  const from = () => new PostgrestClient(config.endpoint).from(config.table);
+  return {
+    fetchData: createPostgRESTFetchChunk<T>(config),
+    identity: (row: any) => row?.[config.identityKey],
+    async saveRows(rows) {
+      const res: any = await from().upsert(rows as any[], {
+        defaultToNull: false,
+      });
+      if (res?.error != null) throw res.error;
+    },
+    async deleteRows(ids) {
+      const res: any = await from().delete().in(config.identityKey, ids);
+      if (res?.error != null) throw res.error;
+    },
   };
 }
 

@@ -99,6 +99,8 @@ export interface TableActionContext<T = any> {
   columnSpec: ColumnSpec[];
   /** Whether the table is in edit mode */
   editable: boolean;
+  /** Whether row deletion is available (false when the provider can't delete). */
+  canDeleteRows: boolean;
 
   // Convenience methods (derived from selection)
   /** Row indices covered by the current selection */

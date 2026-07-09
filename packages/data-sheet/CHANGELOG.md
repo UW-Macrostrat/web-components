@@ -4,6 +4,42 @@
 
 Start of the v4 evolution roadmap (see `README.md` → _Evolution roadmap_).
 
+### Data provider (`provider` prop) & unified loader
+
+- **`TableDataProvider` is a first-class, passable contract:**
+  `provider={{ fetchData, identity, saveRows?, deleteRows?, insertRow? }}`.
+  `DataSheet` resolves the active provider as **`provider` → loose `fetchData`
+  (+ `identity`) → in-memory `data`** (auto-wrapped via `createLocalProvider`),
+  so local and remote sources share one path and the provider is explicit
+  rather than an implicit set of props. When the provider owns persistence, the
+  built-in **Save** batches pending changes through it (edits → `saveRows`,
+  added → `insertRow`, deleted → `deleteRows`) and refreshes.
+- **`fetchChunk` → `fetchData`** throughout (params `FetchDataParams`, result
+  `FetchDataResult`); the loader is driven by the `fetchData` / `pageSize` /
+  `fetchMode` props (no manually-mounted loader child on the main path).
+- **`createPostgRESTProvider`** bundles a PostgREST source (keyset `fetchData` +
+  `identity` + upsert `saveRows` + `deleteRows`). `PostgRESTTableView` now
+  passes it via `provider` — which also **fixes server-side delete**: the old
+  `onDeleteRows` was never wired, so deletes never persisted; they now persist
+  on Save through the provider.
+- **Unknown-length / keyset scroll needs no count.** In scroll mode without a
+  `totalCount`, a chunk shorter than the page size marks the end; otherwise one
+  page of nulls is padded so scrolling fetches the next chunk. A reported
+  `totalCount` still pre-sizes the sparse array as before.
+- **Deletion is a provider capability.** An explicit `provider` without
+  `deleteRows` disables row deletion table-wide — the Delete-rows action greys
+  out and the Delete/Backspace key is a no-op (rather than marking rows deleted
+  that then can't persist). Local / loose sources keep the local delete overlay.
+  _Story:_ `Data sheet/PostgREST sheet` → `NoRowDeletion`.
+
+### Table-scoped controls are ordinary actions
+
+- **`scrollToRowAction`** (core, opt-in) and **`fullTextSearchAction`**
+  (PostgREST, when `enableFullTableSearch`) are `TableAction`s rendered in the
+  standard toolbar. The bespoke **`dataSheetActions` prop is removed** — custom
+  chrome becomes an action (or `children`); `ScrollToRowControl` /
+  `DataSheetActionsRow` / `DataSheetAction` are gone.
+
 ### Cell validation
 
 - **`columnSpec[].validate(value, row, ctx)`** returns `{ severity, message } |

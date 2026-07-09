@@ -4,7 +4,8 @@ import { copyAction, pasteAction, clipboardActions } from "./clipboard";
 
 export { copyAction, pasteAction, clipboardActions };
 
-/** Delete all rows in the current selection. */
+/** Delete all rows in the current selection. Disabled when the data provider
+ * can't delete (no `deleteRows`). */
 export const deleteRowsAction: TableAction = {
   id: "delete-rows",
   name: "Delete rows",
@@ -12,6 +13,7 @@ export const deleteRowsAction: TableAction = {
   intent: "danger",
   targets: [RegionCardinality.FULL_ROWS],
   requiresEditable: true,
+  disabled: (s: any) => s?.canDeleteRows === false,
   run(ctx) {
     ctx.deleteSelectedRows();
   },

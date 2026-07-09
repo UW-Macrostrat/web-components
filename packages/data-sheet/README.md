@@ -55,8 +55,16 @@ Workstreams, in sequence:
 - [x] **A — Controlled editing** (`onEdit(event)` + controlled
       `updatedData` / `rowStatus` overlay; unified `cellDetail` /
       `detailPresentation` surface API)
-- [ ] **D+E — Data source & view state** (unified
-      `fetchChunk({ offset, limit, sorts, filters, group, signal })` +
-      column-declared sort / filter / group / hide; scroll-to-row gated on
-      source length/addressing traits)
+- [x] **D+E — Data source & view state** — one `TableDataProvider`
+      (`fetchData({ offset, limit, sorts, filters, cursor })` + `identity` +
+      optional `saveRows` / `deleteRows` / `insertRow`), passed via the
+      **`provider`** prop or the loose `data` / `fetchData` props;
+      `createLocalProvider` + `createPostgRESTProvider`; unified operator +
+      custom column filters and column sort (applied in memory or server-side
+      by the provider); identity-keyed edits that survive a re-sort; keyset &
+      unknown-length scroll. Table-scoped controls (`scrollToRowAction`,
+      `fullTextSearchAction`) are ordinary `TableAction`s (`dataSheetActions`
+      removed). _Stories:_ `Data sheet/Chunk loader`, `Data sheet/PostgREST
+      sheet`, `Data sheet/Filters`. _(Group-by stays a consumer/page-side
+      concern for now — only the ingestion page needs it.)_
 - [ ] **F — Row-header customization** (group-key labels, omit styling)

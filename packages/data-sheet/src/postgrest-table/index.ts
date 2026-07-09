@@ -1,28 +1,20 @@
 import { InputGroup, OverlayToaster } from "@blueprintjs/core";
 import h from "./main.module.sass";
-import { DataSheet, getRowsToDelete } from "../core";
+import { DataSheet } from "../core";
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import {
-  DataLoaderManager,
-  createPostgRESTFetchChunk,
+  createPostgRESTProvider,
   dataRefreshTokenAtom,
   PostgrestFilter,
   PostgrestOrder,
 } from "./data-loaders";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import {
-  ErrorBoundary,
-  ToasterContext,
-  useToaster,
-} from "@macrostrat/ui-components";
-import {
-  PostgrestClient,
-  PostgrestFilterBuilder,
-} from "@supabase/postgrest-js";
+import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
+import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
 import { ColorCell } from "../components";
 import { DataSheetProviderProps } from "../types.ts";
 import { atom } from "jotai";
-import { columnSpecAtom, ctx, tableDataAtom } from "../provider.ts";
+import { columnSpecAtom, ctx } from "../provider.ts";
 import { ALL_CARDINALITIES, TableAction } from "../actions";
 
 export * from "./data-loaders";
@@ -140,15 +132,7 @@ function _PostgRESTTableView<T>({
     }
   }
 
-  const toaster = useToaster();
   const bumpRefresh = ctx.useSet(dataRefreshTokenAtom);
-  const getClient = useCallback(
-    () => new PostgrestClient(endpoint).from(table),
-    [endpoint, table],
-  );
-  // Loaded rows (the chunk loader writes these into the shared store) — used to
-  // resolve selected row indices to identity keys when deleting.
-  const data = ctx.useValue(tableDataAtom);
 
   // Base query transform: the `filter` prop + full-text search. Column filters
   // come from the shared store (as operator `columnFilter`s) via the loader's
@@ -164,10 +148,14 @@ function _PostgRESTTableView<T>({
     [userFilter, ftsConfig],
   );
 
+  // The whole read+persist contract as one `TableDataProvider`, passed to the
+  // DataSheet `provider` prop: `fetchData` (keyset-paginated, threading store
+  // sorts/filters), `identity`, and `saveRows`/`deleteRows` (upsert/delete).
+  // Save (batch) and delete both flow through it — no `onSave`/`onDeleteRows`.
   const orderKey = JSON.stringify(_order);
-  const fetchData = useMemo(
+  const provider = useMemo(
     () =>
-      createPostgRESTFetchChunk({
+      createPostgRESTProvider({
         endpoint,
         table,
         columns,
@@ -191,25 +179,6 @@ function _PostgRESTTableView<T>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ftsConfig]);
 
-  // Save: upsert the edited rows, then re-fetch. Wired to the built-in Save
-  // action via the DataSheet `onSave` prop (present only when editable).
-  const handleSave = useCallback(
-    async (actionCtx: any) => {
-      const base = actionCtx.data ?? [];
-      const updates = actionCtx.updatedData ?? [];
-      const updateRows: any[] = [];
-      for (const [key, upd] of Object.entries(updates)) {
-        if (upd == null || Object.keys(upd).length === 0) continue;
-        updateRows.push({ ...base[key], ...(upd as object) });
-      }
-      if (updateRows.length === 0) return;
-      const query = getClient().upsert(updateRows, { defaultToNull: false });
-      const res = await wrapWithErrorHandling(toaster, query);
-      if (res != null) bumpRefresh((v) => v + 1);
-    },
-    [getClient, toaster, bumpRefresh],
-  );
-
   // Full-text search joins the standard actions toolbar (no bespoke chrome).
   const mergedActions = enableFullTableSearch
     ? [fullTextSearchAction, ...(actions ?? [])]
@@ -217,27 +186,10 @@ function _PostgRESTTableView<T>({
 
   return h(DataSheet, {
     ...rest,
-    fetchData,
+    provider,
     actions: mergedActions,
     columnSpecOptions: columnOptions,
     editable,
-    // Row identity for the edit overlay, so edits survive a re-ordered
-    // re-fetch (the server returns re-ordered windows on sort/filter).
-    identity: (row: any) => row?.[_identityKey!],
-    onSave: editable ? handleSave : undefined,
-    // Sort/filter now use the generic store-driven column header + FilterBar
-    // (columns are auto-inferred `sortable`/`filterable`); no PostgREST-only
-    // header or bar.
-    onDeleteRows(selection) {
-      if (!editable) return;
-
-      const rowIndices = getRowsToDelete(selection);
-      const ids = rowIndices.map((i) => data[i]?.[_identityKey!]);
-      const query = getClient().delete().in(_identityKey!, ids);
-      wrapWithErrorHandling(toaster, query).then((res) => {
-        if (res != null) bumpRefresh((v) => v + 1);
-      });
-    },
   });
 }
 

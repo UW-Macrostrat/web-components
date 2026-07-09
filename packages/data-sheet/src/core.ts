@@ -468,6 +468,14 @@ function _DataSheet<T>({
     if (id != null) storeState.setState({ identity: id });
   }, [storeState, activeProvider, identity]);
 
+  // Row deletion is a provider capability: an explicit `provider` without
+  // `deleteRows` disables deletion entirely. (Local / loose sources keep the
+  // local delete overlay.)
+  useEffect(() => {
+    const canDeleteRows = provider == null || provider.deleteRows != null;
+    storeState.setState({ canDeleteRows });
+  }, [storeState, provider]);
+
   const realizedColumns = useMemo(() => {
     return columnSpec.map((col, colIndex) => {
       let fn =

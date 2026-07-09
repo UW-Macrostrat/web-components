@@ -126,6 +126,10 @@ export interface DataSheetState<T> {
   /** True when the consumer controls the `updatedData`/`rowStatus` overlay; the
    * loader-boundary identity remap is skipped (the consumer owns it). */
   controlledOverlay: boolean;
+  /** Whether row deletion is available. Set from the data provider: an explicit
+   * `provider` without `deleteRows` disables deletion entirely (the delete
+   * affordance greys out and the delete key is a no-op). Defaults to `true`. */
+  canDeleteRows: boolean;
 }
 
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
