@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
 import { DataSheet } from "../src";
-import type { CellRenderContext } from "../src";
+import type { CellDetailContext } from "../src";
 import { Callout } from "@blueprintjs/core";
 import "@blueprintjs/table/lib/css/table.css";
 
@@ -33,9 +33,10 @@ function buildData(n = 40) {
 
 const testData = buildData();
 
-// A read-only detail panel derived from the cell's row context. It never takes
-// keyboard focus, so arrow keys keep navigating the table.
-function detailRenderer(ctx: CellRenderContext) {
+// A read-only detail panel derived from the cell's row context. Since the
+// table isn't editable, `cellDetail` always runs in its viewer role. It never
+// takes keyboard focus, so arrow keys keep navigating the table.
+function cellDetail(ctx: CellDetailContext) {
   const row = ctx.row ?? {};
   return h(
     Callout,
@@ -54,7 +55,7 @@ function detailRenderer(ctx: CellRenderContext) {
 }
 
 const columnSpec = [
-  { name: "Name", key: "name", width: 160, detailRenderer },
+  { name: "Name", key: "name", width: 160, cellDetail },
   { name: "Category", key: "category", width: 150 },
   { name: "Value", key: "value", width: 100 },
 ];
@@ -77,11 +78,12 @@ function Wrapper(props) {
 // ---- Stories ----
 
 /**
- * **Read-only detail panels (`columnSpec[].detailRenderer`).**
+ * **Read-only detail panels via `columnSpec[].cellDetail`.**
  *
- * The `Name` column carries a `detailRenderer` that shows a read-only panel for
- * the selected cell — using the same open/close machinery as editors, but the
- * panel never takes keyboard focus.
+ * The `Name` column carries a `cellDetail` that shows a read-only panel for the
+ * selected cell — the *same* surface used for editors, here in its viewer role
+ * because the table isn't editable. It uses the same open/close machinery but
+ * never takes keyboard focus.
  *
  * In `"auto"` (default): selecting a `Name` cell opens its panel; arrow keys
  * keep navigating the table (the panel follows the selection). **Escape**
