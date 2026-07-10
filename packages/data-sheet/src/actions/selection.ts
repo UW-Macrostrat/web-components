@@ -188,6 +188,7 @@ export function buildActionContext<T>(
           rowIndex: e.rowIndex,
           column: (e as any).columnKey ?? e.column,
           value: e.value,
+          row: state.data[e.rowIndex],
         })),
       });
     },

@@ -74,6 +74,44 @@ function ColumnSortControl({ columnKey }: { columnKey: string }) {
   );
 }
 
+/** Menu-native sort: a "Sort" item whose submenu holds Ascending / Descending.
+ * Clicking the *active* direction again clears the sort (toggle off) — there's
+ * no explicit "Clear" item, since the active-filter/sort tag in the status bar
+ * already offers direct removal. */
+function ColumnSortMenu({ columnKey }: { columnKey: string }) {
+  const storeAPI = useStoreAPI();
+  const sort = useSelector((s) => s.columnSorts.find((x) => x.key === columnKey));
+  const toggle = (ascending: boolean) => {
+    const store = storeAPI.getState();
+    // A second click on the current direction toggles the sort off.
+    const next = sort != null && sort.ascending === ascending ? null : ascending;
+    store.setColumnSort(columnKey, next);
+  };
+  const icon = sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
+  return h(
+    MenuItem,
+    { icon, text: "Sort" },
+    [
+      h(MenuItem, {
+        key: "asc",
+        icon: "sort-asc",
+        text: "Ascending",
+        active: sort?.ascending === true,
+        shouldDismissPopover: false,
+        onClick: () => toggle(true),
+      }),
+      h(MenuItem, {
+        key: "desc",
+        icon: "sort-desc",
+        text: "Descending",
+        active: sort?.ascending === false,
+        shouldDismissPopover: false,
+        onClick: () => toggle(false),
+      }),
+    ],
+  );
+}
+
 /** Single-column sort control. Gated by `col.sortable`. */
 export const columnSortAction: TableAction = {
   id: "column-sort",
@@ -87,6 +125,11 @@ export const columnSortAction: TableAction = {
     const col = selectedColumn(ctx);
     if (!col?.sortable) return null;
     return h(ColumnSortControl, { columnKey: col.key });
+  },
+  renderMenuItem(ctx) {
+    const col = selectedColumn(ctx);
+    if (!col?.sortable) return null;
+    return h(ColumnSortMenu, { columnKey: col.key });
   },
 };
 
@@ -153,6 +196,72 @@ function ColumnFilterControl({ col }: { col: ColumnSpec }) {
   );
 }
 
+/** Every filter applicable to a column: its rich `col.filters` (there may be
+ * several) plus the built-in operator `columnFilter` when the column is
+ * `filterable` and no rich filter already targets it. The menu lists all of
+ * them; the toolbar's `render` collapses to `resolveColumnFilter` (a single
+ * control). */
+function applicableColumnFilters(col: ColumnSpec): TableFilter[] {
+  const result: TableFilter[] = [];
+  const rich = (col.filters as TableFilter[] | undefined) ?? [];
+  for (const f of rich) {
+    result.push({ ...f, columnKey: f.columnKey ?? col.key });
+  }
+  const hasOwnColumnFilter = result.some((r) => r.columnKey === col.key);
+  if (
+    (col.filterable === true || typeof col.filterable === "object") &&
+    !hasOwnColumnFilter
+  ) {
+    result.push(columnFilter(col));
+  }
+  return result;
+}
+
+/** One filter, as a menu item whose submenu carries its edit form. Active
+ * filters get a warning intent and show their `describeState` summary. */
+function ColumnFilterMenuItem({ filter }: { filter: TableFilter }) {
+  const storeAPI = useStoreAPI();
+  const state = useSelector((s) => s.activeFilters.get(filter.id)?.state);
+  const isActive = state != null;
+  const summary = isActive ? filter.describeState?.(state) : null;
+
+  const setState = (next: any) => {
+    const store = storeAPI.getState();
+    if (next == null || next.value === "") {
+      store.removeFilter(filter.id);
+    } else {
+      store.setFilter(filter.id, filter, next);
+    }
+  };
+
+  return h(
+    MenuItem,
+    {
+      icon: filter.icon ?? "filter",
+      text: filter.name,
+      label: summary != null ? String(summary) : undefined,
+      intent: isActive ? "warning" : undefined,
+      shouldDismissPopover: false,
+    },
+    filter.filterForm != null
+      ? h(
+          "div.filter-menu-form",
+          { style: { padding: "6px", minWidth: "220px" } },
+          h(filter.filterForm, { state: state ?? filter.defaultState, setState }),
+        )
+      : null,
+  );
+}
+
+/** Menu-native filter: one item per applicable filter, each opening its form
+ * in a submenu. */
+function ColumnFilterMenu({ col }: { col: ColumnSpec }) {
+  const filters = useMemo(() => applicableColumnFilters(col), [col]);
+  return h(
+    filters.map((f) => h(ColumnFilterMenuItem, { key: f.id, filter: f })),
+  );
+}
+
 /** Single-column filter control. Gated by `col.filterable`. */
 export const columnFilterAction: TableAction = {
   id: "column-filter",
@@ -165,6 +274,11 @@ export const columnFilterAction: TableAction = {
     const col = selectedColumn(ctx);
     if (col == null || !isColumnFilterable(col)) return null;
     return h(ColumnFilterControl, { col });
+  },
+  renderMenuItem(ctx) {
+    const col = selectedColumn(ctx);
+    if (col == null || !isColumnFilterable(col)) return null;
+    return h(ColumnFilterMenu, { col });
   },
 };
 

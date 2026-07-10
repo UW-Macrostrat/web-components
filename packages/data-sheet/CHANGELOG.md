@@ -1,5 +1,24 @@
 # Changelog
 
+## [4.1.0] - 2026-07-10
+
+### Controlled editing improvements
+
+- `deriveOverlay(rows)` prop — derive the controlled overlay from loaded rows
+  inside the sheet (for provider-owned data with external edit state)
+- `onEdit` `setCells` events now carry the base `row`
+- `refreshToken` prop to force a provider re-fetch
+
+### Toolbar and status bar improvements
+
+- Global toolbar actions auto-position right (Clear → Reset → Save); contextual
+  actions stay left
+- Built-in, auto-included `clearSelectionAction`
+- Added a `statusBar` prop for bottom bar content
+- Column headers dropdowns now use `Menu`
+- Sort and filter improvements
+- Improved and generalized `rowStatus` handling
+
 ## [4.0.1] - 2026-07-09
 
 Fixed small bug with the `editCells` api emitting `onEdit` events, which

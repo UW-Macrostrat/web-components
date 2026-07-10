@@ -67,4 +67,14 @@ Workstreams, in sequence:
       removed). _Stories:_ `Data sheet/Chunk loader`, `Data sheet/PostgREST
       sheet`, `Data sheet/Filters`. _(Group-by stays a consumer/page-side
       concern for now — only the ingestion page needs it.)_
-- [ ] **F — Row-header customization** (group-key labels, omit styling)
+- [x] **F — Row-header & row-status customization** — extensible `rowStatus`
+      (any string, not just added/deleted), per-status presentation via
+      **`rowStatusStyles`** (cell style + intent, row-header style; merged over
+      the built-in `"deleted"` default), a **`rowHeaderRenderer(ctx)`** for
+      gutter content (group-key labels, omit markers), and `status` on
+      `CellRenderContext`. _Story:_ `Data sheet/Row status`.
+- [x] **Column-header menus** — sort and filter render as native menu items in
+      the column-header dropdown via **`TableAction.renderMenuItem`**: sort as an
+      Ascending/Descending submenu (re-click active to toggle off), filter as a
+      list of every applicable filter, each with its edit form in a submenu.
+      _Stories:_ `Data sheet/Controls`, `Data sheet/Filters`.

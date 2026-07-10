@@ -23,6 +23,9 @@ export interface CellEdit {
   rowIndex: number;
   column: string;
   value: any;
+  /** The underlying row (base data). Populated on emitted `onEdit` events so a
+   * handler can address the row (identity) without reaching into the store. */
+  row?: any;
 }
 
 /** A column filter that can be activated to hide non-matching rows.
@@ -192,6 +195,13 @@ export interface TableAction<T = any, S = null> {
    * `run`, unless the control itself invokes it). This is how sort/filter/group
    * are expressed as `FULL_COLUMNS`-scoped controls in the one action system. */
   render?: (context: TableActionContext<T>) => ReactNode;
+
+  /** Menu-native rendering for a menu surface (the column-header dropdown):
+   * return `MenuItem`(s) — e.g. sort as a submenu, or a filter list where each
+   * filter is an item opening its form in a submenu. When present, the
+   * column-header menu uses this instead of `render` (which stays for the
+   * toolbar's inline/popover control). May return multiple items (a fragment).*/
+  renderMenuItem?: (context: TableActionContext<T>) => ReactNode;
 
   /** Execute the action. May be synchronous (local state manipulation)
    * or asynchronous (backend fulfillment). For lazy-loaded tables,

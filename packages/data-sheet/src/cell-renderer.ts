@@ -37,7 +37,11 @@ export function basicCellRenderer<T>(
   const data = state.data;
   const updatedData = state.updatedData;
 
-  const isDeleted = state.rowStatus[dataRowIndex] == TableElementStatus.DELETED;
+  const statusVal = state.rowStatus[dataRowIndex];
+  const isDeleted = statusVal == TableElementStatus.DELETED;
+  // Presentation for this row's status (deleted, or a consumer-defined status
+  // like "omitted"), from the merged `rowStatusStyles`.
+  const statusStyle = statusVal != null ? state.rowStatusStyles?.[statusVal] : undefined;
 
   const row = data[dataRowIndex] ?? updatedData[dataRowIndex];
   const loading = row == null;
@@ -68,6 +72,7 @@ export function basicCellRenderer<T>(
     row,
     isEdited: edited,
     isDeleted,
+    status: statusVal,
     validation,
   };
 
@@ -75,12 +80,13 @@ export function basicCellRenderer<T>(
     ? null
     : (col.valueRenderer?.(value, cellContext) ?? value);
 
-  // Clone so we never mutate the caller's column-spec style object
+  // Clone so we never mutate the caller's column-spec style object, then layer
+  // the row-status presentation (deleted → dimmed/struck-through by default;
+  // consumer statuses supply their own `cellStyle`).
   let style = { ...(col.style ?? {}) };
 
-  if (isDeleted) {
-    style.opacity = 0.5;
-    style.textDecoration = "line-through";
+  if (statusStyle?.cellStyle != null) {
+    style = { ...style, ...statusStyle.cellStyle };
   }
 
   const editable = (col.editable ?? state.editable) && !isDeleted;
@@ -91,15 +97,17 @@ export function basicCellRenderer<T>(
 
   const tableIsEditable = state.editable;
 
-  // Intent precedence: error > warning > deleted > edited. Validation state
-  // overrides the edited-green so an edited-but-invalid cell reads as invalid.
+  // Intent precedence: error > warning > row-status intent > edited. Validation
+  // state overrides the edited-green so an edited-but-invalid cell reads as
+  // invalid. A row's status intent (e.g. deleted → danger) outranks the
+  // edited-green so status reads through even on an edited row.
   let intent: string | undefined;
   if (validation?.severity === "error") {
     intent = "danger";
   } else if (validation?.severity === "warning") {
     intent = "warning";
-  } else if (isDeleted) {
-    intent = "danger";
+  } else if (statusStyle?.intent != null) {
+    intent = statusStyle.intent;
   } else if (edited) {
     intent = "success";
   }

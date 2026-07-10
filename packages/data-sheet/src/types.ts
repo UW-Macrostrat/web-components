@@ -45,6 +45,57 @@ export enum TableElementStatus {
   ADDED = "added",
 }
 
+/** A row's status value. The built-in `TableElementStatus` members
+ * (`"deleted"` / `"added"`) plus any consumer-defined status string (e.g.
+ * `"omitted"`). The `(string & {})` keeps autocomplete for the enum members
+ * while still accepting arbitrary strings. */
+export type RowStatusValue = TableElementStatus | (string & {});
+
+/** Presentation for a row status: applied to the row's cells and its header
+ * cell. Keyed by status value in `rowStatusStyles`. The library ships a
+ * default for `"deleted"` (dimmed + struck through, danger intent); consumers
+ * merge in styles for their own statuses (and may override the defaults). */
+export interface RowStatusStyle {
+  /** Style merged onto each cell in a row with this status. */
+  cellStyle?: import("react").CSSProperties;
+  /** Style applied to the row's header cell. */
+  headerStyle?: import("react").CSSProperties;
+  /** Blueprint intent applied to the row's cells (precedence: validation >
+   * this > edited-green). */
+  intent?: import("@blueprintjs/core").Intent;
+}
+
+export type RowStatusStyles = Record<string, RowStatusStyle>;
+
+/** Built-in row-status presentation. Consumers' `rowStatusStyles` are merged
+ * over this, so `"deleted"` keeps its look unless explicitly overridden. */
+export const DEFAULT_ROW_STATUS_STYLES: RowStatusStyles = {
+  [TableElementStatus.DELETED]: {
+    cellStyle: { opacity: 0.5, textDecoration: "line-through" },
+    headerStyle: { opacity: 0.5, textDecoration: "line-through" },
+    intent: "danger",
+  },
+};
+
+/** Context passed to a custom `rowHeaderRenderer`, so it can label and style
+ * the row header from the row's data and status (group-key labels, an
+ * omit indicator, etc.). Return a node to use as the header's name, or a
+ * nullish value to fall back to the default (1-based row number). */
+export interface RowHeaderRenderContext<T = any> {
+  /** Data-row index (stable under sort/filter). */
+  rowIndex: number;
+  /** Visible (display) row index. */
+  visibleIndex: number;
+  /** The row's data (base, overlaid with edits if present). */
+  row: T | undefined;
+  /** The row's status, if any. */
+  status: RowStatusValue | undefined;
+  /** Convenience: `status === TableElementStatus.DELETED`. */
+  isDeleted: boolean;
+  /** The default label (`"${rowIndex + 1}"`). */
+  defaultLabel: string;
+}
+
 /** Property key holding a stable synthetic id on rows added in-table. Added
  * rows aren't in the data provider, so they need their own identity to survive
  * a provider re-fetch; it's carried on the row and preserved through edits. */
@@ -76,7 +127,11 @@ export interface DataSheetState<T> {
    * This is used to track which rows should be reverted when
    * a "reset" action is performed.
    */
-  rowStatus: TableElementStatus[];
+  rowStatus: RowStatusValue[];
+  /** Presentation per row-status value (merged: defaults + the
+   * `rowStatusStyles` prop). Read by the cell renderer and row-header renderer
+   * to style rows by status. */
+  rowStatusStyles: RowStatusStyles;
   // Sparse data structure for updated data
   updatedData: T[];
   initialized: boolean;

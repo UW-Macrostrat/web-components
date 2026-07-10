@@ -62,6 +62,10 @@ export interface CellRenderContext<T = any> {
   isEdited: boolean;
   /** Whether this cell's row is marked for deletion. */
   isDeleted: boolean;
+  /** The row's status value (`RowStatusValue`) — `"deleted"` / `"added"` or a
+   * consumer-defined status (e.g. `"omitted"`), or `undefined` for a normal
+   * row. Lets a renderer style by arbitrary status, not just deletion. */
+  status: string | undefined;
   /** Validation result for this cell, or `null` when valid. Orthogonal to the
    * edit status — a cell can be both edited and invalid. */
   validation: CellValidation | null;

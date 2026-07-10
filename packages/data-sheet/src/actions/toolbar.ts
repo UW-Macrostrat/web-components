@@ -100,12 +100,40 @@ export function ActionsToolbar<T>({
   // only its contents (title + buttons) change. Avoids layout jank.
   const title = selectionTitle(ctx) ?? tableName ?? "Table";
 
+  // Order left→right by generality: actions applicable to the whole table (or
+  // no selection) are "global" and sit after a spacer on the right (Save /
+  // Reset / Clear-selection); everything else is contextual and stays on the
+  // left. So the left edge tracks the selection and the right edge is constant.
+  const isGlobal = (a: TableAction<T>) =>
+    a.targets.includes(RegionCardinality.FULL_TABLE) ||
+    a.targets.includes("none" as any);
+  const contextual = shownActions.filter((a) => !isGlobal(a));
+  // Order the built-in global actions least→most impactful, left→right:
+  // clear selection, reset changes, save. Any other global actions keep their
+  // natural order to the left of these (stable sort, rank 0).
+  const globalOrder: Record<string, number> = {
+    "clear-selection": 1,
+    "reset-changes": 2,
+    "save-changes": 3,
+  };
+  const globalActions = shownActions
+    .filter(isGlobal)
+    .sort((a, b) => (globalOrder[a.id] ?? 0) - (globalOrder[b.id] ?? 0));
+
   return h("div.actions-toolbar", [
     h("span.toolbar-title", { key: "title" }, title),
     h(
       ButtonGroup,
-      { key: "actions", minimal: true },
-      shownActions.map((action) =>
+      { key: "contextual", minimal: true },
+      contextual.map((action) =>
+        h(ActionButton, { key: action.id, action, ctx }),
+      ),
+    ),
+    h("div.toolbar-spacer", { key: "spacer", style: { flex: 1 } }),
+    h(
+      ButtonGroup,
+      { key: "global", minimal: true },
+      globalActions.map((action) =>
         h(ActionButton, { key: action.id, action, ctx }),
       ),
     ),

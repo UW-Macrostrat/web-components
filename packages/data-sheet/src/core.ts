@@ -24,7 +24,10 @@ import {
 import { atom } from "jotai";
 import {
   DataSheetProviderProps,
+  DEFAULT_ROW_STATUS_STYLES,
   EditEvent,
+  RowHeaderRenderContext,
+  RowStatusStyles,
   TableElementStatus,
   VisibleCells,
 } from "./types.ts";
@@ -32,6 +35,7 @@ import { basicCellRenderer } from "./cell-renderer.ts";
 import { CellRendererDebugOverlay, tableHotkeysAtom } from "./utils";
 import {
   ActionsToolbar,
+  clearSelectionAction,
   clipboardActions,
   columnControlActions,
   createSaveAction,
@@ -113,6 +117,19 @@ interface DataSheetInternalProps<T> extends TableProps, FetchDataOptions {
    * data provider supplies its own; defaults to `(row) => row?.id`). Lets edits
    * survive a re-ordered re-fetch. */
   identity?: (row: T) => string | number | null | undefined;
+  /** Derive the controlled edit overlay from the loaded rows, *inside* the
+   * sheet. For provider-backed tables whose overlay is a function of the loaded
+   * data plus external edit state (e.g. an ops stack): the library owns the
+   * rows, so it calls this with them and uses the result as the controlled
+   * overlay, re-deriving when the rows — or this function's identity (close it
+   * over your edit state) — change. Supersedes `updatedData`/`rowStatus`. */
+  deriveOverlay?: (rows: T[]) => {
+    updatedData: T[];
+    rowStatus: TableElementStatus[];
+  };
+  /** Bump to force the data provider to re-fetch from scratch (e.g. after a
+   * save/delete that invalidated the loaded rows). */
+  refreshToken?: number | string;
   /** Persistence handler for the built-in Save action. When provided, a Save
    * control is added to the toolbar (always visible, disabled when there are
    * no pending changes). */
@@ -141,6 +158,20 @@ interface DataSheetInternalProps<T> extends TableProps, FetchDataOptions {
    * Receives the ColumnSpec and column index; should return a React element
    * (typically a Blueprint ColumnHeaderCell). */
   columnHeaderCellRenderer?: (col: any, colIndex: number) => ReactNode;
+  /** Arbitrary nodes for the bottom status bar (left group), rendered beside
+   * the active sort/filter tags — the home for view-state controls (show/hide
+   * omitted rows/columns, a group-by indicator, etc.). */
+  statusBar?: ReactNode;
+  /** Presentation per row-status value, merged over the built-in defaults
+   * (which style `"deleted"`). Supply styles for consumer-defined statuses
+   * (e.g. `"omitted"`) and/or override the defaults. Each entry may set the
+   * cells' style/intent and the row header's style. */
+  rowStatusStyles?: RowStatusStyles;
+  /** Render the content of a row's header cell (the left gutter). Receives the
+   * row, its status, and the default 1-based label; return a node to use, or a
+   * nullish value to keep the default. For group-key labels, omit indicators,
+   * etc. Header-cell *styling* still comes from `rowStatusStyles`. */
+  rowHeaderRenderer?: (ctx: RowHeaderRenderContext<T>) => ReactNode;
 }
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
@@ -181,11 +212,6 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     }),
   );
 }
-
-const deletedRowHeaderStyle = {
-  opacity: 0.5,
-  textDecoration: "line-through",
-};
 
 /** Persist all pending changes through a data provider: added rows via
  * `insertRow`, edited rows via `saveRows`, deleted rows via `deleteRows`
@@ -241,6 +267,8 @@ function _DataSheet<T>({
   updatedData: updatedDataProp,
   rowStatus: rowStatusProp,
   identity,
+  deriveOverlay,
+  refreshToken,
   onDeleteRows,
   name,
   verbose = false,
@@ -253,6 +281,9 @@ function _DataSheet<T>({
   actions,
   filters,
   columnHeaderCellRenderer,
+  statusBar,
+  rowStatusStyles,
+  rowHeaderRenderer,
   children,
   ...rest
 }: DataSheetInternalProps<T>) {
@@ -319,6 +350,7 @@ function _DataSheet<T>({
     };
     if (actions != null) add(actions);
     add(columnControlActions);
+    add([clearSelectionAction]);
     if (enableClipboard) add(clipboardActions);
     // Save/reset last — they're the most significant actions — and present for
     // every cardinality (editable), so the toolbar stays mounted regardless of
@@ -455,12 +487,41 @@ function _DataSheet<T>({
     // next render when the caller passes an updated value back. When the caller
     // controls it, the loader-boundary identity remap steps aside.
     const controlled =
-      updatedDataProp !== undefined || rowStatusProp !== undefined;
+      updatedDataProp !== undefined ||
+      rowStatusProp !== undefined ||
+      deriveOverlay != null;
     const patch: Record<string, unknown> = { controlledOverlay: controlled };
     if (updatedDataProp !== undefined) patch.updatedData = updatedDataProp;
     if (rowStatusProp !== undefined) patch.rowStatus = rowStatusProp;
     storeState.setState(patch);
-  }, [storeState, updatedDataProp, rowStatusProp]);
+  }, [storeState, updatedDataProp, rowStatusProp, deriveOverlay]);
+
+  // Derived controlled overlay: the library owns the loaded rows, so it runs
+  // the consumer's `deriveOverlay(rows)` here and pushes the result. Re-derives
+  // when the rows load/change or the function's identity changes (close it over
+  // your external edit state). The `controlledOverlay` flag above suppresses the
+  // loader-boundary identity remap so this derivation is authoritative.
+  const loadedData = useSelector((state) => state.data);
+  useEffect(() => {
+    if (deriveOverlay == null) return;
+    const overlay = deriveOverlay(loadedData);
+    storeState.setState({
+      updatedData: overlay.updatedData,
+      rowStatus: overlay.rowStatus,
+    });
+  }, [deriveOverlay, loadedData, storeState]);
+
+  // Imperative re-fetch: bump `refreshToken` to reload the provider (e.g. after
+  // a save). Skips the initial mount (the loader does its own first fetch).
+  const bumpRefreshFromToken = ctx.useSet(dataRefreshTokenAtom);
+  const firstRefreshToken = useRef(true);
+  useEffect(() => {
+    if (firstRefreshToken.current) {
+      firstRefreshToken.current = false;
+      return;
+    }
+    bumpRefreshFromToken((v) => v + 1);
+  }, [refreshToken, bumpRefreshFromToken]);
 
   // The active provider supplies the row identity for the edit overlay.
   useEffect(() => {
@@ -475,6 +536,17 @@ function _DataSheet<T>({
     const canDeleteRows = provider == null || provider.deleteRows != null;
     storeState.setState({ canDeleteRows });
   }, [storeState, provider]);
+
+  // Merge consumer `rowStatusStyles` over the built-in defaults and hand the
+  // result to the store, where the cell renderer and row-header renderer read
+  // it. Merged (not replaced) so overriding one status doesn't drop the rest.
+  const mergedRowStatusStyles = useMemo<RowStatusStyles>(
+    () => ({ ...DEFAULT_ROW_STATUS_STYLES, ...rowStatusStyles }),
+    [rowStatusStyles],
+  );
+  useEffect(() => {
+    storeState.setState({ rowStatusStyles: mergedRowStatusStyles });
+  }, [storeState, mergedRowStatusStyles]);
 
   const realizedColumns = useMemo(() => {
     return columnSpec.map((col, colIndex) => {
@@ -541,19 +613,41 @@ function _DataSheet<T>({
         filteredRowIndices != null
           ? (filteredRowIndices[rowIndex] ?? rowIndex)
           : rowIndex;
+      const statusVal = rowStatus[dataRowIndex];
       const style =
-        rowStatus[dataRowIndex] == TableElementStatus.DELETED
-          ? deletedRowHeaderStyle
-          : null;
+        (statusVal != null
+          ? mergedRowStatusStyles[statusVal]?.headerStyle
+          : null) ?? null;
+
+      const defaultLabel = `${dataRowIndex + 1}`;
+      let name: ReactNode = defaultLabel;
+      if (rowHeaderRenderer != null) {
+        const custom = rowHeaderRenderer({
+          rowIndex: dataRowIndex,
+          visibleIndex: rowIndex,
+          row: data[dataRowIndex] ?? updatedData[dataRowIndex],
+          status: statusVal,
+          isDeleted: statusVal === TableElementStatus.DELETED,
+          defaultLabel,
+        });
+        if (custom != null) name = custom;
+      }
 
       return h(RowHeaderCell, {
         enableRowReordering: false,
         index: rowIndex,
-        name: `${dataRowIndex + 1}`,
+        name,
         style,
       });
     },
-    [rowStatus, filteredRowIndices],
+    [
+      rowStatus,
+      filteredRowIndices,
+      mergedRowStatusStyles,
+      rowHeaderRenderer,
+      data,
+      updatedData,
+    ],
   );
 
   let _selectionModes = selectionModes;
@@ -644,6 +738,7 @@ function _DataSheet<T>({
     ),
     h("div.status-bar", [
       filterStatus,
+      statusBar,
       h("div.spacer"),
       h.if(_showLoadProgress)(LoadProgressIndicator),
     ]),

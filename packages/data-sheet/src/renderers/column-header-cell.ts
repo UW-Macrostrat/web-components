@@ -8,7 +8,7 @@
  */
 import h from "@macrostrat/hyper";
 import { ColumnHeaderCell, RegionCardinality } from "@blueprintjs/table";
-import { Button, Icon, Menu, MenuItem } from "@blueprintjs/core";
+import { Icon, Menu, MenuItem } from "@blueprintjs/core";
 import { ctx, tableActionsAtom, useStoreAPI } from "../provider";
 import { buildActionContext } from "../actions/selection";
 import type { ColumnSpec } from "../utils/column-spec";
@@ -137,40 +137,28 @@ function ColumnHeaderControls({ colIndex }: { colIndex: number }) {
       (a.appliesTo?.(actionCtx) ?? true),
   );
 
-  const rendered = controls
-    .map((a) =>
-      a.render != null
-        ? a.render(actionCtx)
-        : h(
-            Button,
-            {
-              key: a.id,
-              small: true,
-              minimal: true,
-              icon: a.icon,
-              intent: a.intent,
-              onClick: () => a.run?.(actionCtx),
-            },
-            a.name,
-          ),
-    )
+  // Prefer menu-native rendering (`renderMenuItem`) — sort/filter render as
+  // items with submenus, so the whole dropdown is one Blueprint `Menu`. A
+  // control that only has `render` (a live toolbar control) is embedded as-is;
+  // a plain `run` action becomes a clickable item.
+  const items = controls
+    .map((a, i) => {
+      if (a.renderMenuItem != null) return a.renderMenuItem(actionCtx);
+      if (a.render != null)
+        return h("li.column-header-control", { key: a.id ?? i }, a.render(actionCtx));
+      return h(MenuItem, {
+        key: a.id ?? i,
+        icon: a.icon,
+        intent: a.intent,
+        text: a.name,
+        onClick: () => a.run?.(actionCtx),
+      });
+    })
     .filter(Boolean);
 
-  if (rendered.length === 0) {
+  if (items.length === 0) {
     return h(Menu, [h(MenuItem, { text: "No options", disabled: true })]);
   }
 
-  return h(
-    "div.column-header-controls",
-    {
-      style: {
-        padding: "8px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-        alignItems: "flex-start",
-      },
-    },
-    rendered,
-  );
+  return h(Menu, { className: "column-header-controls" }, items);
 }
