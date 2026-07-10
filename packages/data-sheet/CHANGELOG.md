@@ -8,6 +8,11 @@
   renderer / cell component — only cells whose own value/status changed. Big win
   for tables with heavy cell components. Editing machinery is still built only
   for the focused cell.
+- Cell style is passed through without a per-cell clone in the common case (only
+  merged when a row-status style applies).
+- Internal: the data source is resolved once in the wrapper and held in the
+  provider layer (`dataProviderAtom`), instead of being resolved inside the
+  inner render component — a cleaner seam for future precomputed derived state.
 
 ## [4.1.1] - 2026-07-10
 

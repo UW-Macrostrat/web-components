@@ -153,7 +153,9 @@ function PerfHarness() {
   const [cols, setCols] = useState(40);
   const [rows, setRows] = useState(1000);
   const [kind, setKind] = useState<CellKind>("styled");
-  const [syncRender, setSyncRender] = useState(true);
+  // Default to Blueprint's batched render (what the library uses) — synchronous
+  // `NONE` was tried and is worse here.
+  const [syncRender, setSyncRender] = useState(false);
   const [tint, setTint] = useState(false);
 
   const data = useMemo(() => makeData(rows, cols), [rows, cols]);

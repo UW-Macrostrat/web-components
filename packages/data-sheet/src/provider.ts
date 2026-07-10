@@ -15,6 +15,7 @@ import { createZustandStore } from "./zustand-store.ts";
 import { atomWithStore } from "jotai-zustand";
 import { toasterAtom } from "./notifications.ts";
 import { TableAction } from "./actions";
+import type { TableDataProvider } from "./postgrest-table";
 import { atom } from "jotai";
 
 /** Create a Jotai scoped store */
@@ -66,7 +67,28 @@ const initializeStoreAtom = atom(
 
 export const tableActionsAtom = atom<TableAction[]>([]);
 
-export function DataSheetProvider<T>(props: DataSheetProviderProps<T>) {
+/** The resolved data source for the table, held in the provider layer (next to
+ * the store) rather than resolved inside the render loop. `provider` is the
+ * unified `TableDataProvider` (explicit, loose-`fetchData`-wrapped, or a local
+ * in-memory provider); `isLocalProvider` distinguishes the in-memory case (it
+ * loads the whole array at once and shows no load progress). */
+export interface ResolvedDataProvider {
+  provider: TableDataProvider<any> | null;
+  isLocalProvider: boolean;
+}
+
+const DEFAULT_DATA_PROVIDER: ResolvedDataProvider = {
+  provider: null,
+  isLocalProvider: true,
+};
+
+export const dataProviderAtom = atom<ResolvedDataProvider>(
+  DEFAULT_DATA_PROVIDER,
+);
+
+export function DataSheetProvider<T>(
+  props: DataSheetProviderProps<T> & { dataProvider?: ResolvedDataProvider },
+) {
   const { toaster, ...rest } = props;
   const [store] = useState(() => {
     return createStore<DataSheetStore<T>>(createZustandStore);
@@ -91,10 +113,17 @@ export function DataSheetProviderInner<T>({
   editable,
   enableColumnReordering,
   defaultColumnWidth = 150,
-}: DataSheetProviderProps<T>) {
+  dataProvider,
+}: DataSheetProviderProps<T> & { dataProvider?: ResolvedDataProvider }) {
   const tableRef = useRef<Table>(null);
 
   const initializeStore = ctx.useSet(initializeStoreAtom);
+
+  // The wrapper resolves the data source (see `DataSheet`); publish it into the
+  // scoped atom so the loader/store read it, rather than the inner render
+  // component resolving it each render. Kept updated as `data`/`provider`
+  // changes.
+  ctx.useSync(dataProviderAtom, dataProvider ?? DEFAULT_DATA_PROVIDER);
 
   // A function `columnSpec` is derived from the loaded rows later (in
   // `_DataSheet`), not here — start it empty. Crucially it's kept OUT of the

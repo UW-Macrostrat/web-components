@@ -146,13 +146,15 @@ export function basicCellRenderer<T>(
     validation,
   };
 
-  // Clone so we never mutate the caller's column-spec style object, then layer
-  // the row-status presentation (deleted → dimmed/struck-through by default;
-  // consumer statuses supply their own `cellStyle`).
-  let style = { ...(col.style ?? {}) };
-  if (statusStyle?.cellStyle != null) {
-    style = { ...style, ...statusStyle.cellStyle };
-  }
+  // Only allocate a new style object when a row-status style must be layered on
+  // (deleted → dimmed/struck-through; consumer statuses supply their own
+  // `cellStyle`). The common case passes the column's own `style` straight
+  // through — no per-cell clone, and a stable identity that diffs cheaply.
+  // (Nothing downstream mutates `style`.)
+  const style =
+    statusStyle?.cellStyle != null
+      ? { ...col.style, ...statusStyle.cellStyle }
+      : col.style;
 
   const detailPresentation =
     col.cellDetail != null ? (col.detailPresentation ?? "popover") : null;
