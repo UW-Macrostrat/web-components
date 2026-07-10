@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+- Non-focused cells render through a memoized component, so a re-render from
+  unrelated state (the focused cell moving, or a scroll-triggered data load that
+  swaps the data/overlay arrays) no longer re-runs every visible cell's value
+  renderer / cell component — only cells whose own value/status changed. Big win
+  for tables with heavy cell components. Editing machinery is still built only
+  for the focused cell.
+
 ## [4.1.1] - 2026-07-10
 
 Small fixes to the column header, filters, and toolbar. Ghost/skeleton rows
