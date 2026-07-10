@@ -15,6 +15,7 @@ import h from "./main.module.sass";
 import {
   columnSpecAtom,
   ctx,
+  dataProviderAtom,
   DataSheetProvider,
   storeAtom,
   tableActionsAtom,
@@ -197,20 +198,52 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     ...rest
   } = props;
 
+  const _data = data ?? emptyData;
+
+  // Resolve the data source ONCE, here in the wrapper (not per-render inside
+  // `_DataSheet`): an explicit `provider` wins; else a loose `fetchData`
+  // (+ identity) is wrapped as one; else in-memory `data` becomes a local
+  // provider. Held in the provider layer via `dataProviderAtom` (see
+  // `DataSheetProviderInner`), so the loader and store read it and future
+  // derived state can be computed alongside it.
+  const isLocalProvider = props.provider == null && props.fetchData == null;
+  const activeProvider = useMemo<TableDataProvider<any> | null>(() => {
+    if (props.provider != null) return props.provider;
+    if (props.fetchData != null) {
+      return {
+        fetchData: props.fetchData,
+        identity: props.identity ?? ((r: any) => r?.id),
+      };
+    }
+    if (_data.length > 0) {
+      return createLocalProvider(
+        _data,
+        props.identity != null ? { identity: props.identity } : undefined,
+      );
+    }
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.provider, props.fetchData, _data, props.identity]);
+  const dataProvider = useMemo(
+    () => ({ provider: activeProvider, isLocalProvider }),
+    [activeProvider, isLocalProvider],
+  );
+
   return h(
     DataSheetProvider<T>,
     {
-      data: data ?? emptyData,
+      data: _data,
       columnSpec,
       columnSpecOptions,
       enableColumnReordering,
       defaultColumnWidth,
       editable,
+      dataProvider,
       ...rest,
     },
     h(_DataSheet<any>, {
       ...rest,
-      data: data ?? emptyData,
+      data: _data,
       columnSpec,
       children,
       editable,
@@ -306,25 +339,10 @@ function _DataSheet<T>({
 
   const editable = useSelector((state) => state.editable);
 
-  // Resolve the active data provider: an explicit `provider` prop wins; else a
-  // loose `fetchData` (+ identity) is wrapped as one; else in-memory `data`
-  // becomes a local provider. Local and remote thus share one path, and the
-  // provider is an explicit contract rather than a set of scattered props.
-  const isLocalProvider = provider == null && fetchData == null;
-  const activeProvider = useMemo<TableDataProvider<any> | null>(() => {
-    if (provider != null) return provider;
-    if (fetchData != null) {
-      return { fetchData, identity: identity ?? ((r: any) => r?.id) };
-    }
-    if (sourceData != null && sourceData.length > 0) {
-      return createLocalProvider(
-        sourceData,
-        identity != null ? { identity } : undefined,
-      );
-    }
-    return null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [provider, fetchData, sourceData, identity]);
+  // The active data source is resolved in the wrapper (`DataSheet`) and held in
+  // the provider layer; read it here rather than resolving per render.
+  const { provider: activeProvider, isLocalProvider } =
+    ctx.useValue(dataProviderAtom);
 
   // When an explicit provider owns persistence, its methods drive the built-in
   // Save (batch: edits→saveRows, added→insertRow, deleted→deleteRows), then a

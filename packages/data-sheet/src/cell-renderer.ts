@@ -7,11 +7,58 @@ import {
 } from "./utils";
 import { DataSheetStore, TableElementStatus } from "./types.ts";
 import h from "./main.module.sass";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { memo, ReactNode, useEffect, useRef, useState } from "react";
 import { EditorPopup, CellDetailModal } from "./components";
 import { singleFocusedCell } from "./zustand-store.ts";
 import { Cell } from "@blueprintjs/table";
 import { ctx, useSelector } from "./provider.ts";
+
+/** Two validations are equivalent if they convey the same thing — so a fresh
+ * `validateCell` result object doesn't force a re-render when nothing changed. */
+function validationEqual(a: any, b: any): boolean {
+  if (a === b) return true;
+  if (a == null || b == null) return a == b;
+  return a.severity === b.severity && a.message === b.message;
+}
+
+/** Memoize on the *fields* of `cellContext` (not its identity — it's rebuilt
+ * fresh each render), so an unchanged cell skips re-rendering. */
+function cellContentsEqual(
+  a: { cellContext: CellRenderContext },
+  b: { cellContext: CellRenderContext },
+): boolean {
+  const x = a.cellContext;
+  const y = b.cellContext;
+  return (
+    x.column === y.column &&
+    x.value === y.value &&
+    x.row === y.row &&
+    x.rowIndex === y.rowIndex &&
+    x.colIndex === y.colIndex &&
+    x.isEdited === y.isEdited &&
+    x.isDeleted === y.isDeleted &&
+    x.status === y.status &&
+    validationEqual(x.validation, y.validation)
+  );
+}
+
+/** The rendered *content* of a read-only cell — the value renderer's output —
+ * memoized on the cell's own inputs. It is placed as the CHILD of a real
+ * Blueprint `Cell` (never a wrapper: Blueprint clones the returned `Cell` to
+ * position/size it, so the renderer must return a `Cell` directly). This lets a
+ * re-render from unrelated state — the focused cell moving, or a
+ * scroll-triggered data load that swaps the `data`/overlay arrays — reposition
+ * the lightweight `Cell` without re-running this (possibly heavy) value
+ * renderer; only cells whose own value/status changed re-render. */
+const CellContent = memo(function CellContent({
+  cellContext,
+}: {
+  cellContext: CellRenderContext;
+}) {
+  const { value, column } = cellContext;
+  if (value == null || value === "") return null;
+  return column.valueRenderer?.(value, cellContext) ?? value;
+}, cellContentsEqual);
 
 export function basicCellRenderer<T>(
   rowIndex: number,
@@ -41,7 +88,8 @@ export function basicCellRenderer<T>(
   const isDeleted = statusVal == TableElementStatus.DELETED;
   // Presentation for this row's status (deleted, or a consumer-defined status
   // like "omitted"), from the merged `rowStatusStyles`.
-  const statusStyle = statusVal != null ? state.rowStatusStyles?.[statusVal] : undefined;
+  const statusStyle =
+    statusVal != null ? state.rowStatusStyles?.[statusVal] : undefined;
 
   const row = data[dataRowIndex] ?? updatedData[dataRowIndex];
   const loading = row == null;
@@ -52,50 +100,22 @@ export function basicCellRenderer<T>(
 
   const value: T | undefined =
     updatedData[dataRowIndex]?.[col.key] ?? data[dataRowIndex]?.[col.key];
-  const isEmpty = value == null || value === "";
 
   const edited =
     updatedData[dataRowIndex]?.[col.key] != null ||
     state.rowStatus[dataRowIndex] === TableElementStatus.ADDED;
 
   // Validate the cell (skipped for deleted rows). Orthogonal to edit status.
-  const validation = isDeleted ? null : validateCell(col, value, row, dataRowIndex);
-
-  // Context passed to custom renderers so they can render based on the
-  // row/column position and cell status (and, with the editing API, write
-  // edits back). `rowIndex` is the data-row index, stable under sort/filter.
-  const cellContext: CellRenderContext<T> = {
-    value,
-    rowIndex: dataRowIndex,
-    colIndex,
-    column: col,
-    row,
-    isEdited: edited,
-    isDeleted,
-    status: statusVal,
-    validation,
-  };
-
-  const _renderedValue = isEmpty
+  const validation = isDeleted
     ? null
-    : (col.valueRenderer?.(value, cellContext) ?? value);
-
-  // Clone so we never mutate the caller's column-spec style object, then layer
-  // the row-status presentation (deleted → dimmed/struck-through by default;
-  // consumer statuses supply their own `cellStyle`).
-  let style = { ...(col.style ?? {}) };
-
-  if (statusStyle?.cellStyle != null) {
-    style = { ...style, ...statusStyle.cellStyle };
-  }
+    : validateCell(col, value, row, dataRowIndex);
 
   const editable = (col.editable ?? state.editable) && !isDeleted;
+  const tableIsEditable = state.editable;
 
   // topLeftCell stores visible row indices, so compare with the visible rowIndex
   const topLeft =
     _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
-
-  const tableIsEditable = state.editable;
 
   // Intent precedence: error > warning > row-status intent > edited. Validation
   // state overrides the edited-green so an edited-but-invalid cell reads as
@@ -112,12 +132,70 @@ export function basicCellRenderer<T>(
     intent = "success";
   }
 
+  // One context object, assembled once and threaded through every path (fast,
+  // slow, focused). `rowIndex` is the data-row index, stable under sort/filter.
+  const cellContext: CellRenderContext<T> = {
+    value,
+    rowIndex: dataRowIndex,
+    colIndex,
+    column: col,
+    row,
+    isEdited: edited,
+    isDeleted,
+    status: statusVal,
+    validation,
+  };
+
+  // Only allocate a new style object when a row-status style must be layered on
+  // (deleted → dimmed/struck-through; consumer statuses supply their own
+  // `cellStyle`). The common case passes the column's own `style` straight
+  // through — no per-cell clone, and a stable identity that diffs cheaply.
+  // (Nothing downstream mutates `style`.)
+  const style =
+    statusStyle?.cellStyle != null
+      ? { ...col.style, ...statusStyle.cellStyle }
+      : col.style;
+
+  const detailPresentation =
+    col.cellDetail != null ? (col.detailPresentation ?? "popover") : null;
+
+  // Fast path — any non-focused cell whose *unfocused* appearance is just the
+  // value viewer (a plain Blueprint `Cell`). That's everything except a custom
+  // `cellComponent` (its own markup on every cell) and an *inline* `cellDetail`
+  // (a persistent in-cell surface). A `cellDetail` popover/modal or a
+  // `detailRenderer` only surfaces on the focused cell, so unfocused they show
+  // the value viewer too — and take the fast path. Return a real `Cell`
+  // (Blueprint clones it to position/size it) whose CHILD is the memoized
+  // content, so unrelated re-renders (focus moving, a data load that swaps the
+  // arrays) reposition the cheap `Cell` without re-running the value renderer.
+  const usesCustomCell =
+    col.cellComponent != null || detailPresentation === "inline";
+  if (!topLeft && !usesCustomCell) {
+    return h(
+      Cell,
+      {
+        intent,
+        loading,
+        value,
+        style,
+        interactive: false,
+        disabled: tableIsEditable && !editable,
+      },
+      h(CellContent, { cellContext }),
+    );
+  }
+
+  const isEmpty = value == null || value === "";
+
+  const _renderedValue = isEmpty
+    ? null
+    : (col.valueRenderer?.(value, cellContext) ?? value);
+
   const _Cell = col.cellComponent ?? Cell;
 
   // Only forward the render context to a custom cell component; the default
   // Blueprint Cell would spread unknown props onto the DOM.
-  const cellComponentProps =
-    col.cellComponent != null ? { cellContext } : {};
+  const cellComponentProps = col.cellComponent != null ? { cellContext } : {};
 
   // Allow a column to pick the editor per-cell (e.g. textarea only when the
   // value is long). A returned key overrides the static column field even
@@ -149,12 +227,12 @@ export function basicCellRenderer<T>(
       state.tableElement?.focus?.();
     },
   });
-  const detailPresentation =
-    col.cellDetail != null ? (col.detailPresentation ?? "popover") : null;
 
   if (!topLeft) {
-    // An inline surface is a persistent in-cell renderer, so it draws on every
-    // cell (read-only when not the focused/editing cell).
+    // Non-focused cell that took the slow path — a custom `cellComponent`, or a
+    // `cellDetail` / `detailRenderer` surface. An inline surface is a persistent
+    // in-cell renderer (read-only here); others show the value viewer. (The
+    // plain default-`Cell` case is handled by the memoized fast path above.)
     if (detailPresentation === "inline") {
       return h(
         _Cell,

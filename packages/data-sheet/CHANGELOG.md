@@ -1,5 +1,19 @@
 # Changelog
 
+## [Unreleased]
+
+- Non-focused cells render through a memoized component, so a re-render from
+  unrelated state (the focused cell moving, or a scroll-triggered data load that
+  swaps the data/overlay arrays) no longer re-runs every visible cell's value
+  renderer / cell component — only cells whose own value/status changed. Big win
+  for tables with heavy cell components. Editing machinery is still built only
+  for the focused cell.
+- Cell style is passed through without a per-cell clone in the common case (only
+  merged when a row-status style applies).
+- Internal: the data source is resolved once in the wrapper and held in the
+  provider layer (`dataProviderAtom`), instead of being resolved inside the
+  inner render component — a cleaner seam for future precomputed derived state.
+
 ## [4.1.1] - 2026-07-10
 
 Small fixes to the column header, filters, and toolbar. Ghost/skeleton rows
