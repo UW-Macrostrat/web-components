@@ -34,7 +34,12 @@ export type EditEvent<T = any> =
 
 export interface DataSheetCoreProps<T> {
   data: T[];
-  columnSpec?: ColumnSpec[];
+  /** Column definitions. Either a static array, or a function derived from the
+   * loaded rows — invoked once the first rows arrive (and re-invoked when the
+   * function's identity changes), so a data-shaped spec needs no separate fetch
+   * of sample data. Omit entirely to auto-generate a plain spec via
+   * `columnSpecOptions`. */
+  columnSpec?: ColumnSpec[] | ((rows: T[]) => ColumnSpec[]);
   editable?: boolean;
   enableColumnReordering?: boolean;
   defaultColumnWidth?: number;
@@ -117,6 +122,10 @@ export interface ClipboardProxy {
 export interface DataSheetState<T> {
   selection: Region[];
   columnSpec: ColumnSpec[];
+  /** When `true`, the loader's first-chunk auto-generation of `columnSpec` is
+   * suppressed — a function `columnSpec` derives it from the loaded rows
+   * instead (in `_DataSheet`). Set at init from the prop's shape. */
+  deferColumnSpec: boolean;
   fillValueBaseCell: FocusedCellCoordinates | null;
   focusedCell: FocusedCellCoordinates | null;
   topLeftCell: FocusedCellCoordinates | null;

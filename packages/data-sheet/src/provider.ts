@@ -2,7 +2,7 @@ import { SetStateAction, useEffect, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, StoreApi, useStore } from "zustand";
 import type { Table } from "@blueprintjs/table";
-import { generateColumnSpec } from "./utils";
+import { generateColumnSpec, type ColumnSpec } from "./utils";
 import { createScopedStore } from "@macrostrat/data-components";
 import {
   DataSheetProviderProps,
@@ -48,6 +48,10 @@ export const storeAtom = atom(
   },
 );
 
+/** Stable empty spec so a function `columnSpec` yields a constant init value
+ * (see `DataSheetProviderInner`). */
+const EMPTY_SPEC: ColumnSpec[] = [];
+
 const initializeStoreAtom = atom(
   null,
   (get, set, payload: Partial<DataSheetStore<T>>) => {
@@ -92,17 +96,28 @@ export function DataSheetProviderInner<T>({
 
   const initializeStore = ctx.useSet(initializeStoreAtom);
 
+  // A function `columnSpec` is derived from the loaded rows later (in
+  // `_DataSheet`), not here — start it empty. Crucially it's kept OUT of the
+  // init effect's deps: re-running init also resets `data`, so re-initializing
+  // when the function's identity changes (e.g. a consumer hiding a column)
+  // would wipe the loaded rows. `staticSpec` is a stable value in that case.
+  const isFnSpec = typeof columnSpec === "function";
+  const staticSpec = isFnSpec ? EMPTY_SPEC : columnSpec;
+
   // Not sure how required this initialization is
   useEffect(() => {
     initializeStore({
-      columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
+      columnSpec: staticSpec ?? generateColumnSpec(data, columnSpecOptions),
+      // A function spec is derived from the loaded rows in `_DataSheet`; tell
+      // the loader not to auto-generate a plain spec from the first chunk.
+      deferColumnSpec: isFnSpec,
       editable,
       enableColumnReordering,
       data,
       defaultColumnWidth,
       tableRef,
     });
-  }, [data, editable, columnSpec, columnSpecOptions, enableColumnReordering]);
+  }, [data, editable, staticSpec, isFnSpec, columnSpecOptions, enableColumnReordering]);
 
   return children;
 }
@@ -135,9 +150,11 @@ export const tableDataAtom = atom(
       if (
         state.data.length == 0 &&
         newData.length > 0 &&
-        state.columnSpec.length == 0
+        state.columnSpec.length == 0 &&
+        !state.deferColumnSpec
       ) {
-        // We haven't yet generated the column spec, and we need to do so.
+        // No spec yet and none deferred to a function — auto-generate a plain
+        // spec from the first chunk. (A function spec is derived separately.)
         next.columnSpec = generateColumnSpec(newData, state.columnSpecOptions);
       }
 

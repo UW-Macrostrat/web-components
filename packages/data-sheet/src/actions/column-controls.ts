@@ -12,7 +12,7 @@ import { RegionCardinality } from "@blueprintjs/table";
 import { useSelector, useStoreAPI } from "../provider";
 import type { TableAction, TableActionContext, TableFilter } from "./types";
 import type { ColumnSpec } from "../utils/column-spec";
-import { columnFilter } from "./column-filter";
+import { columnFilter, columnFilterId } from "./column-filter";
 
 function selectedColumn(ctx: TableActionContext) {
   const key = ctx.getSelectedColumnKeys()[0];
@@ -189,7 +189,7 @@ function ColumnFilterControl({ col }: { col: ColumnSpec }) {
         minimal: true,
         icon: "filter",
         rightIcon: "caret-down",
-        intent: isActive ? "warning" : "none",
+        intent: isActive ? "primary" : "none",
       },
       label,
     ),
@@ -218,8 +218,16 @@ function applicableColumnFilters(col: ColumnSpec): TableFilter[] {
 }
 
 /** One filter, as a menu item whose submenu carries its edit form. Active
- * filters get a warning intent and show their `describeState` summary. */
-function ColumnFilterMenuItem({ filter }: { filter: TableFilter }) {
+ * filters get a warning intent and show their `describeState` summary. The
+ * displayed `label` may differ from `filter.name` (e.g. the built-in operator
+ * filter reads "Filter" in a column's own menu, where the column is implicit). */
+function ColumnFilterMenuItem({
+  filter,
+  label,
+}: {
+  filter: TableFilter;
+  label: string;
+}) {
   const storeAPI = useStoreAPI();
   const state = useSelector((s) => s.activeFilters.get(filter.id)?.state);
   const isActive = state != null;
@@ -238,9 +246,9 @@ function ColumnFilterMenuItem({ filter }: { filter: TableFilter }) {
     MenuItem,
     {
       icon: filter.icon ?? "filter",
-      text: filter.name,
+      text: label,
       label: summary != null ? String(summary) : undefined,
-      intent: isActive ? "warning" : undefined,
+      intent: isActive ? "primary" : undefined,
       shouldDismissPopover: false,
     },
     filter.filterForm != null
@@ -257,8 +265,17 @@ function ColumnFilterMenuItem({ filter }: { filter: TableFilter }) {
  * in a submenu. */
 function ColumnFilterMenu({ col }: { col: ColumnSpec }) {
   const filters = useMemo(() => applicableColumnFilters(col), [col]);
+  const builtinId = columnFilterId(col.key);
   return h(
-    filters.map((f) => h(ColumnFilterMenuItem, { key: f.id, filter: f })),
+    filters.map((f) =>
+      h(ColumnFilterMenuItem, {
+        key: f.id,
+        filter: f,
+        // The generic operator filter is just "Filter" in its own column's
+        // menu; rich (user-provided) filters keep their descriptive names.
+        label: f.id === builtinId ? "Filter" : f.name,
+      }),
+    ),
   );
 }
 

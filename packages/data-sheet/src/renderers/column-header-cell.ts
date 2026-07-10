@@ -47,8 +47,21 @@ export function renderColumnHeaderCell({
   const hasCustomActions =
     Array.isArray((col as any).actions) && (col as any).actions.length > 0;
 
+  // A column may be pinned against drag-reordering via `reorderable: false`.
+  const enableColumnReordering = col.reorderable !== false;
+
   if (!isSortable && !isFilterable && !hasCustomActions) {
-    return h(ColumnHeaderCell, { name: col.name });
+    return h(ColumnHeaderCell, {
+      name: col.name,
+      enableColumnReordering,
+      nameRenderer: () =>
+        h(ColumnHeaderName, {
+          col,
+          hasSortActive: false,
+          hasFilterActive: false,
+          activeSort: null,
+        }),
+    });
   }
 
   // `activeFilter` is the active store entry targeting this column (any filter
@@ -58,6 +71,7 @@ export function renderColumnHeaderCell({
 
   return h(ColumnHeaderCell, {
     name: col.name,
+    enableColumnReordering,
     // Persistent interaction bar so the menu caret is always clickable — the
     // hover-triggered caret was blocked by the selection overlay when the
     // column was selected.
@@ -68,11 +82,16 @@ export function renderColumnHeaderCell({
   });
 }
 
-/** Column name with active sort/filter indicator icons. */
+/** Column name with active sort/filter indicator icons. The column key is
+ * exposed as `data-column-key` so consumers can target a specific header from
+ * CSS (e.g. to tint a column) without a bespoke styling prop. */
 function ColumnHeaderName({ col, hasSortActive, hasFilterActive, activeSort }) {
   return h(
     "div",
-    { style: { display: "flex", alignItems: "center", width: "100%" } },
+    {
+      "data-column-key": col.key,
+      style: { display: "flex", alignItems: "center", width: "100%" },
+    },
     [
       h(
         "span",
@@ -106,7 +125,7 @@ function ColumnHeaderName({ col, hasSortActive, hasFilterActive, activeSort }) {
           h.if(hasFilterActive)(Icon, {
             icon: "filter",
             size: 12,
-            style: { color: "var(--intent-warning, #d99e0b)" },
+            style: { color: "var(--intent-primary, #2965cc)" },
           }),
         ],
       ),
@@ -131,9 +150,17 @@ function ColumnHeaderControls({ colIndex }: { colIndex: number }) {
     storeAPI.setState,
   );
 
+  // Only actions *limited* to column scope belong in a column's dropdown —
+  // sort/filter and column-specific actions. Global actions (Save / Reset /
+  // Clear-selection, marked by a FULL_TABLE or "none" target) are confusing
+  // here, so they're excluded even though they nominally apply to columns too.
+  const isGlobal = (a: (typeof actions)[number]) =>
+    a.targets.includes(RegionCardinality.FULL_TABLE) ||
+    a.targets.includes("none" as any);
   const controls = actions.filter(
     (a) =>
       a.targets.includes(RegionCardinality.FULL_COLUMNS) &&
+      !isGlobal(a) &&
       (a.appliesTo?.(actionCtx) ?? true),
   );
 

@@ -32,10 +32,13 @@ import {
   VisibleCells,
 } from "./types.ts";
 import { basicCellRenderer } from "./cell-renderer.ts";
-import { CellRendererDebugOverlay, tableHotkeysAtom } from "./utils";
+import {
+  CellRendererDebugOverlay,
+  tableHotkeysAtom,
+  type ColumnSpec,
+} from "./utils";
 import {
   ActionsToolbar,
-  clearSelectionAction,
   clipboardActions,
   columnControlActions,
   createSaveAction,
@@ -89,6 +92,9 @@ interface DataSheetInternalProps<T> extends TableProps, FetchDataOptions {
   /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
    * driven through the same loader as any other source. */
   data?: T[];
+  /** Passed through from the public props so a function form can be derived
+   * from the loaded rows here (a static array is handled by the provider). */
+  columnSpec?: ColumnSpec[] | ((rows: T[]) => ColumnSpec[]);
   // function to fetch a chunk of data (the read side of a data provider)
   fetchData?: FetchData<T>;
   /** A data provider instantiated separately and passed in — bundles the read
@@ -205,6 +211,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     h(_DataSheet<any>, {
       ...rest,
       data: data ?? emptyData,
+      columnSpec,
       children,
       editable,
       enableColumnReordering,
@@ -281,6 +288,7 @@ function _DataSheet<T>({
   actions,
   filters,
   columnHeaderCellRenderer,
+  columnSpec: columnSpecProp,
   statusBar,
   rowStatusStyles,
   rowHeaderRenderer,
@@ -350,7 +358,6 @@ function _DataSheet<T>({
     };
     if (actions != null) add(actions);
     add(columnControlActions);
-    add([clearSelectionAction]);
     if (enableClipboard) add(clipboardActions);
     // Save/reset last — they're the most significant actions — and present for
     // every cardinality (editable), so the toolbar stays mounted regardless of
@@ -510,6 +517,22 @@ function _DataSheet<T>({
       rowStatus: overlay.rowStatus,
     });
   }, [deriveOverlay, loadedData, storeState]);
+
+  // Function `columnSpec`: derive the spec from the loaded rows (no separate
+  // fetch of sample data). Derive once the first rows arrive, and re-derive
+  // when the function's identity changes (a consumer memoizes it over its
+  // own view state — hidden columns, order, overrides). Not re-run as more
+  // rows page in (guarded by the function identity), so it never clobbers
+  // in-store column state on scroll.
+  const derivedSpecFor = useRef<unknown>(null);
+  useEffect(() => {
+    if (typeof columnSpecProp !== "function") return;
+    if (derivedSpecFor.current === columnSpecProp) return;
+    const rows = loadedData.filter((r) => r != null);
+    if (rows.length === 0) return;
+    derivedSpecFor.current = columnSpecProp;
+    storeState.setState({ columnSpec: columnSpecProp(rows) });
+  }, [columnSpecProp, loadedData, storeState]);
 
   // Imperative re-fetch: bump `refreshToken` to reload the provider (e.g. after
   // a save). Skips the initial mount (the loader does its own first fetch).

@@ -32,7 +32,9 @@ export const OPERATOR_LABELS: Record<FilterOperator, string> = {
   is: "is",
 };
 
-const STRING_OPERATORS: FilterOperator[] = ["eq", "neq", "ilike"];
+// "contains" (`ilike`) leads for text, so it's the default operator — the most
+// common intent when filtering a string column.
+const STRING_OPERATORS: FilterOperator[] = ["ilike", "eq", "neq"];
 const NUMERIC_OPERATORS: FilterOperator[] = [
   "eq",
   "neq",
@@ -43,11 +45,11 @@ const NUMERIC_OPERATORS: FilterOperator[] = [
 ];
 const BOOLEAN_OPERATORS: FilterOperator[] = ["eq", "neq"];
 
-/** Fallback when the column has no type information. */
+/** Fallback when the column has no type information. Leads with "contains". */
 export const DEFAULT_FILTER_OPERATORS: FilterOperator[] = [
+  "ilike",
   "eq",
   "neq",
-  "ilike",
   "gt",
   "lt",
   "gte",

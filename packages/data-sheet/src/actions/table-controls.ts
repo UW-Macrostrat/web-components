@@ -49,6 +49,10 @@ export const clearSelectionAction: TableAction = {
     RegionCardinality.FULL_COLUMNS,
     RegionCardinality.FULL_TABLE,
   ],
+  // Empty selection maps to the FULL_TABLE cardinality, so the action still
+  // shows with nothing selected — grey it out there rather than act on nothing.
+  // (`disabled` is probed with a bare state, hence the `?? []`.)
+  disabled: (s: any) => (s.selection?.length ?? 0) === 0,
   run(ctx) {
     ctx.setState({ selection: [], focusedCell: null, topLeftCell: null });
   },

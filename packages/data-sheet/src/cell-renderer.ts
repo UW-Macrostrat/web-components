@@ -287,7 +287,12 @@ export function basicCellRenderer<T>(
           isEdited: edited,
           onChange(value) {
             if (!editable) return;
-            state.onSelectionEdited(value);
+            // Commit to THIS cell — not the live selection. The editor can
+            // commit (e.g. on blur) after the selection has moved to another
+            // cell or a whole column; `onSelectionEdited` would then write the
+            // value to the wrong target (emptying it). `onCellEdited` addresses
+            // the editor's own data cell.
+            state.onCellEdited(dataRowIndex, col.key, value);
           },
           resetValue() {
             state.resetChanges();

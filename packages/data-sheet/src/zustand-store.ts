@@ -32,6 +32,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     rowStatus: [],
     rowStatusStyles: DEFAULT_ROW_STATUS_STYLES,
     columnSpec: [],
+    deferColumnSpec: false,
     defaultColumnWidth: 150,
     editable: false,
     selection: [],

@@ -109,7 +109,6 @@ type LazyLoaderAction<T> =
   | { type: "error"; error: Error }
   | { type: "update-data"; changes: Spec<T[]> }
   | { type: "reset" }
-  | { type: "start-reload" }
   | { type: "configure"; fetchMode: FetchMode; pageSize: number };
 
 function lazyLoadingReducer<T>(
@@ -153,18 +152,15 @@ function lazyLoadingReducer<T>(
         fetchMode: action.fetchMode,
         pageSize: action.pageSize,
       };
-    case "start-reload":
-      // Preserve the table dimensions but show ghost/skeleton cells
-      return {
-        ...state,
-        data: new Array(state.data.length).fill(null),
-        loading: true,
-        initialized: false,
-      };
     case "reset":
+      // A view change (or initial load) re-fetches from scratch. Rather than
+      // blanking the table (which reads as a jarring empty flash while the
+      // request is in flight — very visible on sort/filter), pre-size to a page
+      // of `null` ghost/skeleton rows so the body stays populated and the load
+      // is legible. `loaded` then adjusts the array to the real size.
       return {
         visibleRegion: defaultVisibleRegion,
-        data: [],
+        data: new Array(Math.max(state.pageSize, 0)).fill(null),
         loading: false,
         error: null,
         initialized: false,

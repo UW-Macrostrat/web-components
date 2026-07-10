@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.1.1] - 2026-07-10
+
+Small fixes to the column header, filters, and toolbar. Ghost/skeleton rows
+while a provider table loads. `columnSpec` may now be a function of the loaded
+rows, so a data-shaped spec needs no separate fetch of sample data.
+
 ## [4.1.0] - 2026-07-10
 
 ### Controlled editing improvements

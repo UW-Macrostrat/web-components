@@ -173,6 +173,10 @@ export interface ColumnSpec {
   /** Inferred data type, used to select context-appropriate filter
    * operators when `filterable` is `true` without explicit operators. */
   dataType?: ColumnDataType;
+  /** Whether this column may be drag-reordered. Defaults to `true`; set
+   * `false` to pin a fixed/system column in place. Applied by the default
+   * header renderer (requires table-level `enableColumnReordering`). */
+  reorderable?: boolean;
 }
 
 export interface ColumnSpecOptions<T> {

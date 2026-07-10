@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, PopoverNext } from "@blueprintjs/core";
+import { Button, ButtonGroup, PopoverNext, Tag } from "@blueprintjs/core";
 import { useCallback, useMemo, useState } from "react";
 import h from "./toolbar.module.sass";
 import { useSelector, useStoreAPI } from "../provider";
@@ -98,30 +98,58 @@ export function ActionsToolbar<T>({
   // The toolbar is always mounted if actions are available, so it can't flicker
   // in/out as the selection or action set changes — the container is stable;
   // only its contents (title + buttons) change. Avoids layout jank.
-  const title = selectionTitle(ctx) ?? tableName ?? "Table";
+  //
+  // The leading title doubles as the clear-selection affordance: with an active
+  // selection it renders as a dismissible tag (its ✕ clears the selection),
+  // which ties "clear" to the selection it acts on and frees toolbar space.
+  // With no selection it's a plain label (table name).
+  // Both states render as a `large` `Tag` so the title keeps a constant font
+  // and height; only the selected one has a filled background + a ✕ (which
+  // clears the selection). The unselected label is a transparent, non-removable
+  // tag — visually a plain title, but the same box.
+  const hasSelection = selection != null && selection.length > 0;
+  const titleNode = h(
+    Tag,
+    {
+      key: "title",
+      minimal: true,
+      large: true,
+      onRemove: hasSelection
+        ? () =>
+            storeAPI.setState({
+              selection: [],
+              focusedCell: null,
+              topLeftCell: null,
+            })
+        : undefined,
+      style: hasSelection ? undefined : { background: "transparent" },
+    },
+    hasSelection
+      ? (selectionTitle(ctx) ?? tableName ?? "Selection")
+      : (tableName ?? "Table"),
+  );
 
   // Order left→right by generality: actions applicable to the whole table (or
   // no selection) are "global" and sit after a spacer on the right (Save /
-  // Reset / Clear-selection); everything else is contextual and stays on the
-  // left. So the left edge tracks the selection and the right edge is constant.
+  // Reset); everything else is contextual and stays on the left. So the left
+  // edge tracks the selection and the right edge is constant.
   const isGlobal = (a: TableAction<T>) =>
     a.targets.includes(RegionCardinality.FULL_TABLE) ||
     a.targets.includes("none" as any);
   const contextual = shownActions.filter((a) => !isGlobal(a));
-  // Order the built-in global actions least→most impactful, left→right:
-  // clear selection, reset changes, save. Any other global actions keep their
-  // natural order to the left of these (stable sort, rank 0).
+  // Order the built-in global actions least→most impactful, left→right: reset
+  // changes, then save. Any other global actions keep their natural order to
+  // the left of these (stable sort, rank 0).
   const globalOrder: Record<string, number> = {
-    "clear-selection": 1,
-    "reset-changes": 2,
-    "save-changes": 3,
+    "reset-changes": 1,
+    "save-changes": 2,
   };
   const globalActions = shownActions
     .filter(isGlobal)
     .sort((a, b) => (globalOrder[a.id] ?? 0) - (globalOrder[b.id] ?? 0));
 
   return h("div.actions-toolbar", [
-    h("span.toolbar-title", { key: "title" }, title),
+    titleNode,
     h(
       ButtonGroup,
       { key: "contextual", minimal: true },
