@@ -176,15 +176,16 @@ export const tableDataAtom = atom(
   (get, set, newData: any[]) => {
     set(storeAtom, (state: DataSheetState<any>): DataSheetState<any> => {
       let next: DataSheetState<any> = { ...state, data: newData };
-      if (
-        state.data.length == 0 &&
-        newData.length > 0 &&
-        state.columnSpec.length == 0 &&
-        !state.deferColumnSpec
-      ) {
-        // No spec yet and none deferred to a function — auto-generate a plain
-        // spec from the first chunk. (A function spec is derived separately.)
-        next.columnSpec = generateColumnSpec(newData, state.columnSpecOptions);
+      // Auto-generate a plain column spec the first time real rows arrive — no
+      // spec yet and none deferred to a function (a function spec is derived
+      // separately). Keyed on "spec still empty + a non-null row present", NOT
+      // on `data.length == 0`: the loader pre-fills `data` with a page of `null`
+      // ghost rows on reset, so the array is non-empty before the first chunk.
+      if (state.columnSpec.length == 0 && !state.deferColumnSpec) {
+        const sample = newData.filter((row) => row != null);
+        if (sample.length > 0) {
+          next.columnSpec = generateColumnSpec(sample, state.columnSpecOptions);
+        }
       }
 
       // Re-attach the edit overlay by identity. The loader replaces `data` with
