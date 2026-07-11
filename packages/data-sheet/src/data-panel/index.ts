@@ -27,10 +27,12 @@ import {
   ComponentType,
   MouseEvent as ReactMouseEvent,
   ReactNode,
+  UIEvent as ReactUIEvent,
   useCallback,
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import type { Region } from "@blueprintjs/table";
 import { Button, Menu, PopoverNext, Spinner } from "@blueprintjs/core";
@@ -56,6 +58,7 @@ import {
 } from "../actions";
 import {
   createLocalProvider,
+  dataRefreshTokenAtom,
   FetchData,
   FetchDataOptions,
   tableFooterAtom,
@@ -70,6 +73,16 @@ export interface SelectModifiers {
   additive?: boolean;
   /** shift — select the range from the anchor (last plain/cmd click) to here. */
   range?: boolean;
+}
+
+/** Props for a custom scroll-body layout component. It receives the
+ * already-rendered, selection-wrapped item cards and lays them out however it
+ * likes (a grid, sections, sticky headers, its own windowing). The panel owns
+ * the surrounding scroll container and the loading sentinel; the scroll body
+ * only arranges the items. */
+export interface ScrollBodyProps {
+  /** The rendered item cards (each wrapped for selection styling). */
+  children: ReactNode;
 }
 
 /** Props handed to a consumer's card renderer for one row. */
@@ -112,9 +125,67 @@ export interface DataPanelProps<T = any> {
   pageSize?: number;
   /** Shown as the toolbar's leading label when nothing is selected. */
   name?: string;
-  /** Arbitrary nodes for the footer (beside the loaded/total counter). */
-  statusBar?: ReactNode;
+  /** Arbitrary nodes for the bottom status row (beside the loaded/total
+   * counter). Pass `false` to drop the status row entirely — e.g. when the
+   * counter is folded into an inline footer instead. */
+  statusBar?: ReactNode | false;
+  /** Custom header controls, replacing the default `FacetControls` +
+   * `FilterBar`. Rendered inside the provider, so it can drive sort/filter via
+   * the exported building blocks (`FacetControls`, `FilterBar`) and the store
+   * hooks (`useStoreAPI` / `useSelector`). The selection `ActionsToolbar` still
+   * renders above it. Omit for the sane default. */
+  toolbar?: ReactNode;
+  /** A filter/detail sidebar beside the scroll body (its own scroll). Rendered
+   * inside the provider, so a custom filter panel drives sort/filter through
+   * the store hooks — the alternative placement to the top `toolbar`. */
+  sidebar?: ReactNode;
+  /** Footer content. A function receives live load controls — `loadMore`,
+   * `loading`, `hasMore`, `loaded`, `total`, `paused` — for e.g. a "Load more"
+   * button that resumes a paused auto-load, or a folded-in counter. */
+  footer?: ReactNode | ((controls: LoadControls) => ReactNode);
+  /** Where the footer sits:
+   * - `"below"` (default): a pinned region below the scroll, always visible.
+   * - `"inline"`: the last thing in the *scroll flow* — seen only when the
+   *   bottom is reached, and it doubles as the load sentinel (so it can show a
+   *   spinner mid-burst and a "Load more" at a pause). Keeps all chrome out of
+   *   the scrolling content until you get there. */
+  footerPlacement?: "below" | "inline";
+  /** Auto-load this many pages per burst, then pause: a paused panel stops
+   * fetching on scroll until `LoadControls.loadMore` starts the next burst
+   * (e.g. a footer "Load more" button). Omit for unbounded auto-scroll. */
+  autoLoadPages?: number;
+  /** Bump to force a re-fetch from scratch (e.g. after an immediate edit that
+   * mutated rows through the provider). */
+  refreshToken?: number | string;
+  /** Custom layout for the item cards — the seam for anything other than a
+   * vertical list (a CSS grid for several per row, grouped sections, sticky
+   * sub-headers, a windowed renderer). Receives the rendered cards as
+   * `children`; the panel still owns the scroll container and the loading
+   * sentinel, so paging and selection keep working. Defaults to a vertical
+   * flex list. */
+  scrollBody?: ComponentType<ScrollBodyProps>;
+  /** Fade the top of the scroll content as it slips under the toolbar. Only
+   * active once scrolled (so the first item isn't clipped at rest). Default
+   * `true`. */
+  topFade?: boolean;
   className?: string;
+}
+
+/** Live loading controls handed to a function `footer` — enough to render a
+ * "Load more" button, a progress readout, or a paused-state prompt. */
+export interface LoadControls {
+  /** Resume auto-loading and fetch the next page (clears a paused state). */
+  loadMore: () => void;
+  /** A fetch is in flight. */
+  loading: boolean;
+  /** More rows remain to load. */
+  hasMore: boolean;
+  /** Rows loaded so far. */
+  loaded: number;
+  /** Source total when known, else `null`. */
+  total: number | null;
+  /** Auto-load is paused (hit the `autoLoadPages` checkpoint). */
+  paused: boolean;
 }
 
 const emptyData: any[] = [];
@@ -182,6 +253,14 @@ function _DataPanel<T>({
   pageSize = 50,
   name,
   statusBar,
+  toolbar,
+  sidebar,
+  footer: footerSlot,
+  footerPlacement = "below",
+  autoLoadPages,
+  refreshToken,
+  scrollBody,
+  topFade = true,
   className,
 }: Omit<DataPanelProps<T>, "provider" | "fetchData" | "identity"> & {
   data?: T[];
@@ -204,6 +283,17 @@ function _DataPanel<T>({
   const selection = useSelector((s) => s.selection);
   const storeAPI = useStoreAPI();
   const footer = ctx.useValue(tableFooterAtom);
+
+  // Track whether the body is scrolled off the top, to gate the top fade.
+  // `setState` with an unchanged value is a no-op, so this only re-renders on
+  // the at-top ↔ scrolled transition.
+  const [scrolled, setScrolled] = useState(false);
+  const onBodyScroll = useCallback(
+    (e: ReactUIEvent<HTMLDivElement>) => {
+      setScrolled(e.currentTarget.scrollTop > 4);
+    },
+    [],
+  );
 
   const selectedIndices = useMemo(
     () => new Set(getSelectedRowIndices(selection)),
@@ -259,13 +349,59 @@ function _DataPanel<T>({
     return n;
   }, [data]);
 
+  // Bump the shared refresh token when the caller's `refreshToken` changes, so
+  // an immediate edit (mutate rows via the provider) can force a re-fetch.
+  const bumpRefresh = ctx.useSet(dataRefreshTokenAtom);
+  const firstRefresh = useRef(true);
+  useEffect(() => {
+    if (firstRefresh.current) {
+      firstRefresh.current = false;
+      return;
+    }
+    bumpRefresh((v) => v + 1);
+  }, [refreshToken, bumpRefresh]);
+
+  // Wire provider-backed, auto-refreshing row mutations into the store, so a
+  // selection action can persist an edit via the action context
+  // (`ctx.saveRows` / `deleteRows` / `insertRow`) with no `refreshToken`
+  // plumbing — each awaits the provider then re-fetches. Present only for the
+  // capabilities the provider actually supports.
+  useEffect(() => {
+    const p = activeProvider;
+    const refresh = () => bumpRefresh((v) => v + 1);
+    const withRefresh =
+      <A extends any[]>(fn?: (...args: A) => Promise<void>) =>
+        fn == null
+          ? undefined
+          : async (...args: A) => {
+              await fn(...args);
+              refresh();
+            };
+    storeAPI.setState({
+      rowEditing: {
+        saveRows: withRefresh(p?.saveRows?.bind(p)),
+        deleteRows: withRefresh(p?.deleteRows?.bind(p)),
+        insertRow: withRefresh(p?.insertRow?.bind(p)),
+        refresh,
+      },
+    });
+  }, [storeAPI, activeProvider, bumpRefresh]);
+
   // More to load iff the loader-sized array still has unfilled (null) slots.
   // This tracks the loader's own sizing: exact `totalCount` when known, a
   // trailing page of null padding while an unknown-length source hasn't run
   // dry, and exactly `loadedCount` once it has (→ no more). So a short filtered
   // result reports "done" instead of chasing a phantom next page.
   const hasMore = !isLocalProvider && loadedCount < data.length;
-  const canLoadMore = hasMore && !footer.loading;
+
+  // Auto-load checkpoint: after `autoLoadPages` pages past the resume point,
+  // pause — the sentinel stops firing until `loadMore` moves the baseline. Lets
+  // a footer interrupt infinite scroll with a "Load more" button.
+  const [resumeBaseline, setResumeBaseline] = useState(0);
+  const paused =
+    autoLoadPages != null &&
+    loadedCount - resumeBaseline >= autoLoadPages * pageSize;
+  const canLoadMore = hasMore && !footer.loading && !paused;
 
   // Advance the loader's visible region by exactly one page. Bounded to
   // `data.length` so a filtered result shorter than a page doesn't point past
@@ -274,6 +410,14 @@ function _DataPanel<T>({
     const end = Math.min(loadedCount + pageSize, data.length);
     onScroll({ rowIndexStart: 0, rowIndexEnd: end });
   }, [onScroll, loadedCount, pageSize, data.length]);
+
+  // Manual load (footer "Load more"): move the pause baseline to now — which
+  // un-pauses — and nudge a fetch. Auto-scroll then resumes until the next
+  // checkpoint.
+  const loadMore = useCallback(() => {
+    setResumeBaseline(loadedCount);
+    requestMore();
+  }, [loadedCount, requestMore]);
 
   // Infinite scroll, without the classic double-load. A naive "load a page when
   // the bottom sentinel is visible" over-fetches: when a page's rows commit,
@@ -307,12 +451,32 @@ function _DataPanel<T>({
     );
   });
 
-  const showSentinel = hasMore || footer.loading;
-
   const counter =
     footer.total != null
       ? `${footer.loaded} of ${footer.total}`
       : `${footer.loaded} loaded`;
+
+  const footerContent =
+    typeof footerSlot === "function"
+      ? footerSlot({
+          loadMore,
+          loading: footer.loading,
+          hasMore,
+          loaded: footer.loaded,
+          total: footer.total,
+          paused,
+        })
+      : footerSlot;
+
+  // An inline footer is the end-of-scroll region itself, so it always renders
+  // (deciding its own content: spinner mid-burst, "Load more" at a pause, or an
+  // end-of-list note). It carries the sentinel ref; auto-load is gated by
+  // `canLoadMore`, so a paused/exhausted footer just sits there.
+  const showInlineFooter = footerPlacement === "inline" && footerContent != null;
+  // The default spinner sentinel (below-placement): hidden while paused so the
+  // pinned footer's "Load more" takes over.
+  const showSentinel =
+    !showInlineFooter && (hasMore || footer.loading) && !paused;
 
   // Mount the loader only once the provider resolves (see `PanelLoader`). Built
   // as a real conditional — `h.if(...)` evaluates its arguments eagerly, so
@@ -327,24 +491,76 @@ function _DataPanel<T>({
     });
   }
 
+  // Header controls: the selection ActionsToolbar always renders; below it,
+  // either the caller's custom `toolbar` or the default FacetControls +
+  // FilterBar. A custom toolbar owns its own filter display, so the default
+  // FilterBar steps aside (the caller can re-include either via the exports).
+  const controls =
+    toolbar !== undefined
+      ? toolbar
+      : [
+          h(FacetControls, { key: "facets" }),
+          h(FilterBar, { key: "filter-bar", filters: filters ?? [] }),
+        ];
+
+  const ScrollBody = scrollBody ?? DefaultScrollBody;
+
+  // The panel owns the scroll container + the loading sentinel; the (custom or
+  // default) scroll body only lays out the cards. So a grid / grouped / windowed
+  // body composes without reimplementing paging or selection. The end-of-scroll
+  // region is either the default spinner sentinel or the caller's inline
+  // footer — both carry the sentinel ref that drives auto-load.
+  // The top fade is gated on being scrolled (via `.is-scrolled`), so the first
+  // item isn't clipped at rest.
+  const bodyTag =
+    "div.data-panel-body" +
+    (topFade ? ".top-fade" : "") +
+    (scrolled ? ".is-scrolled" : "");
+  const body = h(bodyTag, { key: "body", onScroll: onBodyScroll }, [
+    h(ScrollBody, { key: "scroll-body" }, cards),
+    showInlineFooter
+      ? h("div.data-panel-tail", { key: "tail", ref: sentinelRef }, footerContent)
+      : h.if(showSentinel)(
+          "div.sentinel",
+          { key: "sentinel", ref: sentinelRef },
+          [h(Spinner, { key: "spinner", size: 16 }), "Loading…"],
+        ),
+  ]);
+
+  // Body + optional filter/detail sidebar share a horizontal row so each
+  // scrolls independently.
+  const main =
+    sidebar != null
+      ? h("div.data-panel-main", { key: "main" }, [
+          h("div.data-panel-sidebar", { key: "sidebar" }, sidebar),
+          body,
+        ])
+      : body;
+
+  // Pinned footer below the scroll (unless the footer is placed inline).
+  const pinnedFooter =
+    !showInlineFooter && footerContent != null
+      ? h("div.data-panel-footer-slot", { key: "footer-slot" }, footerContent)
+      : null;
+
+  // Bottom status row (counter + extras). `statusBar === false` drops it — e.g.
+  // when an inline footer carries the counter itself.
+  const statusRow =
+    statusBar === false
+      ? null
+      : h("div.data-panel-footer", { key: "footer" }, [
+          h("span.counter", { key: "counter" }, counter),
+          h("div.spacer", { key: "spacer" }),
+          statusBar,
+        ]);
+
   return h("div.data-panel", { className }, [
     loaderNode,
     h(ActionsToolbar, { key: "toolbar", actions: actions ?? [], tableName: name }),
-    h(FacetControls, { key: "facets" }),
-    h(FilterBar, { key: "filter-bar", filters: filters ?? [] }),
-    h("div.data-panel-body", { key: "body" }, [
-      ...cards,
-      h.if(showSentinel)(
-        "div.sentinel",
-        { key: "sentinel", ref: sentinelRef },
-        [h(Spinner, { key: "spinner", size: 16 }), "Loading…"],
-      ),
-    ]),
-    h("div.data-panel-footer", { key: "footer" }, [
-      h("span.counter", { key: "counter" }, counter),
-      h("div.spacer", { key: "spacer" }),
-      statusBar,
-    ]),
+    controls,
+    main,
+    pinnedFooter,
+    statusRow,
   ]);
 }
 
@@ -356,7 +572,7 @@ function _DataPanel<T>({
  * in a submenu) — so sort/filter behave identically to the sheet and flow
  * through the same store + provider seam (the server applies them).
  */
-function FacetControls() {
+export function FacetControls() {
   const columnSpec = useSelector((s) => s.columnSpec);
 
   const filterableCols = useMemo(
@@ -400,6 +616,11 @@ function FacetControls() {
       h(Button, { minimal: true, small: true, icon: "sort" }, "Sort"),
     ),
   ]);
+}
+
+/** Default scroll-body layout: a vertical flex list of cards. */
+function DefaultScrollBody({ children }: ScrollBodyProps) {
+  return h("div.data-panel-list", children);
 }
 
 /** Runs the shared windowed loader from inside the panel (renders nothing).

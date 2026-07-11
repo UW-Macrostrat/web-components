@@ -14,20 +14,62 @@
   gap: 6px
   flex-wrap: wrap
 
+// Body + optional sidebar share a horizontal row, each scrolling on its own.
+.data-panel-main
+  flex: 1 1 auto
+  min-height: 0
+  display: flex
+  flex-direction: row
+  gap: 8px
+
+.data-panel-sidebar
+  flex: 0 0 auto
+  width: 240px
+  min-height: 0
+  overflow-y: auto
+  padding: 4px
+  border-right: 1px solid rgba(128,128,128,0.2)
+
+// The scroll container: owns overflow + holds the layout body and the sentinel.
+// The scrollbar sits flush at the container's right edge (no reserved gutter);
+// right padding keeps card content clear of it.
 .data-panel-body
   flex: 1 1 auto
   min-height: 0
+  min-width: 0
   overflow-y: auto
   display: flex
   flex-direction: column
   gap: 8px
-  padding: 2px
+  padding: 4px 10px 4px 4px
+
+  // Fade content into the top edge as it slips under the toolbar — but only
+  // once scrolled, so the first item isn't clipped at rest.
+  &.top-fade.is-scrolled
+    mask-image: linear-gradient(to bottom, transparent 0, #000 14px)
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px)
+
+// The inline end-of-scroll region (default spinner sentinel, or an inline
+// footer). Sits in the scroll flow, so it's seen only at the bottom.
+.data-panel-tail
+  flex: 0 0 auto
+
+// Default layout body — a vertical list of cards. A custom `scrollBody`
+// replaces this element (e.g. with a CSS grid) but keeps the same scroll
+// container and sentinel around it.
+.data-panel-list
+  display: flex
+  flex-direction: column
+  gap: 8px
 
 .data-panel-item
   // Rows are click-selectable, so suppress native text selection — otherwise
   // shift/cmd-click drags a text range as well as selecting the row (Finder /
   // Gmail-style list behavior).
   user-select: none
+  // Keep a card intact when a `scrollBody` uses a multi-column (masonry)
+  // layout; no effect in the default list/grid.
+  break-inside: avoid
 
   // A hook for consumers; the card itself is user-rendered.
   &.selected
@@ -55,6 +97,11 @@
   padding: 12px
   color: var(--text-subtle, #738091)
   font-size: 13px
+
+// Pinned content below the scroll body (the `footer` slot).
+.data-panel-footer-slot
+  flex: 0 0 auto
+  border-top: 1px solid rgba(128,128,128,0.2)
 
 .data-panel-footer
   display: flex

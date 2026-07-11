@@ -578,6 +578,32 @@ function _DataSheet<T>({
     storeState.setState({ canDeleteRows });
   }, [storeState, provider]);
 
+  // Provider-backed, auto-refreshing row mutations on the action context
+  // (`ctx.saveRows` / `deleteRows` / `insertRow`), shared with `DataPanel` — so
+  // an immediate-edit action works identically in the sheet and the card view
+  // (the basis of a table/cards toggle). Only the capabilities the provider
+  // supports are present.
+  useEffect(() => {
+    const p = activeProvider;
+    const refresh = () => bumpRefresh((v) => v + 1);
+    const withRefresh =
+      <A extends any[]>(fn?: (...args: A) => Promise<void>) =>
+        fn == null
+          ? undefined
+          : async (...args: A) => {
+              await fn(...args);
+              refresh();
+            };
+    storeState.setState({
+      rowEditing: {
+        saveRows: withRefresh(p?.saveRows?.bind(p)),
+        deleteRows: withRefresh(p?.deleteRows?.bind(p)),
+        insertRow: withRefresh(p?.insertRow?.bind(p)),
+        refresh,
+      },
+    });
+  }, [storeState, activeProvider, bumpRefresh]);
+
   // Merge consumer `rowStatusStyles` over the built-in defaults and hand the
   // result to the store, where the cell renderer and row-header renderer read
   // it. Merged (not replaced) so overriding one status doesn't drop the rest.

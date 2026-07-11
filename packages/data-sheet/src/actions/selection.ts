@@ -162,8 +162,18 @@ export function buildActionContext<T>(
     canDeleteRows: state.canDeleteRows,
     getSelectedRowIndices: () =>
       getSelectedRowIndices(state.selection, getFilteredRowIndices()),
+    getSelectedRows: () =>
+      getSelectedRowIndices(state.selection, getFilteredRowIndices())
+        .map((i) => state.data[i])
+        .filter((r) => r != null),
     getSelectedColumnKeys: () =>
       getSelectedColumnKeys(state.selection, state.columnSpec),
+    // Immediate-edit persistence, wired by the consumer (DataPanel) when a
+    // persisting provider is present; each already auto-refreshes.
+    saveRows: state.rowEditing?.saveRows,
+    deleteRows: state.rowEditing?.deleteRows,
+    insertRow: state.rowEditing?.insertRow,
+    refresh: state.rowEditing?.refresh,
     onCellEdited: state.onCellEdited,
     editCells(edits: CellEdit[]) {
       state.setUpdatedData((updatedData: T[]) => {

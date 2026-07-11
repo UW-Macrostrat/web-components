@@ -194,6 +194,18 @@ export interface DataSheetState<T> {
    * `provider` without `deleteRows` disables deletion entirely (the delete
    * affordance greys out and the delete key is a no-op). Defaults to `true`. */
   canDeleteRows: boolean;
+  /** Provider-backed, auto-refreshing row mutations for immediate-edit consumers
+   * (chiefly `DataPanel`). Each persists through the data provider and then
+   * re-fetches. Wired by the consumer that owns the provider + loader; exposed
+   * on the action context as `saveRows` / `deleteRows` / `insertRow` /
+   * `refresh`, so a selection action can edit without hand-wiring persistence.
+   * Absent when no persisting provider. */
+  rowEditing?: {
+    saveRows?: (rows: any[]) => Promise<void>;
+    deleteRows?: (ids: Array<string | number>) => Promise<void>;
+    insertRow?: (row: any) => Promise<void>;
+    refresh?: () => void;
+  };
 }
 
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;

@@ -108,8 +108,23 @@ export interface TableActionContext<T = any> {
   // Convenience methods (derived from selection)
   /** Row indices covered by the current selection */
   getSelectedRowIndices(): number[];
+  /** The selected rows as resolved objects (not indices) — the natural input
+   * for an immediate-edit action. Only loaded rows are returned. */
+  getSelectedRows(): T[];
   /** Column keys covered by the current selection */
   getSelectedColumnKeys(): string[];
+
+  // Immediate-edit persistence (present when a persisting provider is wired,
+  // e.g. via DataPanel). Each mutates through the provider and auto-refreshes,
+  // so a selection action can edit rows without touching a `refreshToken`.
+  /** Persist edited rows (upsert), then refresh. */
+  saveRows?: (rows: T[]) => Promise<void>;
+  /** Delete rows by identity, then refresh. */
+  deleteRows?: (ids: Array<string | number>) => Promise<void>;
+  /** Insert a row, then refresh. */
+  insertRow?: (row: Partial<T>) => Promise<void>;
+  /** Force a re-fetch from scratch. */
+  refresh?: () => void;
 
   // Store manipulation methods
   onCellEdited(rowIndex: number, columnKey: string, value: any): void;
