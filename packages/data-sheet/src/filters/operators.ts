@@ -7,7 +7,8 @@
 import type { ColumnSpec } from "../utils/column-spec";
 
 /** Column-filter operators. A superset that covers both in-memory comparison
- * and common backend query operators (PostgREST maps onto these names). */
+ * and common backend query operators (PostgREST maps onto these names).
+ * `cs`/`ov` are the array-column operators (contains / overlaps). */
 export type FilterOperator =
   | "eq"
   | "neq"
@@ -17,7 +18,9 @@ export type FilterOperator =
   | "lt"
   | "gte"
   | "lte"
-  | "is";
+  | "is"
+  | "cs"
+  | "ov";
 
 /** Human-readable operator labels for menus and active-filter tags. */
 export const OPERATOR_LABELS: Record<FilterOperator, string> = {
@@ -30,6 +33,8 @@ export const OPERATOR_LABELS: Record<FilterOperator, string> = {
   gte: "≥",
   lte: "≤",
   is: "is",
+  cs: "has",
+  ov: "has any of",
 };
 
 // "contains" (`ilike`) leads for text, so it's the default operator — the most
@@ -44,6 +49,9 @@ const NUMERIC_OPERATORS: FilterOperator[] = [
   "lte",
 ];
 const BOOLEAN_OPERATORS: FilterOperator[] = ["eq", "neq"];
+// Array columns (e.g. a `text[]` of tags): "has" one value, or "has any of" a
+// comma-separated set. `cs` leads — filtering to a single value is the norm.
+const ARRAY_OPERATORS: FilterOperator[] = ["cs", "ov"];
 
 /** Fallback when the column has no type information. Leads with "contains". */
 export const DEFAULT_FILTER_OPERATORS: FilterOperator[] = [
@@ -61,6 +69,7 @@ const OPERATORS_BY_TYPE: Record<string, FilterOperator[]> = {
   number: NUMERIC_OPERATORS,
   integer: NUMERIC_OPERATORS,
   boolean: BOOLEAN_OPERATORS,
+  array: ARRAY_OPERATORS,
 };
 
 /** Resolve the operators offered for a column: explicit `filterable.operators`
@@ -123,7 +132,28 @@ export function testFilterOperator(
       if (v === "false") return cellValue === false;
       return looseEq(cellValue, filterValue);
     }
+    case "cs": {
+      // Array column contains the value (all of them, if comma-separated).
+      if (!Array.isArray(cellValue)) return false;
+      const cell = cellValue.map((v) => String(v));
+      return splitList(filterValue).every((v) => cell.includes(v));
+    }
+    case "ov": {
+      // Array column overlaps the value set (has any of them).
+      if (!Array.isArray(cellValue)) return false;
+      const cell = cellValue.map((v) => String(v));
+      return splitList(filterValue).some((v) => cell.includes(v));
+    }
     default:
       return true;
   }
+}
+
+/** Split a filter value into a list of trimmed, non-empty tokens (comma is the
+ * set separator for `cs`/`ov`); a single value yields a one-element list. */
+function splitList(value: any): string[] {
+  return String(value)
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s !== "");
 }

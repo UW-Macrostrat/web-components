@@ -77,8 +77,15 @@ function ColumnSortControl({ columnKey }: { columnKey: string }) {
 /** Menu-native sort: a "Sort" item whose submenu holds Ascending / Descending.
  * Clicking the *active* direction again clears the sort (toggle off) — there's
  * no explicit "Clear" item, since the active-filter/sort tag in the status bar
- * already offers direct removal. */
-function ColumnSortMenu({ columnKey }: { columnKey: string }) {
+ * already offers direct removal. `text` overrides the parent item's label (the
+ * `DataPanel` uses the column name, so its Sort menu lists one item per field). */
+export function ColumnSortMenu({
+  columnKey,
+  text = "Sort",
+}: {
+  columnKey: string;
+  text?: string;
+}) {
   const storeAPI = useStoreAPI();
   const sort = useSelector((s) => s.columnSorts.find((x) => x.key === columnKey));
   const toggle = (ascending: boolean) => {
@@ -90,7 +97,7 @@ function ColumnSortMenu({ columnKey }: { columnKey: string }) {
   const icon = sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
   return h(
     MenuItem,
-    { icon, text: "Sort" },
+    { icon, text },
     [
       h(MenuItem, {
         key: "asc",
@@ -138,7 +145,7 @@ export const columnSortAction: TableAction = {
 /** The filter offered for a column: its own rich `TableFilter` (from
  * `col.filters`) when present — so the header matches the top bar and the rich
  * filter is prioritized — else the built-in operator `columnFilter`. */
-function resolveColumnFilter(col: ColumnSpec): TableFilter {
+export function resolveColumnFilter(col: ColumnSpec): TableFilter {
   const rich = (col.filters as TableFilter[] | undefined)?.find(
     (f) => (f.columnKey ?? col.key) === col.key,
   );
@@ -221,7 +228,7 @@ function applicableColumnFilters(col: ColumnSpec): TableFilter[] {
  * filters get a warning intent and show their `describeState` summary. The
  * displayed `label` may differ from `filter.name` (e.g. the built-in operator
  * filter reads "Filter" in a column's own menu, where the column is implicit). */
-function ColumnFilterMenuItem({
+export function ColumnFilterMenuItem({
   filter,
   label,
 }: {

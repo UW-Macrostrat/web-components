@@ -39,7 +39,8 @@ export interface PostgrestOrder<T> {
   nullsFirst?: boolean;
 }
 
-/** Operators available for server-side column filtering via PostgREST. */
+/** Operators available for server-side column filtering via PostgREST.
+ * `cs`/`ov` target array columns (contains / overlaps). */
 export type PostgrestFilterOperator =
   | "eq"
   | "neq"
@@ -49,7 +50,9 @@ export type PostgrestFilterOperator =
   | "lt"
   | "gte"
   | "lte"
-  | "is";
+  | "is"
+  | "cs"
+  | "ov";
 
 /** A single column sort entry. */
 export interface ColumnSortEntry {
@@ -88,6 +91,16 @@ export function applyColumnFilters(
 ) {
   for (const cf of filters) {
     if (cf.value === "" || cf.value == null) continue;
+    // Array-column operators need a list value and postgrest-js's dedicated
+    // builders (which emit the `{…}` array literal), not a scalar `.filter`.
+    if (cf.operator === "cs") {
+      req = req.contains(cf.key, splitFilterList(cf.value));
+      continue;
+    }
+    if (cf.operator === "ov") {
+      req = req.overlaps(cf.key, splitFilterList(cf.value));
+      continue;
+    }
     const val =
       cf.operator === "like" || cf.operator === "ilike"
         ? `*${cf.value}*`
@@ -95,6 +108,15 @@ export function applyColumnFilters(
     req = req.filter(cf.key, cf.operator, val);
   }
   return req;
+}
+
+/** Split a comma-separated filter value into trimmed, non-empty tokens (the set
+ * for `cs`/`ov`); a single value yields a one-element list. */
+function splitFilterList(value: any): string[] {
+  return String(value)
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s !== "");
 }
 
 type LazyLoaderAction<T> =
@@ -191,8 +213,65 @@ interface QueryConfig extends SortAndFilterOptions {
   count?: "exact" | "estimated";
   limit?: number;
   identityKey: string;
+  /** The identity column's default ordering (used when nothing in `order`
+   * already sorts it). A string ⇒ ascending; pass a `PostgrestOrder` to set the
+   * direction (e.g. `source_id` descending). */
+  identityOrder?: PostgrestOrder<any>;
   lastLoadedRow?: any;
   lastLoadedRowIndex: number;
+}
+
+/** Format a value for a PostgREST logic-tree condition. Reserved characters
+ * (`, . : ( )`), spaces, quotes, and backslashes require the value to be
+ * double-quoted, with `"` and `\` backslash-escaped inside — otherwise a map
+ * name containing a comma would break the `or=(...)` parse. */
+function formatKeysetValue(v: any): string {
+  const s = String(v);
+  if (s === "" || /[,.:()"\\ ]/.test(s)) {
+    return `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+  }
+  return s;
+}
+
+/** An equality condition for the cursor prefix (`col.eq.v`, or `col.is.null`). */
+function keysetEq(key: string, v: any): string {
+  return v == null ? `${key}.is.null` : `${key}.eq.${formatKeysetValue(v)}`;
+}
+
+/**
+ * Build the compound keyset predicate (the body of an `or=(...)`) selecting
+ * rows strictly after `lastRow` under `clauses` (lexicographic, last clause is
+ * the identity tiebreaker):
+ *
+ *   (c1 OP1 v1)
+ *   OR (c1 = v1 AND c2 OP2 v2)
+ *   OR (c1 = v1 AND c2 = v2 AND c3 OP3 v3) …
+ *
+ * `OPi` is `gt` for an ascending clause, `lt` for descending. Nulls-last: a
+ * null pivot value has no strictly-ordered non-null successor at its level, so
+ * that term is skipped and the tie defers to deeper clauses (the identity key
+ * is non-null, so at least its term is always emitted). Returns `null` if no
+ * term applies. (Known limit: rows whose *sort* column is null aren't picked up
+ * across the non-null→null boundary — an edge for nullable sort columns; the
+ * non-null identity tiebreaker keeps pagination from stalling.)
+ */
+function buildKeysetPredicate(
+  clauses: PostgrestOrder<any>[],
+  lastRow: any,
+): string | null {
+  const terms: string[] = [];
+  for (let i = 0; i < clauses.length; i++) {
+    const v = lastRow[clauses[i].key];
+    if (v == null) continue;
+    const conds: string[] = [];
+    for (let j = 0; j < i; j++) {
+      conds.push(keysetEq(clauses[j].key, lastRow[clauses[j].key]));
+    }
+    const op = (clauses[i].ascending ?? true) ? "gt" : "lt";
+    conds.push(`${clauses[i].key}.${op}.${formatKeysetValue(v)}`);
+    terms.push(conds.length === 1 ? conds[0] : `and(${conds.join(",")})`);
+  }
+  return terms.length > 0 ? terms.join(",") : null;
 }
 
 function buildQuery<T>(
@@ -218,18 +297,24 @@ function buildQuery<T>(
 
   const orderClauses = buildPostgrestOrderClauses(
     config.order ?? [],
-    config.identityKey,
+    config.identityOrder ?? config.identityKey,
   );
 
   let hasOrdering = false;
   for (const clause of orderClauses) {
     query = query.order(clause.key, clause);
-    if (config.lastLoadedRow != null) {
-      const op = (clause.ascending ?? true) ? "gt" : "lt";
-      const value = config.lastLoadedRow[clause.key];
-      query = query[op](clause.key, value);
-    }
     hasOrdering = true;
+  }
+
+  // Keyset cursor: rows strictly after the last loaded row under the active
+  // ordering. This MUST be a compound predicate, not an independent `gt`/`lt`
+  // per column: with a leading low-cardinality sort (e.g. `state`), a plain
+  // `state.gt.X AND source_id.lt.Y` drops every row sharing the cursor's
+  // `state` (`state.gt.X` is false for them). The lexicographic form keeps the
+  // tie broken by the next column, ending on the non-null identity key.
+  if (config.lastLoadedRow != null && hasOrdering) {
+    const pred = buildKeysetPredicate(orderClauses, config.lastLoadedRow);
+    if (pred != null) query = query.or(pred);
   }
 
   let offset = null;
@@ -379,30 +464,45 @@ function buildPostgrestOrderClauses(
   sorts: (ColumnSortEntry | PostgrestOrder<any>)[],
   identityOrder: PostgrestOrder<any> | string,
 ): PostgrestOrder<any>[] {
-  // Clause to build ordering for a Postgrest table.
-  // There must be an ordering by identity key, and it must be last...
+  // Build the ORDER BY for a PostgREST query. Two invariants:
+  //  1. Each column appears at most once. Keyset pagination adds a `gt`/`lt`
+  //     cursor predicate per order clause, so a duplicated column (e.g. the
+  //     identity key present in both a base order and an active sort, with
+  //     opposite directions) would emit contradictory `col=lt.X&col=gt.X`
+  //     bounds that match nothing — an infinite empty-result reload. First
+  //     occurrence wins (active sorts should be passed ahead of base order).
+  //  2. The identity key is ordered last (a stable tiebreaker for the cursor),
+  //     appended with its default direction only if no clause already sorts it.
   const identitySort =
     typeof identityOrder == "string"
       ? { key: identityOrder, ascending: true }
       : identityOrder;
   const identityKey = identitySort.key;
-  const clauses: PostgrestOrder<any>[] = sorts.map((sort) => {
-    return {
+
+  const seen = new Set<string>();
+  const clauses: PostgrestOrder<any>[] = [];
+  for (const sort of sorts) {
+    if (seen.has(sort.key)) continue;
+    seen.add(sort.key);
+    clauses.push({
       key: sort.key,
       ascending: sort.ascending,
       nullsFirst: "nullsFirst" in sort ? sort.nullsFirst : false,
-    };
-  });
-  // sort the clauses so the identity clause is last
-  const hasIdentityClause = clauses.some((d) => d.key === identityKey);
-  if (hasIdentityClause) {
-    clauses.sort((a, b) => {
-      if (a.key === identityKey) return 1;
-      if (b.key === identityKey) return -1;
-      return 0;
     });
+  }
+
+  if (seen.has(identityKey)) {
+    // Move the (already-deduped) identity clause to the end, keeping the
+    // direction the active sort chose.
+    const idx = clauses.findIndex((c) => c.key === identityKey);
+    const [idClause] = clauses.splice(idx, 1);
+    clauses.push(idClause);
   } else {
-    clauses.push(identitySort);
+    clauses.push({
+      key: identitySort.key,
+      ascending: identitySort.ascending ?? true,
+      nullsFirst: (identitySort as any).nullsFirst ?? false,
+    });
   }
   return clauses;
 }
@@ -724,6 +824,11 @@ export function createPostgRESTFetchChunk<T = any>(config: {
   endpoint: string;
   table: string;
   identityKey: string;
+  /** Default ordering direction of the identity key (applied when no active
+   * sort targets it). `false` ⇒ the table defaults to identity-descending
+   * (e.g. newest `source_id` first) without a redundant `baseOrder` entry that
+   * would otherwise collide with the identity tiebreaker. Defaults to `true`. */
+  identityAscending?: boolean;
   columns?: string | string[];
   /** Order applied before the active column sorts (identity key appended last). */
   baseOrder?: PostgrestOrder<any>[];
@@ -739,9 +844,12 @@ export function createPostgRESTFetchChunk<T = any>(config: {
   return async ({ limit, signal, sorts, filters, cursor }) => {
     const client = new PostgrestClient(config.endpoint).from(config.table);
 
+    // Active sorts first so they win the by-key dedupe in
+    // `buildPostgrestOrderClauses` (a user sort on the identity column
+    // overrides its default direction rather than colliding with it).
     const order: PostgrestOrder<any>[] = [
-      ...(config.baseOrder ?? []),
       ...sorts.map((s) => ({ key: s.key, ascending: s.ascending })),
+      ...(config.baseOrder ?? []),
     ];
 
     const pgFilters: PostgrestFilter[] = [];
@@ -760,6 +868,10 @@ export function createPostgRESTFetchChunk<T = any>(config: {
       count: cursor == null ? "exact" : undefined,
       limit,
       identityKey: config.identityKey,
+      identityOrder: {
+        key: config.identityKey,
+        ascending: config.identityAscending ?? true,
+      },
       order,
       filters: pgFilters,
       lastLoadedRow: cursor?.row ?? null,
@@ -784,6 +896,9 @@ export function createPostgRESTProvider<T = any>(config: {
   endpoint: string;
   table: string;
   identityKey: string;
+  /** Default ordering direction of the identity key (see
+   * `createPostgRESTFetchChunk`). `false` ⇒ identity-descending by default. */
+  identityAscending?: boolean;
   columns?: string | string[];
   baseOrder?: PostgrestOrder<any>[];
   baseFilter?: (
@@ -825,7 +940,13 @@ function indexOfFirstNullInRegion(
   data: any[],
   region: RowRegion,
 ): number | null {
-  for (let i = region.rowIndexStart; i < region.rowIndexEnd; i++) {
+  // Clamp to the array length: a visible region can outlast the data it was
+  // set against (e.g. a keyset page hits the end of a filtered set and the
+  // array shrinks below a region end set before the shrink). Scanning past
+  // `data.length` reads `undefined` as a fillable null and re-fetches the same
+  // now-out-of-range offset forever — the tail-of-filtered-set reload loop.
+  const end = Math.min(region.rowIndexEnd, data.length);
+  for (let i = region.rowIndexStart; i < end; i++) {
     if (data[i] == null) {
       return i;
     }

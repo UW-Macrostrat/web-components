@@ -25,15 +25,15 @@
 import h from "./data-panel.module.sass";
 import {
   ComponentType,
+  MouseEvent as ReactMouseEvent,
   ReactNode,
   useCallback,
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
 import type { Region } from "@blueprintjs/table";
-import { Button, Menu, MenuItem, PopoverNext, Spinner } from "@blueprintjs/core";
+import { Button, Menu, PopoverNext, Spinner } from "@blueprintjs/core";
 import {
   ctx,
   DataSheetProvider,
@@ -45,10 +45,12 @@ import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
 import type { ColumnSpec } from "../utils";
 import {
   ActionsToolbar,
-  columnFilter,
-  columnFilterId,
+  ColumnFilterMenuItem,
+  ColumnSortMenu,
   FilterBar,
   getSelectedRowIndices,
+  isColumnFilterable,
+  resolveColumnFilter,
   TableAction,
   TableFilter,
 } from "../actions";
@@ -62,6 +64,14 @@ import {
   useScrollHandler,
 } from "../postgrest-table";
 
+/** Selection modifier keys, following the familiar list idiom. */
+export interface SelectModifiers {
+  /** cmd/ctrl — toggle this row in/out of the selection (or extend a range). */
+  additive?: boolean;
+  /** shift — select the range from the anchor (last plain/cmd click) to here. */
+  range?: boolean;
+}
+
 /** Props handed to a consumer's card renderer for one row. */
 export interface DataPanelItemProps<T = any> {
   /** The row's data. */
@@ -70,9 +80,11 @@ export interface DataPanelItemProps<T = any> {
   index: number;
   /** Whether this row is in the current selection. */
   selected: boolean;
-  /** Toggle this row's selection. Pass `{ additive: true }` (cmd/ctrl-click) to
-   * add to the selection instead of replacing it. */
-  toggleSelected: (opts?: { additive?: boolean }) => void;
+  /** Select this row. Pass the click's `MouseEvent` (or `React.MouseEvent`) to
+   * honor shift / cmd / ctrl automatically — the usual wiring is
+   * `onClick: onSelect`. Or pass an explicit `SelectModifiers` object; no
+   * argument means a plain (replace) select. */
+  onSelect: (arg?: SelectModifiers | ReactMouseEvent) => void;
 }
 
 export interface DataPanelProps<T = any> {
@@ -124,12 +136,14 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
       return {
         fetchData: props.fetchData,
         identity: props.identity ?? ((r: any) => r?.id),
-      };
+      } as TableDataProvider<any>;
     }
     if (_data.length > 0) {
       return createLocalProvider(
         _data,
-        props.identity != null ? { identity: props.identity } : undefined,
+        props.identity != null
+          ? { identity: props.identity as (row: any) => string | number }
+          : undefined,
       );
     }
     return null;
@@ -175,16 +189,16 @@ function _DataPanel<T>({
   const { provider: activeProvider, isLocalProvider } =
     ctx.useValue(dataProviderAtom);
 
-  // Drive the shared loader from the resolved provider. A local (in-memory)
-  // provider loads everything in one chunk; a remote one pages by `pageSize`.
-  const fetchData: FetchData<T> = activeProvider?.fetchData ?? emptyFetch;
-  const loaderOptions: FetchDataOptions = {
-    pageSize: isLocalProvider
-      ? Math.max(sourceData?.length ?? 1, 1)
-      : pageSize,
-    fetchMode: "scroll",
-  };
-  useDataLoader(fetchData, loaderOptions);
+  // The loader is mounted as a child component (below), NOT called as a hook
+  // here, and only once `activeProvider` resolves. This mirrors `_DataSheet`:
+  // `dataProviderAtom` is synced by a parent effect that fires *after* this
+  // component's effects, so a hook call here would capture the placeholder
+  // provider on first render and — since `fetchData` isn't one of its effect
+  // deps — never re-fetch with the real one. A child that mounts with the real
+  // `fetchData` already in hand sidesteps that entirely.
+  const loaderPageSize = isLocalProvider
+    ? Math.max(sourceData?.length ?? 1, 1)
+    : pageSize;
 
   const data = useSelector((s) => s.data);
   const selection = useSelector((s) => s.selection);
@@ -196,45 +210,83 @@ function _DataPanel<T>({
     [selection],
   );
 
-  // Selection is expressed as `FULL_ROWS` regions so the existing row-targeted
-  // action machinery (toolbar title, `getSelectedRowIndices`, delete/tag
-  // actions) applies unchanged — one region per selected row.
-  const toggleSelected = useCallback(
-    (index: number, additive: boolean) => {
-      const next = new Set(selectedIndices);
-      if (next.has(index)) {
-        next.delete(index);
+  // The anchor for shift-range selection: the last row clicked without shift.
+  // Reset when the selection is cleared elsewhere (e.g. the toolbar's ✕).
+  const anchorRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (selection == null || selection.length === 0) anchorRef.current = null;
+  }, [selection]);
+
+  // Selection is expressed as `FULL_ROWS` regions (contiguous runs merged into
+  // ranges) so the existing row-targeted action machinery (toolbar title,
+  // `getSelectedRowIndices`, delete/tag actions) applies unchanged. Modifier
+  // keys follow the familiar list idiom: plain = replace, cmd/ctrl = toggle one,
+  // shift = range from the anchor.
+  const select = useCallback(
+    (index: number, mods: SelectModifiers) => {
+      const current = new Set(getSelectedRowIndices(storeAPI.getState().selection));
+      let next: Set<number>;
+      if (mods.range && anchorRef.current != null) {
+        const a = anchorRef.current;
+        const [lo, hi] = a <= index ? [a, index] : [index, a];
+        // Shift extends the existing selection when combined with cmd/ctrl,
+        // otherwise replaces it with the range. The anchor stays put so the
+        // range can be re-dragged from the same origin.
+        next = mods.additive ? new Set(current) : new Set();
+        for (let i = lo; i <= hi; i++) next.add(i);
+      } else if (mods.additive) {
+        next = new Set(current);
+        if (next.has(index)) next.delete(index);
+        else next.add(index);
+        anchorRef.current = index;
       } else {
-        if (!additive) next.clear();
-        next.add(index);
+        next = new Set([index]);
+        anchorRef.current = index;
       }
-      const regions: Region[] = Array.from(next)
-        .sort((a, b) => a - b)
-        .map((i) => ({ rows: [i, i] as [number, number] }));
       storeAPI.setState({
-        selection: regions,
+        selection: indicesToRegions(next),
         focusedCell: null,
         topLeftCell: null,
       });
     },
-    [selectedIndices, storeAPI],
+    [storeAPI],
   );
 
-  // Infinite scroll: a bottom sentinel advances the loader's visible region.
-  // The loader fetches the chunk covering the first unloaded row in the region
-  // and auto-cascades while the sentinel stays in view, so short pages fill the
-  // viewport and scrolling loads the next window.
   const onScroll = useScrollHandler();
   const loadedCount = useMemo(() => {
     let n = 0;
     for (const r of data) if (r != null) n++;
     return n;
   }, [data]);
-  const [sentinelRef, inView] = useIntersecting<HTMLDivElement>();
-  useEffect(() => {
-    if (!inView) return;
-    onScroll({ rowIndexStart: 0, rowIndexEnd: loadedCount + pageSize });
-  }, [inView, loadedCount, pageSize, onScroll]);
+
+  // More to load iff the loader-sized array still has unfilled (null) slots.
+  // This tracks the loader's own sizing: exact `totalCount` when known, a
+  // trailing page of null padding while an unknown-length source hasn't run
+  // dry, and exactly `loadedCount` once it has (→ no more). So a short filtered
+  // result reports "done" instead of chasing a phantom next page.
+  const hasMore = !isLocalProvider && loadedCount < data.length;
+  const canLoadMore = hasMore && !footer.loading;
+
+  // Advance the loader's visible region by exactly one page. Bounded to
+  // `data.length` so a filtered result shorter than a page doesn't point past
+  // the array at phantom nulls (which the loader would refetch forever).
+  const requestMore = useCallback(() => {
+    const end = Math.min(loadedCount + pageSize, data.length);
+    onScroll({ rowIndexStart: 0, rowIndexEnd: end });
+  }, [onScroll, loadedCount, pageSize, data.length]);
+
+  // Infinite scroll, without the classic double-load. A naive "load a page when
+  // the bottom sentinel is visible" over-fetches: when a page's rows commit,
+  // this component re-renders (loadedCount changed) *before* the
+  // IntersectionObserver has re-evaluated the sentinel's new position, so a
+  // stale "still visible" fires a second load. `useBottomSentinel` re-observes
+  // the sentinel whenever the pass-through deps change, so every trigger
+  // reflects the *current* post-layout visibility — it loads one page, and only
+  // loads another if the sentinel is genuinely still on screen.
+  const sentinelRef = useBottomSentinel(canLoadMore ? requestMore : null, [
+    loadedCount,
+    canLoadMore,
+  ]);
 
   const cards: ReactNode[] = [];
   data.forEach((row, i) => {
@@ -248,16 +300,13 @@ function _DataPanel<T>({
           data: row,
           index: i,
           selected,
-          toggleSelected: (opts?: { additive?: boolean }) =>
-            toggleSelected(i, opts?.additive ?? false),
+          onSelect: (arg?: SelectModifiers | ReactMouseEvent) =>
+            select(i, modifiersOf(arg)),
         }),
       ),
     );
   });
 
-  const hasMore =
-    !isLocalProvider &&
-    (footer.total == null || footer.loaded < (footer.total ?? 0));
   const showSentinel = hasMore || footer.loading;
 
   const counter =
@@ -265,7 +314,21 @@ function _DataPanel<T>({
       ? `${footer.loaded} of ${footer.total}`
       : `${footer.loaded} loaded`;
 
+  // Mount the loader only once the provider resolves (see `PanelLoader`). Built
+  // as a real conditional — `h.if(...)` evaluates its arguments eagerly, so
+  // `activeProvider.fetchData` can't be referenced inside it while null.
+  let loaderNode: ReactNode = null;
+  if (activeProvider != null) {
+    loaderNode = h(PanelLoader, {
+      key: "loader",
+      fetchData: activeProvider.fetchData,
+      pageSize: loaderPageSize,
+      fetchMode: isLocalProvider ? undefined : "scroll",
+    });
+  }
+
   return h("div.data-panel", { className }, [
+    loaderNode,
     h(ActionsToolbar, { key: "toolbar", actions: actions ?? [], tableName: name }),
     h(FacetControls, { key: "facets" }),
     h(FilterBar, { key: "filter-bar", filters: filters ?? [] }),
@@ -286,21 +349,18 @@ function _DataPanel<T>({
 }
 
 /**
- * Stand-in for the column-header dropdown the card list lacks: menus to add a
- * column filter / sort, sourced from the column-declared `filterable` /
- * `sortable` capabilities. Adding a filter seeds the store with the column's
- * built-in operator `columnFilter`; the active tag (in `FilterBar`) then
- * reconfigures it. Both flow through the same store + provider seam as the
- * sheet, so the server applies them.
+ * Stand-in for the column-header dropdown the card list lacks: "Filter" and
+ * "Sort" menus listing the column-declared `filterable` / `sortable` fields.
+ * Each field reuses the *exact* data-sheet controls — `ColumnSortMenu`
+ * (Ascending/Descending submenu) and `ColumnFilterMenuItem` (the operator form
+ * in a submenu) — so sort/filter behave identically to the sheet and flow
+ * through the same store + provider seam (the server applies them).
  */
 function FacetControls() {
   const columnSpec = useSelector((s) => s.columnSpec);
-  const columnSorts = useSelector((s) => s.columnSorts);
-  const activeFilters = useSelector((s) => s.activeFilters);
-  const storeAPI = useStoreAPI();
 
   const filterableCols = useMemo(
-    () => columnSpec.filter((c) => c.filterable),
+    () => columnSpec.filter((c) => isColumnFilterable(c)),
     [columnSpec],
   );
   const sortableCols = useMemo(
@@ -312,40 +372,20 @@ function FacetControls() {
 
   const filterMenu = h(
     Menu,
-    filterableCols.map((col) => {
-      const id = columnFilterId(col.key);
-      const active = activeFilters.has(id);
-      return h(MenuItem, {
+    filterableCols.map((col) =>
+      h(ColumnFilterMenuItem, {
         key: col.key,
-        text: col.name,
-        icon: active ? "tick" : "filter",
-        disabled: active,
-        onClick() {
-          const f = columnFilter(col);
-          storeAPI.getState().setFilter(id, f, f.defaultState);
-        },
-      });
-    }),
+        filter: resolveColumnFilter(col),
+        label: col.name,
+      }),
+    ),
   );
 
   const sortMenu = h(
     Menu,
-    sortableCols.map((col) => {
-      const active = columnSorts.find((s) => s.key === col.key);
-      const icon =
-        active == null ? "sort" : active.ascending ? "sort-asc" : "sort-desc";
-      // Cycle asc → desc → off on repeated selection.
-      const next =
-        active == null ? true : active.ascending ? false : null;
-      return h(MenuItem, {
-        key: col.key,
-        text: col.name,
-        icon,
-        onClick() {
-          storeAPI.getState().setColumnSort(col.key, next);
-        },
-      });
-    }),
+    sortableCols.map((col) =>
+      h(ColumnSortMenu, { key: col.key, columnKey: col.key, text: col.name }),
+    ),
   );
 
   return h("div.facet-controls", [
@@ -362,28 +402,97 @@ function FacetControls() {
   ]);
 }
 
-/** No-op fetch used while no provider is resolved (keeps hook order stable). */
-const emptyFetch: FetchData<any> = async () => ({ rows: [], totalCount: 0 });
+/** Runs the shared windowed loader from inside the panel (renders nothing).
+ * Mounted only once the real provider is resolved, so `useDataLoader` captures
+ * the real `fetchData` from the start (see `_DataPanel`). */
+function PanelLoader<T = any>({
+  fetchData,
+  ...options
+}: { fetchData: FetchData<T> } & FetchDataOptions) {
+  useDataLoader(fetchData, options);
+  return null;
+}
 
-/** Minimal IntersectionObserver hook (avoids a `react-intersection-observer`
- * dependency): returns a ref to attach and whether the element is on screen. */
-function useIntersecting<E extends HTMLElement>(): [
-  (el: E | null) => void,
-  boolean,
-] {
-  const [inView, setInView] = useState(false);
+/** Resolve the selection modifiers from either a click event (reads shift /
+ * cmd / ctrl) or an explicit modifier object; no argument ⇒ a plain select. */
+function modifiersOf(arg?: SelectModifiers | ReactMouseEvent): SelectModifiers {
+  if (arg == null) return {};
+  if ("shiftKey" in arg) {
+    return { additive: arg.metaKey || arg.ctrlKey, range: arg.shiftKey };
+  }
+  return arg;
+}
+
+/** Collapse a set of selected row indices into `FULL_ROWS` regions, merging
+ * contiguous runs into a single `{ rows: [start, end] }` range. */
+function indicesToRegions(indices: Set<number>): Region[] {
+  const sorted = Array.from(indices).sort((a, b) => a - b);
+  const regions: Region[] = [];
+  let start: number | null = null;
+  let prev: number | null = null;
+  for (const i of sorted) {
+    if (start == null) {
+      start = prev = i;
+    } else if (i === prev! + 1) {
+      prev = i;
+    } else {
+      regions.push({ rows: [start, prev!] });
+      start = prev = i;
+    }
+  }
+  if (start != null) regions.push({ rows: [start, prev!] });
+  return regions;
+}
+
+/**
+ * Bottom-sentinel infinite-scroll hook (no `react-intersection-observer`
+ * dependency). Calls `onVisible` when the observed element is on screen, and —
+ * crucially — **re-observes on every `deps` change** so the callback reflects
+ * the *current* post-layout visibility rather than the pre-load render.
+ *
+ * This is what avoids the double-load: a plain observer whose visibility is
+ * mirrored into React state lags a render behind the DOM, so a load-driven
+ * re-render fires a second `onVisible` before the observer catches up. By
+ * re-arming after each load (`deps = [loadedCount, canLoadMore]`), the observer
+ * emits a fresh callback for the settled layout: it fires again only if the
+ * sentinel is *still* visible (viewport not yet filled), so it loads exactly
+ * one page per bottom-reach and self-fills an underfull viewport without
+ * overshooting. Pass `onVisible = null` to disarm (loading / no more data).
+ */
+function useBottomSentinel<E extends HTMLElement>(
+  onVisible: (() => void) | null,
+  deps: unknown[],
+): (el: E | null) => void {
+  const elRef = useRef<E | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const cbRef = useRef(onVisible);
+  cbRef.current = onVisible;
+
   const setRef = useCallback((el: E | null) => {
+    elRef.current = el;
     observerRef.current?.disconnect();
+    observerRef.current = null;
     if (el == null) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      { rootMargin: "200px" },
+      ([entry]) => {
+        if (entry.isIntersecting) cbRef.current?.();
+      },
+      { rootMargin: "300px" },
     );
     observer.observe(el);
     observerRef.current = observer;
   }, []);
+
+  // Re-arm after each load so the observer re-checks the settled layout.
+  useEffect(() => {
+    const el = elRef.current;
+    const observer = observerRef.current;
+    if (el == null || observer == null) return;
+    observer.disconnect();
+    observer.observe(el);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+
   useEffect(() => () => observerRef.current?.disconnect(), []);
-  return [setRef, inView];
+  return setRef;
 }
-const __probe: number = "x";

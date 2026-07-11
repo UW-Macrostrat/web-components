@@ -1,12 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import h from "./data-panel.stories.module.sass";
-import { useMemo } from "react";
-import { Intent, Tag } from "@blueprintjs/core";
+import { useEffect, useMemo, useState } from "react";
+import { Intent, MenuItem, SegmentedControl, Tag } from "@blueprintjs/core";
+import { MultiSelect } from "@blueprintjs/select";
+import "@blueprintjs/select/lib/css/blueprint-select.css";
 import {
   createPostgRESTProvider,
   DataPanel,
   DataPanelItemProps,
   TableAction,
+  TableFilter,
 } from "../src";
 import { RegionCardinality } from "@blueprintjs/table";
 import type { ColumnSpec } from "../src";
@@ -36,17 +39,194 @@ interface IngestMap {
   tags: string[];
 }
 
+// ---- Tags: auto color per tag + a preloaded, colored multi-select ----
+
+// A stable color per tag name (Java-style string hash → RGB hex), matching the
+// legacy ingestion page. Domain/presentation logic, so it lives consumer-side.
+function tagHash(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return hash;
+}
+
+function tagColor(name: string): string {
+  const c = (tagHash(name) & 0x00ffffff).toString(16).toUpperCase();
+  return "#" + ("000000" + c).slice(-6);
+}
+
+// Pick readable text (dark/light) for a background by perceived luminance —
+// the legacy version skipped this and some tags were unreadable.
+function textColorFor(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.6 ? "#182026" : "#ffffff";
+}
+
+function TagChip({
+  name,
+  interactive,
+  onRemove,
+}: {
+  name: string;
+  interactive?: boolean;
+  onRemove?: () => void;
+}) {
+  const bg = tagColor(name);
+  return h(
+    Tag,
+    {
+      interactive,
+      onRemove,
+      style: { backgroundColor: bg, color: textColorFor(bg) },
+    },
+    name,
+  );
+}
+
+// The defined-tag list comes from the general Macrostrat PostgREST base (the
+// legacy page's `${postgrestPrefix}/map_ingest_tags`), distinct from the
+// map-ingestion `pg` route. Deduped client-side; cached for the session.
+const TAGS_ENDPOINT = "https://macrostrat.local/api/pg/map_ingest_tags";
+let _tagsCache: string[] | null = null;
+async function fetchDefinedTags(): Promise<string[]> {
+  if (_tagsCache != null) return _tagsCache;
+  const res = await fetch(TAGS_ENDPOINT);
+  const rows = await res.json();
+  _tagsCache = [...new Set(rows.map((r: any) => r.tag))].sort() as string[];
+  return _tagsCache;
+}
+
+interface TagFilterState {
+  operator: "ov";
+  value: string;
+}
+
+// A richer, "lifelike" tag selector: preloads the defined tags from the API and
+// presents a colored typeahead multi-select. State stays the `{ operator, value }`
+// shape (`ov` + a comma-joined set), so it translates server-side to
+// `tags=ov.{…}` ("has any of") via the standard array-operator contract.
+function TagFilterForm({
+  state,
+  setState,
+}: {
+  state: TagFilterState;
+  setState: (s: TagFilterState) => void;
+}) {
+  const [all, setAll] = useState<string[]>([]);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    fetchDefinedTags()
+      .then(setAll)
+      .catch(() => setFailed(true));
+  }, []);
+
+  const selected = (state?.value ?? "").split(",").filter(Boolean);
+  const commit = (next: string[]) =>
+    setState({ operator: "ov", value: next.join(",") });
+  const toggle = (tag: string) =>
+    commit(
+      selected.includes(tag)
+        ? selected.filter((t) => t !== tag)
+        : [...selected, tag],
+    );
+
+  return h(MultiSelect<string>, {
+    items: all,
+    selectedItems: selected,
+    fill: true,
+    resetOnSelect: true,
+    placeholder: failed ? "Couldn't load tags" : "Filter by tag…",
+    itemPredicate: (q: string, tag: string) =>
+      tag.toLowerCase().includes(q.toLowerCase()),
+    itemRenderer: (tag: string, { handleClick, modifiers }: any) =>
+      modifiers.matchesPredicate
+        ? h(MenuItem, {
+            key: tag,
+            active: modifiers.active,
+            icon: selected.includes(tag) ? "tick" : "blank",
+            text: h(TagChip, { name: tag }),
+            shouldDismissPopover: false,
+            onClick: handleClick,
+          })
+        : null,
+    tagRenderer: (tag: string) => tag,
+    onItemSelect: toggle,
+    onRemove: (tag: string) => toggle(tag),
+    tagInputProps: {
+      tagProps: (_node: any, index: number) => {
+        const bg = tagColor(selected[index]);
+        return { style: { backgroundColor: bg, color: textColorFor(bg) } };
+      },
+    },
+    popoverProps: { minimal: true },
+    noResults: h(MenuItem, {
+      disabled: true,
+      text: failed ? "Failed to load tags" : "No matching tags",
+    }),
+  });
+}
+
+const tagsFilter: TableFilter<IngestMap, TagFilterState> = {
+  id: "tags-filter",
+  name: "Tags",
+  icon: "tag",
+  columnKey: "tags",
+  defaultState: { operator: "ov", value: "" },
+  describeState: (s) => {
+    const v = (s?.value ?? "").split(",").filter(Boolean);
+    return v.length === 0 ? null : v.length === 1 ? v[0] : `${v.length} tags`;
+  },
+  predicate: (row, s) => {
+    const want = (s?.value ?? "").split(",").filter(Boolean);
+    return (
+      want.length === 0 ||
+      (Array.isArray(row.tags) && want.some((t) => row.tags.includes(t)))
+    );
+  },
+  filterForm: TagFilterForm,
+};
+
+// A custom filter for `scale`: a fixed enum with only four values, so a
+// segmented control fits better than the generic operator+text form. Its state
+// is still the `{ operator, value }` shape, so the provider's default
+// translation turns it into `scale=eq.<value>` server-side — a custom *UI* over
+// the standard server contract, no custom `translateFilter` needed.
+const SCALES = ["tiny", "small", "medium", "large"];
+
+const scaleFilter: TableFilter<IngestMap, { operator: "eq"; value: string | null }> = {
+  id: "scale-filter",
+  name: "Scale",
+  icon: "filter",
+  columnKey: "scale",
+  defaultState: { operator: "eq", value: null },
+  describeState: (s) => s?.value ?? null,
+  predicate: (row, s) => s?.value == null || row.scale === s.value,
+  filterForm: ({ state, setState }) =>
+    h(SegmentedControl, {
+      small: true,
+      options: SCALES.map((v) => ({ label: v, value: v })),
+      value: state?.value ?? "",
+      onValueChange: (value: string) => setState({ operator: "eq", value }),
+    }),
+};
+
 // Facet capabilities are declared per-column, backend-agnostic. `FacetControls`
 // + the server provider read these to offer/apply filter & sort.
 const columnSpec: ColumnSpec[] = [
   { key: "name", name: "Name", dataType: "text", filterable: true, sortable: true },
   { key: "state", name: "Status", dataType: "string", filterable: true, sortable: true },
-  { key: "scale", name: "Scale", dataType: "string", filterable: true, sortable: true },
+  // Custom filter UI (segmented) instead of the generic operator form.
+  { key: "scale", name: "Scale", dataType: "string", filters: [scaleFilter], sortable: true },
   { key: "ref_year", name: "Year", dataType: "string", filterable: true, sortable: true },
   { key: "source_id", name: "Source ID", dataType: "integer", sortable: true },
-  // Array column — display only for now. Server-side tag filtering needs an
-  // array operator (`cs`), the clearly-scoped next increment (see workbench).
-  { key: "tags", name: "Tags", dataType: "array" },
+  // Array column with a rich, preloaded tag selector (`tagsFilter`) over the
+  // `dataType: "array"` operator family → PostgREST `tags=ov.{…}` ("has any of").
+  { key: "tags", name: "Tags", dataType: "array", filters: [tagsFilter] },
 ];
 
 const STATE_INTENT: Record<string, Intent> = {
@@ -57,13 +237,12 @@ const STATE_INTENT: Record<string, Intent> = {
   abandoned: "none",
 };
 
-function MapCard({ data, toggleSelected }: DataPanelItemProps<IngestMap>) {
+function MapCard({ data, onSelect }: DataPanelItemProps<IngestMap>) {
+  // `onSelect` reads shift / cmd / ctrl straight from the click event — wiring
+  // it as the root `onClick` gives range- and toggle-select for free.
   return h(
     "div.map-card",
-    {
-      onClick: (e: React.MouseEvent) =>
-        toggleSelected({ additive: e.metaKey || e.ctrlKey }),
-    },
+    { onClick: onSelect },
     [
       h("div.card-header", { key: "header" }, [
         h("span.map-name", { key: "name" }, data.name ?? data.slug),
@@ -82,9 +261,7 @@ function MapCard({ data, toggleSelected }: DataPanelItemProps<IngestMap>) {
       h.if(Array.isArray(data.tags) && data.tags.length > 0)(
         "div.tags",
         { key: "tags" },
-        (data.tags ?? []).map((t) =>
-          h(Tag, { key: t, minimal: true, round: true, children: t }),
-        ),
+        (data.tags ?? []).map((t) => h(TagChip, { key: t, name: t })),
       ),
     ],
   );
@@ -115,7 +292,10 @@ function IngestionListPanel() {
         endpoint,
         table: "maps",
         identityKey: "source_id",
-        baseOrder: [{ key: "source_id", ascending: true }],
+        // Default ordering: newest source_id first. Because this is the
+        // identity key's own default direction (not an active sort), it doesn't
+        // appear as a removable tag in the sort/filter bar.
+        identityAscending: false,
       }),
     [],
   );
@@ -128,7 +308,7 @@ function IngestionListPanel() {
       itemComponent: MapCard,
       actions: [archiveAction],
       name: "Map ingestion queue",
-      pageSize: 50,
+      pageSize: 20,
     }),
   );
 }

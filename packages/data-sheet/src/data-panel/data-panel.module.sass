@@ -24,6 +24,11 @@
   padding: 2px
 
 .data-panel-item
+  // Rows are click-selectable, so suppress native text selection — otherwise
+  // shift/cmd-click drags a text range as well as selecting the row (Finder /
+  // Gmail-style list behavior).
+  user-select: none
+
   // A hook for consumers; the card itself is user-rendered.
   &.selected
     outline: 2px solid var(--blue3, #2d72d2)
