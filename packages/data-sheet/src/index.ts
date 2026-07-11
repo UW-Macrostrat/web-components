@@ -1,4 +1,5 @@
 export * from "./core";
+export * from "./data-panel";
 export * from "./postgrest-table";
 export * from "./components";
 export * from "./provider";

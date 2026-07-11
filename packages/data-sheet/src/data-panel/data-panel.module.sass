@@ -1,0 +1,64 @@
+// Layout scaffolding for the DataPanel (card-list renderer). Card visuals are
+// the consumer's `itemComponent`; the panel owns only the surrounding chrome.
+
+.data-panel
+  display: flex
+  flex-direction: column
+  height: 100%
+  min-height: 0
+  gap: 4px
+
+.facet-controls
+  display: flex
+  align-items: center
+  gap: 6px
+  flex-wrap: wrap
+
+.data-panel-body
+  flex: 1 1 auto
+  min-height: 0
+  overflow-y: auto
+  display: flex
+  flex-direction: column
+  gap: 8px
+  padding: 2px
+
+.data-panel-item
+  // A hook for consumers; the card itself is user-rendered.
+  &.selected
+    outline: 2px solid var(--blue3, #2d72d2)
+    border-radius: 4px
+
+.skeleton-card
+  height: 48px
+  border-radius: 4px
+  background: linear-gradient(90deg, rgba(128,128,128,0.08) 25%, rgba(128,128,128,0.18) 37%, rgba(128,128,128,0.08) 63%)
+  background-size: 400% 100%
+  animation: skeleton-shimmer 1.4s ease infinite
+
+@keyframes skeleton-shimmer
+  0%
+    background-position: 100% 50%
+  100%
+    background-position: 0 50%
+
+.sentinel
+  display: flex
+  align-items: center
+  justify-content: center
+  gap: 8px
+  padding: 12px
+  color: var(--text-subtle, #738091)
+  font-size: 13px
+
+.data-panel-footer
+  display: flex
+  align-items: center
+  gap: 8px
+  padding: 4px 6px
+  font-size: 12px
+  color: var(--text-subtle, #738091)
+  border-top: 1px solid rgba(128,128,128,0.2)
+
+  .spacer
+    flex: 1
