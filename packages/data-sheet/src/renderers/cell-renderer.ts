@@ -4,14 +4,14 @@ import {
   CellDetailContext,
   editorKeyHandlerAtom,
   validateCell,
-} from "./utils";
-import { DataSheetStore, TableElementStatus } from "./types.ts";
-import h from "./main.module.sass";
+} from "../utils";
+import { DataSheetStore, TableElementStatus } from "../types.ts";
+import h from "../main.module.sass";
 import { memo, ReactNode, useEffect, useRef, useState } from "react";
-import { EditorPopup, CellDetailModal } from "./components";
-import { singleFocusedCell } from "./zustand-store.ts";
+import { EditorPopup, CellDetailModal } from "../components";
+import { singleFocusedCell } from "../zustand-store.ts";
 import { Cell } from "@blueprintjs/table";
-import { ctx, useSelector } from "./provider.ts";
+import { ctx, useSelector } from "../provider.ts";
 
 /** Two validations are equivalent if they convey the same thing — so a fresh
  * `validateCell` result object doesn't force a re-render when nothing changed. */

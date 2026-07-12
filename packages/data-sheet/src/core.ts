@@ -10,7 +10,7 @@ import {
 import "@blueprintjs/table/lib/css/table.css";
 import { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import { LoadProgressIndicator } from "./components";
-import { renderColumnHeaderCell } from "./renderers";
+import { renderColumnHeaderCell, basicCellRenderer } from "./renderers";
 import h from "./main.module.sass";
 import {
   columnSpecAtom,
@@ -33,7 +33,6 @@ import {
   TableElementStatus,
   VisibleCells,
 } from "./types.ts";
-import { basicCellRenderer } from "./cell-renderer.ts";
 import {
   CellRendererDebugOverlay,
   tableHotkeysAtom,
