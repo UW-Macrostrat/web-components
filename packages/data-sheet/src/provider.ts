@@ -79,12 +79,17 @@ export interface ResolvedDataProvider {
   provider: TableDataProvider<any> | null;
   isLocalProvider: boolean;
   isExplicitProvider: boolean;
+  /** Row count of an in-memory (local) source, so a renderer can size the
+   * loader's page to "all of it" without also receiving the `data` prop. `0`
+   * for non-local sources. */
+  localCount: number;
 }
 
 const DEFAULT_DATA_PROVIDER: ResolvedDataProvider = {
   provider: null,
   isLocalProvider: true,
   isExplicitProvider: false,
+  localCount: 0,
 };
 
 export const dataProviderAtom = atom<ResolvedDataProvider>(
@@ -131,9 +136,15 @@ export function useResolvedProvider<T>(props: {
     return null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.provider, props.fetchData, _data, props.identity]);
+  const localCount = isLocalProvider ? _data.length : 0;
   const dataProvider = useMemo(
-    () => ({ provider: activeProvider, isLocalProvider, isExplicitProvider }),
-    [activeProvider, isLocalProvider, isExplicitProvider],
+    () => ({
+      provider: activeProvider,
+      isLocalProvider,
+      isExplicitProvider,
+      localCount,
+    }),
+    [activeProvider, isLocalProvider, isExplicitProvider, localCount],
   );
   return { data: _data, isLocalProvider, activeProvider, dataProvider };
 }
@@ -202,6 +213,25 @@ export function DataSheetProviderInner<T>({
       tableRef,
     });
   }, [data, editable, staticSpec, isFnSpec, columnSpecOptions, enableColumnReordering]);
+
+  // Function `columnSpec`: derive the spec from the loaded rows (no separate
+  // fetch of sample data), here at the provider level so BOTH renderers get it
+  // — the sheet's cell grid and the panel's `FacetControls` read the same
+  // derived spec. Derive once the first rows arrive, and re-derive when the
+  // function's identity changes (a consumer memoizes it over its own view state
+  // — hidden columns, order, overrides). Guarded by the function identity, so
+  // it never re-runs as more rows page in (which would clobber in-store column
+  // state on scroll).
+  const loadedData = useSelector<T, T[]>((s) => s.data);
+  const derivedSpecFor = useRef<unknown>(null);
+  useEffect(() => {
+    if (typeof columnSpec !== "function") return;
+    if (derivedSpecFor.current === columnSpec) return;
+    const rows = loadedData.filter((r) => r != null);
+    if (rows.length === 0) return;
+    derivedSpecFor.current = columnSpec;
+    storeAPI.setState({ columnSpec: columnSpec(rows) });
+  }, [columnSpec, loadedData, storeAPI]);
 
   const bumpRefresh = ctx.useSet(dataRefreshTokenAtom);
 

@@ -58,12 +58,12 @@ import {
   TableFilter,
 } from "../actions";
 import {
+  autoLoadPagesAtom,
   FetchData,
   FetchDataOptions,
-  tableFooterAtom,
   TableDataProvider,
   useDataLoader,
-  useScrollHandler,
+  useLoadControls,
 } from "../postgrest-table";
 import classNames from "classnames";
 
@@ -139,10 +139,11 @@ export interface DataPanelProps<T = any> {
    * inside the provider, so a custom filter panel drives sort/filter through
    * the store hooks — the alternative placement to the top `toolbar`. */
   sidebar?: ReactNode;
-  /** Footer content. A function receives live load controls — `loadMore`,
-   * `loading`, `hasMore`, `loaded`, `total`, `paused` — for e.g. a "Load more"
-   * button that resumes a paused auto-load, or a folded-in counter. */
-  footer?: ReactNode | ((controls: LoadControls) => ReactNode);
+  /** Footer content. Rendered inside the provider, so it reads live load state
+   * from the store via `useLoadControls()` (loadMore / loading / hasMore /
+   * loaded / total / paused) rather than a passed-down contract — a footer, a
+   * status line, or a "Load more" button all just call the hook. */
+  footer?: ReactNode;
   /** Where the footer sits:
    * - `"below"` (default): a pinned region below the scroll, always visible.
    * - `"inline"`: the last thing in the *scroll flow* — seen only when the
@@ -151,8 +152,8 @@ export interface DataPanelProps<T = any> {
    *   the scrolling content until you get there. */
   footerPlacement?: "below" | "inline";
   /** Auto-load this many pages per burst, then pause: a paused panel stops
-   * fetching on scroll until `LoadControls.loadMore` starts the next burst
-   * (e.g. a footer "Load more" button). Omit for unbounded auto-scroll. */
+   * fetching on scroll until `useLoadControls().loadMore()` starts the next
+   * burst (e.g. a footer "Load more" button). Omit for unbounded auto-scroll. */
   autoLoadPages?: number;
   /** Bump to force a re-fetch from scratch (e.g. after an immediate edit that
    * mutated rows through the provider). */
@@ -171,31 +172,20 @@ export interface DataPanelProps<T = any> {
   className?: string;
 }
 
-/** Live loading controls handed to a function `footer` — enough to render a
- * "Load more" button, a progress readout, or a paused-state prompt. */
-export interface LoadControls {
-  /** Resume auto-loading and fetch the next page (clears a paused state). */
-  loadMore: () => void;
-  /** A fetch is in flight. */
-  loading: boolean;
-  /** More rows remain to load. */
-  hasMore: boolean;
-  /** Rows loaded so far. */
-  loaded: number;
-  /** Source total when known, else `null`. */
-  total: number | null;
-  /** Auto-load is paused (hit the `autoLoadPages` checkpoint). */
-  paused: boolean;
-}
-
 /**
  * Resolve the data source (shared with `DataSheet` / `DataView` via
  * `useResolvedProvider`), wrap in the shared provider, and render the inner
  * panel.
  */
 export function DataPanel<T>(props: DataPanelProps<T>) {
-  const { data, columnSpec, columnSpecOptions, refreshToken, identity, ...rest } =
-    props;
+  const {
+    data,
+    columnSpec,
+    columnSpecOptions,
+    refreshToken,
+    identity,
+    ...rest
+  } = props;
   const { data: _data, dataProvider } = useResolvedProvider<T>(props);
 
   return h(
@@ -213,7 +203,7 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
           refreshToken,
           identity,
         },
-        h(_DataPanel<any>, { data: _data, refreshToken, ...rest }),
+        h(_DataPanel<any>, rest),
       ),
     ),
   );
@@ -223,7 +213,6 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
  * (the `DataPanel` wrapper, or `DataView`). Exported so a shared-store
  * `DataView` can mount it directly alongside `_DataSheet`. */
 export function _DataPanel<T>({
-  data: sourceData,
   itemComponent: ItemComponent,
   actions,
   filters,
@@ -232,17 +221,18 @@ export function _DataPanel<T>({
   statusBar,
   toolbar,
   sidebar,
-  footer: footerSlot,
+  footer,
   footerPlacement = "below",
   autoLoadPages,
   scrollBody,
   topFade = true,
   className,
-}: Omit<DataPanelProps<T>, "provider" | "fetchData" | "identity"> & {
-  data?: T[];
-}) {
-  const { provider: activeProvider, isLocalProvider } =
-    ctx.useValue(dataProviderAtom);
+}: Omit<DataPanelProps<T>, "provider" | "fetchData" | "data" | "identity">) {
+  const {
+    provider: activeProvider,
+    isLocalProvider,
+    localCount,
+  } = ctx.useValue(dataProviderAtom);
 
   // The loader is mounted as a child component (below), NOT called as a hook
   // here, and only once `activeProvider` resolves. This mirrors `_DataSheet`:
@@ -251,14 +241,21 @@ export function _DataPanel<T>({
   // provider on first render and — since `fetchData` isn't one of its effect
   // deps — never re-fetch with the real one. A child that mounts with the real
   // `fetchData` already in hand sidesteps that entirely.
-  const loaderPageSize = isLocalProvider
-    ? Math.max(sourceData?.length ?? 1, 1)
-    : pageSize;
+  // A local (in-memory) source loads all of its rows in one page; its count
+  // rides on the resolved provider, so the renderer no longer takes a `data`
+  // prop (the store is the single source of live rows).
+  const loaderPageSize = isLocalProvider ? Math.max(localCount, 1) : pageSize;
 
   const data = useSelector((s) => s.data);
   const selection = useSelector((s) => s.selection);
   const storeAPI = useStoreAPI();
-  const footer = ctx.useValue(tableFooterAtom);
+
+  // Load state + pause/resume live in the store, read via `useLoadControls`
+  // (also available to the caller's `footer` via the same hook). The panel's
+  // `autoLoadPages` prop is the store's configuration input.
+  ctx.useSync(autoLoadPagesAtom, autoLoadPages ?? null);
+  const { loading, hasMore, loaded, total, paused, canLoadMore, advance } =
+    useLoadControls();
 
   // Track whether the body is scrolled off the top, to gate the top fade.
   // `setState` with an unchanged value is a no-op, so this only re-renders on
@@ -332,58 +329,26 @@ export function _DataPanel<T>({
     [storeAPI],
   );
 
-  const onScroll = useScrollHandler();
   const loadedCount = useMemo(() => {
     let n = 0;
     for (const r of data) if (r != null) n++;
     return n;
   }, [data]);
 
-  // Refresh-token and rowEditing wiring are hoisted to the provider
-  // (`DataSheetProviderInner`), shared with `_DataSheet` so both renderers get
-  // identical behavior off one `refreshToken` prop and the active provider.
+  // Refresh-token, rowEditing, and load controls (loadMore / pause) are all
+  // store-managed (see `useLoadControls`), shared with `_DataSheet` — so both
+  // renderers, and any footer, drive loading off one source.
 
-  // More to load iff the loader-sized array still has unfilled (null) slots.
-  // This tracks the loader's own sizing: exact `totalCount` when known, a
-  // trailing page of null padding while an unknown-length source hasn't run
-  // dry, and exactly `loadedCount` once it has (→ no more). So a short filtered
-  // result reports "done" instead of chasing a phantom next page.
-  const hasMore = !isLocalProvider && loadedCount < data.length;
-
-  // Auto-load checkpoint: after `autoLoadPages` pages past the resume point,
-  // pause — the sentinel stops firing until `loadMore` moves the baseline. Lets
-  // a footer interrupt infinite scroll with a "Load more" button.
-  const [resumeBaseline, setResumeBaseline] = useState(0);
-  const paused =
-    autoLoadPages != null &&
-    loadedCount - resumeBaseline >= autoLoadPages * pageSize;
-  const canLoadMore = hasMore && !footer.loading && !paused;
-
-  // Advance the loader's visible region by exactly one page. Bounded to
-  // `data.length` so a filtered result shorter than a page doesn't point past
-  // the array at phantom nulls (which the loader would refetch forever).
-  const requestMore = useCallback(() => {
-    const end = Math.min(loadedCount + pageSize, data.length);
-    onScroll({ rowIndexStart: 0, rowIndexEnd: end });
-  }, [onScroll, loadedCount, pageSize, data.length]);
-
-  // Manual load (footer "Load more"): move the pause baseline to now — which
-  // un-pauses — and nudge a fetch. Auto-scroll then resumes until the next
-  // checkpoint.
-  const loadMore = useCallback(() => {
-    setResumeBaseline(loadedCount);
-    requestMore();
-  }, [loadedCount, requestMore]);
-
-  // Infinite scroll. A naive "load a page when
-  // the bottom sentinel is visible" over-fetches: when a page's rows commit,
-  // this component re-renders (loadedCount changed) *before* the
-  // IntersectionObserver has re-evaluated the sentinel's new position, so a
-  // stale "still visible" fires a second load. `useBottomSentinel` re-observes
-  // the sentinel whenever the pass-through deps change, so every trigger
-  // reflects the *current* post-layout visibility — it loads one page, and only
-  // loads another if the sentinel is genuinely still on screen.
-  const sentinelRef = useBottomSentinel(canLoadMore ? requestMore : null, [
+  // Infinite scroll. A naive "load a page when the bottom sentinel is visible"
+  // over-fetches: when a page's rows commit, this component re-renders
+  // (loadedCount changed) *before* the IntersectionObserver has re-evaluated
+  // the sentinel's new position, so a stale "still visible" fires a second
+  // load. `useBottomSentinel` re-observes the sentinel whenever the pass-through
+  // deps change, so every trigger reflects the *current* post-layout
+  // visibility — it loads one page, and only loads another if the sentinel is
+  // genuinely still on screen. `advance` (from the store) moves the loader one
+  // page without resuming a paused auto-load.
+  const sentinelRef = useBottomSentinel(canLoadMore ? advance : null, [
     loadedCount,
     canLoadMore,
   ]);
@@ -408,25 +373,15 @@ export function _DataPanel<T>({
   });
 
   let counter: string;
-  if (footer.total != null) {
-    counter = `${footer.loaded} of ${footer.total}`;
+  if (total != null) {
+    counter = `${loaded} of ${total}`;
   } else {
-    counter = `${footer.loaded} loaded`;
+    counter = `${loaded} loaded`;
   }
 
-  let footerContent: ReactNode;
-  if (typeof footerSlot === "function") {
-    footerContent = footerSlot({
-      loadMore,
-      loading: footer.loading,
-      hasMore,
-      loaded: footer.loaded,
-      total: footer.total,
-      paused,
-    });
-  } else {
-    footerContent = footerSlot;
-  }
+  // The footer is a plain node; it reads live load state via `useLoadControls`
+  // itself (no passed-down contract).
+  const footerContent = footer;
 
   // An inline footer is the end-of-scroll region itself, so it always renders
   // (deciding its own content: spinner mid-burst, "Load more" at a pause, or an
@@ -436,8 +391,9 @@ export function _DataPanel<T>({
     footerPlacement === "inline" && footerContent != null;
   // The default spinner sentinel (below-placement): hidden while paused so the
   // pinned footer's "Load more" takes over.
-  const showSentinel =
-    !showInlineFooter && (hasMore || footer.loading) && !paused;
+  const shouldLoadNextPage = (hasMore || loading) && !paused;
+
+  const showSentinel = !showInlineFooter && shouldLoadNextPage;
 
   // Mount the loader only once the provider resolves (see `PanelLoader`). Built
   // as a real conditional — `h.if(...)` evaluates its arguments eagerly, so

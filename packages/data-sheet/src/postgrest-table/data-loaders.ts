@@ -10,7 +10,7 @@ import {
   PostgrestQueryBuilder,
 } from "@supabase/postgrest-js";
 import { adjustArraySize, RowRegion } from "./loading-utils.ts";
-import { ctx, tableDataAtom, useSelector } from "../provider.ts";
+import { ctx, dataProviderAtom, tableDataAtom, useSelector } from "../provider.ts";
 import { atom } from "jotai";
 import type { ColumnSort } from "../types.ts";
 
@@ -397,6 +397,85 @@ export const tableFooterAtom = atom<TableFooterInfo>((get) => {
     totalPages,
   };
 });
+
+/** Auto-load this many pages per burst, then pause (null ⇒ unbounded). Set by
+ * a consumer (e.g. `DataPanel`'s `autoLoadPages` prop). */
+export const autoLoadPagesAtom = atom<number | null>(null);
+
+/** Row count at the last manual "load more" — the point auto-load resumes
+ * counting a fresh burst from. */
+export const resumeBaselineAtom = atom(0);
+
+/** Live loading controls, read from the store rather than passed down a
+ * boundary contract. Any component inside the provider can call
+ * `useLoadControls()` — a footer, a toolbar button, a status line — without the
+ * renderer wiring a specific prop shape to it. */
+export interface LoadControls {
+  /** Load the next page and resume auto-loading (clears a paused state). */
+  loadMore: () => void;
+  /** A fetch is in flight. */
+  loading: boolean;
+  /** More rows remain to load. */
+  hasMore: boolean;
+  /** Rows loaded so far. */
+  loaded: number;
+  /** Source total when known, else `null`. */
+  total: number | null;
+  /** Auto-load is paused at the `autoLoadPages` checkpoint. */
+  paused: boolean;
+  /** Auto-load is currently permitted (`hasMore && !loading && !paused`) —
+   * used to gate an infinite-scroll sentinel. */
+  canLoadMore: boolean;
+  /** Advance one page *without* resuming a paused auto-load (the sentinel
+   * uses this; `loadMore` is the manual, un-pausing variant). */
+  advance: () => void;
+}
+
+/** Store-managed load controls (see `LoadControls`). Reads the loader's footer
+ * state, the loaded rows, and the pause atoms; `loadMore`/`advance` set the
+ * visible region so the loader fetches the next chunk. */
+export function useLoadControls(): LoadControls {
+  const footer = ctx.useValue(tableFooterAtom);
+  const data = ctx.useValue(tableDataAtom) ?? [];
+  const { isLocalProvider } = ctx.useValue(dataProviderAtom);
+  const resumeBaseline = ctx.useValue(resumeBaselineAtom);
+  const autoLoadPages = ctx.useValue(autoLoadPagesAtom);
+  const setResumeBaseline = ctx.useSet(resumeBaselineAtom);
+  const setVisibleRegion = ctx.useSet(visibleRegionAtom);
+
+  let loadedCount = 0;
+  for (const row of data) if (row != null) loadedCount++;
+  const pageSize = footer.pageSize || 100;
+  const dataLength = data.length;
+  const hasMore = !isLocalProvider && loadedCount < dataLength;
+  const paused =
+    autoLoadPages != null &&
+    loadedCount - resumeBaseline >= autoLoadPages * pageSize;
+  const canLoadMore = hasMore && !footer.loading && !paused;
+
+  const advance = useCallback(() => {
+    setVisibleRegion({
+      rowIndexStart: 0,
+      rowIndexEnd: Math.min(loadedCount + pageSize, dataLength),
+    });
+  }, [setVisibleRegion, loadedCount, pageSize, dataLength]);
+
+  const loadMore = useCallback(() => {
+    setResumeBaseline(loadedCount);
+    advance();
+  }, [setResumeBaseline, loadedCount, advance]);
+
+  return {
+    loadMore,
+    loading: footer.loading,
+    hasMore,
+    loaded: footer.loaded,
+    total: footer.total,
+    paused,
+    canLoadMore,
+    advance,
+  };
+}
 
 export interface ViewInfo {
   visibleRegion: RowRegion;

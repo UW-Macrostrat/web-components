@@ -31,6 +31,9 @@ export function DataView<T>(props: DataViewProps<T>) {
     columnSpec,
     columnSpecOptions,
     editable = true,
+    // `data` is only the source for the resolved provider (below); renderers
+    // read live rows from the store, so it's kept out of `common`.
+    data: _data,
     // Card-only props — kept off the table renderer so they don't leak onto
     // the Blueprint table.
     itemComponent,
@@ -41,19 +44,17 @@ export function DataView<T>(props: DataViewProps<T>) {
     autoLoadPages,
     scrollBody,
     topFade,
-    // The rest (provider/fetchData/data/identity/actions/filters/pageSize/
+    // The rest (provider/fetchData/identity/actions/filters/pageSize/
     // name/statusBar/refreshToken) is common to both renderers.
     ...common
   } = props;
 
-  const { data: _data, dataProvider } = useResolvedProvider<T>(props);
+  const { data: resolvedData, dataProvider } = useResolvedProvider<T>(props);
 
   let renderer: ReactNode;
   if (view === "cards") {
     renderer = h(_DataPanel<any>, {
       ...common,
-      columnSpec,
-      data: _data,
       itemComponent,
       toolbar,
       sidebar,
@@ -66,8 +67,6 @@ export function DataView<T>(props: DataViewProps<T>) {
   } else {
     renderer = h(_DataSheet<any>, {
       ...common,
-      columnSpec,
-      data: _data,
       editable,
     });
   }
@@ -79,7 +78,7 @@ export function DataView<T>(props: DataViewProps<T>) {
       h(
         DataSheetProvider<T>,
         {
-          data: _data,
+          data: resolvedData,
           columnSpec,
           columnSpecOptions,
           editable,

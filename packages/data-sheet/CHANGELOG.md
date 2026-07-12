@@ -14,6 +14,38 @@
   provider layer (`dataProviderAtom`), instead of being resolved inside the
   inner render component — a cleaner seam for future precomputed derived state.
 
+### Data panel & shared core
+
+- `DataPanel` — a card-list renderer over the same headless core as `DataSheet`
+  (windowed load, view state, selection, set-based actions). Slots: `itemComponent`,
+  `scrollBody`, `toolbar`, `sidebar`, `footer` (`footerPlacement: "below" | "inline"`,
+  with live `LoadControls`), `autoLoadPages`, `statusBar`, `topFade`.
+- `DataView` — `view: "table" | "cards"` toggle rendering `DataSheet` or `DataPanel`
+  from one shared store, so selection / sort / filter persist across the toggle.
+- Immediate-edit seam: the action context gains `getSelectedRows()` and
+  provider-backed, auto-refreshing `saveRows` / `deleteRows` / `insertRow` /
+  `refresh` (wired at the provider from the data provider's mutations).
+- Array-column filtering: `cs` ("has") / `ov` ("has any of") operators, offered
+  for `dataType: "array"` columns and translated to PostgREST `cs`/`ov`.
+
+### PostgREST loader
+
+- Compound keyset pagination for multi-column sorts (replaces independent
+  per-column `gt`/`lt`, which dropped rows under a low-cardinality lead sort).
+- Order clauses deduped by key (fixes the identity-key `lt`+`gt` deadlock);
+  new `identityAscending` option for a default identity-descending order.
+
+### Internal
+
+- `useResolvedProvider` — one provider-resolution path shared by `DataSheet` /
+  `DataPanel` / `DataView`; carries `localCount`, so renderers no longer take a
+  `data` prop (live rows come only from the store).
+- Hoisted to the provider (shared by both renderers): row `identity`,
+  `canDeleteRows`, `rowEditing`, `refreshToken`, and function-`columnSpec`
+  derivation.
+- Removed the dead `table-updates/` module (old `TableUpdate` model; it imported
+  web-app ingestion code).
+
 ## [4.1.1] - 2026-07-10
 
 Small fixes to the column header, filters, and toolbar. Ghost/skeleton rows

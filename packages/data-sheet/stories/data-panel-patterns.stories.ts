@@ -33,6 +33,7 @@ import {
   FacetControls,
   FilterBar,
   getSelectedRowIndices,
+  useLoadControls,
   useSelector,
   useStoreAPI,
 } from "../src";
@@ -103,7 +104,8 @@ async function fetchSamples(
   await sleep(200);
   let rows = ALL.slice();
   for (const f of filters) {
-    if (f.predicate != null) rows = rows.filter((r) => f.predicate!(r, f.state));
+    if (f.predicate != null)
+      rows = rows.filter((r) => f.predicate!(r, f.state));
   }
   for (const s of [...sorts].reverse()) {
     rows.sort((a, b) => {
@@ -117,10 +119,34 @@ async function fetchSamples(
 }
 
 const fullSpec: ColumnSpec[] = [
-  { key: "name", name: "Name", dataType: "text", filterable: true, sortable: true },
-  { key: "category", name: "Category", dataType: "string", filterable: true, sortable: true },
-  { key: "status", name: "Status", dataType: "string", filterable: true, sortable: true },
-  { key: "value", name: "Value", dataType: "integer", filterable: true, sortable: true },
+  {
+    key: "name",
+    name: "Name",
+    dataType: "text",
+    filterable: true,
+    sortable: true,
+  },
+  {
+    key: "category",
+    name: "Category",
+    dataType: "string",
+    filterable: true,
+    sortable: true,
+  },
+  {
+    key: "status",
+    name: "Status",
+    dataType: "string",
+    filterable: true,
+    sortable: true,
+  },
+  {
+    key: "value",
+    name: "Value",
+    dataType: "integer",
+    filterable: true,
+    sortable: true,
+  },
 ];
 
 const container = (child: any) =>
@@ -150,7 +176,11 @@ const cardStyle = (selected: boolean): CSSProperties => ({
 function SampleCard({ data, selected, onSelect }: DataPanelItemProps<Sample>) {
   return h("div", { onClick: onSelect, style: cardStyle(selected) }, [
     h("span", { key: "n", style: { fontWeight: 600, flex: 1 } }, data.name),
-    h(Tag, { key: "c", minimal: true, intent: CATEGORY_INTENT[data.category] }, data.category),
+    h(
+      Tag,
+      { key: "c", minimal: true, intent: CATEGORY_INTENT[data.category] },
+      data.category,
+    ),
     h("span", { key: "s", style: { fontSize: 12, opacity: 0.7 } }, data.status),
     h("code", { key: "v" }, data.value),
   ]);
@@ -209,7 +239,8 @@ function CustomToolbar() {
   const setStatus = (v: string) => {
     const st = storeAPI.getState();
     if (v === "all") st.removeFilter(statusFilter.id);
-    else st.setFilter(statusFilter.id, statusFilter, { operator: "eq", value: v });
+    else
+      st.setFilter(statusFilter.id, statusFilter, { operator: "eq", value: v });
   };
   const cycleValueSort = () => {
     const next = valueSort == null ? true : valueSort.ascending ? false : null;
@@ -218,7 +249,14 @@ function CustomToolbar() {
 
   return h(
     "div",
-    { style: { display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" } },
+    {
+      style: {
+        display: "flex",
+        gap: "8px",
+        alignItems: "center",
+        flexWrap: "wrap",
+      },
+    },
     [
       h(SegmentedControl, {
         key: "status",
@@ -246,7 +284,10 @@ function CustomToolbar() {
         },
         "Value",
       ),
-      h("div", { key: "sep", style: { width: 1, height: 20, background: "rgba(128,128,128,0.3)" } }),
+      h("div", {
+        key: "sep",
+        style: { width: 1, height: 20, background: "rgba(128,128,128,0.3)" },
+      }),
       // The default facet menus still available, unchanged.
       h(FacetControls, { key: "facets" }),
     ],
@@ -293,9 +334,17 @@ export const WithFooter: StoryObj = {
             },
           },
           [
-            h("span", { key: "t", style: { flex: 1 } }, "Bulk actions apply to the current view"),
+            h(
+              "span",
+              { key: "t", style: { flex: 1 } },
+              "Bulk actions apply to the current view",
+            ),
             h(Button, { key: "e", small: true, icon: "export" }, "Export all"),
-            h(Button, { key: "v", small: true, intent: "primary", icon: "confirm" }, "Validate all"),
+            h(
+              Button,
+              { key: "v", small: true, intent: "primary", icon: "confirm" },
+              "Validate all",
+            ),
           ],
         ),
       }),
@@ -344,7 +393,11 @@ function LinkCard({ data, selected, onSelect }: DataPanelItemProps<Sample>) {
         },
         data.name,
       ),
-      h(Tag, { key: "c", minimal: true, intent: CATEGORY_INTENT[data.category] }, data.category),
+      h(
+        Tag,
+        { key: "c", minimal: true, intent: CATEGORY_INTENT[data.category] },
+        data.category,
+      ),
     ],
   );
 }
@@ -408,7 +461,11 @@ function GridCard({ data, selected, onSelect }: DataPanelItemProps<Sample>) {
     },
     [
       h("span", { key: "n", style: { fontWeight: 600 } }, data.name),
-      h(Tag, { key: "c", minimal: true, intent: CATEGORY_INTENT[data.category] }, data.category),
+      h(
+        Tag,
+        { key: "c", minimal: true, intent: CATEGORY_INTENT[data.category] },
+        data.category,
+      ),
       h("code", { key: "v", style: { fontSize: 12 } }, `value ${data.value}`),
     ],
   );
@@ -468,7 +525,12 @@ function FacetSection({
 }) {
   const storeAPI = useStoreAPI();
   const filter = useMemo(
-    () => columnFilter({ key: field, name: title, dataType: "string" } as ColumnSpec),
+    () =>
+      columnFilter({
+        key: field,
+        name: title,
+        dataType: "string",
+      } as ColumnSpec),
     [field, title],
   );
   const active = useSelector(
@@ -513,8 +575,18 @@ function FacetSection({
 function FilterSidebar() {
   return h("div", [
     h("h5", { key: "h", style: { marginTop: 0 } }, "Filters"),
-    h(FacetSection, { key: "cat", title: "Category", field: "category", options: CATEGORIES }),
-    h(FacetSection, { key: "st", title: "Status", field: "status", options: STATUSES }),
+    h(FacetSection, {
+      key: "cat",
+      title: "Category",
+      field: "category",
+      options: CATEGORIES,
+    }),
+    h(FacetSection, {
+      key: "st",
+      title: "Status",
+      field: "status",
+      options: STATUSES,
+    }),
   ]);
 }
 
@@ -549,12 +621,16 @@ const TAG_INTENT: Record<string, any> = {
 };
 
 function TaggedCard({ data, selected, onSelect }: DataPanelItemProps<Sample>) {
-  return h("div", { onClick: (e: any) => onSelect(e), style: cardStyle(selected) }, [
-    h("span", { key: "n", style: { fontWeight: 600, flex: 1 } }, data.name),
-    ...(data.tags ?? []).map((t) =>
-      h(Tag, { key: t, minimal: true, intent: TAG_INTENT[t] }, t),
-    ),
-  ]);
+  return h(
+    "div",
+    { onClick: (e: any) => onSelect(e), style: cardStyle(selected) },
+    [
+      h("span", { key: "n", style: { fontWeight: 600, flex: 1 } }, data.name),
+      ...(data.tags ?? []).map((t) =>
+        h(Tag, { key: t, minimal: true, intent: TAG_INTENT[t] }, t),
+      ),
+    ],
+  );
 }
 
 // The add/remove preflight form: pick a palette tag (`detailsForm` pattern).
@@ -605,8 +681,11 @@ function editTagAction(
 const addTagAction = editTagAction("add-tag", "Add tag", "tag", (tags, tag) => [
   ...new Set([...tags, tag]),
 ]);
-const removeTagAction = editTagAction("remove-tag", "Remove tag", "cross", (tags, tag) =>
-  tags.filter((t) => t !== tag),
+const removeTagAction = editTagAction(
+  "remove-tag",
+  "Remove tag",
+  "cross",
+  (tags, tag) => tags.filter((t) => t !== tag),
 );
 
 // A mutable in-memory source with `saveRows` — the data side of the edit. The
@@ -721,7 +800,10 @@ function TagEditorButton() {
   const rows = useSelectedRows();
   return h(
     PopoverNext,
-    { placement: "bottom-start", content: h("div", { style: { padding: "6px" } }, h(TagEditorControl)) },
+    {
+      placement: "bottom-start",
+      content: h("div", { style: { padding: "6px" } }, h(TagEditorControl)),
+    },
     h(
       Button,
       { small: true, minimal: true, icon: "tag", rightIcon: "caret-down" },
@@ -776,8 +858,10 @@ export const BulkTagEditor: StoryObj = {
 // flow (so it's seen only at the bottom). It folds in the counter (no bottom
 // status bar), shows a spinner while a burst auto-loads, and a big "Load more"
 // at each pause. `autoLoadPages: 2` pauses every second page.
-function InlineFooter(c: LoadControls) {
-  const counter = c.total != null ? `${c.loaded} of ${c.total}` : `${c.loaded} loaded`;
+function InlineFooter() {
+  const c = useLoadControls();
+  const counter =
+    c.total != null ? `${c.loaded} of ${c.total}` : `${c.loaded} loaded`;
 
   let action: ReactNode;
   if (!c.hasMore) {
@@ -785,14 +869,27 @@ function InlineFooter(c: LoadControls) {
   } else if (c.paused) {
     action = h(
       Button,
-      { large: true, intent: "primary", icon: "chevron-down", onClick: c.loadMore },
+      {
+        large: true,
+        intent: "primary",
+        icon: "chevron-down",
+        onClick: c.loadMore,
+      },
       "Load more",
     );
   } else {
-    action = h("span", { style: { display: "flex", gap: "8px", alignItems: "center", opacity: 0.7 } }, [
-      h(Spinner, { key: "s", size: 18 }),
-      "Loading more…",
-    ]);
+    action = h(
+      "span",
+      {
+        style: {
+          display: "flex",
+          gap: "8px",
+          alignItems: "center",
+          opacity: 0.7,
+        },
+      },
+      [h(Spinner, { key: "s", size: 18 }), "Loading more…"],
+    );
   }
 
   return h(
@@ -809,7 +906,11 @@ function InlineFooter(c: LoadControls) {
     },
     [
       action,
-      h("div", { key: "count", style: { fontSize: 12, opacity: 0.6 } }, counter),
+      h(
+        "div",
+        { key: "count", style: { fontSize: 12, opacity: 0.6 } },
+        counter,
+      ),
     ],
   );
 }
@@ -835,7 +936,7 @@ export const PausingFooter: StoryObj = {
         pageSize: 20,
         autoLoadPages: 2,
         name: "Samples",
-        footer: InlineFooter,
+        footer: h(InlineFooter),
         footerPlacement: "inline",
         statusBar: false,
       }),
@@ -874,10 +975,22 @@ function MasonryCard({ data, selected, onSelect }: DataPanelItemProps<Sample>) {
     },
     [
       h("span", { key: "n", style: { fontWeight: 600 } }, data.name),
-      h(Tag, { key: "c", minimal: true, intent: CATEGORY_INTENT[data.category] }, data.category),
+      h(
+        Tag,
+        { key: "c", minimal: true, intent: CATEGORY_INTENT[data.category] },
+        data.category,
+      ),
       h(
         "p",
-        { key: "b", style: { margin: 0, fontSize: 12, opacity: 0.75, whiteSpace: "pre-line" } },
+        {
+          key: "b",
+          style: {
+            margin: 0,
+            fontSize: 12,
+            opacity: 0.75,
+            whiteSpace: "pre-line",
+          },
+        },
         blurbFor(data.id),
       ),
     ],
@@ -911,7 +1024,8 @@ function MasonryScrollBody({ children }: ScrollBodyProps) {
   }
 
   useLayoutEffect(() => {
-    for (const [i, el] of elsRef.current) heightRef.current[i] = el.offsetHeight;
+    for (const [i, el] of elsRef.current)
+      heightRef.current[i] = el.offsetHeight;
     const assign = assignRef.current;
     if (assign.length >= items.length) return;
     // Column heights from already-finalized items…
@@ -933,7 +1047,10 @@ function MasonryScrollBody({ children }: ScrollBodyProps) {
 
   // Unfinalized (new) items render in a provisional column so they mount and
   // can be measured; the layout effect above then finalizes them.
-  const columns: ReactNode[][] = Array.from({ length: MASONRY_COLUMNS }, () => []);
+  const columns: ReactNode[][] = Array.from(
+    { length: MASONRY_COLUMNS },
+    () => [],
+  );
   items.forEach((child, i) => {
     const col = assignRef.current[i] ?? i % MASONRY_COLUMNS;
     columns[col].push(
@@ -954,7 +1071,12 @@ function MasonryScrollBody({ children }: ScrollBodyProps) {
         "div",
         {
           key: c,
-          style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column" },
+          style: {
+            flex: 1,
+            minWidth: 0,
+            display: "flex",
+            flexDirection: "column",
+          },
         },
         col,
       ),
@@ -1036,28 +1158,45 @@ function ExpandableFilters() {
         },
       },
       [
-        h(FacetSection, { key: "cat", title: "Category", field: "category", options: CATEGORIES }),
-        h(FacetSection, { key: "st", title: "Status", field: "status", options: STATUSES }),
+        h(FacetSection, {
+          key: "cat",
+          title: "Category",
+          field: "category",
+          options: CATEGORIES,
+        }),
+        h(FacetSection, {
+          key: "st",
+          title: "Status",
+          field: "status",
+          options: STATUSES,
+        }),
         h(SortControls, { key: "sort" }),
       ],
     );
   }
   return h("div", { style: { display: "flex", flexDirection: "column" } }, [
-    h("div", { key: "bar", style: { display: "flex", alignItems: "center", gap: "8px" } }, [
-      h(
-        Button,
-        {
-          key: "toggle",
-          icon: "filter",
-          rightIcon: open ? "chevron-up" : "chevron-down",
-          active: open,
-          onClick: () => setOpen((o) => !o),
-        },
-        "Filters & Sort",
-      ),
-      // Active filters stay visible as chips even when the panel is collapsed.
-      h(FilterBar, { key: "chips" }),
-    ]),
+    h(
+      "div",
+      {
+        key: "bar",
+        style: { display: "flex", alignItems: "center", gap: "8px" },
+      },
+      [
+        h(
+          Button,
+          {
+            key: "toggle",
+            icon: "filter",
+            rightIcon: open ? "chevron-up" : "chevron-down",
+            active: open,
+            onClick: () => setOpen((o) => !o),
+          },
+          "Filters & Sort",
+        ),
+        // Active filters stay visible as chips even when the panel is collapsed.
+        h(FilterBar, { key: "chips" }),
+      ],
+    ),
     panel,
   ]);
 }
@@ -1109,25 +1248,48 @@ function TableCardsDemo() {
   });
 
   return container(
-    h("div", { style: { display: "flex", flexDirection: "column", height: "100%", gap: "8px" } }, [
-      h("div", { key: "bar", style: { display: "flex", alignItems: "center", gap: "8px" } }, [
-        h("b", { key: "l" }, "View:"),
-        toggle,
-      ]),
-      h(
-        "div",
-        { key: "view", style: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column" } },
-        h(DataView<Sample>, {
-          view,
-          provider,
-          columnSpec: toggleSpec,
-          actions: [addTagAction, removeTagAction],
-          itemComponent: TaggedCard,
-          pageSize: 25,
-          name: "Samples",
-        }),
-      ),
-    ]),
+    h(
+      "div",
+      {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          gap: "8px",
+        },
+      },
+      [
+        h(
+          "div",
+          {
+            key: "bar",
+            style: { display: "flex", alignItems: "center", gap: "8px" },
+          },
+          [h("b", { key: "l" }, "View:"), toggle],
+        ),
+        h(
+          "div",
+          {
+            key: "view",
+            style: {
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+            },
+          },
+          h(DataView<Sample>, {
+            view,
+            provider,
+            columnSpec: toggleSpec,
+            actions: [addTagAction, removeTagAction],
+            itemComponent: TaggedCard,
+            pageSize: 25,
+            name: "Samples",
+          }),
+        ),
+      ],
+    ),
   );
 }
 

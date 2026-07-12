@@ -220,8 +220,6 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     },
     h(_DataSheet<any>, {
       ...rest,
-      data: _data,
-      columnSpec,
       children,
       editable,
       enableColumnReordering,
@@ -275,7 +273,6 @@ async function persistViaProvider<T>(
  * `DataSheetProvider` (the `DataSheet` wrapper, or `DataView`). Exported so a
  * shared-store `DataView` can mount it directly alongside `_DataPanel`. */
 export function _DataSheet<T>({
-  data: sourceData,
   fetchData,
   provider,
   pageSize,
@@ -304,7 +301,6 @@ export function _DataSheet<T>({
   actions,
   filters,
   columnHeaderCellRenderer,
-  columnSpec: columnSpecProp,
   statusBar,
   rowStatusStyles,
   rowHeaderRenderer,
@@ -324,7 +320,7 @@ export function _DataSheet<T>({
 
   // The active data source is resolved in the wrapper (`DataSheet`) and held in
   // the provider layer; read it here rather than resolving per render.
-  const { provider: activeProvider, isLocalProvider } =
+  const { provider: activeProvider, isLocalProvider, localCount } =
     ctx.useValue(dataProviderAtom);
 
   // When an explicit provider owns persistence, its methods drive the built-in
@@ -519,21 +515,8 @@ export function _DataSheet<T>({
     });
   }, [deriveOverlay, loadedData, storeState]);
 
-  // Function `columnSpec`: derive the spec from the loaded rows (no separate
-  // fetch of sample data). Derive once the first rows arrive, and re-derive
-  // when the function's identity changes (a consumer memoizes it over its
-  // own view state — hidden columns, order, overrides). Not re-run as more
-  // rows page in (guarded by the function identity), so it never clobbers
-  // in-store column state on scroll.
-  const derivedSpecFor = useRef<unknown>(null);
-  useEffect(() => {
-    if (typeof columnSpecProp !== "function") return;
-    if (derivedSpecFor.current === columnSpecProp) return;
-    const rows = loadedData.filter((r) => r != null);
-    if (rows.length === 0) return;
-    derivedSpecFor.current = columnSpecProp;
-    storeState.setState({ columnSpec: columnSpecProp(rows) });
-  }, [columnSpecProp, loadedData, storeState]);
+  // Function `columnSpec` derivation is hoisted to the provider
+  // (`DataSheetProviderInner`), shared by both renderers.
 
   // Identity and canDeleteRows sync are hoisted to the provider
   // (`DataSheetProviderInner`), shared with `_DataPanel` — both depend only on
@@ -677,12 +660,13 @@ export function _DataSheet<T>({
   let dataLoader: ReactNode = null;
   if (activeProvider != null) {
     _showLoadProgress = !isLocalProvider;
+    // A local (in-memory) source loads all its rows in one page; its count
+    // rides on the resolved provider (`localCount`), so `_DataSheet` no longer
+    // takes a `data` prop — live rows come only from the store.
     dataLoader = h(_DataLoaderManager, {
       key: "__data_loader",
       fetchData: activeProvider.fetchData,
-      pageSize: isLocalProvider
-        ? Math.max(sourceData?.length ?? 1, 1)
-        : pageSize,
+      pageSize: isLocalProvider ? Math.max(localCount, 1) : pageSize,
       fetchMode: isLocalProvider ? undefined : fetchMode,
     });
   }
