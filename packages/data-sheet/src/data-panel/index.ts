@@ -429,7 +429,7 @@ export function _DataPanel<T>({
     cards.push(
       h(
         "div.data-panel-item",
-        { key: `row-${i}`, className: selected ? "selected" : undefined },
+        { key: `row-${i}`, className: classNames({ selected }) },
         h(ItemComponent, {
           data: row,
           index: i,
@@ -441,22 +441,26 @@ export function _DataPanel<T>({
     );
   });
 
-  const counter =
-    footer.total != null
-      ? `${footer.loaded} of ${footer.total}`
-      : `${footer.loaded} loaded`;
+  let counter: string;
+  if (footer.total != null) {
+    counter = `${footer.loaded} of ${footer.total}`;
+  } else {
+    counter = `${footer.loaded} loaded`;
+  }
 
-  const footerContent =
-    typeof footerSlot === "function"
-      ? footerSlot({
-          loadMore,
-          loading: footer.loading,
-          hasMore,
-          loaded: footer.loaded,
-          total: footer.total,
-          paused,
-        })
-      : footerSlot;
+  let footerContent: ReactNode;
+  if (typeof footerSlot === "function") {
+    footerContent = footerSlot({
+      loadMore,
+      loading: footer.loading,
+      hasMore,
+      loaded: footer.loaded,
+      total: footer.total,
+      paused,
+    });
+  } else {
+    footerContent = footerSlot;
+  }
 
   // An inline footer is the end-of-scroll region itself, so it always renders
   // (deciding its own content: spinner mid-burst, "Load more" at a pause, or an
@@ -486,13 +490,15 @@ export function _DataPanel<T>({
   // either the caller's custom `toolbar` or the default FacetControls +
   // FilterBar. A custom toolbar owns its own filter display, so the default
   // FilterBar steps aside (the caller can re-include either via the exports).
-  const controls =
-    toolbar !== undefined
-      ? toolbar
-      : [
-          h(FacetControls, { key: "facets" }),
-          h(FilterBar, { key: "filter-bar", filters: filters ?? [] }),
-        ];
+  let controls: ReactNode;
+  if (toolbar !== undefined) {
+    controls = toolbar;
+  } else {
+    controls = [
+      h(FacetControls, { key: "facets" }),
+      h(FilterBar, { key: "filter-bar", filters: filters ?? [] }),
+    ];
+  }
 
   const ScrollBody = scrollBody ?? DefaultScrollBody;
 
@@ -533,30 +539,36 @@ export function _DataPanel<T>({
 
   // Body + optional filter/detail sidebar share a horizontal row so each
   // scrolls independently.
-  const main =
-    sidebar != null
-      ? h("div.data-panel-main", { key: "main" }, [
-          h("div.data-panel-sidebar", { key: "sidebar" }, sidebar),
-          body,
-        ])
-      : body;
+  let main: ReactNode;
+  if (sidebar != null) {
+    main = h("div.data-panel-main", { key: "main" }, [
+      h("div.data-panel-sidebar", { key: "sidebar" }, sidebar),
+      body,
+    ]);
+  } else {
+    main = body;
+  }
 
   // Pinned footer below the scroll (unless the footer is placed inline).
-  const pinnedFooter =
-    !showInlineFooter && footerContent != null
-      ? h("div.data-panel-footer-slot", { key: "footer-slot" }, footerContent)
-      : null;
+  let pinnedFooter: ReactNode = null;
+  if (!showInlineFooter && footerContent != null) {
+    pinnedFooter = h(
+      "div.data-panel-footer-slot",
+      { key: "footer-slot" },
+      footerContent,
+    );
+  }
 
   // Bottom status row (counter + extras). `statusBar === false` drops it — e.g.
   // when an inline footer carries the counter itself.
-  const statusRow =
-    statusBar === false
-      ? null
-      : h("div.data-panel-footer", { key: "footer" }, [
-          h("span.counter", { key: "counter" }, counter),
-          h("div.spacer", { key: "spacer" }),
-          statusBar,
-        ]);
+  let statusRow: ReactNode = null;
+  if (statusBar !== false) {
+    statusRow = h("div.data-panel-footer", { key: "footer" }, [
+      h("span.counter", { key: "counter" }, counter),
+      h("div.spacer", { key: "spacer" }),
+      statusBar,
+    ]);
+  }
 
   return h("div.data-panel", { className }, [
     loaderNode,
