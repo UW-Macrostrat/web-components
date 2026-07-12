@@ -14,16 +14,27 @@ import {
   ReactElement,
   ReactNode,
 } from "react";
-import { Button, Checkbox, SegmentedControl, Spinner, Tag } from "@blueprintjs/core";
+import {
+  Button,
+  Checkbox,
+  InputGroup,
+  Menu,
+  MenuItem,
+  PopoverNext,
+  SegmentedControl,
+  Spinner,
+  Tag,
+} from "@blueprintjs/core";
 import { RegionCardinality } from "@blueprintjs/table";
 import {
   columnFilter,
   createLocalProvider,
   DataPanel,
   DataPanelItemProps,
-  DataSheet,
+  DataView,
   FacetControls,
   FilterBar,
+  getSelectedRowIndices,
   useSelector,
   useStoreAPI,
 } from "../src";
@@ -967,15 +978,9 @@ const toggleSpec: ColumnSpec[] = [
 
 function TableCardsDemo() {
   const [view, setView] = useState<"cards" | "table">("cards");
-  // One shared provider (data + saveRows) drives both views. Edits made in one
-  // view persist to it, so toggling shows them in the other.
+  // One shared provider (data + saveRows); `DataView` also shares one store
+  // across the toggle, so selection / sort / filter persist too.
   const provider = useMemo(makeEditableProvider, []);
-
-  const shared = {
-    provider,
-    columnSpec: toggleSpec,
-    actions: [addTagAction, removeTagAction],
-  };
 
   const toggle = h(SegmentedControl, {
     small: true,
@@ -987,40 +992,36 @@ function TableCardsDemo() {
     onValueChange: (v: string) => setView(v as "cards" | "table"),
   });
 
-  let body: ReactNode;
-  if (view === "cards") {
-    body = h(DataPanel<Sample>, {
-      ...shared,
-      itemComponent: TaggedCard,
-      pageSize: 25,
-      name: "Samples",
-    });
-  } else {
-    body = h(DataSheet, { ...shared, editable: true });
-  }
-
   return container(
     h("div", { style: { display: "flex", flexDirection: "column", height: "100%", gap: "8px" } }, [
       h("div", { key: "bar", style: { display: "flex", alignItems: "center", gap: "8px" } }, [
         h("b", { key: "l" }, "View:"),
         toggle,
       ]),
-      h("div", { key: "view", style: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column" } }, body),
+      h(
+        "div",
+        { key: "view", style: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column" } },
+        h(DataView<Sample>, {
+          view,
+          provider,
+          columnSpec: toggleSpec,
+          actions: [addTagAction, removeTagAction],
+          itemComponent: TaggedCard,
+          pageSize: 25,
+          name: "Samples",
+        }),
+      ),
     ]),
   );
 }
 
 /**
- * **Table ⇄ cards toggle.** The same provider, column spec, and (generic) edit
- * actions render as either the card `DataPanel` or the cell `DataSheet`. Select
- * rows and Add/Remove a tag in either view — the edit persists through the
- * shared provider, so toggling shows it in the other. This is the payoff of the
- * shared headless core: one data + behavior definition, two presentations.
- *
- * Limitation (next step): the two views still hold *separate stores*, so
- * transient view state (selection, active sort/filter) resets on toggle — only
- * the persisted data carries across. Sharing one store across renderers is the
- * remaining unification (hoist `DataSheetProvider` above both).
+ * **Table ⇄ cards toggle** via `DataView`, which mounts one shared store and
+ * swaps the renderer. The same provider, column spec, and (generic) edit
+ * actions drive either the card `DataPanel` or the cell `DataSheet`. Because the
+ * store is shared, **selection / sort / filter persist across the toggle**, and
+ * edits (via the shared edit seam) show in both. The realized headless core:
+ * one data + behavior definition, two presentations.
  */
 export const TableCardsToggle: StoryObj = {
   name: "Table / cards toggle",

@@ -1,4 +1,4 @@
-import { SetStateAction, useEffect, useRef, useState } from "react";
+import { SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, StoreApi, useStore } from "zustand";
 import type { Table } from "@blueprintjs/table";
@@ -15,7 +15,7 @@ import { createZustandStore } from "./zustand-store.ts";
 import { atomWithStore } from "jotai-zustand";
 import { toasterAtom } from "./notifications.ts";
 import { TableAction } from "./actions";
-import type { TableDataProvider } from "./postgrest-table";
+import { createLocalProvider, type FetchData, type TableDataProvider } from "./postgrest-table";
 import { atom } from "jotai";
 
 /** Create a Jotai scoped store */
@@ -85,6 +85,52 @@ const DEFAULT_DATA_PROVIDER: ResolvedDataProvider = {
 export const dataProviderAtom = atom<ResolvedDataProvider>(
   DEFAULT_DATA_PROVIDER,
 );
+
+const EMPTY_ARRAY: any[] = [];
+
+/** Resolve a table's data source from the loose `provider` / `fetchData` /
+ * `data` props (an explicit `provider` wins; else a loose `fetchData` (+
+ * `identity`) is wrapped as one; else in-memory `data` becomes a local
+ * provider). Shared by `DataSheet`, `DataPanel`, and `DataView` so all three
+ * resolve identically. */
+export function useResolvedProvider<T>(props: {
+  provider?: TableDataProvider<T>;
+  fetchData?: FetchData<T>;
+  data?: T[];
+  identity?: (row: T) => string | number | null | undefined;
+}): {
+  data: T[];
+  isLocalProvider: boolean;
+  activeProvider: TableDataProvider<any> | null;
+  dataProvider: ResolvedDataProvider;
+} {
+  const _data = props.data ?? (EMPTY_ARRAY as T[]);
+  const isLocalProvider = props.provider == null && props.fetchData == null;
+  const activeProvider = useMemo<TableDataProvider<any> | null>(() => {
+    if (props.provider != null) return props.provider;
+    if (props.fetchData != null) {
+      return {
+        fetchData: props.fetchData,
+        identity: props.identity ?? ((r: any) => r?.id),
+      } as TableDataProvider<any>;
+    }
+    if (_data.length > 0) {
+      return createLocalProvider(
+        _data,
+        props.identity != null
+          ? { identity: props.identity as (row: any) => string | number }
+          : undefined,
+      );
+    }
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.provider, props.fetchData, _data, props.identity]);
+  const dataProvider = useMemo(
+    () => ({ provider: activeProvider, isLocalProvider }),
+    [activeProvider, isLocalProvider],
+  );
+  return { data: _data, isLocalProvider, activeProvider, dataProvider };
+}
 
 export function DataSheetProvider<T>(
   props: DataSheetProviderProps<T> & { dataProvider?: ResolvedDataProvider },

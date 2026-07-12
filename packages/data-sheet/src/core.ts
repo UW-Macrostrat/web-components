@@ -19,6 +19,7 @@ import {
   DataSheetProvider,
   storeAtom,
   tableActionsAtom,
+  useResolvedProvider,
   useSelector,
   useStoreAPI,
 } from "./provider";
@@ -198,36 +199,13 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     ...rest
   } = props;
 
-  const _data = data ?? emptyData;
-
   // Resolve the data source ONCE, here in the wrapper (not per-render inside
   // `_DataSheet`): an explicit `provider` wins; else a loose `fetchData`
   // (+ identity) is wrapped as one; else in-memory `data` becomes a local
   // provider. Held in the provider layer via `dataProviderAtom` (see
-  // `DataSheetProviderInner`), so the loader and store read it and future
-  // derived state can be computed alongside it.
-  const isLocalProvider = props.provider == null && props.fetchData == null;
-  const activeProvider = useMemo<TableDataProvider<any> | null>(() => {
-    if (props.provider != null) return props.provider;
-    if (props.fetchData != null) {
-      return {
-        fetchData: props.fetchData,
-        identity: props.identity ?? ((r: any) => r?.id),
-      };
-    }
-    if (_data.length > 0) {
-      return createLocalProvider(
-        _data,
-        props.identity != null ? { identity: props.identity } : undefined,
-      );
-    }
-    return null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.provider, props.fetchData, _data, props.identity]);
-  const dataProvider = useMemo(
-    () => ({ provider: activeProvider, isLocalProvider }),
-    [activeProvider, isLocalProvider],
-  );
+  // `DataSheetProviderInner`), so the loader and store read it. Shared with
+  // `DataPanel` / `DataView` via `useResolvedProvider`.
+  const { data: _data, dataProvider } = useResolvedProvider<T>(props);
 
   return h(
     DataSheetProvider<T>,
@@ -294,7 +272,10 @@ async function persistViaProvider<T>(
   }
 }
 
-function _DataSheet<T>({
+/** The table (cell-grid) renderer. Assumes it is rendered inside a
+ * `DataSheetProvider` (the `DataSheet` wrapper, or `DataView`). Exported so a
+ * shared-store `DataView` can mount it directly alongside `_DataPanel`. */
+export function _DataSheet<T>({
   data: sourceData,
   fetchData,
   provider,

@@ -1,5 +1,6 @@
 export * from "./core";
 export * from "./data-panel";
+export * from "./data-view";
 export * from "./postgrest-table";
 export * from "./components";
 export * from "./provider";

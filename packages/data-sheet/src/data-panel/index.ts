@@ -40,6 +40,7 @@ import {
   ctx,
   DataSheetProvider,
   dataProviderAtom,
+  useResolvedProvider,
   useSelector,
   useStoreAPI,
 } from "../provider";
@@ -57,7 +58,6 @@ import {
   TableFilter,
 } from "../actions";
 import {
-  createLocalProvider,
   dataRefreshTokenAtom,
   FetchData,
   FetchDataOptions,
@@ -188,43 +188,14 @@ export interface LoadControls {
   paused: boolean;
 }
 
-const emptyData: any[] = [];
-
 /**
- * Resolve the data source once (mirrors `DataSheet`), wrap in the shared
- * provider, and render the inner panel. An explicit `provider` wins; else a
- * loose `fetchData` (+ identity); else in-memory `data` becomes a local
- * provider.
+ * Resolve the data source (shared with `DataSheet` / `DataView` via
+ * `useResolvedProvider`), wrap in the shared provider, and render the inner
+ * panel.
  */
 export function DataPanel<T>(props: DataPanelProps<T>) {
   const { data, columnSpec, columnSpecOptions, ...rest } = props;
-  const _data = data ?? emptyData;
-
-  const isLocalProvider = props.provider == null && props.fetchData == null;
-  const activeProvider = useMemo<TableDataProvider<any> | null>(() => {
-    if (props.provider != null) return props.provider;
-    if (props.fetchData != null) {
-      return {
-        fetchData: props.fetchData,
-        identity: props.identity ?? ((r: any) => r?.id),
-      } as TableDataProvider<any>;
-    }
-    if (_data.length > 0) {
-      return createLocalProvider(
-        _data,
-        props.identity != null
-          ? { identity: props.identity as (row: any) => string | number }
-          : undefined,
-      );
-    }
-    return null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.provider, props.fetchData, _data, props.identity]);
-
-  const dataProvider = useMemo(
-    () => ({ provider: activeProvider, isLocalProvider }),
-    [activeProvider, isLocalProvider],
-  );
+  const { data: _data, dataProvider } = useResolvedProvider<T>(props);
 
   return h(
     ErrorBoundary,
@@ -245,7 +216,10 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
   );
 }
 
-function _DataPanel<T>({
+/** The card-list renderer. Assumes it is rendered inside a `DataSheetProvider`
+ * (the `DataPanel` wrapper, or `DataView`). Exported so a shared-store
+ * `DataView` can mount it directly alongside `_DataSheet`. */
+export function _DataPanel<T>({
   data: sourceData,
   itemComponent: ItemComponent,
   actions,
@@ -306,6 +280,21 @@ function _DataPanel<T>({
   useEffect(() => {
     if (selection == null || selection.length === 0) anchorRef.current = null;
   }, [selection]);
+
+  // A card list has no cells or columns. When the selection carries columns —
+  // inherited from a shared store the sheet also drives (a `DataView` toggle) —
+  // coerce it to the full rows it covers, so the toolbar shows row-scoped
+  // actions rather than column/cell ones for a column that isn't visible here.
+  // Column-only selections (no rows) collapse to nothing. Self-limiting: the
+  // panel's own selections never carry columns, so this only fires on inherit.
+  useEffect(() => {
+    if (selection == null || !selection.some((r) => r.cols != null)) return;
+    storeAPI.setState({
+      selection: indicesToRegions(new Set(getSelectedRowIndices(selection))),
+      focusedCell: null,
+      topLeftCell: null,
+    });
+  }, [selection, storeAPI]);
 
   // Selection is expressed as `FULL_ROWS` regions (contiguous runs merged into
   // ranges) so the existing row-targeted action machinery (toolbar title,
