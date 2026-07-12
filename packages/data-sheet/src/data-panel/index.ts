@@ -66,6 +66,7 @@ import {
   useDataLoader,
   useScrollHandler,
 } from "../postgrest-table";
+import classNames from "classnames";
 
 /** Selection modifier keys, following the familiar list idiom. */
 export interface SelectModifiers {
@@ -262,12 +263,9 @@ export function _DataPanel<T>({
   // `setState` with an unchanged value is a no-op, so this only re-renders on
   // the at-top ↔ scrolled transition.
   const [scrolled, setScrolled] = useState(false);
-  const onBodyScroll = useCallback(
-    (e: ReactUIEvent<HTMLDivElement>) => {
-      setScrolled(e.currentTarget.scrollTop > 4);
-    },
-    [],
-  );
+  const onBodyScroll = useCallback((e: ReactUIEvent<HTMLDivElement>) => {
+    setScrolled(e.currentTarget.scrollTop > 4);
+  }, []);
 
   const selectedIndices = useMemo(
     () => new Set(getSelectedRowIndices(selection)),
@@ -303,7 +301,9 @@ export function _DataPanel<T>({
   // shift = range from the anchor.
   const select = useCallback(
     (index: number, mods: SelectModifiers) => {
-      const current = new Set(getSelectedRowIndices(storeAPI.getState().selection));
+      const current = new Set(
+        getSelectedRowIndices(storeAPI.getState().selection),
+      );
       let next: Set<number>;
       if (mods.range && anchorRef.current != null) {
         const a = anchorRef.current;
@@ -358,14 +358,15 @@ export function _DataPanel<T>({
   useEffect(() => {
     const p = activeProvider;
     const refresh = () => bumpRefresh((v) => v + 1);
-    const withRefresh =
-      <A extends any[]>(fn?: (...args: A) => Promise<void>) =>
-        fn == null
-          ? undefined
-          : async (...args: A) => {
-              await fn(...args);
-              refresh();
-            };
+    const withRefresh = <A extends any[]>(
+      fn?: (...args: A) => Promise<void>,
+    ) =>
+      fn == null
+        ? undefined
+        : async (...args: A) => {
+            await fn(...args);
+            refresh();
+          };
     storeAPI.setState({
       rowEditing: {
         saveRows: withRefresh(p?.saveRows?.bind(p)),
@@ -408,7 +409,7 @@ export function _DataPanel<T>({
     requestMore();
   }, [loadedCount, requestMore]);
 
-  // Infinite scroll, without the classic double-load. A naive "load a page when
+  // Infinite scroll. A naive "load a page when
   // the bottom sentinel is visible" over-fetches: when a page's rows commit,
   // this component re-renders (loadedCount changed) *before* the
   // IntersectionObserver has re-evaluated the sentinel's new position, so a
@@ -461,7 +462,8 @@ export function _DataPanel<T>({
   // (deciding its own content: spinner mid-burst, "Load more" at a pause, or an
   // end-of-list note). It carries the sentinel ref; auto-load is gated by
   // `canLoadMore`, so a paused/exhausted footer just sits there.
-  const showInlineFooter = footerPlacement === "inline" && footerContent != null;
+  const showInlineFooter =
+    footerPlacement === "inline" && footerContent != null;
   // The default spinner sentinel (below-placement): hidden while paused so the
   // pinned footer's "Load more" takes over.
   const showSentinel =
@@ -501,20 +503,33 @@ export function _DataPanel<T>({
   // footer — both carry the sentinel ref that drives auto-load.
   // The top fade is gated on being scrolled (via `.is-scrolled`), so the first
   // item isn't clipped at rest.
-  const bodyTag =
-    "div.data-panel-body" +
-    (topFade ? ".top-fade" : "") +
-    (scrolled ? ".is-scrolled" : "");
-  const body = h(bodyTag, { key: "body", onScroll: onBodyScroll }, [
-    h(ScrollBody, { key: "scroll-body" }, cards),
-    showInlineFooter
-      ? h("div.data-panel-tail", { key: "tail", ref: sentinelRef }, footerContent)
-      : h.if(showSentinel)(
-          "div.sentinel",
-          { key: "sentinel", ref: sentinelRef },
-          [h(Spinner, { key: "spinner", size: 16 }), "Loading…"],
-        ),
-  ]);
+
+  let bottomContent: ReactNode = null;
+  if (showInlineFooter) {
+    bottomContent = h(
+      "div.data-panel-tail",
+      { key: "tail", ref: sentinelRef },
+      footerContent,
+    );
+  } else if (showSentinel) {
+    bottomContent = h("div.sentinel", { key: "sentinel", ref: sentinelRef }, [
+      h(Spinner, { key: "spinner", size: 16 }),
+      "Loading…",
+    ]);
+  }
+
+  const body = h(
+    "div.data-panel-body",
+    {
+      key: "body",
+      onScroll: onBodyScroll,
+      className: classNames(
+        { "top-fade": topFade, "is-scrolled": scrolled },
+        className,
+      ),
+    },
+    [h(ScrollBody, { key: "scroll-body" }, cards), bottomContent],
+  );
 
   // Body + optional filter/detail sidebar share a horizontal row so each
   // scrolls independently.
@@ -545,7 +560,11 @@ export function _DataPanel<T>({
 
   return h("div.data-panel", { className }, [
     loaderNode,
-    h(ActionsToolbar, { key: "toolbar", actions: actions ?? [], tableName: name }),
+    h(ActionsToolbar, {
+      key: "toolbar",
+      actions: actions ?? [],
+      tableName: name,
+    }),
     controls,
     main,
     pinnedFooter,
