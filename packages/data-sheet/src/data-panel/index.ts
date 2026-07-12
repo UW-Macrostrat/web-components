@@ -194,7 +194,8 @@ export interface LoadControls {
  * panel.
  */
 export function DataPanel<T>(props: DataPanelProps<T>) {
-  const { data, columnSpec, columnSpecOptions, refreshToken, ...rest } = props;
+  const { data, columnSpec, columnSpecOptions, refreshToken, identity, ...rest } =
+    props;
   const { data: _data, dataProvider } = useResolvedProvider<T>(props);
 
   return h(
@@ -210,6 +211,7 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
           editable: true,
           dataProvider,
           refreshToken,
+          identity,
         },
         h(_DataPanel<any>, { data: _data, refreshToken, ...rest }),
       ),

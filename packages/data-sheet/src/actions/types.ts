@@ -2,7 +2,11 @@ import type { IconName, Intent } from "@blueprintjs/core";
 import type { Region, RegionCardinality } from "@blueprintjs/table";
 import type { ComponentType, ReactNode } from "react";
 import type { ColumnSpec } from "../utils";
-import { ClipboardProxy, TableElementStatus } from "../types.ts";
+import {
+  ClipboardProxy,
+  RowStatusValue,
+  TableElementStatus,
+} from "../types.ts";
 
 /** Selection cardinality including the case of no active selection */
 export type SelectionCardinality = RegionCardinality | "none";
@@ -97,7 +101,7 @@ export interface TableActionContext<T = any> {
   /** Sparse overlay of edited data */
   updatedData: T[];
   /** Row status tracking added/deleted rows */
-  rowStatus: TableElementStatus[];
+  rowStatus: RowStatusValue[];
   /** Column definitions */
   columnSpec: ColumnSpec[];
   /** Whether the table is in edit mode */

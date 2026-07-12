@@ -85,6 +85,7 @@ export function DataView<T>(props: DataViewProps<T>) {
           editable,
           dataProvider,
           refreshToken: common.refreshToken,
+          identity: common.identity,
         },
         renderer,
       ),

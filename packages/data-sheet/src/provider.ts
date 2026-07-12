@@ -71,15 +71,20 @@ export const tableActionsAtom = atom<TableAction[]>([]);
  * the store) rather than resolved inside the render loop. `provider` is the
  * unified `TableDataProvider` (explicit, loose-`fetchData`-wrapped, or a local
  * in-memory provider); `isLocalProvider` distinguishes the in-memory case (it
- * loads the whole array at once and shows no load progress). */
+ * loads the whole array at once and shows no load progress). `isExplicitProvider`
+ * distinguishes an explicit `provider` object from a loose `fetchData`/`data`
+ * source — only an explicit provider without `deleteRows` disables row
+ * deletion; loose sources keep the local delete overlay. */
 export interface ResolvedDataProvider {
   provider: TableDataProvider<any> | null;
   isLocalProvider: boolean;
+  isExplicitProvider: boolean;
 }
 
 const DEFAULT_DATA_PROVIDER: ResolvedDataProvider = {
   provider: null,
   isLocalProvider: true,
+  isExplicitProvider: false,
 };
 
 export const dataProviderAtom = atom<ResolvedDataProvider>(
@@ -106,6 +111,7 @@ export function useResolvedProvider<T>(props: {
 } {
   const _data = props.data ?? (EMPTY_ARRAY as T[]);
   const isLocalProvider = props.provider == null && props.fetchData == null;
+  const isExplicitProvider = props.provider != null;
   const activeProvider = useMemo<TableDataProvider<any> | null>(() => {
     if (props.provider != null) return props.provider;
     if (props.fetchData != null) {
@@ -126,8 +132,8 @@ export function useResolvedProvider<T>(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.provider, props.fetchData, _data, props.identity]);
   const dataProvider = useMemo(
-    () => ({ provider: activeProvider, isLocalProvider }),
-    [activeProvider, isLocalProvider],
+    () => ({ provider: activeProvider, isLocalProvider, isExplicitProvider }),
+    [activeProvider, isLocalProvider, isExplicitProvider],
   );
   return { data: _data, isLocalProvider, activeProvider, dataProvider };
 }
@@ -161,6 +167,7 @@ export function DataSheetProviderInner<T>({
   defaultColumnWidth = 150,
   dataProvider,
   refreshToken,
+  identity,
 }: DataSheetProviderProps<T> & { dataProvider?: ResolvedDataProvider }) {
   const tableRef = useRef<Table>(null);
 
@@ -236,6 +243,26 @@ export function DataSheetProviderInner<T>({
       },
     });
   }, [storeAPI, dataProvider, bumpRefresh]);
+
+  // The active provider supplies the row identity for the edit overlay
+  // (`tableDataAtom`'s remap-by-identity), shared by `_DataSheet` and
+  // `_DataPanel` — falls back to the loose `identity` prop when the resolved
+  // provider doesn't carry its own (e.g. before the first row loads).
+  useEffect(() => {
+    const id = dataProvider?.provider?.identity ?? identity;
+    if (id != null) storeAPI.setState({ identity: id });
+  }, [storeAPI, dataProvider, identity]);
+
+  // Row deletion is a provider capability: an explicit `provider` (not a loose
+  // `fetchData`/`data` source) without `deleteRows` disables deletion
+  // entirely. Loose/local sources keep the in-table delete overlay. Shared by
+  // `_DataSheet` and `_DataPanel` — gates the delete action's disabled state
+  // read by the shared `ActionsToolbar`.
+  useEffect(() => {
+    const canDeleteRows =
+      !dataProvider?.isExplicitProvider || dataProvider.provider?.deleteRows != null;
+    storeAPI.setState({ canDeleteRows });
+  }, [storeAPI, dataProvider]);
 
   return children;
 }

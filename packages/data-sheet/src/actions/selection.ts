@@ -118,12 +118,20 @@ export function buildActionContext<T>(
     return _filteredRowIndices;
   }
 
-  const shape = computeSelectionShape(state.selection);
+  const { selection, data, updatedData, rowStatus, rowEditing = {} } = state;
+
+  const shape = computeSelectionShape(selection);
 
   return {
-    selection: state.selection,
-    selectionCardinality: getSelectionCardinality(state.selection),
+    selection,
+    selectionCardinality: shape.cardinality,
     selectionShape: shape,
+    data,
+    updatedData,
+    rowStatus,
+    // Immediate-edit persistence, wired by the consumer (DataPanel) when a
+    // persisting provider is present; each already auto-refreshes.
+    ...rowEditing,
     // Resolved single-target identity (lazy — mapping rows through filters is
     // only paid when accessed).
     get columnKey() {
@@ -154,9 +162,6 @@ export function buildActionContext<T>(
         ? { rowIndex, columnKey }
         : null;
     },
-    data: state.data,
-    updatedData: state.updatedData,
-    rowStatus: state.rowStatus,
     columnSpec: state.columnSpec,
     editable: state.editable,
     canDeleteRows: state.canDeleteRows,
@@ -168,12 +173,6 @@ export function buildActionContext<T>(
         .filter((r) => r != null),
     getSelectedColumnKeys: () =>
       getSelectedColumnKeys(state.selection, state.columnSpec),
-    // Immediate-edit persistence, wired by the consumer (DataPanel) when a
-    // persisting provider is present; each already auto-refreshes.
-    saveRows: state.rowEditing?.saveRows,
-    deleteRows: state.rowEditing?.deleteRows,
-    insertRow: state.rowEditing?.insertRow,
-    refresh: state.rowEditing?.refresh,
     onCellEdited: state.onCellEdited,
     editCells(edits: CellEdit[]) {
       state.setUpdatedData((updatedData: T[]) => {

@@ -287,9 +287,12 @@ export function _DataSheet<T>({
   onSave,
   updatedData: updatedDataProp,
   rowStatus: rowStatusProp,
-  identity,
+  // Identity/canDeleteRows sync (was here) is now handled by the provider
+  // (`DataSheetProviderInner`); still destructured so `identity`/`refreshToken`
+  // don't leak into `...rest` (spread onto the Blueprint `Table` below).
+  identity: _identity,
   deriveOverlay,
-  refreshToken,
+  refreshToken: _refreshToken,
   onDeleteRows,
   name,
   verbose = false,
@@ -533,19 +536,9 @@ export function _DataSheet<T>({
     storeState.setState({ columnSpec: columnSpecProp(rows) });
   }, [columnSpecProp, loadedData, storeState]);
 
-  // The active provider supplies the row identity for the edit overlay.
-  useEffect(() => {
-    const id = activeProvider?.identity ?? identity;
-    if (id != null) storeState.setState({ identity: id });
-  }, [storeState, activeProvider, identity]);
-
-  // Row deletion is a provider capability: an explicit `provider` without
-  // `deleteRows` disables deletion entirely. (Local / loose sources keep the
-  // local delete overlay.)
-  useEffect(() => {
-    const canDeleteRows = provider == null || provider.deleteRows != null;
-    storeState.setState({ canDeleteRows });
-  }, [storeState, provider]);
+  // Identity and canDeleteRows sync are hoisted to the provider
+  // (`DataSheetProviderInner`), shared with `_DataPanel` — both depend only on
+  // the resolved data provider, not any sheet-specific state.
 
   // Merge consumer `rowStatusStyles` over the built-in defaults and hand the
   // result to the store, where the cell renderer and row-header renderer read

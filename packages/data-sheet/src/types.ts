@@ -255,6 +255,8 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   tableRef: React.MutableRefObject<Table2>;
   columnWidthsIndex: Map<string, number>;
   defaultColumnWidth: number;
+  // Editable is not optional on store
+  editable: boolean;
 }
 
 export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
@@ -266,6 +268,11 @@ export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
    * `_DataSheet`/`_DataPanel` so both renderers share one refresh + row-editing
    * wiring, driven off the provider-level `dataProvider`. */
   refreshToken?: number | string;
+  /** Row identity for the edit overlay — stable across a provider re-sort. A
+   * data provider supplies its own (takes precedence); this is the fallback
+   * for a loose `data`/`fetchData` source with no explicit identity. Synced
+   * into the store here, shared by `_DataSheet` and `_DataPanel`. */
+  identity?: (row: any) => string | number | null | undefined;
 };
 
 export interface VisibleCells {
