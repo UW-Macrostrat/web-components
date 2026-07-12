@@ -583,7 +583,6 @@ function editTagAction(
     defaultState: { tag: TAG_PALETTE[0] },
     isReady: (s) => s?.tag != null,
     detailsForm: TagPickForm,
-    disabled: (ctx) => ctx.saveRows == null,
     async run(ctx, state) {
       const rows = ctx.getSelectedRows();
       await ctx.saveRows?.(
