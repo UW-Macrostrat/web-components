@@ -533,18 +533,6 @@ export function _DataSheet<T>({
     storeState.setState({ columnSpec: columnSpecProp(rows) });
   }, [columnSpecProp, loadedData, storeState]);
 
-  // Imperative re-fetch: bump `refreshToken` to reload the provider (e.g. after
-  // a save). Skips the initial mount (the loader does its own first fetch).
-  const bumpRefreshFromToken = ctx.useSet(dataRefreshTokenAtom);
-  const firstRefreshToken = useRef(true);
-  useEffect(() => {
-    if (firstRefreshToken.current) {
-      firstRefreshToken.current = false;
-      return;
-    }
-    bumpRefreshFromToken((v) => v + 1);
-  }, [refreshToken, bumpRefreshFromToken]);
-
   // The active provider supplies the row identity for the edit overlay.
   useEffect(() => {
     const id = activeProvider?.identity ?? identity;
@@ -558,32 +546,6 @@ export function _DataSheet<T>({
     const canDeleteRows = provider == null || provider.deleteRows != null;
     storeState.setState({ canDeleteRows });
   }, [storeState, provider]);
-
-  // Provider-backed, auto-refreshing row mutations on the action context
-  // (`ctx.saveRows` / `deleteRows` / `insertRow`), shared with `DataPanel` — so
-  // an immediate-edit action works identically in the sheet and the card view
-  // (the basis of a table/cards toggle). Only the capabilities the provider
-  // supports are present.
-  useEffect(() => {
-    const p = activeProvider;
-    const refresh = () => bumpRefresh((v) => v + 1);
-    const withRefresh =
-      <A extends any[]>(fn?: (...args: A) => Promise<void>) =>
-        fn == null
-          ? undefined
-          : async (...args: A) => {
-              await fn(...args);
-              refresh();
-            };
-    storeState.setState({
-      rowEditing: {
-        saveRows: withRefresh(p?.saveRows?.bind(p)),
-        deleteRows: withRefresh(p?.deleteRows?.bind(p)),
-        insertRow: withRefresh(p?.insertRow?.bind(p)),
-        refresh,
-      },
-    });
-  }, [storeState, activeProvider, bumpRefresh]);
 
   // Merge consumer `rowStatusStyles` over the built-in defaults and hand the
   // result to the store, where the cell renderer and row-header renderer read

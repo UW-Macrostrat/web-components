@@ -84,6 +84,7 @@ export function DataView<T>(props: DataViewProps<T>) {
           columnSpecOptions,
           editable,
           dataProvider,
+          refreshToken: common.refreshToken,
         },
         renderer,
       ),

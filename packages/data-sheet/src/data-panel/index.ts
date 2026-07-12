@@ -58,7 +58,6 @@ import {
   TableFilter,
 } from "../actions";
 import {
-  dataRefreshTokenAtom,
   FetchData,
   FetchDataOptions,
   tableFooterAtom,
@@ -195,7 +194,7 @@ export interface LoadControls {
  * panel.
  */
 export function DataPanel<T>(props: DataPanelProps<T>) {
-  const { data, columnSpec, columnSpecOptions, ...rest } = props;
+  const { data, columnSpec, columnSpecOptions, refreshToken, ...rest } = props;
   const { data: _data, dataProvider } = useResolvedProvider<T>(props);
 
   return h(
@@ -210,8 +209,9 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
           columnSpecOptions,
           editable: true,
           dataProvider,
+          refreshToken,
         },
-        h(_DataPanel<any>, { data: _data, ...rest }),
+        h(_DataPanel<any>, { data: _data, refreshToken, ...rest }),
       ),
     ),
   );
@@ -233,7 +233,6 @@ export function _DataPanel<T>({
   footer: footerSlot,
   footerPlacement = "below",
   autoLoadPages,
-  refreshToken,
   scrollBody,
   topFade = true,
   className,
@@ -338,44 +337,9 @@ export function _DataPanel<T>({
     return n;
   }, [data]);
 
-  // Bump the shared refresh token when the caller's `refreshToken` changes, so
-  // an immediate edit (mutate rows via the provider) can force a re-fetch.
-  const bumpRefresh = ctx.useSet(dataRefreshTokenAtom);
-  const firstRefresh = useRef(true);
-  useEffect(() => {
-    if (firstRefresh.current) {
-      firstRefresh.current = false;
-      return;
-    }
-    bumpRefresh((v) => v + 1);
-  }, [refreshToken, bumpRefresh]);
-
-  // Wire provider-backed, auto-refreshing row mutations into the store, so a
-  // selection action can persist an edit via the action context
-  // (`ctx.saveRows` / `deleteRows` / `insertRow`) with no `refreshToken`
-  // plumbing — each awaits the provider then re-fetches. Present only for the
-  // capabilities the provider actually supports.
-  useEffect(() => {
-    const p = activeProvider;
-    const refresh = () => bumpRefresh((v) => v + 1);
-    const withRefresh = <A extends any[]>(
-      fn?: (...args: A) => Promise<void>,
-    ) =>
-      fn == null
-        ? undefined
-        : async (...args: A) => {
-            await fn(...args);
-            refresh();
-          };
-    storeAPI.setState({
-      rowEditing: {
-        saveRows: withRefresh(p?.saveRows?.bind(p)),
-        deleteRows: withRefresh(p?.deleteRows?.bind(p)),
-        insertRow: withRefresh(p?.insertRow?.bind(p)),
-        refresh,
-      },
-    });
-  }, [storeAPI, activeProvider, bumpRefresh]);
+  // Refresh-token and rowEditing wiring are hoisted to the provider
+  // (`DataSheetProviderInner`), shared with `_DataSheet` so both renderers get
+  // identical behavior off one `refreshToken` prop and the active provider.
 
   // More to load iff the loader-sized array still has unfilled (null) slots.
   // This tracks the loader's own sizing: exact `totalCount` when known, a

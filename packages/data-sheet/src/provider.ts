@@ -15,7 +15,7 @@ import { createZustandStore } from "./zustand-store.ts";
 import { atomWithStore } from "jotai-zustand";
 import { toasterAtom } from "./notifications.ts";
 import { TableAction } from "./actions";
-import { createLocalProvider, type FetchData, type TableDataProvider } from "./postgrest-table";
+import { createLocalProvider, dataRefreshTokenAtom, type FetchData, type TableDataProvider } from "./postgrest-table";
 import { atom } from "jotai";
 
 /** Create a Jotai scoped store */
@@ -160,10 +160,12 @@ export function DataSheetProviderInner<T>({
   enableColumnReordering,
   defaultColumnWidth = 150,
   dataProvider,
+  refreshToken,
 }: DataSheetProviderProps<T> & { dataProvider?: ResolvedDataProvider }) {
   const tableRef = useRef<Table>(null);
 
   const initializeStore = ctx.useSet(initializeStoreAtom);
+  const storeAPI = useStoreAPI<T>();
 
   // The wrapper resolves the data source (see `DataSheet`); publish it into the
   // scoped atom so the loader/store read it, rather than the inner render
@@ -193,6 +195,47 @@ export function DataSheetProviderInner<T>({
       tableRef,
     });
   }, [data, editable, staticSpec, isFnSpec, columnSpecOptions, enableColumnReordering]);
+
+  const bumpRefresh = ctx.useSet(dataRefreshTokenAtom);
+
+  // Imperative re-fetch: bump `refreshToken` to reload the provider (e.g.
+  // after a save). Skips the initial mount (the loader does its own first
+  // fetch). Shared by `_DataSheet` and `_DataPanel` — driven off this one
+  // provider-level `refreshToken`, whichever renderer is mounted.
+  const firstRefreshToken = useRef(true);
+  useEffect(() => {
+    if (firstRefreshToken.current) {
+      firstRefreshToken.current = false;
+      return;
+    }
+    bumpRefresh((v) => v + 1);
+  }, [refreshToken, bumpRefresh]);
+
+  // Provider-backed, auto-refreshing row mutations on the action context
+  // (`ctx.saveRows` / `deleteRows` / `insertRow`) — shared by `_DataSheet` and
+  // `_DataPanel` (the basis of a table/cards toggle) — so an immediate-edit
+  // action persists through the active provider and then re-fetches. Only the
+  // capabilities the provider supports are present.
+  useEffect(() => {
+    const p = dataProvider?.provider ?? null;
+    const refresh = () => bumpRefresh((v) => v + 1);
+    const withRefresh =
+      <A extends any[]>(fn?: (...args: A) => Promise<void>) =>
+        fn == null
+          ? undefined
+          : async (...args: A) => {
+              await fn(...args);
+              refresh();
+            };
+    storeAPI.setState({
+      rowEditing: {
+        saveRows: withRefresh(p?.saveRows?.bind(p)),
+        deleteRows: withRefresh(p?.deleteRows?.bind(p)),
+        insertRow: withRefresh(p?.insertRow?.bind(p)),
+        refresh,
+      },
+    });
+  }, [storeAPI, dataProvider, bumpRefresh]);
 
   return children;
 }

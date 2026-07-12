@@ -261,6 +261,11 @@ export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
   children: React.ReactNode;
   columnSpecOptions?: ColumnSpecOptions<T>;
   toaster?: OverlayToaster;
+  /** Bump to force the active data provider to re-fetch from scratch (e.g.
+   * after a save/delete that invalidated the loaded rows). Hoisted here from
+   * `_DataSheet`/`_DataPanel` so both renderers share one refresh + row-editing
+   * wiring, driven off the provider-level `dataProvider`. */
+  refreshToken?: number | string;
 };
 
 export interface VisibleCells {
