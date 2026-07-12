@@ -1,0 +1,35 @@
+.tag-editor
+  display: flex
+  flex-direction: column
+  gap: 6px
+  min-width: 240px
+
+.tag-list
+  display: flex
+  flex-direction: column
+  max-height: 260px
+  overflow-y: auto
+
+.tag-row
+  display: flex
+  align-items: center
+  gap: 8px
+  padding: 3px 4px
+  cursor: pointer
+  border-radius: 3px
+
+  &:hover
+    background: rgba(128, 128, 128, 0.12)
+
+  // The checkbox is a pure indicator; the whole row is the click target.
+  :global(.bp6-control)
+    margin: 0
+    pointer-events: none
+
+.empty
+  padding: 6px 4px
+  opacity: 0.6
+  font-size: 12px
+
+.create-menu
+  padding: 0

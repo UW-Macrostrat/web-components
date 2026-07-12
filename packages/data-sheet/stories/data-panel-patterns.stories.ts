@@ -17,15 +17,13 @@ import {
 import {
   Button,
   Checkbox,
-  InputGroup,
-  Menu,
-  MenuItem,
   PopoverNext,
   SegmentedControl,
   Spinner,
   Tag,
 } from "@blueprintjs/core";
 import { RegionCardinality } from "@blueprintjs/table";
+import { TagEditor, type TagUsage } from "@macrostrat/data-components";
 import {
   columnFilter,
   createLocalProvider,
@@ -654,9 +652,7 @@ export const EditTags: StoryObj = {
   render: () => h(EditTagsDemo),
 };
 
-// ---- 7b. Full-featured bulk tag editor ----
-
-type TagUsage = "none" | "partial" | "all";
+// ---- 7b. Full-featured bulk tag editor (via the shared `TagEditor`) ----
 
 // The selected rows, resolved from the shared store — recomputed after each
 // edit (auto-refresh) so tag usage stays live while the popover is open.
@@ -672,23 +668,24 @@ function useSelectedRows(): Sample[] {
   );
 }
 
-function tagChip(name: string) {
-  return h(Tag, { minimal: true, intent: TAG_INTENT[name] }, name);
+// Compute a tag's usage across a set of rows.
+function tagUsage(rows: Sample[], tag: string): TagUsage {
+  if (rows.length === 0) return "none";
+  let n = 0;
+  for (const r of rows) if (r.tags?.includes(tag)) n++;
+  return n === 0 ? "none" : n === rows.length ? "all" : "partial";
 }
 
-// The bulk editor popover: a searchable list of available tags, each with its
-// usage across the selection (none / partial / all), toggling add-to-all vs
-// remove-from-all, plus create-new. Applies immediately through the shared edit
-// seam and keeps the selection, so several tags can be toggled in one session.
+// The "tool configuration": lightly couple the shared `TagEditor` to the data
+// view — usage from the selected rows, `onChange`/`onCreate` through the shared
+// edit seam (`rowEditing.saveRows`, auto-refresh, selection preserved).
 function TagEditorControl() {
   const rows = useSelectedRows();
   const data = useSelector((s: any) => s.data);
   const storeAPI = useStoreAPI();
-  const [query, setQuery] = useState("");
   const [created, setCreated] = useState<string[]>([]);
 
-  // Available tags: a base palette ∪ tags present on loaded data ∪ any created
-  // this session. (A real page would seed this from the tags API.)
+  // Available tags: base palette ∪ tags on loaded data ∪ session-created.
   const available = useMemo(() => {
     const set = new Set<string>([...TAG_PALETTE, ...created]);
     for (const r of data as Sample[]) {
@@ -697,17 +694,9 @@ function TagEditorControl() {
     return [...set].sort();
   }, [data, created]);
 
-  const usageOf = (tag: string): TagUsage => {
-    if (rows.length === 0) return "none";
-    let n = 0;
-    for (const r of rows) if (r.tags?.includes(tag)) n++;
-    return n === 0 ? "none" : n === rows.length ? "all" : "partial";
-  };
-
   const applyTag = (tag: string, add: boolean) => {
     const save = storeAPI.getState().rowEditing?.saveRows;
-    if (save == null) return;
-    save(
+    save?.(
       rows.map((r) => ({
         ...r,
         tags: add
@@ -716,100 +705,23 @@ function TagEditorControl() {
       })),
     );
   };
-  // none/partial → add to all; all → remove from all.
-  const toggle = (tag: string) => applyTag(tag, usageOf(tag) !== "all");
 
-  const q = query.trim().toLowerCase();
-  const filtered = available.filter((t) => t.toLowerCase().includes(q));
-  const exact = available.some((t) => t.toLowerCase() === q);
-  const createNew = () => {
-    const t = query.trim();
-    if (t === "") return;
-    setCreated((c) => [...new Set([...c, t])]);
-    applyTag(t, true);
-    setQuery("");
-  };
-
-  return h(
-    "div",
-    { style: { padding: "6px", width: "260px" } },
-    [
-      h(InputGroup, {
-        key: "search",
-        small: true,
-        leftIcon: "search",
-        placeholder: "Search or add a tag…",
-        value: query,
-        autoFocus: true,
-        onChange: (e: any) => setQuery(e.target.value),
-        onKeyDown: (e: any) => {
-          if (e.key === "Enter" && q !== "" && !exact) createNew();
-        },
-      }),
-      h(
-        "div.tag-list",
-        {
-          key: "list",
-          style: { maxHeight: "240px", overflowY: "auto", marginTop: "6px" },
-        },
-        [
-          ...filtered.map((tag) => {
-            const u = usageOf(tag);
-            return h(
-              "div.tag-row",
-              {
-                key: tag,
-                onClick: () => toggle(tag),
-                style: {
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "3px 4px",
-                  cursor: "pointer",
-                  borderRadius: "3px",
-                },
-              },
-              [
-                h(Checkbox, {
-                  key: "cb",
-                  checked: u === "all",
-                  indeterminate: u === "partial",
-                  readOnly: true,
-                  style: { margin: 0, pointerEvents: "none" },
-                }),
-                tagChip(tag),
-              ],
-            );
-          }),
-          q !== "" && !exact
-            ? h(
-                Menu,
-                { key: "create", style: { padding: 0 } },
-                h(MenuItem, {
-                  icon: "plus",
-                  intent: "primary",
-                  text: `Create "${query.trim()}"`,
-                  onClick: createNew,
-                }),
-              )
-            : null,
-          filtered.length === 0 && (q === "" || exact)
-            ? h("div", { key: "empty", style: { padding: "6px", opacity: 0.6 } }, "No tags")
-            : null,
-        ],
-      ),
-    ],
-  );
+  return h(TagEditor, {
+    tags: available,
+    usage: (tag) => tagUsage(rows, tag),
+    onChange: applyTag,
+    onCreate: (tag) => {
+      setCreated((c) => [...new Set([...c, tag])]);
+      applyTag(tag, true);
+    },
+  });
 }
 
 function TagEditorButton() {
   const rows = useSelectedRows();
   return h(
     PopoverNext,
-    {
-      placement: "bottom-start",
-      content: h(TagEditorControl),
-    },
+    { placement: "bottom-start", content: h("div", { style: { padding: "6px" } }, h(TagEditorControl)) },
     h(
       Button,
       { small: true, minimal: true, icon: "tag", rightIcon: "caret-down" },

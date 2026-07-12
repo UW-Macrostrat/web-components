@@ -1,15 +1,21 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import h from "./data-panel.stories.module.sass";
 import { useEffect, useMemo, useState } from "react";
-import { Intent, MenuItem, SegmentedControl, Tag } from "@blueprintjs/core";
+import { Button, Intent, MenuItem, PopoverNext, SegmentedControl, Tag } from "@blueprintjs/core";
 import { MultiSelect } from "@blueprintjs/select";
 import "@blueprintjs/select/lib/css/blueprint-select.css";
+import { PostgrestClient } from "@supabase/postgrest-js";
+import { TagEditor } from "@macrostrat/data-components";
+import { useToaster } from "@macrostrat/ui-components";
 import {
   createPostgRESTProvider,
   DataPanel,
   DataPanelItemProps,
+  getSelectedRowIndices,
   TableAction,
   TableFilter,
+  useSelector,
+  useStoreAPI,
 } from "../src";
 import { RegionCardinality } from "@blueprintjs/table";
 import type { ColumnSpec } from "../src";
@@ -285,7 +291,132 @@ const archiveAction: TableAction<IngestMap> = {
   },
 };
 
-function IngestionListPanel() {
+// ---- Live tag editing against the `map_ingest_tags` API ----
+
+// Writes go to the general PostgREST base (same as the tag *list* read).
+const TAGS_PG_BASE = "https://macrostrat.local/api/pg";
+const tagsTable = () => new PostgrestClient(TAGS_PG_BASE).from("map_ingest_tags");
+// ASSUMPTION: `map_ingest_tags` rows key on `source_id` (the maps view's
+// identity). The legacy add/remove path used `ingest_process_id`; if the schema
+// still keys on that, change this to `ingest_process_id` and select it on the
+// `pg/maps` view so it's present on each row.
+const TAG_KEY = "source_id" as const;
+
+async function addTagToMaps(maps: IngestMap[], tag: string) {
+  const rows = maps
+    .filter((m) => !(m.tags ?? []).includes(tag))
+    .map((m) => ({ [TAG_KEY]: m.source_id, tag }));
+  if (rows.length === 0) return;
+  const res: any = await tagsTable().insert(rows);
+  if (res?.error != null) throw res.error;
+}
+
+async function removeTagFromMaps(maps: IngestMap[], tag: string) {
+  const ids = maps
+    .filter((m) => (m.tags ?? []).includes(tag))
+    .map((m) => m.source_id);
+  if (ids.length === 0) return;
+  const res: any = await tagsTable().delete().eq("tag", tag).in(TAG_KEY, ids);
+  if (res?.error != null) throw res.error;
+}
+
+// The "tool configuration": couple the shared `TagEditor` to the ingestion
+// queue — usage from the selected maps' `tags`, `onChange`/`onCreate` writing to
+// `map_ingest_tags`, then `refresh` re-fetches `pg/maps` (which re-derives the
+// tags array). The available-tag list is read from the same API.
+function MapTagEditor() {
+  const selection = useSelector((s: any) => s.selection);
+  const data = useSelector((s: any) => s.data);
+  const storeAPI = useStoreAPI();
+  const toaster = useToaster();
+
+  const maps = useMemo(
+    () =>
+      getSelectedRowIndices(selection)
+        .map((i) => data[i] as IngestMap)
+        .filter(Boolean),
+    [selection, data],
+  );
+
+  const [available, setAvailable] = useState<string[]>([]);
+  const [created, setCreated] = useState<string[]>([]);
+  useEffect(() => {
+    fetchDefinedTags()
+      .then(setAvailable)
+      .catch(() => {});
+  }, []);
+
+  const allTags = useMemo(
+    () =>
+      [
+        ...new Set([
+          ...available,
+          ...created,
+          ...maps.flatMap((m) => m.tags ?? []),
+        ]),
+      ].sort(),
+    [available, created, maps],
+  );
+
+  const usage = (tag: string) => {
+    if (maps.length === 0) return "none" as const;
+    let n = 0;
+    for (const m of maps) if (m.tags?.includes(tag)) n++;
+    return (n === 0 ? "none" : n === maps.length ? "all" : "partial") as
+      | "none"
+      | "partial"
+      | "all";
+  };
+
+  const apply = async (tag: string, add: boolean) => {
+    try {
+      if (add) await addTagToMaps(maps, tag);
+      else await removeTagFromMaps(maps, tag);
+      // Re-fetch the queue so the tags array reflects the write.
+      storeAPI.getState().rowEditing?.refresh?.();
+    } catch (e: any) {
+      toaster?.show?.({
+        message: `Tag update failed: ${e?.message ?? e}`,
+        intent: "danger",
+      });
+    }
+  };
+
+  return h(TagEditor, {
+    tags: allTags,
+    usage,
+    onChange: apply,
+    onCreate: (tag: string) => {
+      setCreated((c) => [...new Set([...c, tag])]);
+      apply(tag, true);
+    },
+    colorForTag: (t: string) => tagColor(t),
+  });
+}
+
+function MapTagEditorButton() {
+  const selection = useSelector((s: any) => s.selection);
+  const n = getSelectedRowIndices(selection).length;
+  return h(
+    PopoverNext,
+    {
+      placement: "bottom-start",
+      content: h("div", { style: { padding: "6px", width: "260px" } }, h(MapTagEditor)),
+    },
+    h(Button, { small: true, minimal: true, icon: "tag", rightIcon: "caret-down" }, `Tags (${n})`),
+  );
+}
+
+const tagEditAction: TableAction<IngestMap> = {
+  id: "edit-tags",
+  name: "Tags",
+  icon: "tag",
+  targets: [RegionCardinality.FULL_ROWS],
+  requiresEditable: false,
+  render: () => h(MapTagEditorButton),
+};
+
+function IngestionListPanel({ actions }: { actions?: TableAction<IngestMap>[] }) {
   const provider = useMemo(
     () =>
       createPostgRESTProvider<IngestMap>({
@@ -306,7 +437,7 @@ function IngestionListPanel() {
       provider,
       columnSpec,
       itemComponent: MapCard,
-      actions: [archiveAction],
+      actions: actions ?? [archiveAction],
       name: "Map ingestion queue",
       pageSize: 20,
     }),
@@ -322,3 +453,15 @@ const meta: Meta<typeof IngestionListPanel> = {
 export default meta;
 
 export const IngestionQueue: StoryObj = {};
+
+/**
+ * Live tag editing against the `map_ingest_tags` API. Select maps (shift/cmd),
+ * open **Tags** → the shared `TagEditor` seeded from the tags API, each tag
+ * showing its usage across the selection. Add/remove writes to
+ * `map_ingest_tags` (POST/DELETE) and re-fetches the queue. Requires the local
+ * stack + write grants on `map_ingest_tags`; the row key is assumed to be
+ * `source_id` (see `TAG_KEY`).
+ */
+export const TagEditing: StoryObj = {
+  render: () => h(IngestionListPanel, { actions: [tagEditAction, archiveAction] }),
+};
