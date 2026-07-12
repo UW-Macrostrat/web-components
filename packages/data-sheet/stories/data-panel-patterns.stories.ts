@@ -654,6 +654,210 @@ export const EditTags: StoryObj = {
   render: () => h(EditTagsDemo),
 };
 
+// ---- 7b. Full-featured bulk tag editor ----
+
+type TagUsage = "none" | "partial" | "all";
+
+// The selected rows, resolved from the shared store — recomputed after each
+// edit (auto-refresh) so tag usage stays live while the popover is open.
+function useSelectedRows(): Sample[] {
+  const selection = useSelector((s: any) => s.selection);
+  const data = useSelector((s: any) => s.data);
+  return useMemo(
+    () =>
+      getSelectedRowIndices(selection)
+        .map((i) => data[i] as Sample)
+        .filter(Boolean),
+    [selection, data],
+  );
+}
+
+function tagChip(name: string) {
+  return h(Tag, { minimal: true, intent: TAG_INTENT[name] }, name);
+}
+
+// The bulk editor popover: a searchable list of available tags, each with its
+// usage across the selection (none / partial / all), toggling add-to-all vs
+// remove-from-all, plus create-new. Applies immediately through the shared edit
+// seam and keeps the selection, so several tags can be toggled in one session.
+function TagEditorControl() {
+  const rows = useSelectedRows();
+  const data = useSelector((s: any) => s.data);
+  const storeAPI = useStoreAPI();
+  const [query, setQuery] = useState("");
+  const [created, setCreated] = useState<string[]>([]);
+
+  // Available tags: a base palette ∪ tags present on loaded data ∪ any created
+  // this session. (A real page would seed this from the tags API.)
+  const available = useMemo(() => {
+    const set = new Set<string>([...TAG_PALETTE, ...created]);
+    for (const r of data as Sample[]) {
+      if (r != null) for (const t of r.tags ?? []) set.add(t);
+    }
+    return [...set].sort();
+  }, [data, created]);
+
+  const usageOf = (tag: string): TagUsage => {
+    if (rows.length === 0) return "none";
+    let n = 0;
+    for (const r of rows) if (r.tags?.includes(tag)) n++;
+    return n === 0 ? "none" : n === rows.length ? "all" : "partial";
+  };
+
+  const applyTag = (tag: string, add: boolean) => {
+    const save = storeAPI.getState().rowEditing?.saveRows;
+    if (save == null) return;
+    save(
+      rows.map((r) => ({
+        ...r,
+        tags: add
+          ? [...new Set([...(r.tags ?? []), tag])]
+          : (r.tags ?? []).filter((t) => t !== tag),
+      })),
+    );
+  };
+  // none/partial → add to all; all → remove from all.
+  const toggle = (tag: string) => applyTag(tag, usageOf(tag) !== "all");
+
+  const q = query.trim().toLowerCase();
+  const filtered = available.filter((t) => t.toLowerCase().includes(q));
+  const exact = available.some((t) => t.toLowerCase() === q);
+  const createNew = () => {
+    const t = query.trim();
+    if (t === "") return;
+    setCreated((c) => [...new Set([...c, t])]);
+    applyTag(t, true);
+    setQuery("");
+  };
+
+  return h(
+    "div",
+    { style: { padding: "6px", width: "260px" } },
+    [
+      h(InputGroup, {
+        key: "search",
+        small: true,
+        leftIcon: "search",
+        placeholder: "Search or add a tag…",
+        value: query,
+        autoFocus: true,
+        onChange: (e: any) => setQuery(e.target.value),
+        onKeyDown: (e: any) => {
+          if (e.key === "Enter" && q !== "" && !exact) createNew();
+        },
+      }),
+      h(
+        "div.tag-list",
+        {
+          key: "list",
+          style: { maxHeight: "240px", overflowY: "auto", marginTop: "6px" },
+        },
+        [
+          ...filtered.map((tag) => {
+            const u = usageOf(tag);
+            return h(
+              "div.tag-row",
+              {
+                key: tag,
+                onClick: () => toggle(tag),
+                style: {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "3px 4px",
+                  cursor: "pointer",
+                  borderRadius: "3px",
+                },
+              },
+              [
+                h(Checkbox, {
+                  key: "cb",
+                  checked: u === "all",
+                  indeterminate: u === "partial",
+                  readOnly: true,
+                  style: { margin: 0, pointerEvents: "none" },
+                }),
+                tagChip(tag),
+              ],
+            );
+          }),
+          q !== "" && !exact
+            ? h(
+                Menu,
+                { key: "create", style: { padding: 0 } },
+                h(MenuItem, {
+                  icon: "plus",
+                  intent: "primary",
+                  text: `Create "${query.trim()}"`,
+                  onClick: createNew,
+                }),
+              )
+            : null,
+          filtered.length === 0 && (q === "" || exact)
+            ? h("div", { key: "empty", style: { padding: "6px", opacity: 0.6 } }, "No tags")
+            : null,
+        ],
+      ),
+    ],
+  );
+}
+
+function TagEditorButton() {
+  const rows = useSelectedRows();
+  return h(
+    PopoverNext,
+    {
+      placement: "bottom-start",
+      content: h(TagEditorControl),
+    },
+    h(
+      Button,
+      { small: true, minimal: true, icon: "tag", rightIcon: "caret-down" },
+      `Tags (${rows.length})`,
+    ),
+  );
+}
+
+// A live-control edit action (like the sort/filter controls): renders the tag
+// editor for the current row selection. Generic + provider-agnostic, so it
+// works in both card and table views.
+const tagEditorAction: TableAction<Sample> = {
+  id: "tag-editor",
+  name: "Tags",
+  icon: "tag",
+  targets: [RegionCardinality.FULL_ROWS],
+  requiresEditable: false,
+  render: () => h(TagEditorButton),
+};
+
+function BulkTagEditorDemo() {
+  const provider = useMemo(makeEditableProvider, []);
+  return container(
+    h(DataPanel<Sample>, {
+      provider,
+      columnSpec: fullSpec,
+      itemComponent: TaggedCard,
+      actions: [tagEditorAction],
+      pageSize: 25,
+      name: "Samples",
+    }),
+  );
+}
+
+/**
+ * **Full-featured bulk tag editor.** Select rows, open **Tags** → a searchable
+ * list of every available tag, each showing its usage across the selection: a
+ * checkbox (all selected have it), an indeterminate box (some do), or empty
+ * (none). Click to add-to-all / remove-from-all; type to filter, or create a
+ * new tag. Edits apply immediately through the shared edit seam and keep the
+ * selection, so multiple tags can be set in one session. Works in card or table
+ * view (it's a generic `render` action).
+ */
+export const BulkTagEditor: StoryObj = {
+  name: "Bulk tag editor",
+  render: () => h(BulkTagEditorDemo),
+};
+
 // ---- 8. Inline pausing footer + "Load more" (chrome out of the scroll flow) ----
 
 // A deliberately space-taking inline footer, living at the end of the scroll
