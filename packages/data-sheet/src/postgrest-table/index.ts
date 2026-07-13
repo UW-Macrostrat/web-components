@@ -1,6 +1,6 @@
 import { InputGroup, OverlayToaster } from "@blueprintjs/core";
 import h from "./main.module.sass";
-import { DataSheet } from "../core";
+import { DataSheet } from "../data-sheet.ts";
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import {
   createPostgRESTProvider,

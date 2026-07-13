@@ -15,8 +15,8 @@ import h from "@macrostrat/hyper";
 import { ReactNode } from "react";
 import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
 import { DataSheetProvider, useResolvedProvider } from "./provider";
-import { _DataSheet } from "./core";
-import { _DataPanel, DataPanelProps } from "./data-panel";
+import { _DataSheet } from "./data-sheet.ts";
+import { _DataPanel, DataPanelProps } from "./data-panel.ts";
 
 export interface DataViewProps<T = any> extends DataPanelProps<T> {
   /** Which renderer to show. `cards` needs `itemComponent`. */

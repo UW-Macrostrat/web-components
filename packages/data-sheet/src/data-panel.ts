@@ -45,9 +45,9 @@ import {
   useStoreAPI,
   TableDataProvider,
   FetchData,
-} from "../provider";
+} from "./provider";
 import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
-import type { ColumnSpec } from "../utils";
+import type { ColumnSpec } from "./utils";
 import {
   ActionsToolbar,
   ColumnFilterMenuItem,
@@ -58,15 +58,15 @@ import {
   resolveColumnFilter,
   TableAction,
   TableFilter,
-} from "../actions";
+} from "./actions";
 import {
   autoLoadPagesAtom,
   FetchDataOptions,
   useDataLoader,
   useLoadControls,
-} from "../postgrest-table";
+} from "./postgrest-table";
 import classNames from "classnames";
-import { LoadProgressIndicator } from "../components";
+import { LoadProgressIndicator } from "./components";
 
 /** Selection modifier keys, following the familiar list idiom. */
 export interface SelectModifiers {

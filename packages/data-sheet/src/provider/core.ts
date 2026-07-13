@@ -21,7 +21,7 @@ import {
   dataRefreshTokenAtom,
   FetchData,
   TableDataProvider,
-} from "./fetch-helpers.ts";
+} from "./table-data.ts";
 
 /** Create a Jotai scoped store */
 export const ctx = createScopedStore();
