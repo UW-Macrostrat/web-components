@@ -15,7 +15,12 @@ import { createZustandStore } from "./zustand-store.ts";
 import { atomWithStore } from "jotai-zustand";
 import { toasterAtom } from "./notifications.ts";
 import { TableAction } from "./actions";
-import { createLocalProvider, dataRefreshTokenAtom, type FetchData, type TableDataProvider } from "./postgrest-table";
+import {
+  createLocalProvider,
+  dataRefreshTokenAtom,
+  type FetchData,
+  type TableDataProvider,
+} from "./postgrest-table";
 import { atom } from "jotai";
 
 /** Create a Jotai scoped store */
@@ -174,6 +179,7 @@ export function DataSheetProviderInner<T>({
   columnSpec,
   columnSpecOptions,
   editable,
+  itemLabel,
   enableColumnReordering,
   defaultColumnWidth = 150,
   dataProvider,
@@ -190,6 +196,8 @@ export function DataSheetProviderInner<T>({
   // component resolving it each render. Kept updated as `data`/`provider`
   // changes.
   ctx.useSync(dataProviderAtom, dataProvider ?? DEFAULT_DATA_PROVIDER);
+
+  ctx.useSync(itemLabelAtom, itemLabel ?? "row");
 
   // A function `columnSpec` is derived from the loaded rows later (in
   // `_DataSheet`), not here — start it empty. Crucially it's kept OUT of the
@@ -212,7 +220,14 @@ export function DataSheetProviderInner<T>({
       defaultColumnWidth,
       tableRef,
     });
-  }, [data, editable, staticSpec, isFnSpec, columnSpecOptions, enableColumnReordering]);
+  }, [
+    data,
+    editable,
+    staticSpec,
+    isFnSpec,
+    columnSpecOptions,
+    enableColumnReordering,
+  ]);
 
   // Function `columnSpec`: derive the spec from the loaded rows (no separate
   // fetch of sample data), here at the provider level so BOTH renderers get it
@@ -256,14 +271,15 @@ export function DataSheetProviderInner<T>({
   useEffect(() => {
     const p = dataProvider?.provider ?? null;
     const refresh = () => bumpRefresh((v) => v + 1);
-    const withRefresh =
-      <A extends any[]>(fn?: (...args: A) => Promise<void>) =>
-        fn == null
-          ? undefined
-          : async (...args: A) => {
-              await fn(...args);
-              refresh();
-            };
+    const withRefresh = <A extends any[]>(
+      fn?: (...args: A) => Promise<void>,
+    ) =>
+      fn == null
+        ? undefined
+        : async (...args: A) => {
+            await fn(...args);
+            refresh();
+          };
     storeAPI.setState({
       rowEditing: {
         saveRows: withRefresh(p?.saveRows?.bind(p)),
@@ -290,7 +306,8 @@ export function DataSheetProviderInner<T>({
   // read by the shared `ActionsToolbar`.
   useEffect(() => {
     const canDeleteRows =
-      !dataProvider?.isExplicitProvider || dataProvider.provider?.deleteRows != null;
+      !dataProvider?.isExplicitProvider ||
+      dataProvider.provider?.deleteRows != null;
     storeAPI.setState({ canDeleteRows });
   }, [storeAPI, dataProvider]);
 
@@ -440,4 +457,23 @@ function remapOverlayByIdentity(
     rowStatus: nextStatus,
     pending,
   };
+}
+
+const itemLabelAtom = atom<string>("row");
+
+export function useItemCount(n: number) {
+  const dataKind = ctx.useValue(itemLabelAtom);
+  return itemCount(n, dataKind);
+}
+
+function itemCount(n: number, dataKind: string) {
+  const base = n == 0 ? "No" : `${n}`;
+  return base + " " + pluralize(dataKind, n);
+}
+
+function pluralize(singularForm: string, n: number) {
+  const pluralForm = singularForm + "s";
+  if (n == 0) return `${pluralForm}`;
+  if (n == 1) return singularForm;
+  return pluralForm;
 }

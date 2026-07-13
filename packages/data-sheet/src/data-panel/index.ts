@@ -179,6 +179,7 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
     columnSpecOptions,
     refreshToken,
     identity,
+    itemLabel,
     ...rest
   } = props;
   const { data: _data, dataProvider } = useResolvedProvider<T>(props);
@@ -197,6 +198,7 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
           dataProvider,
           refreshToken,
           identity,
+          itemLabel,
         },
         h(_DataPanel<any>, rest),
       ),

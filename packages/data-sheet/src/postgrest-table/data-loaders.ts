@@ -10,7 +10,12 @@ import {
   PostgrestQueryBuilder,
 } from "@supabase/postgrest-js";
 import { adjustArraySize, RowRegion } from "./loading-utils.ts";
-import { ctx, dataProviderAtom, tableDataAtom, useSelector } from "../provider.ts";
+import {
+  ctx,
+  dataProviderAtom,
+  tableDataAtom,
+  useSelector,
+} from "../provider.ts";
 import { atom } from "jotai";
 import type { ColumnSort } from "../types.ts";
 

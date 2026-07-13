@@ -273,6 +273,8 @@ export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
    * for a loose `data`/`fetchData` source with no explicit identity. Synced
    * into the store here, shared by `_DataSheet` and `_DataPanel`. */
   identity?: (row: any) => string | number | null | undefined;
+  // itemLabel (e.g., "row", "item")
+  itemLabel?: string;
 };
 
 export interface VisibleCells {

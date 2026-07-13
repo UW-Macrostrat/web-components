@@ -48,6 +48,7 @@ import type {
   TableDataProvider,
 } from "../src";
 import { Box, FlexRow, Spacer } from "@macrostrat/ui-components";
+import { LoadProgressLabel } from "../src/components/view-info.ts";
 
 const h = hyper;
 
@@ -157,7 +158,6 @@ const container = (child: any) =>
     {
       style: {
         height: "100vh",
-        padding: "1em",
         display: "flex",
         flexDirection: "column",
       },
@@ -871,12 +871,10 @@ export const BulkTagEditor: StoryObj = {
 // at each pause. `autoLoadPages: 2` pauses every second page.
 function InlineFooter() {
   const c = useLoadControls();
-  const counter =
-    c.total != null ? `${c.loaded} of ${c.total}` : `${c.loaded} loaded`;
 
   let action: ReactNode;
   if (!c.hasMore) {
-    action = h("span", { style: { opacity: 0.6 } }, "— end of list —");
+    action = h("span", { style: { opacity: 0.6 } }, "Complete!");
   } else if (c.paused) {
     action = h(
       Button,
@@ -917,11 +915,7 @@ function InlineFooter() {
     },
     [
       action,
-      h(
-        "div",
-        { key: "count", style: { fontSize: 12, opacity: 0.6 } },
-        counter,
-      ),
+      h("div", { style: { fontSize: 12, opacity: 0.6 } }, h(LoadProgressLabel)),
     ],
   );
 }
@@ -944,10 +938,10 @@ export const PausingFooter: StoryObj = {
         identity: (r: Sample) => r.id,
         columnSpec: fullSpec,
         itemComponent: SampleCard,
+        itemLabel: "sample",
         pageSize: 20,
         autoLoadPages: 2,
-        name: "Samples",
-        footer: h(InlineFooter),
+        contentFooter: h(InlineFooter),
         statusBar: false,
       }),
     ),

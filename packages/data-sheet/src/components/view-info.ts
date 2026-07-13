@@ -5,7 +5,7 @@ import {
   tableFooterAtom,
   chunkPageAtom,
 } from "../postgrest-table";
-import { ctx } from "../provider.ts";
+import { ctx, useItemCount } from "../provider.ts";
 import { Button, ButtonGroup, Icon, Spinner } from "@blueprintjs/core";
 
 function VisibleRegionControl() {
@@ -36,14 +36,16 @@ export function LoadProgressIndicator() {
     status = h(Icon, { icon: "more", size: 12 });
   }
 
-  return h("div.load-progress", [
-    h("span.load-progress-label", [
-      `${loaded}`,
-      total != null ? ` of ${total}` : "",
-      " rows",
-    ]),
-    status,
-  ]);
+  return h("div.load-progress", [h(LoadProgressLabel), status]);
+}
+
+export function LoadProgressLabel() {
+  const { loaded, total } = ctx.useValue(tableFooterAtom);
+  let countText = useItemCount(total ?? loaded);
+  if (total != null && loaded <= total) {
+    countText = `${loaded} of ` + countText;
+  }
+  return h("span.load-progress-label", countText);
 }
 
 /** Prev/next pager for paged fetch mode. */

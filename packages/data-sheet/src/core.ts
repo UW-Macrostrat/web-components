@@ -183,8 +183,6 @@ interface DataSheetInternalProps<T> extends TableProps, FetchDataOptions {
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
 
-const emptyData: any[] = [];
-
 export function DataSheet<T>(props: DataSheetProps<T>) {
   const {
     data,
