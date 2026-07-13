@@ -6,7 +6,14 @@ import {
   Table,
 } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
-import { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  CSSProperties,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { LoadProgressIndicator } from "./components";
 import { basicCellRenderer, renderColumnHeaderCell } from "./renderers";
 import h from "./main.module.sass";
@@ -48,7 +55,7 @@ import {
 import {
   CellInteraction,
   DataSheetDensity,
-  DataSheetInternalProps,
+  DataSheetRendererProps,
   DataSheetProps,
   FetchDataOptions,
 } from "./types.ts";
@@ -106,6 +113,11 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
   );
 }
 
+interface DataSheetRendererInternalProps<T> extends DataSheetRendererProps<T> {
+  minRowHeight: number;
+  defaultColumnWidth: number;
+}
+
 /** The table (cell-grid) renderer. Assumes it is rendered inside a
  * `DataSheetProvider` (the `DataSheet` wrapper, or `DataView`). Exported so a
  * shared-store `DataView` can mount it directly alongside `_DataPanel`. */
@@ -142,8 +154,8 @@ export function DataSheetRenderer<T>({
   rowStatusStyles,
   rowHeaderRenderer,
   children,
-  ...rest
-}: DataSheetInternalProps<T>) {
+  ...tableProps
+}: DataSheetRendererInternalProps<T>) {
   /**
    * @param data: The data to be displayed in the table
    * @param columnSpec: The specification for all columns in the table. If not provided, the column spec will be generated from the data.
@@ -277,13 +289,13 @@ export function DataSheetRenderer<T>({
   // In paged mode the row count is small and fixed, so let the table size to
   // its content (header + rows) instead of filling the viewport.
   const footerInfo = ctx.useValue(tableFooterAtom);
-  const holderStyle =
-    footerInfo.mode === "paged"
-      ? {
-          flex: "0 0 auto" as const,
-          height: numRows * rowHeight + COLUMN_HEADER_HEIGHT,
-        }
-      : undefined;
+  let holderStyle: CSSProperties | undefined = undefined;
+  if (footerInfo.mode === "paged") {
+    holderStyle = {
+      flex: "0 0 auto" as const,
+      height: numRows * rowHeight + COLUMN_HEADER_HEIGHT,
+    };
+  }
 
   const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
 
@@ -434,20 +446,20 @@ export function DataSheetRenderer<T>({
 
   const rowHeaderCellRenderer = useCallback(
     (rowIndex: number) => {
-      const dataRowIndex =
-        filteredRowIndices != null
-          ? (filteredRowIndices[rowIndex] ?? rowIndex)
-          : rowIndex;
+      let dataRowIndex = rowIndex;
+      if (filteredRowIndices != null) {
+        dataRowIndex = filteredRowIndices[rowIndex] ?? rowIndex;
+      }
       const statusVal = rowStatus[dataRowIndex];
-      const style =
-        (statusVal != null
-          ? mergedRowStatusStyles[statusVal]?.headerStyle
-          : null) ?? null;
+      let style: CSSProperties | undefined;
+      if (statusVal != null) {
+        style = mergedRowStatusStyles[statusVal]?.headerStyle;
+      }
 
       const defaultLabel = `${dataRowIndex + 1}`;
-      let name: ReactNode = defaultLabel;
+      let name: string = defaultLabel;
       if (rowHeaderRenderer != null) {
-        const custom = rowHeaderRenderer({
+        return rowHeaderRenderer({
           rowIndex: dataRowIndex,
           visibleIndex: rowIndex,
           row: data[dataRowIndex] ?? updatedData[dataRowIndex],
@@ -455,7 +467,6 @@ export function DataSheetRenderer<T>({
           isDeleted: statusVal === TableElementStatus.DELETED,
           defaultLabel,
         });
-        if (custom != null) name = custom;
       }
 
       return h(RowHeaderCell, {
@@ -551,7 +562,7 @@ export function DataSheetRenderer<T>({
         style: holderStyle,
       },
       h(
-        Table,
+        Table as any, // Some sort of hyperscript type error
         {
           ref,
           numRows,
@@ -561,11 +572,10 @@ export function DataSheetRenderer<T>({
           focusedCell,
           selectedRegions,
           defaultRowHeight: rowHeight,
-          minRowHeight: rowHeight,
           columnWidths,
           onColumnWidthChanged,
           onSelection,
-          /** TODO: we could enable this, but we need a use-case first... */
+          /** TODO: we could enable this if we had a use-case */
           enableRowReordering: false,
           enableRowResizing: false,
           // The cell renderer is memoized internally based on these data dependencies
@@ -573,7 +583,7 @@ export function DataSheetRenderer<T>({
           onVisibleCellsChange: _onVisibleCellsChange,
           rowHeaderCellRenderer,
           selectionModes: _selectionModes,
-          ...rest,
+          ...tableProps,
           getCellClipboardData: null,
         },
         realizedColumns,
@@ -608,7 +618,10 @@ const columnWidthsAtom = atom((get) => {
   );
 });
 
-function styleParamsForDensity(density: DataSheetDensity) {
+function styleParamsForDensity(density: DataSheetDensity): {
+  rowHeight: number;
+  style: Record<string, string>;
+} {
   switch (density) {
     case DataSheetDensity.MEDIUM:
       return {

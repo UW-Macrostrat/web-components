@@ -11,7 +11,7 @@ import { memo, ReactNode, useEffect, useRef, useState } from "react";
 import { EditorPopup, CellDetailModal } from "../components";
 import { singleFocusedCell } from "../provider/zustand-store.ts";
 import { Cell } from "@blueprintjs/table";
-import { ctx, useSelector } from "../provider";
+import { ctx, dragValueHandlerAtom, useSelector } from "../provider";
 
 /** Two validations are equivalent if they convey the same thing — so a fresh
  * `validateCell` result object doesn't force a re-render when nothing changed. */
@@ -349,8 +349,8 @@ export function basicCellRenderer<T>(
 
   let cellContents: ReactNode = _renderedValue;
 
-  let _dataEditor = null;
-  let className = null;
+  let _dataEditor: ReactNode = null;
+  let className: string | null = null;
 
   if (dataEditorSpec != null) {
     _dataEditor = h(
@@ -413,7 +413,7 @@ export function basicCellRenderer<T>(
 
   let _inlineEditor: ReactNode = null;
   if (typeof inlineEditor == "boolean") {
-    let _value = value;
+    let _value: any = value;
     if (
       typeof _renderedValue === "string" ||
       typeof _renderedValue === "number" ||
@@ -461,7 +461,7 @@ export function basicCellRenderer<T>(
     },
     [
       cellContents,
-      h.if(editable && isSingleCellSelection)(DragHandle),
+      h.if(editable && isSingleCellSelection)(CornerDragHandle),
       //hiddenInput,
     ],
   );
@@ -499,9 +499,13 @@ function EditorInput(props) {
   });
 }
 
-function DragHandle() {
+function CornerDragHandle() {
   // TODO: we might want to drag multiple columns in some cases
   // This should be on the last cell of a selection
-  const onMouseDown = useSelector((state) => state.onDragValue);
-  return h("div.corner-drag-handle", { onMouseDown });
+  const onDragValue = ctx.useValue(dragValueHandlerAtom);
+  if (onDragValue == null) return null;
+
+  return h("div.corner-drag-handle", {
+    onMouseDown: onDragValue,
+  });
 }

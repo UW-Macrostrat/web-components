@@ -324,8 +324,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     },
     onSelection(selection: Region[]) {
       set((state) => {
+        const isSameAsPrevSelection = selectionEquals(
+          selection,
+          state.selection,
+        );
         if (
-          selectionEquals(selection, state.selection) &&
+          isSameAsPrevSelection &&
           singleFocusedCell(selection) == null // Only if we're in a multi-cell selection mode
         ) {
           // If the selection is the same as the current selection, remove the selection.

@@ -29,7 +29,14 @@ function selectionTitle<T>(ctx: TableActionContext<T>): string | null {
     case RegionCardinality.FULL_ROWS:
       return ctx.rowIndex != null ? "1 row" : `${sh.rows} rows`;
     case RegionCardinality.CELLS:
-      return ctx.cell != null ? "Cell" : `${sh.columns}×${sh.rows} cells`;
+      if (ctx.cell != null) {
+        return "1 cell";
+      }
+      if (sh.columns == 1 || sh.rows == 1) {
+        const nCells = Math.max(sh.columns, sh.rows);
+        return `${nCells} cells`;
+      }
+      return `${sh.columns}×${sh.rows} cells`;
     case RegionCardinality.FULL_TABLE:
       return null;
     default:
@@ -108,6 +115,11 @@ export function ActionsToolbar<T>({
   // clears the selection). The unselected label is a transparent, non-removable
   // tag — visually a plain title, but the same box.
   const hasSelection = selection != null && selection.length > 0;
+  let _name = tableName ?? "Table";
+  if (hasSelection) {
+    _name = selectionTitle(ctx) ?? _name;
+  }
+
   const titleNode = h(
     Tag,
     {
@@ -124,9 +136,7 @@ export function ActionsToolbar<T>({
         : undefined,
       style: hasSelection ? undefined : { background: "transparent" },
     },
-    hasSelection
-      ? (selectionTitle(ctx) ?? tableName ?? "Selection")
-      : (tableName ?? "Table"),
+    _name,
   );
 
   // Order left→right by generality: actions applicable to the whole table (or

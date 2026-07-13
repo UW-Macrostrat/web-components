@@ -154,7 +154,7 @@ export enum DataSheetDensity {
  */
 export type CellInteraction = "auto" | "manual";
 
-export interface DataSheetInternalProps<T = any>
+export interface DataSheetRendererProps<T = any>
   extends TableProps, DataViewSharedProps<T> {
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
   onUpdateData?: (updatedData: any[], data: T[]) => void;
@@ -218,4 +218,4 @@ export interface DataSheetInternalProps<T = any>
 }
 
 export type DataSheetProps<T> = DataSheetProviderProps<T> &
-  DataSheetInternalProps<T>;
+  DataSheetRendererProps<T>;

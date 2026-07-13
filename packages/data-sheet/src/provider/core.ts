@@ -174,10 +174,8 @@ function _DataSheetProvider<T>(
   );
 }
 
-export const DataSheetProvider = wrapWithErrorBoundary(_DataSheetProvider);
-
-function wrapWithErrorBoundary(component) {
-  return (props) => h(ErrorBoundary, h(component, props));
+export function DataSheetProvider<T>(props: DataSheetProviderProps<T>) {
+  return h(ErrorBoundary, h(_DataSheetProvider<T>, props));
 }
 
 export function DataSheetProviderInner<T>({
@@ -188,6 +186,7 @@ export function DataSheetProviderInner<T>({
   editable,
   itemLabel,
   enableColumnReordering,
+  enableDragValue,
   defaultColumnWidth = 150,
   dataProvider,
   refreshToken,
@@ -203,6 +202,8 @@ export function DataSheetProviderInner<T>({
   // component resolving it each render. Kept updated as `data`/`provider`
   // changes.
   ctx.useSync(dataProviderAtom, dataProvider ?? DEFAULT_DATA_PROVIDER);
+
+  ctx.useSync(enableDragValueAtom, enableDragValue ?? editable);
 
   ctx.useSync(itemLabelAtom, itemLabel ?? "row");
 
@@ -338,6 +339,13 @@ export function useSelector<T = any, A = any>(
 /** Atoms for efficient sub-selection of state */
 
 export const columnSpecAtom = atom((get) => get(storeAtom)?.columnSpec ?? []);
+
+export const enableDragValueAtom = atom(true);
+
+export const dragValueHandlerAtom = atom((get) => {
+  if (!get(enableDragValueAtom)) return undefined;
+  return get(storeAtom)?.onDragValue;
+});
 
 export const tableDataAtom = atom(
   (get) => {
