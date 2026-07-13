@@ -346,7 +346,7 @@ export function DataPanelRenderer<T>({
       actions,
       tableName: name,
     }),
-    controls,
+    h("div.control-bar", controls),
     h("div.data-panel-main", [
       h(
         "div.data-panel-body",

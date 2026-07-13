@@ -45,7 +45,6 @@ import type {
   LoadControls,
   ScrollBodyProps,
   TableAction,
-
 } from "../src";
 import { Box, FlexRow, Spacer } from "@macrostrat/ui-components";
 import { LoadProgressLabel } from "../src/components/view-info.ts";
@@ -62,7 +61,7 @@ const h = hyper;
  */
 
 const meta: Meta<any> = {
-  title: "Data sheet/Data panel patterns",
+  title: "Data sheet/Data panel/Misc. patterns",
   parameters: { layout: "fullscreen" },
 };
 export default meta;
