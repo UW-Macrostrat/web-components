@@ -40,7 +40,6 @@ import {
   dataProviderAtom,
   DataSheetProvider,
   FetchData,
-  FetchDataOptions,
   useResolvedProvider,
   useSelector,
   useStoreAPI,
@@ -62,7 +61,12 @@ import {
 } from "./postgrest-table";
 import classNames from "classnames";
 import { LoadProgressIndicator } from "./components";
-import { DataPanelProps, ScrollBodyProps, SelectModifiers } from "./types.ts";
+import {
+  DataPanelProps,
+  FetchDataOptions,
+  ScrollBodyProps,
+  SelectModifiers,
+} from "./types.ts";
 
 /**
  * Resolve the data source (shared with `DataSheet` / `DataView` via

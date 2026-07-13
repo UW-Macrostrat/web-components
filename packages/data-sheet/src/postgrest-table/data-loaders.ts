@@ -16,13 +16,12 @@ import {
   dataRefreshTokenAtom,
   FetchData,
   FetchDataFilter,
-  FetchDataOptions,
-  FetchMode,
   tableDataAtom,
   TableDataProvider,
   useSelector,
 } from "../provider";
 import { atom } from "jotai";
+import { FetchDataOptions, FetchMode } from "../types.ts";
 
 interface LazyLoaderStateCore<T> {
   loading: boolean;

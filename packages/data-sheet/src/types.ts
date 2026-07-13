@@ -2,7 +2,6 @@ import {
   DataSheetProviderProps,
   EditEvent,
   FetchData,
-  FetchDataOptions,
   RowHeaderRenderContext,
   RowStatusStyles,
   TableActionContext,
@@ -15,31 +14,50 @@ import { ComponentType, MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import { TableAction, TableFilter } from "./actions";
 import { Region, TableProps } from "@blueprintjs/table";
 
-export interface DataPanelProps<T = any> {
-  /** A data provider (read + optional persistence). Takes precedence. */
-  provider?: TableDataProvider<T>;
-  /** A loose windowed fetch (wrapped as a provider). */
-  fetchData?: FetchData<T>;
-  /** In-memory rows (wrapped in a local provider). */
-  data?: T[];
-  /** Row identity — stable across a provider re-sort. A provider supplies its
-   * own; defaults to `(row) => row?.id`. */
-  identity?: (row: T) => string | number | null | undefined;
-  /** Column spec declaring facet capabilities (`filterable` / `sortable`) and
-   * `dataType`. Drives `FacetControls` and the provider's server-side view. An
-   * explicit array is used as-is; omit to auto-generate from the first chunk. */
-  columnSpec?: ColumnSpec[];
-  columnSpecOptions?: any;
-  /** Renders one row as a card. */
-  itemComponent: ComponentType<DataPanelItemProps<T>>;
-  /** Selection-scoped and global actions (rendered in the toolbar). */
-  actions?: TableAction<T>[];
-  /** Table-level filters (column filters come from `columnSpec.filterable`). */
-  filters?: TableFilter<T>[];
-  /** Rows per chunk. */
+export type FetchMode = "scroll" | "paged";
+
+export interface FetchDataOptions {
   pageSize?: number;
+  fetchMode?: FetchMode;
+}
+
+export interface DataViewSharedProps<T = any> extends FetchDataOptions {
   /** Shown as the toolbar's leading label when nothing is selected. */
   name?: string;
+  /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
+   * driven through the same loader as any other source. */
+  data?: T[];
+  /** Passed through from the public props so a function form can be derived
+   * from the loaded rows here (a static array is handled by the provider). */
+  columnSpec?: ColumnSpec[] | ((rows: T[]) => ColumnSpec[]);
+  columnSpecOptions?: Record<string, Partial<ColumnSpec>>;
+  // function to fetch a chunk of data (the read side of a data provider)
+  fetchData?: FetchData<T>;
+  /** A data provider instantiated separately and passed in — bundles the read
+   * side (`fetchData` + `identity`) and, optionally, the persistence side
+   * (`saveRows` / `deleteRows` / `insertRow`) that drives the Save action. An
+   * explicit alternative to the loose `data` / `fetchData` / `identity` props;
+   * takes precedence when given. */
+  provider?: TableDataProvider<T>;
+  /** Row identity for the edit overlay — stable across a provider re-sort (a
+   * data provider supplies its own; defaults to `(row) => row?.id`). Lets edits
+   * survive a re-ordered re-fetch. */
+  identity?: (row: T) => string | number | null | undefined;
+  /** Configurable table actions shown in a selection-aware toolbar.
+   * When provided, the actions toolbar renders alongside the existing
+   * edit toolbar. Actions are filtered by the current selection cardinality. */
+  actions?: TableAction<T>[];
+  /** Available column/table filters shown in a filter bar.
+   * Filters can also be defined per-column via `ColumnSpec.filters`. */
+  filters?: TableFilter<T>[];
+  /** Bump to force a re-fetch from scratch (e.g. after an immediate edit that
+   * mutated rows through the provider). */
+  refreshToken?: number | string;
+}
+
+export interface DataPanelProps<T = any> extends DataViewSharedProps<T> {
+  /** Renders one row as a card. */
+  itemComponent: ComponentType<DataPanelItemProps<T>>;
   /** Arbitrary nodes for the bottom status row (beside the loaded/total
    * counter). Pass `false` to drop the status row entirely — e.g. when the
    * counter is folded into an inline footer instead. */
@@ -64,9 +82,6 @@ export interface DataPanelProps<T = any> {
    * burst (e.g. a footer "Load more" button). Omit for unbounded auto-scroll. */
   // TODO: we may deprecate this for opt-in scrolling
   autoLoadPages?: number;
-  /** Bump to force a re-fetch from scratch (e.g. after an immediate edit that
-   * mutated rows through the provider). */
-  refreshToken?: number | string;
   /** Custom layout for the item cards — the seam for anything other than a
    * vertical list (a CSS grid for several per row, grouped sections, sticky
    * sub-headers, a windowed renderer). Receives the rendered cards as
@@ -133,24 +148,8 @@ export enum DataSheetDensity {
  */
 export type CellInteraction = "auto" | "manual";
 
-export interface DataSheetInternalProps<T>
-  extends TableProps, FetchDataOptions {
-  /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
-   * driven through the same loader as any other source. */
-  data?: T[];
-  /** Passed through from the public props so a function form can be derived
-   * from the loaded rows here (a static array is handled by the provider). */
-  columnSpec?: ColumnSpec[] | ((rows: T[]) => ColumnSpec[]);
-  // function to fetch a chunk of data (the read side of a data provider)
-  fetchData?: FetchData<T>;
-  /** A data provider instantiated separately and passed in — bundles the read
-   * side (`fetchData` + `identity`) and, optionally, the persistence side
-   * (`saveRows` / `deleteRows` / `insertRow`) that drives the Save action. An
-   * explicit alternative to the loose `data` / `fetchData` / `identity` props;
-   * takes precedence when given. */
-  provider?: TableDataProvider<T>;
-  // An optional table name that will be used in toolbars if given
-  name?: string;
+export interface DataSheetInternalProps<T = any>
+  extends TableProps, DataViewSharedProps<T> {
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
   onUpdateData?: (updatedData: any[], data: T[]) => void;
   /** Observer called for every user edit as a structured `EditEvent`
@@ -165,10 +164,7 @@ export interface DataSheetInternalProps<T>
   /** Controlled row-status overlay (edited / added / deleted), the companion
    * to `updatedData`. */
   rowStatus?: TableElementStatus[];
-  /** Row identity for the edit overlay — stable across a provider re-sort (a
-   * data provider supplies its own; defaults to `(row) => row?.id`). Lets edits
-   * survive a re-ordered re-fetch. */
-  identity?: (row: T) => string | number | null | undefined;
+
   /** Derive the controlled edit overlay from the loaded rows, *inside* the
    * sheet. For provider-backed tables whose overlay is a function of the loaded
    * data plus external edit state (e.g. an ops stack): the library owns the
@@ -179,9 +175,6 @@ export interface DataSheetInternalProps<T>
     updatedData: T[];
     rowStatus: TableElementStatus[];
   };
-  /** Bump to force the data provider to re-fetch from scratch (e.g. after a
-   * save/delete that invalidated the loaded rows). */
-  refreshToken?: number | string;
   /** Persistence handler for the built-in Save action. When provided, a Save
    * control is added to the toolbar (always visible, disabled when there are
    * no pending changes). */
@@ -199,13 +192,6 @@ export interface DataSheetInternalProps<T>
    * Defaults from `autoFocusEditor` for backward compatibility. */
   cellInteraction?: CellInteraction;
   density?: DataSheetDensity;
-  /** Configurable table actions shown in a selection-aware toolbar.
-   * When provided, the actions toolbar renders alongside the existing
-   * edit toolbar. Actions are filtered by the current selection cardinality. */
-  actions?: TableAction<T>[];
-  /** Available column/table filters shown in a filter bar.
-   * Filters can also be defined per-column via `ColumnSpec.filters`. */
-  filters?: TableFilter<T>[];
   /** Optional custom column header cell renderer, called for each column.
    * Receives the ColumnSpec and column index; should return a React element
    * (typically a Blueprint ColumnHeaderCell). */

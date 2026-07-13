@@ -18,7 +18,6 @@ import {
   DataSheetProvider,
   DEFAULT_ROW_STATUS_STYLES,
   FetchData,
-  FetchDataOptions,
   persistViaProvider,
   RowStatusStyles,
   storeAtom,
@@ -51,6 +50,7 @@ import {
   DataSheetDensity,
   DataSheetInternalProps,
   DataSheetProps,
+  FetchDataOptions,
 } from "./types.ts";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args

@@ -175,9 +175,3 @@ export async function persistViaProvider<T>(
     await provider.saveRows(toSave);
   }
 }
-export type FetchMode = "scroll" | "paged";
-
-export interface FetchDataOptions {
-  pageSize?: number;
-  fetchMode?: FetchMode;
-}
