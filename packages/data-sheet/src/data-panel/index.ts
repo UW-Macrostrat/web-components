@@ -66,6 +66,7 @@ import {
   useLoadControls,
 } from "../postgrest-table";
 import classNames from "classnames";
+import { LoadProgressIndicator } from "../components";
 
 /** Selection modifier keys, following the familiar list idiom. */
 export interface SelectModifiers {
@@ -143,17 +144,11 @@ export interface DataPanelProps<T = any> {
    * from the store via `useLoadControls()` (loadMore / loading / hasMore /
    * loaded / total / paused) rather than a passed-down contract — a footer, a
    * status line, or a "Load more" button all just call the hook. */
-  footer?: ReactNode;
-  /** Where the footer sits:
-   * - `"below"` (default): a pinned region below the scroll, always visible.
-   * - `"inline"`: the last thing in the *scroll flow* — seen only when the
-   *   bottom is reached, and it doubles as the load sentinel (so it can show a
-   *   spinner mid-burst and a "Load more" at a pause). Keeps all chrome out of
-   *   the scrolling content until you get there. */
-  footerPlacement?: "below" | "inline";
+  contentFooter?: ReactNode;
   /** Auto-load this many pages per burst, then pause: a paused panel stops
    * fetching on scroll until `useLoadControls().loadMore()` starts the next
    * burst (e.g. a footer "Load more" button). Omit for unbounded auto-scroll. */
+  // TODO: we may deprecate this for opt-in scrolling
   autoLoadPages?: number;
   /** Bump to force a re-fetch from scratch (e.g. after an immediate edit that
    * mutated rows through the provider). */
@@ -214,15 +209,16 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
  * `DataView` can mount it directly alongside `_DataSheet`. */
 export function _DataPanel<T>({
   itemComponent: ItemComponent,
-  actions,
+  actions = [],
   filters,
   pageSize = 50,
   name,
+  // Bottom bar
   statusBar,
   toolbar,
   sidebar,
-  footer,
-  footerPlacement = "below",
+  // Footer within content flow
+  contentFooter,
   autoLoadPages,
   scrollBody,
   topFade = true,
@@ -372,23 +368,11 @@ export function _DataPanel<T>({
     );
   });
 
-  let counter: string;
-  if (total != null) {
-    counter = `${loaded} of ${total}`;
-  } else {
-    counter = `${loaded} loaded`;
-  }
-
-  // The footer is a plain node; it reads live load state via `useLoadControls`
-  // itself (no passed-down contract).
-  const footerContent = footer;
-
   // An inline footer is the end-of-scroll region itself, so it always renders
   // (deciding its own content: spinner mid-burst, "Load more" at a pause, or an
   // end-of-list note). It carries the sentinel ref; auto-load is gated by
   // `canLoadMore`, so a paused/exhausted footer just sits there.
-  const showInlineFooter =
-    footerPlacement === "inline" && footerContent != null;
+  const showInlineFooter = contentFooter != null;
   // The default spinner sentinel (below-placement): hidden while paused so the
   // pinned footer's "Load more" takes over.
   const shouldLoadNextPage = (hasMore || loading) && !paused;
@@ -436,11 +420,11 @@ export function _DataPanel<T>({
   if (showInlineFooter) {
     bottomContent = h(
       "div.data-panel-tail",
-      { key: "tail", ref: sentinelRef },
-      footerContent,
+      { ref: sentinelRef },
+      contentFooter,
     );
   } else if (showSentinel) {
-    bottomContent = h("div.sentinel", { key: "sentinel", ref: sentinelRef }, [
+    bottomContent = h("div.sentinel", { ref: sentinelRef }, [
       h(Spinner, { key: "spinner", size: 16 }),
       "Loading…",
     ]);
@@ -463,47 +447,37 @@ export function _DataPanel<T>({
   // scrolls independently.
   let main: ReactNode;
   if (sidebar != null) {
-    main = h("div.data-panel-main", { key: "main" }, [
-      h("div.data-panel-sidebar", { key: "sidebar" }, sidebar),
+    main = h("div.data-panel-main", [
+      h("div.data-panel-sidebar", sidebar),
       body,
     ]);
   } else {
     main = body;
   }
 
-  // Pinned footer below the scroll (unless the footer is placed inline).
-  let pinnedFooter: ReactNode = null;
-  if (!showInlineFooter && footerContent != null) {
-    pinnedFooter = h(
-      "div.data-panel-footer-slot",
-      { key: "footer-slot" },
-      footerContent,
-    );
-  }
-
   // Bottom status row (counter + extras). `statusBar === false` drops it — e.g.
   // when an inline footer carries the counter itself.
-  let statusRow: ReactNode = null;
-  if (statusBar !== false) {
-    statusRow = h("div.data-panel-footer", { key: "footer" }, [
-      h("span.counter", { key: "counter" }, counter),
-      h("div.spacer", { key: "spacer" }),
-      statusBar,
-    ]);
+  let footer: ReactNode = null;
+  let _statusBarContent = statusBar ?? h(DataPanelStatusBar);
+  if (_statusBarContent !== false) {
+    footer = h("div.data-panel-footer", [_statusBarContent]);
   }
 
   return h("div.data-panel", { className }, [
     loaderNode,
     h(ActionsToolbar, {
-      key: "toolbar",
-      actions: actions ?? [],
+      actions,
       tableName: name,
     }),
     controls,
     main,
-    pinnedFooter,
-    statusRow,
+    footer,
   ]);
+}
+
+function DataPanelStatusBar({ children }) {
+  /** Default status bar for the Data Panel */
+  return h("div.data-panel-status-bar", [children, h(LoadProgressIndicator)]);
 }
 
 /**

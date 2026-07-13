@@ -320,8 +320,11 @@ export function _DataSheet<T>({
 
   // The active data source is resolved in the wrapper (`DataSheet`) and held in
   // the provider layer; read it here rather than resolving per render.
-  const { provider: activeProvider, isLocalProvider, localCount } =
-    ctx.useValue(dataProviderAtom);
+  const {
+    provider: activeProvider,
+    isLocalProvider,
+    localCount,
+  } = ctx.useValue(dataProviderAtom);
 
   // When an explicit provider owns persistence, its methods drive the built-in
   // Save (batch: edits→saveRows, added→insertRow, deleted→deleteRows), then a
@@ -791,18 +794,4 @@ function _DataLoaderManager<T = any>({
 } & FetchDataOptions) {
   useDataLoader(fetchData, rest);
   return null;
-}
-
-export function getRowsToDelete(selection) {
-  let rowIndices: number[] = [];
-  for (const sel of selection) {
-    // This isn't a full-row selection
-    if (sel.cols != null) continue;
-    if (sel.rows == null) continue;
-    const [startIndex, endIndex] = sel.rows;
-    for (let i = startIndex; i <= endIndex; i++) {
-      rowIndices.push(i);
-    }
-  }
-  return rowIndices;
 }

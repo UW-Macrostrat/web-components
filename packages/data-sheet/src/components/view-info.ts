@@ -31,7 +31,7 @@ export function LoadProgressIndicator() {
   if (loading) {
     status = h(Spinner, { size: 12 });
   } else if (total != null && loaded >= total) {
-    status = h(Icon, { icon: "tick-circle", intent: "success", size: 12 });
+    status = h(Icon, { icon: "tick", size: 12 });
   } else {
     status = h(Icon, { icon: "more", size: 12 });
   }

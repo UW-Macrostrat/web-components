@@ -36,6 +36,7 @@ import {
   useLoadControls,
   useSelector,
   useStoreAPI,
+  LoadProgressIndicator,
 } from "../src";
 import type {
   ColumnSpec,
@@ -46,6 +47,7 @@ import type {
   TableAction,
   TableDataProvider,
 } from "../src";
+import { Box, FlexRow, Spacer } from "@macrostrat/ui-components";
 
 const h = hyper;
 
@@ -322,31 +324,40 @@ export const WithFooter: StoryObj = {
         columnSpec: fullSpec,
         itemComponent: SampleCard,
         name: "Samples",
-        footer: h(
-          "div",
-          {
-            style: {
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "8px 10px",
-              background: "rgba(45,114,210,0.06)",
+        statusBar: h(FlexRow, [
+          h(
+            "div",
+            {
+              style: {
+                alignItems: "center",
+                display: "flex",
+                flexDirection: "row",
+                gap: "8px",
+                padding: "8px 10px",
+                background: "rgba(45,114,210,0.06)",
+                marginRight: "auto",
+              },
             },
-          },
-          [
-            h(
-              "span",
-              { key: "t", style: { flex: 1 } },
-              "Bulk actions apply to the current view",
-            ),
-            h(Button, { key: "e", small: true, icon: "export" }, "Export all"),
-            h(
-              Button,
-              { key: "v", small: true, intent: "primary", icon: "confirm" },
-              "Validate all",
-            ),
-          ],
-        ),
+            [
+              h(
+                "span",
+                { key: "t", style: { flex: 1 } },
+                "Bulk actions apply to the current view",
+              ),
+              h(
+                Button,
+                { key: "e", small: true, icon: "export" },
+                "Export all",
+              ),
+              h(
+                Button,
+                { key: "v", small: true, intent: "primary", icon: "confirm" },
+                "Validate all",
+              ),
+            ],
+          ),
+          h(LoadProgressIndicator),
+        ]),
       }),
     ),
 };
@@ -937,7 +948,6 @@ export const PausingFooter: StoryObj = {
         autoLoadPages: 2,
         name: "Samples",
         footer: h(InlineFooter),
-        footerPlacement: "inline",
         statusBar: false,
       }),
     ),
