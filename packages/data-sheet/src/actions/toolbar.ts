@@ -11,7 +11,7 @@ import {
 import type { TableAction, TableActionContext } from "./types";
 import { RegionCardinality } from "@blueprintjs/table";
 import { useToaster } from "../notifications.ts";
-import { DataSheetStore } from "../types.ts";
+import { DataSheetStore } from "../provider/types.ts";
 import { ColumnSpec } from "../utils";
 
 /** A short title describing the current selection (its shape), shown as the

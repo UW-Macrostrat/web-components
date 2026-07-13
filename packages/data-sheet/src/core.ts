@@ -16,9 +16,12 @@ import {
   columnSpecAtom,
   ctx,
   dataProviderAtom,
+  dataRefreshTokenAtom,
   DataSheetProvider,
+  FetchData,
   storeAtom,
   tableActionsAtom,
+  TableDataProvider,
   useResolvedProvider,
   useSelector,
   useStoreAPI,
@@ -32,7 +35,7 @@ import {
   RowStatusStyles,
   TableElementStatus,
   VisibleCells,
-} from "./types.ts";
+} from "./provider/types.ts";
 import {
   CellRendererDebugOverlay,
   tableHotkeysAtom,
@@ -50,12 +53,8 @@ import {
   TableFilter,
 } from "./actions";
 import {
-  createLocalProvider,
-  dataRefreshTokenAtom,
-  FetchData,
   FetchDataOptions,
   tableFooterAtom,
-  TableDataProvider,
   useScrollHandler,
   useDataLoader,
 } from "./postgrest-table";

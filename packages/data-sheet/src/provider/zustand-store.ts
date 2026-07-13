@@ -13,13 +13,13 @@ import {
   type Region,
   RegionCardinality,
 } from "@blueprintjs/table";
-import { range } from "./utils";
+import { range } from "../utils";
 import update, { Spec } from "immutability-helper";
 import {
   getSelectedColumnKeys,
   getSelectedRowIndices,
   getSelectionCardinality,
-} from "./actions";
+} from "../actions";
 
 /** Monotonic counter for synthetic ids on in-table-added rows. */
 let _addedRowCounter = 0;
@@ -274,8 +274,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       }
     },
     clearSelection() {
-      const edits: { rowIndex: number; column: string; value: any; row?: any }[] =
-        [];
+      const edits: {
+        rowIndex: number;
+        column: string;
+        value: any;
+        row?: any;
+      }[] = [];
       set((state) => {
         // Delete all selected cells
         const { selection, updatedData, columnSpec, data } = state;
@@ -298,7 +302,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
               const currentValue = updatedData[row]?.[key] ?? data[row]?.[key];
               if (currentValue != null && currentValue !== "") {
                 vals[key] = "";
-                edits.push({ rowIndex: row, column: key, value: "", row: data[row] });
+                edits.push({
+                  rowIndex: row,
+                  column: key,
+                  value: "",
+                  row: data[row],
+                });
               }
             }
             let op = updatedData[row] == null ? "$set" : "$merge";
@@ -351,8 +360,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     },
     onSelectionEdited(value: any) {
       // Apply the same value to all selected cells
-      const edits: { rowIndex: number; column: string; value: any; row?: any }[] =
-        [];
+      const edits: {
+        rowIndex: number;
+        column: string;
+        value: any;
+        row?: any;
+      }[] = [];
       set((state) => {
         const { selection, updatedData, columnSpec, editable } = state;
         if (!editable) return {};
@@ -369,7 +382,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
             for (const col of colRange) {
               const key = columnSpec[col].key;
               vals[key] = value;
-              edits.push({ rowIndex: row, column: key, value, row: state.data[row] });
+              edits.push({
+                rowIndex: row,
+                column: key,
+                value,
+                row: state.data[row],
+              });
             }
             let op = updatedData[row] == null ? "$set" : "$merge";
             spec[row] = { [op]: vals };

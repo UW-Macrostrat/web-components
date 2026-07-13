@@ -26,7 +26,6 @@ import { RegionCardinality } from "@blueprintjs/table";
 import { TagEditor, type TagUsage } from "@macrostrat/data-components";
 import {
   columnFilter,
-  createLocalProvider,
   DataPanel,
   DataPanelItemProps,
   DataView,
@@ -37,15 +36,16 @@ import {
   useSelector,
   useStoreAPI,
   LoadProgressIndicator,
+  TableDataProvider,
+  FetchDataResult,
+  FetchDataParams,
 } from "../src";
 import type {
   ColumnSpec,
-  FetchDataParams,
-  FetchDataResult,
   LoadControls,
   ScrollBodyProps,
   TableAction,
-  TableDataProvider,
+
 } from "../src";
 import { Box, FlexRow, Spacer } from "@macrostrat/ui-components";
 import { LoadProgressLabel } from "../src/components/view-info.ts";

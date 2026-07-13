@@ -2,7 +2,7 @@ import { SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, StoreApi, useStore } from "zustand";
 import type { Table } from "@blueprintjs/table";
-import { generateColumnSpec, type ColumnSpec } from "./utils";
+import { generateColumnSpec, type ColumnSpec } from "../utils";
 import { createScopedStore } from "@macrostrat/data-components";
 import {
   DataSheetProviderProps,
@@ -13,15 +13,15 @@ import {
 } from "./types.ts";
 import { createZustandStore } from "./zustand-store.ts";
 import { atomWithStore } from "jotai-zustand";
-import { toasterAtom } from "./notifications.ts";
-import { TableAction } from "./actions";
+import { toasterAtom } from "../notifications.ts";
+import { TableAction } from "../actions";
+import { atom } from "jotai";
 import {
   createLocalProvider,
   dataRefreshTokenAtom,
-  type FetchData,
-  type TableDataProvider,
-} from "./postgrest-table";
-import { atom } from "jotai";
+  FetchData,
+  TableDataProvider,
+} from "./fetch-helpers.ts";
 
 /** Create a Jotai scoped store */
 export const ctx = createScopedStore();

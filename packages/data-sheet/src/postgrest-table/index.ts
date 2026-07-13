@@ -4,7 +4,6 @@ import { DataSheet } from "../core";
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import {
   createPostgRESTProvider,
-  dataRefreshTokenAtom,
   PostgrestFilter,
   PostgrestOrder,
 } from "./data-loaders";
@@ -12,9 +11,9 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
 import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
 import { ColorCell } from "../components";
-import { DataSheetProviderProps } from "../types.ts";
+import { DataSheetProviderProps } from "../provider/types.ts";
 import { atom } from "jotai";
-import { columnSpecAtom, ctx } from "../provider.ts";
+import { columnSpecAtom, ctx, dataRefreshTokenAtom } from "../provider";
 import { ALL_CARDINALITIES, TableAction } from "../actions";
 
 export * from "./data-loaders";

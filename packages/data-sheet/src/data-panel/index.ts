@@ -43,6 +43,8 @@ import {
   useResolvedProvider,
   useSelector,
   useStoreAPI,
+  TableDataProvider,
+  FetchData,
 } from "../provider";
 import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
 import type { ColumnSpec } from "../utils";
@@ -59,9 +61,7 @@ import {
 } from "../actions";
 import {
   autoLoadPagesAtom,
-  FetchData,
   FetchDataOptions,
-  TableDataProvider,
   useDataLoader,
   useLoadControls,
 } from "../postgrest-table";

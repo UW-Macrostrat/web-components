@@ -4,9 +4,9 @@ import type {
   RegionCardinality,
   Table2,
 } from "@blueprintjs/table";
-import { ColumnSpec, ColumnSpecOptions } from "./utils";
+import { ColumnSpec, ColumnSpecOptions } from "../utils";
 import { OverlayToaster } from "@blueprintjs/core";
-import type { CellEdit } from "./actions";
+import type { CellEdit } from "../actions";
 
 /** A single column sort entry for client-side sorting.
  * Defined here (rather than in actions/types) to avoid circular imports. */

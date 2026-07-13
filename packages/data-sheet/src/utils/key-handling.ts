@@ -1,8 +1,8 @@
 import type { KeyboardEvent } from "react";
 import { storeAPIAtom, storeAtom, tableActionsAtom } from "../provider";
-import type { DataSheetStoreMain } from "../types";
+import type { DataSheetStoreMain } from "../provider/types.ts";
 import { atom } from "jotai";
-import { singleFocusedCell } from "../zustand-store.ts";
+import { singleFocusedCell } from "../provider/zustand-store.ts";
 import { buildActionContext, runActionWrapper } from "../actions";
 import { HotkeyConfig } from "@blueprintjs/core";
 import { toasterAtom } from "../notifications.ts";

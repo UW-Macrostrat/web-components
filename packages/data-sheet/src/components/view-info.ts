@@ -5,7 +5,7 @@ import {
   tableFooterAtom,
   chunkPageAtom,
 } from "../postgrest-table";
-import { ctx, useItemCount } from "../provider.ts";
+import { ctx, useItemCount } from "../provider";
 import { Button, ButtonGroup, Icon, Spinner } from "@blueprintjs/core";
 
 function VisibleRegionControl() {

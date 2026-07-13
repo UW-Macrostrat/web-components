@@ -6,7 +6,7 @@ import {
   ClipboardProxy,
   RowStatusValue,
   TableElementStatus,
-} from "../types.ts";
+} from "../provider/types.ts";
 
 /** Selection cardinality including the case of no active selection */
 export type SelectionCardinality = RegionCardinality | "none";
@@ -72,7 +72,7 @@ export interface ActiveFilterEntry<T = any> {
 
 // Re-export ColumnSort from the main types module (defined there to
 // avoid a circular import, since actions/types imports from types.ts).
-export type { ColumnSort } from "../types.ts";
+export type { ColumnSort } from "../provider/types.ts";
 
 /** Context passed to an action's `run` function, providing both data access
  * and store manipulation methods. Constructed fresh at action-run time

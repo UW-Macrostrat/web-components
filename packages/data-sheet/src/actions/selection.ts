@@ -7,7 +7,7 @@ import type {
   TableActionContext,
   TableFilter,
 } from "./types";
-import type { DataSheetStore } from "../types";
+import type { DataSheetStore } from "../provider/types.ts";
 import { columnFilter } from "./column-filter";
 import update from "immutability-helper";
 
