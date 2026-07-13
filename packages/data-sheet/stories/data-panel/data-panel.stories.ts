@@ -23,9 +23,9 @@ import {
   TableFilter,
   useSelector,
   useStoreAPI,
-} from "../src";
+} from "../../src";
 import { RegionCardinality } from "@blueprintjs/table";
-import type { ColumnSpec } from "../src";
+import type { ColumnSpec } from "../../src";
 
 /**
  * DataPanel is the card-list renderer over the same headless core as
@@ -281,27 +281,25 @@ function MapCard({ data, onSelect }: ItemComponentProps<IngestMap>) {
   // `onSelect` reads shift / cmd / ctrl straight from the click event — wiring
   // it as the root `onClick` gives range- and toggle-select for free.
   return h("div.map-card", { onClick: onSelect }, [
-    h("div.card-header", { key: "header" }, [
-      h("span.map-name", { key: "name" }, data.name ?? data.slug),
+    h("div.card-header", [
+      h("span.map-name", data.name ?? data.slug),
       h.if(data.state != null)(Tag, {
-        key: "state",
         minimal: true,
         intent: STATE_INTENT[data.state] ?? "none",
         children: data.state,
       }),
     ]),
-    h("div.map-meta", { key: "meta" }, [
+    h("div.map-meta", [
       h.if(data.scale != null)(
         "span",
         { key: "scale" },
         `Scale: ${data.scale}`,
       ),
       h.if(data.ref_year != null)("span", { key: "year" }, data.ref_year),
-      h("span", { key: "id" }, `#${data.source_id}`),
+      h("span", `#${data.source_id}`),
     ]),
     h.if(Array.isArray(data.tags) && data.tags.length > 0)(
       "div.tags",
-      { key: "tags" },
       (data.tags ?? []).map((t) => h(TagItem, { key: t, name: t })),
     ),
   ]);

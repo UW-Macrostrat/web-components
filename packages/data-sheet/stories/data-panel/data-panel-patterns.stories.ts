@@ -1,18 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import hyper from "@macrostrat/hyper";
+import h from "@macrostrat/hyper";
 import {
   Children,
   cloneElement,
   createContext,
+  ReactElement,
+  ReactNode,
   useContext,
   useLayoutEffect,
   useMemo,
   useReducer,
   useRef,
   useState,
-  CSSProperties,
-  ReactElement,
-  ReactNode,
 } from "react";
 import {
   Button,
@@ -26,30 +25,38 @@ import { RegionCardinality } from "@blueprintjs/table";
 import { TagEditor, type TagUsage } from "@macrostrat/data-components";
 import {
   columnFilter,
+  ColumnSpec,
   DataPanel,
-  ItemComponentProps,
-  DataView,
   FacetControls,
   FilterBar,
   getSelectedRowIndices,
+  ItemComponentProps,
+  LoadProgressIndicator,
+  ScrollBodyProps,
+  TableAction,
   useLoadControls,
   useSelector,
   useStoreAPI,
-  LoadProgressIndicator,
-  TableDataProvider,
-  FetchDataResult,
-  FetchDataParams,
-} from "../src";
-import type {
-  ColumnSpec,
-  LoadControls,
-  ScrollBodyProps,
-  TableAction,
-} from "../src";
-import { Box, FlexRow, Spacer } from "@macrostrat/ui-components";
-import { LoadProgressLabel } from "../src/components/view-info.ts";
-
-const h = hyper;
+  LoadProgressLabel,
+} from "../../src";
+import { FlexRow } from "@macrostrat/ui-components";
+import {
+  addTagAction,
+  ALL,
+  cardStyle,
+  CATEGORIES,
+  CATEGORY_INTENT,
+  container,
+  fetchSamples,
+  fullSpec,
+  makeEditableProvider,
+  removeTagAction,
+  Sample,
+  SampleCard,
+  STATUSES,
+  TAG_PALETTE,
+  TaggedCard,
+} from "./utils.ts";
 
 /**
  * Progressive-enhancement patterns for `DataPanel`. Scrolling lists are more
@@ -67,125 +74,6 @@ const meta: Meta<any> = {
 export default meta;
 
 // ---- Synthetic dataset ----
-
-interface Sample {
-  id: number;
-  name: string;
-  category: string;
-  status: string;
-  value: number;
-  tags: string[];
-}
-
-const CATEGORIES = ["Igneous", "Metamorphic", "Sedimentary"];
-const STATUSES = ["active", "draft", "archived"];
-const TAG_PALETTE = ["priority", "review", "blocked", "verified"];
-const CATEGORY_INTENT: Record<string, any> = {
-  Igneous: "danger",
-  Metamorphic: "primary",
-  Sedimentary: "success",
-};
-
-const ALL: Sample[] = Array.from({ length: 150 }, (_, i) => ({
-  id: i + 1,
-  name: `Sample ${String(i + 1).padStart(3, "0")}`,
-  category: CATEGORIES[i % 3],
-  status: STATUSES[(i >> 1) % 3],
-  value: (i * 37) % 100,
-  tags: i % 4 === 0 ? [TAG_PALETTE[i % TAG_PALETTE.length]] : [],
-}));
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-// A synthetic server: applies the active filters/sorts (as a real provider
-// would) and returns a window — so facets + infinite scroll work end to end.
-async function fetchSamples(
-  params: FetchDataParams,
-): Promise<FetchDataResult<Sample>> {
-  const { offset, limit, sorts, filters } = params;
-  await sleep(200);
-  let rows = ALL.slice();
-  for (const f of filters) {
-    if (f.predicate != null)
-      rows = rows.filter((r) => f.predicate!(r, f.state));
-  }
-  for (const s of [...sorts].reverse()) {
-    rows.sort((a, b) => {
-      const av = (a as any)[s.key];
-      const bv = (b as any)[s.key];
-      const cmp = av < bv ? -1 : av > bv ? 1 : 0;
-      return s.ascending ? cmp : -cmp;
-    });
-  }
-  return { rows: rows.slice(offset, offset + limit), totalCount: rows.length };
-}
-
-const fullSpec: ColumnSpec[] = [
-  {
-    key: "name",
-    name: "Name",
-    dataType: "text",
-    filterable: true,
-    sortable: true,
-  },
-  {
-    key: "category",
-    name: "Category",
-    dataType: "string",
-    filterable: true,
-    sortable: true,
-  },
-  {
-    key: "status",
-    name: "Status",
-    dataType: "string",
-    filterable: true,
-    sortable: true,
-  },
-  {
-    key: "value",
-    name: "Value",
-    dataType: "integer",
-    filterable: true,
-    sortable: true,
-  },
-];
-
-const container = (child: any) =>
-  h(
-    "div",
-    {
-      style: {
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      },
-    },
-    child,
-  );
-
-const cardStyle = (selected: boolean): CSSProperties => ({
-  display: "flex",
-  alignItems: "center",
-  gap: "10px",
-  padding: "8px 10px",
-  border: "1px solid rgba(128,128,128,0.25)",
-  borderRadius: "4px",
-  background: selected ? "rgba(45,114,210,0.12)" : "rgba(128,128,128,0.04)",
-});
-
-function SampleCard({ data, selected, onSelect }: ItemComponentProps<Sample>) {
-  return h("div", { onClick: onSelect, style: cardStyle(selected) }, [
-    h("span", { key: "n", style: { fontWeight: 600, flex: 1 } }, data.name),
-    h(
-      Tag,
-      { key: "c", minimal: true, intent: CATEGORY_INTENT[data.category] },
-      data.category,
-    ),
-    h("span", { key: "s", style: { fontSize: 12, opacity: 0.7 } }, data.status),
-    h("code", { key: "v" }, data.value),
-  ]);
-}
 
 // ---- 1. Minimal facets (opt-in / opt-out per column) ----
 
@@ -622,97 +510,6 @@ export const FilterSidebarStory: StoryObj = {
 };
 
 // ---- 7. Editing: add / remove tags across a selection ----
-
-const TAG_INTENT: Record<string, any> = {
-  priority: "danger",
-  review: "warning",
-  blocked: "none",
-  verified: "success",
-};
-
-function TaggedCard({ data, selected, onSelect }: ItemComponentProps<Sample>) {
-  return h(
-    "div",
-    { onClick: (e: any) => onSelect(e), style: cardStyle(selected) },
-    [
-      h("span", { key: "n", style: { fontWeight: 600, flex: 1 } }, data.name),
-      ...(data.tags ?? []).map((t) =>
-        h(Tag, { key: t, minimal: true, intent: TAG_INTENT[t] }, t),
-      ),
-    ],
-  );
-}
-
-// The add/remove preflight form: pick a palette tag (`detailsForm` pattern).
-function TagPickForm({
-  state,
-  setState,
-}: {
-  state: { tag: string };
-  setState: (s: { tag: string }) => void;
-}) {
-  return h(SegmentedControl, {
-    small: true,
-    options: TAG_PALETTE.map((t) => ({ label: t, value: t })),
-    value: state?.tag ?? TAG_PALETTE[0],
-    onValueChange: (tag: string) => setState({ tag }),
-  });
-}
-
-// Generic, reusable edit actions — no provider closure, no refresh wiring. They
-// read the selected rows and persist through the action context's `saveRows`
-// (wired by DataPanel to the provider + auto-refresh). Because they only touch
-// the context, they're module-level constants, not per-instance.
-function editTagAction(
-  id: string,
-  name: string,
-  icon: any,
-  apply: (tags: string[], tag: string) => string[],
-): TableAction<Sample, { tag: string }> {
-  return {
-    id,
-    name,
-    icon,
-    targets: [RegionCardinality.FULL_ROWS],
-    requiresEditable: false,
-    defaultState: { tag: TAG_PALETTE[0] },
-    isReady: (s) => s?.tag != null,
-    detailsForm: TagPickForm,
-    async run(ctx, state) {
-      const rows = ctx.getSelectedRows();
-      await ctx.saveRows?.(
-        rows.map((r) => ({ ...r, tags: apply(r.tags, state!.tag) })),
-      );
-      ctx.clearSelection();
-    },
-  };
-}
-
-const addTagAction = editTagAction("add-tag", "Add tag", "tag", (tags, tag) => [
-  ...new Set([...tags, tag]),
-]);
-const removeTagAction = editTagAction(
-  "remove-tag",
-  "Remove tag",
-  "cross",
-  (tags, tag) => tags.filter((t) => t !== tag),
-);
-
-// A mutable in-memory source with `saveRows` — the data side of the edit. The
-// panel wires `saveRows` (+ auto-refresh) onto the action context, so the
-// actions above stay generic. (A real page would persist to the API here.)
-function makeEditableProvider(): TableDataProvider<Sample> {
-  const rows: Sample[] = ALL.map((r) => ({ ...r, tags: [...r.tags] }));
-  return {
-    ...createLocalProvider<Sample>(rows, { identity: (r) => r.id }),
-    async saveRows(updated) {
-      for (const u of updated) {
-        const i = rows.findIndex((r) => r.id === u.id);
-        if (i >= 0) rows[i] = u;
-      }
-    },
-  };
-}
 
 function EditTagsDemo() {
   const provider = useMemo(makeEditableProvider, []);
@@ -1226,85 +1023,3 @@ export const ExpandableFilterPanel: StoryObj = {
 };
 
 // ---- 11. Table / cards toggle (shared provider, columns, actions) ----
-
-// A spec with a Tags column so the *table* view shows tag edits too (the card
-// renders them as chips).
-const toggleSpec: ColumnSpec[] = [
-  ...fullSpec,
-  { key: "tags", name: "Tags", dataType: "array" },
-];
-
-function TableCardsDemo() {
-  const [view, setView] = useState<"cards" | "table">("cards");
-  // One shared provider (data + saveRows); `DataView` also shares one store
-  // across the toggle, so selection / sort / filter persist too.
-  const provider = useMemo(makeEditableProvider, []);
-
-  const toggle = h(SegmentedControl, {
-    small: true,
-    options: [
-      { label: "Cards", value: "cards" },
-      { label: "Table", value: "table" },
-    ],
-    value: view,
-    onValueChange: (v: string) => setView(v as "cards" | "table"),
-  });
-
-  return container(
-    h(
-      "div",
-      {
-        style: {
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          gap: "8px",
-        },
-      },
-      [
-        h(
-          "div",
-          {
-            key: "bar",
-            style: { display: "flex", alignItems: "center", gap: "8px" },
-          },
-          [h("b", { key: "l" }, "View:"), toggle],
-        ),
-        h(
-          "div",
-          {
-            key: "view",
-            style: {
-              flex: 1,
-              minHeight: 0,
-              display: "flex",
-              flexDirection: "column",
-            },
-          },
-          h(DataView<Sample>, {
-            view,
-            provider,
-            columnSpec: toggleSpec,
-            actions: [addTagAction, removeTagAction],
-            itemComponent: TaggedCard,
-            pageSize: 25,
-            name: "Samples",
-          }),
-        ),
-      ],
-    ),
-  );
-}
-
-/**
- * **Table ⇄ cards toggle** via `DataView`, which mounts one shared store and
- * swaps the renderer. The same provider, column spec, and (generic) edit
- * actions drive either the card `DataPanel` or the cell `DataSheet`. Because the
- * store is shared, **selection / sort / filter persist across the toggle**, and
- * edits (via the shared edit seam) show in both. The realized headless core:
- * one data + behavior definition, two presentations.
- */
-export const TableCardsToggle: StoryObj = {
-  name: "Table / cards toggle",
-  render: () => h(TableCardsDemo),
-};

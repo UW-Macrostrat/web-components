@@ -2,14 +2,13 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
-    "rootDir": "src",
+    // Note: adjusted rootDir to contain stories, so utility functions can
+    // be resolved across multiple story files.
+    "rootDir": ".",
     "outDir": "dist",
     "declarationDir": "dist"
   },
-  "include": [
-    "src",
-    "stories"
-  ],
+  "include": ["src", "stories"],
   "references": [
     { "path": "../color-utils" },
     { "path": "../data-components" },
