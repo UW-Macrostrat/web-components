@@ -26,15 +26,14 @@
   min-height: 0
   display: flex
   flex-direction: row
-  gap: 8px
 
-.data-panel-sidebar
+.data-panel-sidebar-container
   flex: 0 0 auto
   width: var(--data-panel-sidebar-width, 240px)
   min-height: 0
   overflow-y: auto
-  padding: 4px
-  border-right: 1px solid rgba(128,128,128,0.2)
+  padding: var(--data-panel-content-padding)
+  border-left: 1px solid var(--panel-rule-color)
 
 // The scroll container: owns overflow + holds the layout body and the sentinel.
 // The scrollbar sits flush at the container's right edge (no reserved gutter);
@@ -57,7 +56,7 @@
 
 // The inline end-of-scroll region (default spinner sentinel, or an inline
 // footer). Sits in the scroll flow, so it's seen only at the bottom.
-.data-panel-tail
+.content-footer-holder
   flex: 0 0 auto
 
 // Default layout body — a vertical list of cards. A custom `scrollBody`

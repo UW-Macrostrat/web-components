@@ -113,7 +113,7 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
 export function DataPanelRenderer<T>({
   itemComponent: ItemComponent,
   actions = [],
-  filters,
+  filters = [],
   pageSize = 50,
   name,
   // Bottom bar
@@ -160,7 +160,7 @@ export function DataPanelRenderer<T>({
   // `setState` with an unchanged value is a no-op, so this only re-renders on
   // the at-top ↔ scrolled transition.
   const [scrolled, setScrolled] = useState(false);
-  const onBodyScroll = useCallback((e: ReactUIEvent<HTMLDivElement>) => {
+  const onScroll = useCallback((e: ReactUIEvent<HTMLDivElement>) => {
     setScrolled(e.currentTarget.scrollTop > 4);
   }, []);
 
@@ -288,7 +288,6 @@ export function DataPanelRenderer<T>({
   let loaderNode: ReactNode = null;
   if (activeProvider != null) {
     loaderNode = h(PanelLoader, {
-      key: "loader",
       fetchData: activeProvider.fetchData,
       pageSize: loaderPageSize,
       fetchMode: isLocalProvider ? undefined : "scroll",
@@ -303,10 +302,7 @@ export function DataPanelRenderer<T>({
   if (toolbar !== undefined) {
     controls = toolbar;
   } else {
-    controls = [
-      h(FacetControls, { key: "facets" }),
-      h(FilterBar, { key: "filter-bar", filters: filters ?? [] }),
-    ];
+    controls = [h(FacetControls), h(FilterBar, { filters })];
   }
 
   const ScrollBody = scrollBody ?? DefaultScrollBody;
@@ -319,44 +315,22 @@ export function DataPanelRenderer<T>({
   // The top fade is gated on being scrolled (via `.is-scrolled`), so the first
   // item isn't clipped at rest.
 
-  let bottomContent: ReactNode = null;
+  let _contentFooter: ReactNode = null;
   if (showInlineFooter) {
-    bottomContent = h(
-      "div.data-panel-tail",
+    _contentFooter = h(
+      "div.content-footer-holder",
       { ref: sentinelRef },
       contentFooter,
     );
   } else if (showSentinel) {
-    bottomContent = h("div.sentinel", { ref: sentinelRef }, [
-      h(Spinner, { key: "spinner", size: 16 }),
+    _contentFooter = h("div.sentinel", { ref: sentinelRef }, [
+      h(Spinner, { size: 16 }),
       "Loading…",
     ]);
   }
 
-  const body = h(
-    "div.data-panel-body",
-    {
-      key: "body",
-      onScroll: onBodyScroll,
-      className: classNames(
-        { "top-fade": topFade, "is-scrolled": scrolled },
-        className,
-      ),
-    },
-    [h(ScrollBody, { key: "scroll-body" }, cards), bottomContent],
-  );
-
   // Body + optional filter/detail sidebar share a horizontal row so each
   // scrolls independently.
-  let main: ReactNode;
-  if (sidebar != null) {
-    main = h("div.data-panel-main", [
-      h("div.data-panel-sidebar", sidebar),
-      body,
-    ]);
-  } else {
-    main = body;
-  }
 
   // Bottom status row (counter + extras). `statusBar === false` drops it — e.g.
   // when an inline footer carries the counter itself.
@@ -373,7 +347,20 @@ export function DataPanelRenderer<T>({
       tableName: name,
     }),
     controls,
-    main,
+    h("div.data-panel-main", [
+      h(
+        "div.data-panel-body",
+        {
+          onScroll,
+          className: classNames(
+            { "top-fade": topFade, "is-scrolled": scrolled },
+            className,
+          ),
+        },
+        [h(ScrollBody, cards), _contentFooter],
+      ),
+      h.if(sidebar != null)("div.data-panel-sidebar-container", sidebar),
+    ]),
     footer,
   ]);
 }

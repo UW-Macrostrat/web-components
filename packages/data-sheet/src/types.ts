@@ -53,6 +53,7 @@ export interface DataViewSharedProps<T = any> extends FetchDataOptions {
   /** Bump to force a re-fetch from scratch (e.g. after an immediate edit that
    * mutated rows through the provider). */
   refreshToken?: number | string;
+  itemLabel?: string;
 }
 
 export interface DataPanelProps<T = any> extends DataViewSharedProps<T> {
