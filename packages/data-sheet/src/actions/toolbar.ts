@@ -1,14 +1,14 @@
 import { Button, ButtonGroup, PopoverNext, Tag } from "@blueprintjs/core";
 import { useCallback, useMemo, useState } from "react";
 import h from "./toolbar.module.sass";
-import { useSelector, useStoreAPI } from "../provider";
+import { TableActionContext, useSelector, useStoreAPI } from "../provider";
 import {
   buildActionContext,
   getApplicableActions,
   getSelectionCardinality,
   mergeColumnActions,
 } from "./selection";
-import type { TableAction, TableActionContext } from "./types";
+import type { TableAction } from "./types";
 import { RegionCardinality } from "@blueprintjs/table";
 import { useToaster } from "../notifications.ts";
 import { DataSheetStore } from "../provider/types.ts";

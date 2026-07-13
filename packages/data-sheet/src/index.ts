@@ -5,10 +5,10 @@ export * from "./postgrest-table";
 export * from "./components";
 export * from "./provider";
 export * from "./utils";
-export * from "./provider/types.ts";
 export * from "./actions";
 export * from "./filters/operators";
 export * from "./types";
 
 export { Cell } from "@blueprintjs/table";
 export { CellRendererDebugOverlay } from "./utils";
+export { persistViaProvider } from "./provider";

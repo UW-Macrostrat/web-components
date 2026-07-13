@@ -6,7 +6,6 @@ import type {
 } from "@blueprintjs/table";
 import { ColumnSpec, ColumnSpecOptions } from "../utils";
 import { OverlayToaster } from "@blueprintjs/core";
-import type { CellEdit } from "../actions";
 
 /** A single column sort entry for client-side sorting.
  * Defined here (rather than in actions/types) to avoid circular imports. */
@@ -283,3 +282,111 @@ export interface VisibleCells {
 }
 
 export type DataSheetStore<T> = DataSheetStoreMain<T>;
+
+/** Selection cardinality including the case of no active selection */
+export type SelectionCardinality = RegionCardinality | "none";
+
+/** The concrete *shape* of the current selection — richer than cardinality
+ * alone. The "single X" cases are exposed as resolved identity fields on the
+ * action context (`columnKey`, `rowIndex`, `cell`); this carries the counts. */
+export interface SelectionShape {
+  cardinality: SelectionCardinality;
+  /** Number of columns the selection spans (0 when not column-scoped). */
+  columns: number;
+  /** Number of rows the selection spans (0 when not row-scoped). */
+  rows: number;
+}
+
+/** A single cell edit, used with `editCells` for batch updates. */
+export interface CellEdit {
+  rowIndex: number;
+  column: string;
+  value: any;
+  /** The underlying row (base data). Populated on emitted `onEdit` events so a
+   * handler can address the row (identity) without reaching into the store. */
+  row?: any;
+}
+
+/** Context passed to an action's `run` function, providing both data access
+ * and store manipulation methods. Constructed fresh at action-run time
+ * to ensure current state. */
+export interface TableActionContext<T = any> {
+  /** Current selection regions */
+  selection: Region[];
+  /** Derived cardinality of the current selection */
+  selectionCardinality: SelectionCardinality;
+  /** Concrete shape of the current selection (cardinality + column/row counts). */
+  selectionShape: SelectionShape;
+  /** The single selected column's key when exactly one column is scoped
+   * (a single full column, or cells within one column); otherwise `null`. */
+  columnKey: string | null;
+  /** The single selected data-row index when exactly one row is scoped;
+   * otherwise `null`. */
+  rowIndex: number | null;
+  /** The single selected cell (data-row index + column key) when exactly one
+   * cell is selected; otherwise `null`. Presence of these resolved fields is
+   * how actions discriminate selection shape — e.g. `appliesTo: ctx =>
+   * ctx.cell != null` for a single-cell control, or `ctx.columnKey != null`
+   * within a `FULL_COLUMNS` target for a single-column control. */
+  cell: { rowIndex: number; columnKey: string } | null;
+  /** The table's base data */
+  data: T[];
+  /** Sparse overlay of edited data */
+  updatedData: T[];
+  /** Row status tracking added/deleted rows */
+  rowStatus: RowStatusValue[];
+  /** Column definitions */
+  columnSpec: ColumnSpec[];
+  /** Whether the table is in edit mode */
+  editable: boolean;
+  /** Whether row deletion is available (false when the provider can't delete). */
+  canDeleteRows: boolean;
+
+  // Convenience methods (derived from selection)
+  /** Row indices covered by the current selection */
+  getSelectedRowIndices(): number[];
+  /** The selected rows as resolved objects (not indices) — the natural input
+   * for an immediate-edit action. Only loaded rows are returned. */
+  getSelectedRows(): T[];
+  /** Column keys covered by the current selection */
+  getSelectedColumnKeys(): string[];
+
+  // Immediate-edit persistence (present when a persisting provider is wired,
+  // e.g. via DataPanel). Each mutates through the provider and auto-refreshes,
+  // so a selection action can edit rows without touching a `refreshToken`.
+  /** Persist edited rows (upsert), then refresh. */
+  saveRows?: (rows: T[]) => Promise<void>;
+  /** Delete rows by identity, then refresh. */
+  deleteRows?: (ids: Array<string | number>) => Promise<void>;
+  /** Insert a row, then refresh. */
+  insertRow?: (row: Partial<T>) => Promise<void>;
+  /** Force a re-fetch from scratch. */
+  refresh?: () => void;
+
+  // Store manipulation methods
+  onCellEdited(rowIndex: number, columnKey: string, value: any): void;
+  /** Edit multiple cells in a single batch update. Preferred over calling
+   * `onCellEdited` in a loop, which triggers separate store updates
+   * and may produce inconsistent intermediate states. */
+  editCells(edits: CellEdit[]): void;
+  deleteSelectedRows(): void;
+  addRow(row?: Partial<T>): void;
+  setUpdatedData(data: any): void;
+  resetChanges(region?: Region[]): void;
+  clearSelection(): void;
+  scrollToRow(rowIndex: number): void;
+  /** Direct store mutation for cases not covered by the convenience methods
+   * above (e.g., modifying `columnSpec` or `deletedRows`). */
+  setState(partial: Record<string, any>): void;
+
+  // Clipboard proxy support
+  /** Active clipboard proxy from a prior copy, if any */
+  clipboardProxy: ClipboardProxy | null;
+  /** Store a clipboard proxy for potential backend-mediated paste */
+  setClipboardProxy(proxy: ClipboardProxy | null): void;
+
+  // Filter support
+  /** Row index mapping when filters are active. When non-null,
+   * visible row `i` maps to data row `filteredRowIndices[i]`. */
+  filteredRowIndices: number[] | null;
+}

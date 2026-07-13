@@ -1,4 +1,4 @@
-import type { ColumnSort } from "./types.ts";
+import { ColumnSort, TableActionContext, TableElementStatus } from "./types.ts";
 import { atom } from "jotai";
 
 /** The active view state (a filter's id / column / config), passed to a
@@ -134,3 +134,44 @@ export function compareRowsBySorts(sorts: ColumnSort[]) {
 /** Bump this to force the active chunk loader to reset and re-fetch from
  * scratch — e.g. after a mutation (save/delete) that invalidates loaded rows. */
 export const dataRefreshTokenAtom = atom(0);
+
+/** Persist all pending changes through a data provider: added rows via
+ * `insertRow`, edited rows via `saveRows`, deleted rows via `deleteRows`
+ * (addressed by `provider.identity`). Used by the built-in Save action when an
+ * explicit provider owns persistence. */
+export async function persistViaProvider<T>(
+  provider: TableDataProvider<T>,
+  ctx: TableActionContext<T>,
+): Promise<void> {
+  const base = (ctx.data ?? []) as any[];
+  const updates = (ctx.updatedData ?? []) as any[];
+  const status = (ctx.rowStatus ?? []) as any[];
+  const n = Math.max(base.length, updates.length, status.length);
+  const toSave: T[] = [];
+  const toInsert: T[] = [];
+  const toDelete: Array<string | number> = [];
+  for (let i = 0; i < n; i++) {
+    if (status[i] === TableElementStatus.DELETED) {
+      const id = provider.identity(base[i]);
+      if (id != null) toDelete.push(id);
+      continue;
+    }
+    const upd = updates[i];
+    const hasEdit =
+      upd != null && typeof upd === "object" && Object.keys(upd).length > 0;
+    if (status[i] === TableElementStatus.ADDED) {
+      toInsert.push({ ...base[i], ...upd } as T);
+    } else if (hasEdit) {
+      toSave.push({ ...base[i], ...upd } as T);
+    }
+  }
+  if (toDelete.length > 0 && provider.deleteRows != null) {
+    await provider.deleteRows(toDelete);
+  }
+  for (const row of toInsert) {
+    if (provider.insertRow != null) await provider.insertRow(row);
+  }
+  if (toSave.length > 0 && provider.saveRows != null) {
+    await provider.saveRows(toSave);
+  }
+}

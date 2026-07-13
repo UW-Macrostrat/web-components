@@ -9,8 +9,8 @@ import h from "@macrostrat/hyper";
 import { useMemo } from "react";
 import { Button, Menu, MenuItem, PopoverNext } from "@blueprintjs/core";
 import { RegionCardinality } from "@blueprintjs/table";
-import { useSelector, useStoreAPI } from "../provider";
-import type { TableAction, TableActionContext, TableFilter } from "./types";
+import { TableActionContext, useSelector, useStoreAPI } from "../provider";
+import type { TableAction, TableFilter } from "./types";
 import type { ColumnSpec } from "../utils/column-spec";
 import { columnFilter, columnFilterId } from "./column-filter";
 
@@ -24,11 +24,14 @@ function selectedColumn(ctx: TableActionContext) {
 
 function ColumnSortControl({ columnKey }: { columnKey: string }) {
   const storeAPI = useStoreAPI();
-  const sort = useSelector((s) => s.columnSorts.find((x) => x.key === columnKey));
+  const sort = useSelector((s) =>
+    s.columnSorts.find((x) => x.key === columnKey),
+  );
   const set = (ascending: boolean | null) =>
     storeAPI.getState().setColumnSort(columnKey, ascending);
 
-  const icon = sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
+  const icon =
+    sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
   const label =
     sort == null ? "Sort" : sort.ascending ? "Ascending" : "Descending";
 
@@ -87,36 +90,36 @@ export function ColumnSortMenu({
   text?: string;
 }) {
   const storeAPI = useStoreAPI();
-  const sort = useSelector((s) => s.columnSorts.find((x) => x.key === columnKey));
+  const sort = useSelector((s) =>
+    s.columnSorts.find((x) => x.key === columnKey),
+  );
   const toggle = (ascending: boolean) => {
     const store = storeAPI.getState();
     // A second click on the current direction toggles the sort off.
-    const next = sort != null && sort.ascending === ascending ? null : ascending;
+    const next =
+      sort != null && sort.ascending === ascending ? null : ascending;
     store.setColumnSort(columnKey, next);
   };
-  const icon = sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
-  return h(
-    MenuItem,
-    { icon, text },
-    [
-      h(MenuItem, {
-        key: "asc",
-        icon: "sort-asc",
-        text: "Ascending",
-        active: sort?.ascending === true,
-        shouldDismissPopover: false,
-        onClick: () => toggle(true),
-      }),
-      h(MenuItem, {
-        key: "desc",
-        icon: "sort-desc",
-        text: "Descending",
-        active: sort?.ascending === false,
-        shouldDismissPopover: false,
-        onClick: () => toggle(false),
-      }),
-    ],
-  );
+  const icon =
+    sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
+  return h(MenuItem, { icon, text }, [
+    h(MenuItem, {
+      key: "asc",
+      icon: "sort-asc",
+      text: "Ascending",
+      active: sort?.ascending === true,
+      shouldDismissPopover: false,
+      onClick: () => toggle(true),
+    }),
+    h(MenuItem, {
+      key: "desc",
+      icon: "sort-desc",
+      text: "Descending",
+      active: sort?.ascending === false,
+      shouldDismissPopover: false,
+      onClick: () => toggle(false),
+    }),
+  ]);
 }
 
 /** Single-column sort control. Gated by `col.sortable`. */
@@ -262,7 +265,10 @@ export function ColumnFilterMenuItem({
       ? h(
           "div.filter-menu-form",
           { style: { padding: "6px", minWidth: "220px" } },
-          h(filter.filterForm, { state: state ?? filter.defaultState, setState }),
+          h(filter.filterForm, {
+            state: state ?? filter.defaultState,
+            setState,
+          }),
         )
       : null,
   );

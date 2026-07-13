@@ -15,8 +15,9 @@ import h from "@macrostrat/hyper";
 import { ReactNode } from "react";
 import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
 import { DataSheetProvider, useResolvedProvider } from "./provider";
-import { _DataSheet } from "./data-sheet.ts";
-import { _DataPanel, DataPanelProps } from "./data-panel.ts";
+import { DataSheetRenderer } from "./data-sheet.ts";
+import { DataPanelRenderer } from "./data-panel.ts";
+import { DataPanelProps } from "./types.ts";
 
 export interface DataViewProps<T = any> extends DataPanelProps<T> {
   /** Which renderer to show. `cards` needs `itemComponent`. */
@@ -53,7 +54,7 @@ export function DataView<T>(props: DataViewProps<T>) {
 
   let renderer: ReactNode;
   if (view === "cards") {
-    renderer = h(_DataPanel<any>, {
+    renderer = h(DataPanelRenderer<any>, {
       ...common,
       itemComponent,
       toolbar,
@@ -65,7 +66,7 @@ export function DataView<T>(props: DataViewProps<T>) {
       topFade,
     });
   } else {
-    renderer = h(_DataSheet<any>, {
+    renderer = h(DataSheetRenderer<any>, {
       ...common,
       editable,
     });

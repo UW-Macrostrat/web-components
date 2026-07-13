@@ -1,6 +1,10 @@
 import { RegionCardinality } from "@blueprintjs/table";
-import type { TableAction, TableActionContext, CellEdit } from "./types";
-import type { ClipboardProxy } from "../provider/types.ts";
+import type { TableAction } from "./types";
+import type {
+  CellEdit,
+  ClipboardProxy,
+  TableActionContext,
+} from "../provider/types.ts";
 
 /** Serialize the current selection to tab-separated values.
  * For full-row/column copies, includes a header row and produces

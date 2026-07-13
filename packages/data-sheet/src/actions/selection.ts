@@ -1,13 +1,12 @@
 import { type Region, RegionCardinality } from "@blueprintjs/table";
 import type { ColumnSpec } from "../utils";
+import type { TableAction, TableFilter } from "./types";
 import type {
   CellEdit,
+  DataSheetStore,
   SelectionShape,
-  TableAction,
   TableActionContext,
-  TableFilter,
-} from "./types";
-import type { DataSheetStore } from "../provider/types.ts";
+} from "../provider/types.ts";
 import { columnFilter } from "./column-filter";
 import update from "immutability-helper";
 

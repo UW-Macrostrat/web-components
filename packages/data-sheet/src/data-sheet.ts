@@ -10,7 +10,7 @@ import {
 import "@blueprintjs/table/lib/css/table.css";
 import { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import { LoadProgressIndicator } from "./components";
-import { renderColumnHeaderCell, basicCellRenderer } from "./renderers";
+import { basicCellRenderer, renderColumnHeaderCell } from "./renderers";
 import h from "./main.module.sass";
 import {
   columnSpecAtom,
@@ -18,28 +18,27 @@ import {
   dataProviderAtom,
   dataRefreshTokenAtom,
   DataSheetProvider,
+  DEFAULT_ROW_STATUS_STYLES,
+  EditEvent,
   FetchData,
+  persistViaProvider,
+  RowHeaderRenderContext,
+  RowStatusStyles,
   storeAtom,
+  TableActionContext,
   tableActionsAtom,
   TableDataProvider,
+  TableElementStatus,
   useResolvedProvider,
   useSelector,
   useStoreAPI,
+  VisibleCells,
 } from "./provider";
 import { atom } from "jotai";
 import {
-  DataSheetProviderProps,
-  DEFAULT_ROW_STATUS_STYLES,
-  EditEvent,
-  RowHeaderRenderContext,
-  RowStatusStyles,
-  TableElementStatus,
-  VisibleCells,
-} from "./provider/types.ts";
-import {
   CellRendererDebugOverlay,
-  tableHotkeysAtom,
   type ColumnSpec,
+  tableHotkeysAtom,
 } from "./utils";
 import {
   ActionsToolbar,
@@ -49,30 +48,67 @@ import {
   FilterBar,
   resetChangesAction,
   TableAction,
-  TableActionContext,
   TableFilter,
 } from "./actions";
 import {
   FetchDataOptions,
   tableFooterAtom,
-  useScrollHandler,
   useDataLoader,
+  useScrollHandler,
 } from "./postgrest-table";
+import { DataSheetDensity, DataSheetProps } from "./types.ts";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
 // TODO: add a "copy to selection" tool (the little square in the bottom right corner of a cell)
 // This should copy the value of a cell (or a set of cells in the same row) downwards.
 
-export enum DataSheetDensity {
-  HIGH = "high",
-  MEDIUM = "medium",
-  LOW = "low",
-}
-
 /** Approximate column-header + scrollbar allowance, used to size the table to
  * its content in paged mode. */
 const COLUMN_HEADER_HEIGHT = 34;
+
+export function DataSheet<T>(props: DataSheetProps<T>) {
+  const {
+    data,
+    columnSpec,
+    columnSpecOptions,
+    editable = true,
+    enableColumnReordering = false,
+    enableFocusedCell = false,
+    defaultColumnWidth = 150,
+    children,
+    ...rest
+  } = props;
+
+  // Resolve the data source ONCE, here in the wrapper (not per-render inside
+  // `_DataSheet`): an explicit `provider` wins; else a loose `fetchData`
+  // (+ identity) is wrapped as one; else in-memory `data` becomes a local
+  // provider. Held in the provider layer via `dataProviderAtom` (see
+  // `DataSheetProviderInner`), so the loader and store read it. Shared with
+  // `DataPanel` / `DataView` via `useResolvedProvider`.
+  const { data: _data, dataProvider } = useResolvedProvider<T>(props);
+
+  return h(
+    DataSheetProvider<T>,
+    {
+      data: _data,
+      columnSpec,
+      columnSpecOptions,
+      enableColumnReordering,
+      defaultColumnWidth,
+      editable,
+      dataProvider,
+      ...rest,
+    },
+    h(DataSheetRenderer<any>, {
+      ...rest,
+      children,
+      editable,
+      enableColumnReordering,
+      enableFocusedCell,
+    }),
+  );
+}
 
 /**
  * How selecting a cell activates its surface (an editor, or a read-only detail
@@ -88,7 +124,8 @@ const COLUMN_HEADER_HEIGHT = 34;
  */
 export type CellInteraction = "auto" | "manual";
 
-interface DataSheetInternalProps<T> extends TableProps, FetchDataOptions {
+export interface DataSheetInternalProps<T>
+  extends TableProps, FetchDataOptions {
   /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
    * driven through the same loader as any other source. */
   data?: T[];
@@ -180,96 +217,10 @@ interface DataSheetInternalProps<T> extends TableProps, FetchDataOptions {
   rowHeaderRenderer?: (ctx: RowHeaderRenderContext<T>) => ReactNode;
 }
 
-type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
-
-export function DataSheet<T>(props: DataSheetProps<T>) {
-  const {
-    data,
-    columnSpec,
-    columnSpecOptions,
-    editable = true,
-    enableColumnReordering = false,
-    enableFocusedCell = false,
-    defaultColumnWidth = 150,
-    children,
-    ...rest
-  } = props;
-
-  // Resolve the data source ONCE, here in the wrapper (not per-render inside
-  // `_DataSheet`): an explicit `provider` wins; else a loose `fetchData`
-  // (+ identity) is wrapped as one; else in-memory `data` becomes a local
-  // provider. Held in the provider layer via `dataProviderAtom` (see
-  // `DataSheetProviderInner`), so the loader and store read it. Shared with
-  // `DataPanel` / `DataView` via `useResolvedProvider`.
-  const { data: _data, dataProvider } = useResolvedProvider<T>(props);
-
-  return h(
-    DataSheetProvider<T>,
-    {
-      data: _data,
-      columnSpec,
-      columnSpecOptions,
-      enableColumnReordering,
-      defaultColumnWidth,
-      editable,
-      dataProvider,
-      ...rest,
-    },
-    h(_DataSheet<any>, {
-      ...rest,
-      children,
-      editable,
-      enableColumnReordering,
-      enableFocusedCell,
-    }),
-  );
-}
-
-/** Persist all pending changes through a data provider: added rows via
- * `insertRow`, edited rows via `saveRows`, deleted rows via `deleteRows`
- * (addressed by `provider.identity`). Used by the built-in Save action when an
- * explicit provider owns persistence. */
-async function persistViaProvider<T>(
-  provider: TableDataProvider<T>,
-  ctx: TableActionContext<T>,
-): Promise<void> {
-  const base = (ctx.data ?? []) as any[];
-  const updates = (ctx.updatedData ?? []) as any[];
-  const status = (ctx.rowStatus ?? []) as any[];
-  const n = Math.max(base.length, updates.length, status.length);
-  const toSave: T[] = [];
-  const toInsert: T[] = [];
-  const toDelete: Array<string | number> = [];
-  for (let i = 0; i < n; i++) {
-    if (status[i] === TableElementStatus.DELETED) {
-      const id = provider.identity(base[i]);
-      if (id != null) toDelete.push(id);
-      continue;
-    }
-    const upd = updates[i];
-    const hasEdit =
-      upd != null && typeof upd === "object" && Object.keys(upd).length > 0;
-    if (status[i] === TableElementStatus.ADDED) {
-      toInsert.push({ ...base[i], ...upd } as T);
-    } else if (hasEdit) {
-      toSave.push({ ...base[i], ...upd } as T);
-    }
-  }
-  if (toDelete.length > 0 && provider.deleteRows != null) {
-    await provider.deleteRows(toDelete);
-  }
-  for (const row of toInsert) {
-    if (provider.insertRow != null) await provider.insertRow(row);
-  }
-  if (toSave.length > 0 && provider.saveRows != null) {
-    await provider.saveRows(toSave);
-  }
-}
-
 /** The table (cell-grid) renderer. Assumes it is rendered inside a
  * `DataSheetProvider` (the `DataSheet` wrapper, or `DataView`). Exported so a
  * shared-store `DataView` can mount it directly alongside `_DataPanel`. */
-export function _DataSheet<T>({
+export function DataSheetRenderer<T>({
   fetchData,
   provider,
   pageSize,
