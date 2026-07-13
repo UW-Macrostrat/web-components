@@ -81,6 +81,7 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
     refreshToken,
     identity,
     itemLabel,
+    editable = true,
     ...rest
   } = props;
   const { data: _data, dataProvider } = useResolvedProvider<T>(props);
@@ -95,7 +96,7 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
           data: _data,
           columnSpec,
           columnSpecOptions,
-          editable: true,
+          editable,
           dataProvider,
           refreshToken,
           identity,

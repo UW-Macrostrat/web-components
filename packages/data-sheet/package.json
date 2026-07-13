@@ -62,7 +62,8 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:*"
+    "@macrostrat/web-components-bundler": "workspace:*",
+    "@storybook/react-vite": "*"
   },
   "publishConfig": {
     "access": "public"

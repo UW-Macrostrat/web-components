@@ -52,6 +52,7 @@ import {
   DataSheetProps,
   FetchDataOptions,
 } from "./types.ts";
+import { ErrorCallout } from "@macrostrat/ui-components";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -474,6 +475,23 @@ export function DataSheetRenderer<T>({
     ],
   );
 
+  // Done with hooks!
+  /** Guard for unacceptable state combinations:
+   * editable = true requires selectionModes to include cells, else the user cannot select a cell to edit.
+   * TODO: make this an impossible state to enter.
+   */
+  if (
+    editable &&
+    selectionModes &&
+    !selectionModes.includes(RegionCardinality.CELLS)
+  ) {
+    return h(ErrorCallout, {
+      title: "Invalid selection mode",
+      description: "Editable sheet requires cell selection",
+    });
+  }
+
+  // TODO: hoist this
   let _selectionModes = selectionModes;
   if (
     editable &&

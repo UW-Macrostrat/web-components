@@ -54,6 +54,11 @@ export interface DataViewSharedProps<T = any> extends FetchDataOptions {
    * mutated rows through the provider). */
   refreshToken?: number | string;
   itemLabel?: string;
+  // Whether the items are editable. Note: this may be better expressed through the TableDataProvider
+  editable?: boolean;
+  enableSelection?: boolean;
+  // Note: shadows table provider prop
+  enableMultipleSelection?: boolean;
 }
 
 export interface DataPanelProps<T = any> extends DataViewSharedProps<T> {
@@ -185,7 +190,6 @@ export interface DataSheetInternalProps<T = any>
   enableColumnReordering?: boolean;
   enableClipboard?: boolean;
   enableFocusedCell?: boolean;
-  editable?: boolean;
   /** @deprecated Prefer `cellInteraction`. `true` maps to `"auto"`,
    * `false` to `"manual"`. */
   autoFocusEditor?: boolean;
