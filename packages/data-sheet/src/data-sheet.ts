@@ -1,11 +1,9 @@
 import { useHotkeys } from "@blueprintjs/core";
 import {
   Column,
-  Region,
   RegionCardinality,
   RowHeaderCell,
   Table,
-  TableProps,
 } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 import { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
@@ -19,15 +17,13 @@ import {
   dataRefreshTokenAtom,
   DataSheetProvider,
   DEFAULT_ROW_STATUS_STYLES,
-  EditEvent,
   FetchData,
+  FetchDataOptions,
   persistViaProvider,
-  RowHeaderRenderContext,
   RowStatusStyles,
   storeAtom,
   TableActionContext,
   tableActionsAtom,
-  TableDataProvider,
   TableElementStatus,
   useResolvedProvider,
   useSelector,
@@ -35,11 +31,7 @@ import {
   VisibleCells,
 } from "./provider";
 import { atom } from "jotai";
-import {
-  CellRendererDebugOverlay,
-  type ColumnSpec,
-  tableHotkeysAtom,
-} from "./utils";
+import { CellRendererDebugOverlay, tableHotkeysAtom } from "./utils";
 import {
   ActionsToolbar,
   clipboardActions,
@@ -48,15 +40,18 @@ import {
   FilterBar,
   resetChangesAction,
   TableAction,
-  TableFilter,
 } from "./actions";
 import {
-  FetchDataOptions,
   tableFooterAtom,
   useDataLoader,
   useScrollHandler,
 } from "./postgrest-table";
-import { DataSheetDensity, DataSheetProps } from "./types.ts";
+import {
+  CellInteraction,
+  DataSheetDensity,
+  DataSheetInternalProps,
+  DataSheetProps,
+} from "./types.ts";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -108,113 +103,6 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
       enableFocusedCell,
     }),
   );
-}
-
-/**
- * How selecting a cell activates its surface (an editor, or a read-only detail
- * panel):
- * - `"auto"` (default when `autoFocusEditor` is `true`): open the surface on
- *   selection and, for editors, focus it. Editors relinquish focus at their
- *   edges — arrow past the start/end of a text cell, or press Escape, and focus
- *   returns to the table — so the keyboard stays operable without the mouse.
- *   Pressing Escape drops into navigation mode (surfaces stop auto-opening)
- *   until the next click.
- * - `"manual"` (default when `autoFocusEditor` is `false`): the surface stays
- *   closed until the cell is clicked; arrow keys always navigate the table.
- */
-export type CellInteraction = "auto" | "manual";
-
-export interface DataSheetInternalProps<T>
-  extends TableProps, FetchDataOptions {
-  /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
-   * driven through the same loader as any other source. */
-  data?: T[];
-  /** Passed through from the public props so a function form can be derived
-   * from the loaded rows here (a static array is handled by the provider). */
-  columnSpec?: ColumnSpec[] | ((rows: T[]) => ColumnSpec[]);
-  // function to fetch a chunk of data (the read side of a data provider)
-  fetchData?: FetchData<T>;
-  /** A data provider instantiated separately and passed in — bundles the read
-   * side (`fetchData` + `identity`) and, optionally, the persistence side
-   * (`saveRows` / `deleteRows` / `insertRow`) that drives the Save action. An
-   * explicit alternative to the loose `data` / `fetchData` / `identity` props;
-   * takes precedence when given. */
-  provider?: TableDataProvider<T>;
-  // An optional table name that will be used in toolbars if given
-  name?: string;
-  onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
-  onUpdateData?: (updatedData: any[], data: T[]) => void;
-  /** Observer called for every user edit as a structured `EditEvent`
-   * (Workstream A). Additive: the built-in `updatedData` overlay still
-   * applies. */
-  onEdit?: (event: EditEvent<T>) => void;
-  /** Controlled edited-cell overlay (Workstream A). When provided, it is
-   * synced into the store as the source of truth for edited values — pair with
-   * `onEdit` to own edit state externally (e.g. an ops model). Optimistic
-   * in-table edits are superseded by the next value you pass back. */
-  updatedData?: T[];
-  /** Controlled row-status overlay (edited / added / deleted), the companion
-   * to `updatedData`. */
-  rowStatus?: TableElementStatus[];
-  /** Row identity for the edit overlay — stable across a provider re-sort (a
-   * data provider supplies its own; defaults to `(row) => row?.id`). Lets edits
-   * survive a re-ordered re-fetch. */
-  identity?: (row: T) => string | number | null | undefined;
-  /** Derive the controlled edit overlay from the loaded rows, *inside* the
-   * sheet. For provider-backed tables whose overlay is a function of the loaded
-   * data plus external edit state (e.g. an ops stack): the library owns the
-   * rows, so it calls this with them and uses the result as the controlled
-   * overlay, re-deriving when the rows — or this function's identity (close it
-   * over your edit state) — change. Supersedes `updatedData`/`rowStatus`. */
-  deriveOverlay?: (rows: T[]) => {
-    updatedData: T[];
-    rowStatus: TableElementStatus[];
-  };
-  /** Bump to force the data provider to re-fetch from scratch (e.g. after a
-   * save/delete that invalidated the loaded rows). */
-  refreshToken?: number | string;
-  /** Persistence handler for the built-in Save action. When provided, a Save
-   * control is added to the toolbar (always visible, disabled when there are
-   * no pending changes). */
-  onSave?: (ctx: TableActionContext<T>) => void | Promise<void>;
-  onDeleteRows?: (selection: Region[]) => void;
-  verbose?: boolean;
-  enableColumnReordering?: boolean;
-  enableClipboard?: boolean;
-  enableFocusedCell?: boolean;
-  editable?: boolean;
-  /** @deprecated Prefer `cellInteraction`. `true` maps to `"auto"`,
-   * `false` to `"manual"`. */
-  autoFocusEditor?: boolean;
-  /** How selecting a cell activates its surface (editor or detail panel).
-   * Defaults from `autoFocusEditor` for backward compatibility. */
-  cellInteraction?: CellInteraction;
-  density?: DataSheetDensity;
-  /** Configurable table actions shown in a selection-aware toolbar.
-   * When provided, the actions toolbar renders alongside the existing
-   * edit toolbar. Actions are filtered by the current selection cardinality. */
-  actions?: TableAction<T>[];
-  /** Available column/table filters shown in a filter bar.
-   * Filters can also be defined per-column via `ColumnSpec.filters`. */
-  filters?: TableFilter<T>[];
-  /** Optional custom column header cell renderer, called for each column.
-   * Receives the ColumnSpec and column index; should return a React element
-   * (typically a Blueprint ColumnHeaderCell). */
-  columnHeaderCellRenderer?: (col: any, colIndex: number) => ReactNode;
-  /** Arbitrary nodes for the bottom status bar (left group), rendered beside
-   * the active sort/filter tags — the home for view-state controls (show/hide
-   * omitted rows/columns, a group-by indicator, etc.). */
-  statusBar?: ReactNode;
-  /** Presentation per row-status value, merged over the built-in defaults
-   * (which style `"deleted"`). Supply styles for consumer-defined statuses
-   * (e.g. `"omitted"`) and/or override the defaults. Each entry may set the
-   * cells' style/intent and the row header's style. */
-  rowStatusStyles?: RowStatusStyles;
-  /** Render the content of a row's header cell (the left gutter). Receives the
-   * row, its status, and the default 1-based label; return a node to use, or a
-   * nullish value to keep the default. For group-key labels, omit indicators,
-   * etc. Header-cell *styling* still comes from `rowStatusStyles`. */
-  rowHeaderRenderer?: (ctx: RowHeaderRenderContext<T>) => ReactNode;
 }
 
 /** The table (cell-grid) renderer. Assumes it is rendered inside a

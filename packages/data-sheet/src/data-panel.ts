@@ -40,6 +40,7 @@ import {
   dataProviderAtom,
   DataSheetProvider,
   FetchData,
+  FetchDataOptions,
   useResolvedProvider,
   useSelector,
   useStoreAPI,
@@ -56,7 +57,6 @@ import {
 } from "./actions";
 import {
   autoLoadPagesAtom,
-  FetchDataOptions,
   useDataLoader,
   useLoadControls,
 } from "./postgrest-table";
@@ -434,7 +434,7 @@ export function FacetControls() {
 }
 
 /** Default scroll-body layout: a vertical flex list of cards. */
-function DefaultScrollBody({ children }: ScrollBodyProps) {
+function DefaultScrollBody({ children }: { children: ReactNode }) {
   return h("div.data-panel-list", children);
 }
 

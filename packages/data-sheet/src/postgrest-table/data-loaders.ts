@@ -16,13 +16,13 @@ import {
   dataRefreshTokenAtom,
   FetchData,
   FetchDataFilter,
+  FetchDataOptions,
+  FetchMode,
   tableDataAtom,
   TableDataProvider,
   useSelector,
 } from "../provider";
 import { atom } from "jotai";
-
-export type FetchMode = "scroll" | "paged";
 
 interface LazyLoaderStateCore<T> {
   loading: boolean;
@@ -610,11 +610,6 @@ export function useScrollHandler() {
     }, 500),
     [setVisibleRegion],
   );
-}
-
-export interface FetchDataOptions {
-  pageSize?: number;
-  fetchMode?: FetchMode;
 }
 
 /**
