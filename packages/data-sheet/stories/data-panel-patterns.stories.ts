@@ -27,7 +27,7 @@ import { TagEditor, type TagUsage } from "@macrostrat/data-components";
 import {
   columnFilter,
   DataPanel,
-  DataPanelItemProps,
+  ItemComponentProps,
   DataView,
   FacetControls,
   FilterBar,
@@ -174,7 +174,7 @@ const cardStyle = (selected: boolean): CSSProperties => ({
   background: selected ? "rgba(45,114,210,0.12)" : "rgba(128,128,128,0.04)",
 });
 
-function SampleCard({ data, selected, onSelect }: DataPanelItemProps<Sample>) {
+function SampleCard({ data, selected, onSelect }: ItemComponentProps<Sample>) {
   return h("div", { onClick: onSelect, style: cardStyle(selected) }, [
     h("span", { key: "n", style: { fontWeight: 600, flex: 1 } }, data.name),
     h(
@@ -368,7 +368,7 @@ export const WithFooter: StoryObj = {
 // selects. So item interactivity and selection never fight over the click.
 const SelectModeContext = createContext(false);
 
-function LinkCard({ data, selected, onSelect }: DataPanelItemProps<Sample>) {
+function LinkCard({ data, selected, onSelect }: ItemComponentProps<Sample>) {
   const selectMode = useContext(SelectModeContext);
   return h(
     "div",
@@ -456,7 +456,7 @@ export const ModalSelection: StoryObj = {
 
 // ---- 5. Grid layout (several per row) + infinite scroll ----
 
-function GridCard({ data, selected, onSelect }: DataPanelItemProps<Sample>) {
+function GridCard({ data, selected, onSelect }: ItemComponentProps<Sample>) {
   return h(
     "div",
     {
@@ -630,7 +630,7 @@ const TAG_INTENT: Record<string, any> = {
   verified: "success",
 };
 
-function TaggedCard({ data, selected, onSelect }: DataPanelItemProps<Sample>) {
+function TaggedCard({ data, selected, onSelect }: ItemComponentProps<Sample>) {
   return h(
     "div",
     { onClick: (e: any) => onSelect(e), style: cardStyle(selected) },
@@ -961,7 +961,7 @@ function blurbFor(id: number): string {
   return Array.from({ length: paragraphs }, () => LIPSUM).join("\n\n");
 }
 
-function MasonryCard({ data, selected, onSelect }: DataPanelItemProps<Sample>) {
+function MasonryCard({ data, selected, onSelect }: ItemComponentProps<Sample>) {
   return h(
     "div",
     {

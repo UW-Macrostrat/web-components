@@ -13,12 +13,12 @@ import {
   type Region,
   RegionCardinality,
 } from "@blueprintjs/table";
-import { range } from "../utils";
 import update, { Spec } from "immutability-helper";
 import {
   getSelectedColumnKeys,
   getSelectedRowIndices,
   getSelectionCardinality,
+  range,
 } from "../actions";
 
 /** Monotonic counter for synthetic ids on in-table-added rows. */

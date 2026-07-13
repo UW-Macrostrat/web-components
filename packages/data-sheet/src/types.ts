@@ -58,7 +58,7 @@ export interface DataViewSharedProps<T = any> extends FetchDataOptions {
 
 export interface DataPanelProps<T = any> extends DataViewSharedProps<T> {
   /** Renders one row as a card. */
-  itemComponent: ComponentType<DataPanelItemProps<T>>;
+  itemComponent: ComponentType<ItemComponentProps<T>>;
   /** Arbitrary nodes for the bottom status row (beside the loaded/total
    * counter). Pass `false` to drop the status row entirely — e.g. when the
    * counter is folded into an inline footer instead. */
@@ -116,7 +116,7 @@ export interface ScrollBodyProps {
 }
 
 /** Props handed to a consumer's card renderer for one row. */
-export interface DataPanelItemProps<T = any> {
+export interface ItemComponentProps<T = any> {
   /** The row's data. */
   data: T;
   /** Underlying data-row index (stable within a loaded window). */

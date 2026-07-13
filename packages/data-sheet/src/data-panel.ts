@@ -111,7 +111,7 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
  * (the `DataPanel` wrapper, or `DataView`). Exported so a shared-store
  * `DataView` can mount it directly alongside `_DataSheet`. */
 export function DataPanelRenderer<T>({
-  itemComponent: ItemComponent,
+  itemComponent,
   actions = [],
   filters = [],
   pageSize = 50,
@@ -202,7 +202,19 @@ export function DataPanelRenderer<T>({
         getSelectedRowIndices(storeAPI.getState().selection),
       );
       let next: Set<number>;
-      if (mods.range && anchorRef.current != null) {
+
+      const isSingleSelect = current.size === 1;
+      const isCurrentlySelected = current.has(index);
+      if (
+        isSingleSelect &&
+        isCurrentlySelected &&
+        !mods.additive &&
+        !mods.range
+      ) {
+        // Clicking the only selected row with no modifiers clears the selection.
+        next = new Set();
+      } else if (mods.range && anchorRef.current != null) {
+        // We have a range select and an anchor: select the range between the anchor and the clicked row.
         const a = anchorRef.current;
         const [lo, hi] = a <= index ? [a, index] : [index, a];
         // Shift extends the existing selection when combined with cmd/ctrl,
@@ -211,6 +223,7 @@ export function DataPanelRenderer<T>({
         next = mods.additive ? new Set(current) : new Set();
         for (let i = lo; i <= hi; i++) next.add(i);
       } else if (mods.additive) {
+        // We are adding or removing to the selection with the ctrl key
         next = new Set(current);
         if (next.has(index)) next.delete(index);
         else next.add(index);
@@ -260,7 +273,7 @@ export function DataPanelRenderer<T>({
       h(
         "div.data-panel-item",
         { key: `row-${i}`, className: classNames({ selected }) },
-        h(ItemComponent, {
+        h(itemComponent, {
           data: row,
           index: i,
           selected,

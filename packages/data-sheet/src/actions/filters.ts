@@ -1,17 +1,39 @@
-import {
-  Button,
-  ButtonGroup,
-  Menu,
-  MenuItem,
-  PopoverNext,
-  Tag,
-} from "@blueprintjs/core";
+import { Button, Menu, MenuItem, PopoverNext, Tag } from "@blueprintjs/core";
 import { useMemo, useState } from "react";
 import { RegionCardinality } from "@blueprintjs/table";
 import h from "./toolbar.module.sass";
 import { useSelector, useStoreAPI } from "../provider";
-import { collectAllFilters, getSelectionCardinality } from "./selection";
+import { getSelectionCardinality } from "./selection";
 import type { TableFilter } from "./types";
+import type { ColumnSpec } from "../utils";
+import { columnFilter } from "./column-filter";
+
+/** Collect all available filters from global filters and column specs. */
+export function collectAllFilters<T>(
+  globalFilters: TableFilter<T>[],
+  columnSpec: ColumnSpec[],
+): TableFilter<T>[] {
+  const result: TableFilter<T>[] = [...globalFilters];
+  for (const col of columnSpec) {
+    if (col.filters != null) {
+      for (const f of col.filters as TableFilter<T>[]) {
+        const withKey: TableFilter<T> = {
+          ...f,
+          columnKey: f.columnKey ?? col.key,
+        };
+        if (!result.some((r) => r.id === withKey.id)) {
+          result.push(withKey);
+        }
+      }
+    }
+    // Auto-generate the built-in operator filter for a `filterable` column,
+    // unless the column already supplies an explicit filter.
+    if (col.filterable && !result.some((r) => r.columnKey === col.key)) {
+      result.push(columnFilter(col) as TableFilter<T>);
+    }
+  }
+  return result;
+}
 
 /** The single view-state bar: active **sorts** and **filters** shown as
  * removable tags (filters reconfigurable in place via their `filterForm`). The
@@ -71,9 +93,11 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
     ),
     h(
       "div.group.filters",
-      Array.from(activeFilters.entries()).map(([id, entry]) =>
-        h(ActiveFilterChip, { key: id, filterId: id, entry }),
-      ),
+      activeFilters
+        .entries()
+        .map(([id, entry]) =>
+          h(ActiveFilterTag, { key: id, filterId: id, entry }),
+        ),
     ),
     h.if(showAdd)(AddFilterPopover, {
       filters: availableFilters,
@@ -83,7 +107,7 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
 
 /** A single active filter displayed as a tag. Clicking opens a popover
  * for reconfiguring the filter; the remove button deactivates it. */
-function ActiveFilterChip<T>({
+function ActiveFilterTag<T>({
   filterId,
   entry,
 }: {

@@ -1,17 +1,15 @@
 import { type Region, RegionCardinality } from "@blueprintjs/table";
 import type { ColumnSpec } from "../utils";
-import type { TableAction, TableFilter } from "./types";
+import type { TableAction } from "./types";
 import type {
   CellEdit,
   DataSheetStore,
-  SelectionShape,
   TableActionContext,
 } from "../provider/types.ts";
-import { columnFilter } from "./column-filter";
 import update from "immutability-helper";
 
 /** Derive the selection cardinality from the current set of selected regions.
- * Returns "none" when there is no active selection. */
+ * Returns "null" when there is no active selection. */
 export function getSelectionCardinality(
   regions: Region[],
 ): RegionCardinality | null {
@@ -23,6 +21,20 @@ export function getSelectionCardinality(
   if (hasRows && !hasCols) return RegionCardinality.FULL_ROWS;
   if (!hasRows && hasCols) return RegionCardinality.FULL_COLUMNS;
   return RegionCardinality.FULL_TABLE;
+}
+
+/** Selection cardinality including the case of no active selection */
+export type SelectionCardinality = RegionCardinality | "none";
+
+/** The concrete *shape* of the current selection — richer than cardinality
+ * alone. The "single X" cases are exposed as resolved identity fields on the
+ * action context (`columnKey`, `rowIndex`, `cell`); this carries the counts. */
+export interface SelectionShape {
+  cardinality: SelectionCardinality;
+  /** Number of columns the selection spans (0 when not column-scoped). */
+  columns: number;
+  /** Number of rows the selection spans (0 when not row-scoped). */
+  rows: number;
 }
 
 /** Compute the concrete shape of a selection (cardinality + column/row spans). */
@@ -271,29 +283,8 @@ export function mergeColumnActions<T>(
   return [...globalActions, ...columnActions];
 }
 
-/** Collect all available filters from global filters and column specs. */
-export function collectAllFilters<T>(
-  globalFilters: TableFilter<T>[],
-  columnSpec: ColumnSpec[],
-): TableFilter<T>[] {
-  const result: TableFilter<T>[] = [...globalFilters];
-  for (const col of columnSpec) {
-    if (col.filters != null) {
-      for (const f of col.filters as TableFilter<T>[]) {
-        const withKey: TableFilter<T> = {
-          ...f,
-          columnKey: f.columnKey ?? col.key,
-        };
-        if (!result.some((r) => r.id === withKey.id)) {
-          result.push(withKey);
-        }
-      }
-    }
-    // Auto-generate the built-in operator filter for a `filterable` column,
-    // unless the column already supplies an explicit filter.
-    if (col.filterable && !result.some((r) => r.columnKey === col.key)) {
-      result.push(columnFilter(col) as TableFilter<T>);
-    }
-  }
-  return result;
+export function range(arr: number[]) {
+  if (arr.length != 2) throw new Error("Range must have two elements");
+  const [start, end] = arr;
+  return Array.from({ length: end - start + 1 }, (_, i) => i + start);
 }

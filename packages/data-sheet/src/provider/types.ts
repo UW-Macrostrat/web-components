@@ -6,6 +6,7 @@ import type {
 } from "@blueprintjs/table";
 import { ColumnSpec, ColumnSpecOptions } from "../utils";
 import { OverlayToaster } from "@blueprintjs/core";
+import { SelectionCardinality, SelectionShape } from "../actions";
 
 /** A single column sort entry for client-side sorting.
  * Defined here (rather than in actions/types) to avoid circular imports. */
@@ -282,20 +283,6 @@ export interface VisibleCells {
 }
 
 export type DataSheetStore<T> = DataSheetStoreMain<T>;
-
-/** Selection cardinality including the case of no active selection */
-export type SelectionCardinality = RegionCardinality | "none";
-
-/** The concrete *shape* of the current selection — richer than cardinality
- * alone. The "single X" cases are exposed as resolved identity fields on the
- * action context (`columnKey`, `rowIndex`, `cell`); this carries the counts. */
-export interface SelectionShape {
-  cardinality: SelectionCardinality;
-  /** Number of columns the selection spans (0 when not column-scoped). */
-  columns: number;
-  /** Number of rows the selection spans (0 when not row-scoped). */
-  rows: number;
-}
 
 /** A single cell edit, used with `editCells` for batch updates. */
 export interface CellEdit {

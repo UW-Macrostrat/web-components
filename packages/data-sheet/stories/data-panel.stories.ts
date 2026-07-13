@@ -1,7 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import h from "./data-panel.stories.module.sass";
 import { useEffect, useMemo, useState } from "react";
-import { Button, Intent, MenuItem, PopoverNext, SegmentedControl, Tag } from "@blueprintjs/core";
+import {
+  Button,
+  Intent,
+  MenuItem,
+  PopoverNext,
+  SegmentedControl,
+  Tag,
+} from "@blueprintjs/core";
 import { MultiSelect } from "@blueprintjs/select";
 import "@blueprintjs/select/lib/css/blueprint-select.css";
 import { PostgrestClient } from "@supabase/postgrest-js";
@@ -10,7 +17,7 @@ import { useToaster } from "@macrostrat/ui-components";
 import {
   createPostgRESTProvider,
   DataPanel,
-  DataPanelItemProps,
+  ItemComponentProps,
   getSelectedRowIndices,
   TableAction,
   TableFilter,
@@ -73,7 +80,7 @@ function textColorFor(hex: string): string {
   return luminance > 0.6 ? "#182026" : "#ffffff";
 }
 
-function TagChip({
+function TagItem({
   name,
   interactive,
   onRemove,
@@ -155,7 +162,7 @@ function TagFilterForm({
             key: tag,
             active: modifiers.active,
             icon: selected.includes(tag) ? "tick" : "blank",
-            text: h(TagChip, { name: tag }),
+            text: h(TagItem, { name: tag }),
             shouldDismissPopover: false,
             onClick: handleClick,
           })
@@ -204,7 +211,10 @@ const tagsFilter: TableFilter<IngestMap, TagFilterState> = {
 // the standard server contract, no custom `translateFilter` needed.
 const SCALES = ["tiny", "small", "medium", "large"];
 
-const scaleFilter: TableFilter<IngestMap, { operator: "eq"; value: string | null }> = {
+const scaleFilter: TableFilter<
+  IngestMap,
+  { operator: "eq"; value: string | null }
+> = {
   id: "scale-filter",
   name: "Scale",
   icon: "filter",
@@ -224,11 +234,35 @@ const scaleFilter: TableFilter<IngestMap, { operator: "eq"; value: string | null
 // Facet capabilities are declared per-column, backend-agnostic. `FacetControls`
 // + the server provider read these to offer/apply filter & sort.
 const columnSpec: ColumnSpec[] = [
-  { key: "name", name: "Name", dataType: "text", filterable: true, sortable: true },
-  { key: "state", name: "Status", dataType: "string", filterable: true, sortable: true },
+  {
+    key: "name",
+    name: "Name",
+    dataType: "text",
+    filterable: true,
+    sortable: true,
+  },
+  {
+    key: "state",
+    name: "Status",
+    dataType: "string",
+    filterable: true,
+    sortable: true,
+  },
   // Custom filter UI (segmented) instead of the generic operator form.
-  { key: "scale", name: "Scale", dataType: "string", filters: [scaleFilter], sortable: true },
-  { key: "ref_year", name: "Year", dataType: "string", filterable: true, sortable: true },
+  {
+    key: "scale",
+    name: "Scale",
+    dataType: "string",
+    filters: [scaleFilter],
+    sortable: true,
+  },
+  {
+    key: "ref_year",
+    name: "Year",
+    dataType: "string",
+    filterable: true,
+    sortable: true,
+  },
   { key: "source_id", name: "Source ID", dataType: "integer", sortable: true },
   // Array column with a rich, preloaded tag selector (`tagsFilter`) over the
   // `dataType: "array"` operator family → PostgREST `tags=ov.{…}` ("has any of").
@@ -243,34 +277,34 @@ const STATE_INTENT: Record<string, Intent> = {
   abandoned: "none",
 };
 
-function MapCard({ data, onSelect }: DataPanelItemProps<IngestMap>) {
+function MapCard({ data, onSelect }: ItemComponentProps<IngestMap>) {
   // `onSelect` reads shift / cmd / ctrl straight from the click event — wiring
   // it as the root `onClick` gives range- and toggle-select for free.
-  return h(
-    "div.map-card",
-    { onClick: onSelect },
-    [
-      h("div.card-header", { key: "header" }, [
-        h("span.map-name", { key: "name" }, data.name ?? data.slug),
-        h.if(data.state != null)(Tag, {
-          key: "state",
-          minimal: true,
-          intent: STATE_INTENT[data.state] ?? "none",
-          children: data.state,
-        }),
-      ]),
-      h("div.map-meta", { key: "meta" }, [
-        h.if(data.scale != null)("span", { key: "scale" }, `Scale: ${data.scale}`),
-        h.if(data.ref_year != null)("span", { key: "year" }, data.ref_year),
-        h("span", { key: "id" }, `#${data.source_id}`),
-      ]),
-      h.if(Array.isArray(data.tags) && data.tags.length > 0)(
-        "div.tags",
-        { key: "tags" },
-        (data.tags ?? []).map((t) => h(TagChip, { key: t, name: t })),
+  return h("div.map-card", { onClick: onSelect }, [
+    h("div.card-header", { key: "header" }, [
+      h("span.map-name", { key: "name" }, data.name ?? data.slug),
+      h.if(data.state != null)(Tag, {
+        key: "state",
+        minimal: true,
+        intent: STATE_INTENT[data.state] ?? "none",
+        children: data.state,
+      }),
+    ]),
+    h("div.map-meta", { key: "meta" }, [
+      h.if(data.scale != null)(
+        "span",
+        { key: "scale" },
+        `Scale: ${data.scale}`,
       ),
-    ],
-  );
+      h.if(data.ref_year != null)("span", { key: "year" }, data.ref_year),
+      h("span", { key: "id" }, `#${data.source_id}`),
+    ]),
+    h.if(Array.isArray(data.tags) && data.tags.length > 0)(
+      "div.tags",
+      { key: "tags" },
+      (data.tags ?? []).map((t) => h(TagItem, { key: t, name: t })),
+    ),
+  ]);
 }
 
 // A set-based action demonstrating the shared selection/action machinery. It
@@ -295,7 +329,8 @@ const archiveAction: TableAction<IngestMap> = {
 
 // Writes go to the general PostgREST base (same as the tag *list* read).
 const TAGS_PG_BASE = "https://macrostrat.local/api/pg";
-const tagsTable = () => new PostgrestClient(TAGS_PG_BASE).from("map_ingest_tags");
+const tagsTable = () =>
+  new PostgrestClient(TAGS_PG_BASE).from("map_ingest_tags");
 // ASSUMPTION: `map_ingest_tags` rows key on `source_id` (the maps view's
 // identity). The legacy add/remove path used `ingest_process_id`; if the schema
 // still keys on that, change this to `ingest_process_id` and select it on the
@@ -401,9 +436,17 @@ function MapTagEditorButton() {
     PopoverNext,
     {
       placement: "bottom-start",
-      content: h("div", { style: { padding: "6px", width: "260px" } }, h(MapTagEditor)),
+      content: h(
+        "div",
+        { style: { padding: "6px", width: "260px" } },
+        h(MapTagEditor),
+      ),
     },
-    h(Button, { small: true, minimal: true, icon: "tag", rightIcon: "caret-down" }, `Tags (${n})`),
+    h(
+      Button,
+      { small: true, minimal: true, icon: "tag", rightIcon: "caret-down" },
+      `Tags (${n})`,
+    ),
   );
 }
 
@@ -416,7 +459,11 @@ const tagEditAction: TableAction<IngestMap> = {
   render: () => h(MapTagEditorButton),
 };
 
-function IngestionListPanel({ actions }: { actions?: TableAction<IngestMap>[] }) {
+function IngestionListPanel({
+  actions,
+}: {
+  actions?: TableAction<IngestMap>[];
+}) {
   const provider = useMemo(
     () =>
       createPostgRESTProvider<IngestMap>({
@@ -463,5 +510,6 @@ export const IngestionQueue: StoryObj = {};
  * `source_id` (see `TAG_KEY`).
  */
 export const TagEditing: StoryObj = {
-  render: () => h(IngestionListPanel, { actions: [tagEditAction, archiveAction] }),
+  render: () =>
+    h(IngestionListPanel, { actions: [tagEditAction, archiveAction] }),
 };
