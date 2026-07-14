@@ -1,7 +1,7 @@
 import { SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, StoreApi, useStore } from "zustand";
-import { RegionCardinality, Table } from "@blueprintjs/table";
+import { Table } from "@blueprintjs/table";
 import { type ColumnSpec, generateColumnSpec } from "../utils";
 import { createScopedStore } from "@macrostrat/data-components";
 import {
@@ -23,7 +23,7 @@ import {
   TableDataProvider,
 } from "./table-data.ts";
 import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
-import { InteractionOptions } from "../types.ts";
+import { enableDragValueAtom, interactionOptionsAtom } from "./interactions.ts";
 
 /** Create a Jotai scoped store */
 export const ctx = createScopedStore();
@@ -179,94 +179,18 @@ export function DataSheetProvider<T>(props: DataSheetProviderProps<T>) {
   return h(ToasterContext, h(ErrorBoundary, h(_DataSheetProvider<T>, props)));
 }
 
-enum DataPanelRendererType {
-  CARDS = "cards",
-  TABLE = "table",
-}
-
-export interface InteractionOptionsResolved {
-  enableEditing?: boolean;
-  enableSelection?: boolean;
-  /** Options for data interaction (editing and selection) */
-  enableMultipleSelection?: boolean;
-  // Enable drag-to-select (data table only)
-  enableDragValue?: boolean;
-  selectionModes: RegionCardinality[];
-}
-
-export function resolveInteractionOptions(
-  opts: InteractionOptions,
-  renderer: DataPanelRendererType,
-): InteractionOptionsResolved {
-  /** Resolve a unified set of interaction options for the table and cards */
-  let {
-    enableEditing,
-    selectionModes,
-    enableDragValue,
-    enableSelection,
-    enableMultipleSelection,
-  } = opts;
-
-  enableEditing ??= opts.editable ?? opts.enableSelection ?? true;
-  enableSelection ??= true;
-  if (renderer == DataPanelRendererType.TABLE) {
-    if (selectionModes != null) {
-      enableSelection = new Set(selectionModes).size > 0;
-    }
-    enableSelection ??= true;
-    if (enableSelection) {
-      selectionModes ??= [
-        RegionCardinality.FULL_TABLE,
-        RegionCardinality.CELLS,
-        RegionCardinality.FULL_ROWS,
-        RegionCardinality.FULL_COLUMNS,
-      ];
-      enableEditing ??= true;
-    } else {
-      selectionModes ??= [];
-    }
-    if (!selectionModes.includes(RegionCardinality.CELLS)) {
-      enableEditing = false;
-    }
-    enableDragValue ??= enableEditing;
-  } else if (renderer == DataPanelRendererType.CARDS) {
-    if (enableSelection) {
-      // Only one selection mode possible
-      selectionModes = [RegionCardinality.FULL_ROWS];
-      enableEditing ??= true;
-    } else {
-      selectionModes = [];
-    }
-    enableDragValue = false;
-  }
-  enableMultipleSelection ??= true;
-  if (!enableEditing) {
-    enableDragValue = false;
-    enableMultipleSelection = false;
-  }
-
-  return {
-    enableEditing,
-    enableDragValue,
-    enableMultipleSelection,
-    selectionModes: selectionModes as RegionCardinality[],
-    enableSelection,
-  };
-}
-
 export function DataSheetProviderInner<T>({
   children,
   data,
   columnSpec,
   columnSpecOptions,
-  editable,
   itemLabel,
   enableColumnReordering,
-  enableDragValue,
   defaultColumnWidth = 150,
   dataProvider,
   refreshToken,
   identity,
+  interactionOptions,
 }: DataSheetProviderProps<T> & { dataProvider?: ResolvedDataProvider }) {
   const tableRef = useRef<Table>(null);
 
@@ -278,7 +202,7 @@ export function DataSheetProviderInner<T>({
   // component resolving it each render. Kept updated as `data`/`provider`
   // changes.
   ctx.useSync(dataProviderAtom, dataProvider ?? DEFAULT_DATA_PROVIDER);
-  ctx.useSync(enableDragValueAtom, enableDragValue ?? editable);
+  ctx.useSync(interactionOptionsAtom, interactionOptions);
 
   ctx.useSync(itemLabelAtom, itemLabel ?? "row");
 
@@ -297,7 +221,7 @@ export function DataSheetProviderInner<T>({
       // A function spec is derived from the loaded rows in `_DataSheet`; tell
       // the loader not to auto-generate a plain spec from the first chunk.
       deferColumnSpec: isFnSpec,
-      editable,
+      editable: interactionOptions.enableEditing,
       enableColumnReordering,
       data,
       defaultColumnWidth,
@@ -305,7 +229,7 @@ export function DataSheetProviderInner<T>({
     });
   }, [
     data,
-    editable,
+    interactionOptions.enableEditing,
     staticSpec,
     isFnSpec,
     columnSpecOptions,
@@ -414,13 +338,6 @@ export function useSelector<T = any, A = any>(
 /** Atoms for efficient sub-selection of state */
 
 export const columnSpecAtom = atom((get) => get(storeAtom)?.columnSpec ?? []);
-
-export const enableDragValueAtom = atom(true);
-
-export const dragValueHandlerAtom = atom((get) => {
-  if (!get(enableDragValueAtom)) return undefined;
-  return get(storeAtom)?.onDragValue;
-});
 
 export const tableDataAtom = atom(
   (get) => {

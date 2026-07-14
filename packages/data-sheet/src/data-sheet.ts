@@ -101,7 +101,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
       columnSpecOptions,
       enableColumnReordering,
       defaultColumnWidth,
-      editable: interactionOptions.enableEditing,
+      interactionOptions,
       dataProvider,
       ...rest,
     },

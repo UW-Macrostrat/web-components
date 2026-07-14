@@ -89,16 +89,18 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
       data: _data,
       columnSpec,
       columnSpecOptions,
-      editable: interactionOptions.enableEditing,
+      interactionOptions,
       dataProvider,
       refreshToken,
       identity,
       itemLabel,
     },
-    h(DataPanelRenderer<any>, {
-      ...rest,
-      ...interactionOptions,
-    }),
+    [
+      h(DataPanelRenderer<any>, {
+        ...rest,
+        ...interactionOptions,
+      }),
+    ],
   );
 }
 
