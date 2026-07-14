@@ -34,7 +34,10 @@ storybook-static
 .pnp.*
 
 packages/*/dist
+.npmrc
 
+.idea
+.idea/misc.xml
 .idea/workspace.xml
 .idea/tasks.xml
-.npmrc
+

@@ -5,15 +5,30 @@ import { useAuth } from "./context";
 import styles from "./main.module.sass";
 const h = hyperStyled(styles);
 
+function defaultUserDisplayName(user: unknown): string {
+  if (typeof user === "string") return user;
+  if (user != null && typeof user === "object") {
+    const u = user as Record<string, unknown>;
+    const label = u.name ?? u.username ?? u.email;
+    if (typeof label === "string" && label.length > 0) return label;
+  }
+  return "Logged in";
+}
+
 function AuthStatus(props) {
   const { runAction, user } = useAuth();
-  let { className, large = true, showText = true } = props;
+  let {
+    className,
+    large = true,
+    showText = true,
+    userDisplayName = defaultUserDisplayName,
+  } = props;
 
   let text = "Not logged in";
   let icon: IconName = "blocked-person";
   let action: () => void = () => runAction({ type: "login" });
   if (user != null) {
-    text = "Logged in";
+    text = userDisplayName(user);
     icon = "person";
     action = () => runAction({ type: "request-form" });
   }
@@ -32,7 +47,7 @@ function AuthStatus(props) {
   ]);
 }
 
-export { AuthStatus };
+export { AuthStatus, defaultUserDisplayName };
 export * from "./login-form";
 export * from "./util";
 export * from "./context";

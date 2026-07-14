@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.10
+
+### Patch Changes
+
+- Show the signed-in user's name on the `AuthStatus` login button, falling back
+  to the email, then "Logged in". The label is derived by a new
+  `userDisplayName` prop that defaults to the built-in `defaultUserDisplayName`
+  (also exported), so consumers can customize it.
+
 ## [1.0.9] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/form-components-v1.0.8...@macrostrat/form-components-v1.0.9)
 
 ### Patch Changes
