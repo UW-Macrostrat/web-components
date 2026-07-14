@@ -36,6 +36,7 @@ import {
 import { Button, Menu, PopoverNext, Spinner } from "@blueprintjs/core";
 import {
   ctx,
+  DataViewRendererType,
   dataProviderAtom,
   DataSheetProvider,
   FetchData,
@@ -44,10 +45,10 @@ import {
   storeAtom,
   useResolvedProvider,
   useSelector,
-  useStoreAPI,
 } from "./provider";
 import {
   ActionsToolbar,
+  ALL_CARDINALITIES,
   buildDataViewSelection,
   ColumnFilterMenuItem,
   ColumnSortMenu,
@@ -56,6 +57,7 @@ import {
   isColumnFilterable,
   resolveColumnFilter,
   rowIndicesToRegions,
+  TableAction,
 } from "./actions";
 import {
   autoLoadPagesAtom,
@@ -85,7 +87,10 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
   } = props;
   const { data: _data, dataProvider } = useResolvedProvider<T>(props);
 
-  const interactionOptions = resolveInteractionOptions(props, "cards");
+  const interactionOptions = resolveInteractionOptions(
+    props,
+    DataViewRendererType.CARDS,
+  );
 
   return h(
     DataSheetProvider<T>,
@@ -99,73 +104,9 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
       identity,
       itemLabel,
     },
-    [
-      h(DataPanelRenderer<any>, {
-        ...rest,
-        ...interactionOptions,
-      }),
-    ],
+    h(DataPanelRenderer<any>, rest),
   );
 }
-
-// The anchor for shift-range selection: the last row clicked without shift.
-// Reset when the selection is cleared elsewhere (e.g. the toolbar's ✕).
-const anchorRefAtom = atom<{ current: number | null }>({ current: null });
-
-const selectionAtom = atom(
-  (get) => {
-    if (!get(interactionOptionsAtom).enableSelection) return [];
-    const selection = get(storeAtom)?.selection ?? [];
-    if (selection.some((r) => r.cols != null)) {
-      // A card list has no cells or columns. When the selection carries columns —
-      // inherited from a shared store the sheet also drives (a `DataView` toggle) —
-      // coerce it to the full rows it covers, so the toolbar shows row-scoped
-      // actions rather than column/cell ones for a column that isn't visible here.
-      // Column-only selections (no rows) collapse to nothing.
-      return rowIndicesToRegions(new Set(getSelectedRowIndices(selection)));
-    } else {
-      return selection;
-    }
-  },
-  (get, set, regions: Region[]) => {
-    if (!get(interactionOptionsAtom).enableSelection) return;
-    if (regions.length === 0) {
-      get(anchorRefAtom).current = null;
-    }
-    set(storeAtom, (s) => ({
-      ...s,
-      selection: regions,
-      focusedCell: null,
-      topLeftCell: null,
-    }));
-  },
-);
-
-const updateSelectionAtom = atom(
-  null,
-  (get, set, index: number, mods: SelectModifiers) => {
-    /** Update selection from a row index and modifiers. */
-    const { enableMultipleSelection, enableSelection } = get(
-      interactionOptionsAtom,
-    );
-    if (!enableSelection) return;
-    const selection = get(selectionAtom);
-    const anchorRef = get(anchorRefAtom);
-    const res = buildDataViewSelection(
-      index,
-      mods,
-      selection,
-      anchorRef,
-      enableMultipleSelection,
-    );
-    set(selectionAtom, res);
-  },
-);
-
-const selectedRowIndicesAtom = atom((get) => {
-  const sel = get(selectionAtom);
-  return new Set(getSelectedRowIndices(sel));
-});
 
 /** The card-list renderer. Assumes it is rendered inside a `DataSheetProvider`
  * (the `DataPanel` wrapper, or `DataView`). Exported so a shared-store
@@ -186,7 +127,6 @@ export function DataPanelRenderer<T>({
   scrollBody,
   topFade = true,
   className,
-  enableSelection = true,
 }: Omit<DataPanelProps<T>, "provider" | "fetchData" | "data" | "identity">) {
   const {
     provider: activeProvider,
@@ -223,6 +163,7 @@ export function DataPanelRenderer<T>({
     setScrolled(e.currentTarget.scrollTop > 4);
   }, []);
 
+  const enableSelection = ctx.useValue(interactionOptionsAtom).enableSelection;
   const selectedIndices = ctx.useValue(selectedRowIndicesAtom);
   const select = ctx.useSet(updateSelectionAtom);
 
@@ -292,16 +233,11 @@ export function DataPanelRenderer<T>({
     });
   }
 
-  // Header controls: the selection ActionsToolbar always renders; below it,
-  // either the caller's custom `toolbar` or the default FacetControls +
-  // FilterBar. A custom toolbar owns its own filter display, so the default
-  // FilterBar steps aside (the caller can re-include either via the exports).
-  let controls: ReactNode;
-  if (toolbar !== undefined) {
-    controls = toolbar;
-  } else {
-    controls = [h(FacetControls), h(FilterBar, { filters })];
-  }
+  const coreActions = useDataPanelControls();
+
+  const _actions = useMemo(() => {
+    return [...actions, ...coreActions];
+  }, [actions, coreActions]);
 
   const ScrollBody = scrollBody ?? DefaultScrollBody;
 
@@ -340,11 +276,14 @@ export function DataPanelRenderer<T>({
 
   return h("div.data-panel", { className }, [
     loaderNode,
-    h(ActionsToolbar, {
-      actions,
-      tableName: name,
-    }),
-    h("div.control-bar", controls),
+    h(
+      ActionsToolbar,
+      {
+        actions: _actions,
+        tableName: name,
+      },
+      toolbar,
+    ),
     h("div.data-panel-main", [
       h(
         "div.data-panel-body",
@@ -376,9 +315,8 @@ function DataPanelStatusBar({ children }) {
  * in a submenu) — so sort/filter behave identically to the sheet and flow
  * through the same store + provider seam (the server applies them).
  */
-export function FacetControls() {
+export function useDataPanelControls(): TableAction[] {
   const columnSpec = useSelector((s) => s.columnSpec);
-
   const filterableCols = useMemo(
     () => columnSpec.filter((c) => isColumnFilterable(c)),
     [columnSpec],
@@ -388,38 +326,54 @@ export function FacetControls() {
     [columnSpec],
   );
 
-  if (filterableCols.length === 0 && sortableCols.length === 0) return null;
+  const actions: TableAction[] = [];
+  if (filterableCols.length > 0) {
+    const filterMenu = h(
+      Menu,
+      filterableCols.map((col) =>
+        h(ColumnFilterMenuItem, {
+          key: col.key,
+          filter: resolveColumnFilter(col),
+          label: col.name,
+        }),
+      ),
+    );
 
-  const filterMenu = h(
-    Menu,
-    filterableCols.map((col) =>
-      h(ColumnFilterMenuItem, {
-        key: col.key,
-        filter: resolveColumnFilter(col),
-        label: col.name,
-      }),
-    ),
-  );
+    const filterAction: TableAction = {
+      id: "filter",
+      name: "Filter",
+      icon: "filter",
+      description: "Add a filter to the data panel.",
+      targets: ALL_CARDINALITIES,
+      render: (ctx) =>
+        h(PopoverNext, { content: filterMenu, placement: "bottom-start" }, [
+          h(Button, { minimal: true, small: true, icon: "filter" }, "Filter"),
+        ]),
+    };
+    actions.push(filterAction);
+  }
+  if (sortableCols.length > 0) {
+    const sortMenu = h(
+      Menu,
+      sortableCols.map((col) =>
+        h(ColumnSortMenu, { key: col.key, columnKey: col.key, text: col.name }),
+      ),
+    );
 
-  const sortMenu = h(
-    Menu,
-    sortableCols.map((col) =>
-      h(ColumnSortMenu, { key: col.key, columnKey: col.key, text: col.name }),
-    ),
-  );
-
-  return h("div.facet-controls", [
-    h.if(filterableCols.length > 0)(
-      PopoverNext,
-      { key: "filter", content: filterMenu, placement: "bottom-start" },
-      h(Button, { minimal: true, small: true, icon: "filter" }, "Filter"),
-    ),
-    h.if(sortableCols.length > 0)(
-      PopoverNext,
-      { key: "sort", content: sortMenu, placement: "bottom-start" },
-      h(Button, { minimal: true, small: true, icon: "sort" }, "Sort"),
-    ),
-  ]);
+    const sortAction: TableAction = {
+      id: "sort",
+      name: "Sort",
+      icon: "sort",
+      description: "Add a sort to the data panel.",
+      targets: ALL_CARDINALITIES,
+      render: (ctx) =>
+        h(PopoverNext, { content: sortMenu, placement: "bottom-start" }, [
+          h(Button, { minimal: true, small: true, icon: "sort" }, "Sort"),
+        ]),
+    };
+    actions.push(sortAction);
+  }
+  return actions;
 }
 
 /** Default scroll-body layout: a vertical flex list of cards. */
@@ -500,3 +454,62 @@ function useBottomSentinel<E extends HTMLElement>(
   useEffect(() => () => observerRef.current?.disconnect(), []);
   return setRef;
 }
+
+// The anchor for shift-range selection: the last row clicked without shift.
+// Reset when the selection is cleared elsewhere (e.g. the toolbar's ✕).
+const anchorRefAtom = atom<{ current: number | null }>({ current: null });
+
+const selectionAtom = atom(
+  (get) => {
+    if (!get(interactionOptionsAtom).enableSelection) return [];
+    const selection = get(storeAtom)?.selection ?? [];
+    if (selection.some((r) => r.cols != null)) {
+      // A card list has no cells or columns. When the selection carries columns —
+      // inherited from a shared store the sheet also drives (a `DataView` toggle) —
+      // coerce it to the full rows it covers, so the toolbar shows row-scoped
+      // actions rather than column/cell ones for a column that isn't visible here.
+      // Column-only selections (no rows) collapse to nothing.
+      return rowIndicesToRegions(new Set(getSelectedRowIndices(selection)));
+    } else {
+      return selection;
+    }
+  },
+  (get, set, regions: Region[]) => {
+    if (!get(interactionOptionsAtom).enableSelection) return;
+    if (regions.length === 0) {
+      get(anchorRefAtom).current = null;
+    }
+    set(storeAtom, (s) => ({
+      ...s,
+      selection: regions,
+      focusedCell: null,
+      topLeftCell: null,
+    }));
+  },
+);
+
+const updateSelectionAtom = atom(
+  null,
+  (get, set, index: number, mods: SelectModifiers) => {
+    /** Update selection from a row index and modifiers. */
+    const { enableMultipleSelection, enableSelection } = get(
+      interactionOptionsAtom,
+    );
+    if (!enableSelection) return;
+    const selection = get(selectionAtom);
+    const anchorRef = get(anchorRefAtom);
+    const res = buildDataViewSelection(
+      index,
+      mods,
+      selection,
+      anchorRef,
+      enableMultipleSelection,
+    );
+    set(selectionAtom, res);
+  },
+);
+
+const selectedRowIndicesAtom = atom((get) => {
+  const sel = get(selectionAtom);
+  return new Set(getSelectedRowIndices(sel));
+});

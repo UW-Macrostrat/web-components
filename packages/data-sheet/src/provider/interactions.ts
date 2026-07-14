@@ -3,7 +3,7 @@ import { InteractionOptions } from "../types.ts";
 import { atom } from "jotai";
 import { storeAtom } from "./core.ts";
 
-enum DataPanelRendererType {
+export enum DataViewRendererType {
   CARDS = "cards",
   TABLE = "table",
 }
@@ -28,7 +28,7 @@ export const interactionOptionsAtom = atom<InteractionOptionsResolved>({
 
 export function resolveInteractionOptions(
   opts: InteractionOptions,
-  renderer: DataPanelRendererType,
+  renderer: DataViewRendererType,
 ): InteractionOptionsResolved {
   /** Resolve a unified set of interaction options for the table and cards */
   let {
@@ -41,7 +41,8 @@ export function resolveInteractionOptions(
 
   enableEditing ??= opts.editable ?? opts.enableSelection ?? true;
   enableSelection ??= true;
-  if (renderer == DataPanelRendererType.TABLE) {
+  enableMultipleSelection ??= true;
+  if (renderer == DataViewRendererType.TABLE) {
     if (selectionModes != null) {
       enableSelection = new Set(selectionModes).size > 0;
     }
@@ -62,7 +63,7 @@ export function resolveInteractionOptions(
       enableEditing = false;
     }
     enableDragValue ??= enableEditing;
-  } else if (renderer == DataPanelRendererType.CARDS) {
+  } else if (renderer == DataViewRendererType.CARDS) {
     if (enableSelection) {
       // Only one selection mode possible
       selectionModes = [RegionCardinality.FULL_ROWS];
@@ -72,10 +73,8 @@ export function resolveInteractionOptions(
     }
     enableDragValue = false;
   }
-  enableMultipleSelection ??= true;
   if (!enableEditing) {
     enableDragValue = false;
-    enableMultipleSelection = false;
   }
 
   return {

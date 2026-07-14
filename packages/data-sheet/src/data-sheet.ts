@@ -121,6 +121,8 @@ interface DataSheetRendererInternalProps<T> extends DataSheetRendererProps<T> {
   defaultColumnWidth: number;
 }
 
+const verboseAtom = atom(false);
+
 /** The table (cell-grid) renderer. Assumes it is rendered inside a
  * `DataSheetProvider` (the `DataSheet` wrapper, or `DataView`). Exported so a
  * shared-store `DataView` can mount it directly alongside `_DataPanel`. */
@@ -144,6 +146,7 @@ export function DataSheetRenderer<T>({
   onDeleteRows,
   name,
   verbose = false,
+  debug = false,
   enableFocusedCell,
   autoFocusEditor = true,
   cellInteraction,
@@ -165,8 +168,7 @@ export function DataSheetRenderer<T>({
    * @param columnSpecOptions: Options for generating a column spec from data
    */
 
-  // Turn on debug features
-  const debugMode = false;
+  ctx.useSync(verboseAtom, verbose);
 
   const editable = useSelector((state) => state.editable);
 
@@ -360,15 +362,14 @@ export function DataSheetRenderer<T>({
   // when the rows load/change or the function's identity changes (close it over
   // your external edit state). The `controlledOverlay` flag above suppresses the
   // loader-boundary identity remap so this derivation is authoritative.
-  const loadedData = useSelector((state) => state.data);
   useEffect(() => {
     if (deriveOverlay == null) return;
-    const overlay = deriveOverlay(loadedData);
+    const overlay = deriveOverlay(data);
     storeState.setState({
       updatedData: overlay.updatedData,
       rowStatus: overlay.rowStatus,
     });
-  }, [deriveOverlay, loadedData, storeState]);
+  }, [deriveOverlay, data, storeState]);
 
   // Function `columnSpec` derivation is hoisted to the provider
   // (`DataSheetProviderInner`), shared by both renderers.
@@ -598,7 +599,7 @@ export function DataSheetRenderer<T>({
       h("div.spacer"),
       h.if(_showLoadProgress)(LoadProgressIndicator),
     ]),
-    h.if(debugMode)(CellRendererDebugOverlay, {
+    h.if(debug)(CellRendererDebugOverlay, {
       cellRendererDependencies,
       names: [
         "data",

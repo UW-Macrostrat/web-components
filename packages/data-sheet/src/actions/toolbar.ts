@@ -53,9 +53,11 @@ function selectionTitle<T>(ctx: TableActionContext<T>): string | null {
 export function ActionsToolbar<T>({
   actions,
   tableName,
+  children,
 }: {
   actions: TableAction<T>[];
   tableName?: string;
+  children: React.ReactNode;
 }) {
   const selection = useSelector((state) => state.selection);
   const editable = useSelector((state) => state.editable);
@@ -139,24 +141,20 @@ export function ActionsToolbar<T>({
     _name,
   );
 
-  // Order left→right by generality: actions applicable to the whole table (or
-  // no selection) are "global" and sit after a spacer on the right (Save /
+  // Order left→right by generality: actions that require editing
+  // are "global" and sit after a spacer on the right (Save /
   // Reset); everything else is contextual and stays on the left. So the left
   // edge tracks the selection and the right edge is constant.
   const isGlobal = (a: TableAction<T>) =>
-    a.targets.includes(RegionCardinality.FULL_TABLE) ||
-    a.targets.includes("none" as any);
+    (a.targets.includes(RegionCardinality.FULL_TABLE) ||
+      a.targets.includes("none" as any)) &&
+    a.requiresEditable;
   const contextual = shownActions.filter((a) => !isGlobal(a));
   // Order the built-in global actions least→most impactful, left→right: reset
   // changes, then save. Any other global actions keep their natural order to
   // the left of these (stable sort, rank 0).
-  const globalOrder: Record<string, number> = {
-    "reset-changes": 1,
-    "save-changes": 2,
-  };
-  const globalActions = shownActions
-    .filter(isGlobal)
-    .sort((a, b) => (globalOrder[a.id] ?? 0) - (globalOrder[b.id] ?? 0));
+
+  const globalActions = shownActions.filter(isGlobal);
 
   return h("div.actions-toolbar", [
     titleNode,
@@ -167,6 +165,7 @@ export function ActionsToolbar<T>({
         h(ActionButton, { key: action.id, action, ctx }),
       ),
     ),
+    children,
     h("div.toolbar-spacer", { key: "spacer", style: { flex: 1 } }),
     h(
       ButtonGroup,

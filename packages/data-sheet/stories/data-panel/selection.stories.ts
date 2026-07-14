@@ -1,11 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import {
-  ColumnSpec,
-  DataPanel,
-  FacetControls,
-  ItemComponentProps,
-} from "../../src";
+import { ColumnSpec, DataPanel, ItemComponentProps } from "../../src";
 import {
   ALL,
   cardStyle,
@@ -152,7 +147,6 @@ function ModalSelectionDemo() {
         },
         selectMode ? "Selecting" : "Select",
       ),
-      h(FacetControls, { key: "facets" }),
     ],
   );
   return h(

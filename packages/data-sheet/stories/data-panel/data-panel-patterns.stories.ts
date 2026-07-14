@@ -14,7 +14,6 @@ import {
   columnFilter,
   ColumnSpec,
   DataPanel,
-  FacetControls,
   FilterBar,
   getSelectedRowIndices,
   LoadProgressIndicator,
@@ -130,6 +129,10 @@ function CustomToolbar() {
       },
     },
     [
+      h("div", {
+        key: "sep",
+        style: { width: 1, height: 20, background: "rgba(128,128,128,0.3)" },
+      }),
       h(SegmentedControl, {
         key: "status",
         small: true,
@@ -156,18 +159,12 @@ function CustomToolbar() {
         },
         "Value",
       ),
-      h("div", {
-        key: "sep",
-        style: { width: 1, height: 20, background: "rgba(128,128,128,0.3)" },
-      }),
-      // The default facet menus still available, unchanged.
-      h(FacetControls, { key: "facets" }),
     ],
   );
 }
 
 export const CustomToolbarStory: StoryObj = {
-  name: "Custom toolbar",
+  name: "Custom toolbar children",
   render: () =>
     container(
       h(DataPanel<Sample>, {

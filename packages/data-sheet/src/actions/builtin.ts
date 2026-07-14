@@ -8,7 +8,7 @@ export { copyAction, pasteAction, clipboardActions };
  * can't delete (no `deleteRows`). */
 export const deleteRowsAction: TableAction = {
   id: "delete-rows",
-  name: "Delete rows",
+  name: "Delete",
   icon: "trash",
   intent: "danger",
   targets: [RegionCardinality.FULL_ROWS],
