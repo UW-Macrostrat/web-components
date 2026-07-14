@@ -9,8 +9,6 @@ import { Meta } from "@storybook/react-vite";
 const noopTransformer = async () => null;
 
 function AuthStatusFor({ user }: { user: unknown }) {
-  // BaseAuthProvider only reads `user` as its initial reducer state, so keying
-  // by the user forces a remount when the controls change.
   return h(
     BaseAuthProvider,
     { key: JSON.stringify(user) ?? "null", user, transformer: noopTransformer },
