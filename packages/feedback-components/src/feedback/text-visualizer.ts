@@ -19,11 +19,7 @@ export interface FeedbackTextProps {
   dispatch: TreeDispatch;
   lineHeight: string;
   allowOverlap?: boolean;
-  matchLinks?: {
-    lithology: string;
-    strat_name: string;
-    lith_att: string;
-  };
+  matchLinks?: Record<string, string>;
   viewOnly?: boolean;
 }
 
@@ -305,42 +301,51 @@ function renderNode(
     }
   }
 
+  const url = viewOnly && match
+    ? getMatchUrl(match, matchLinks, tag.type?.name ?? tag.term_type)
+    : undefined;
+
   const tagComponent = h(
-    "span",
+    url ? "a.highlight-link" : "span",
     {
       onMouseEnter: (e: MouseEvent) => {
         e.stopPropagation();
       },
       className: "highlight" + (!viewOnly || match ? " clickable" : ""),
       style,
-      onClick: (e: MouseEvent) => {
-        e.stopPropagation();
-        if (
-          e.ctrlKey ||
-          e.metaKey ||
-          (selectedNodes[0] === tag.id && selectedNodes.length === 1)
-        ) {
-          // Toggle selection on ctrl/cmd click or when node is only selected node
-          e.stopPropagation();
-          dispatch({
-            type: "toggle-node-selected",
-            payload: { ids: [tag.id] },
-          });
-        } else if (e.shiftKey && selectedNodes.length > 0) {
-          // Select range from last selected node to this one
-          const lastSelected = selectedNodes[selectedNodes.length - 1];
+      href: url,
+      target: url ? "_blank" : undefined,
+      rel: url ? "noreferrer noopener" : undefined,
+      onClick: url
+        ? undefined
+        : (e: MouseEvent) => {
+            e.stopPropagation();
+            if (
+              e.ctrlKey ||
+              e.metaKey ||
+              (selectedNodes[0] === tag.id && selectedNodes.length === 1)
+            ) {
+              // Toggle selection on ctrl/cmd click or when node is only selected node
+              e.stopPropagation();
+              dispatch({
+                type: "toggle-node-selected",
+                payload: { ids: [tag.id] },
+              });
+            } else if (e.shiftKey && selectedNodes.length > 0) {
+              // Select range from last selected node to this one
+              const lastSelected = selectedNodes[selectedNodes.length - 1];
 
-          dispatch({
-            type: "select-range",
-            payload: { ids: [lastSelected, tag.id] },
-          });
-        } else {
-          dispatch({
-            type: "select-node",
-            payload: { ids: [tag.id] },
-          });
-        }
-      },
+              dispatch({
+                type: "select-range",
+                payload: { ids: [lastSelected, tag.id] },
+              });
+            } else {
+              dispatch({
+                type: "select-node",
+                payload: { ids: [tag.id] },
+              });
+            }
+          },
     },
     isSelected
       ? moveText.flat()
@@ -368,6 +373,124 @@ function renderNode(
   }
 
   return tagComponent;
+}
+
+function getMatchUrl(
+  match: any,
+  matchLinks?: Record<string, string>,
+  entityTypeName?: string,
+) {
+  if (!match || !matchLinks) return undefined;
+
+  const prefix = getMatchPrefix(match, matchLinks, entityTypeName);
+  const matchId = getMatchId(match);
+
+  if (!prefix || matchId == null) return undefined;
+
+  const normalized = prefix.replace(/\/$/, "");
+  return `${normalized}/${matchId}`;
+}
+
+function getMatchPrefix(
+  match: any,
+  matchLinks?: Record<string, string>,
+  entityTypeName?: string,
+) {
+  if (!match || !matchLinks) return undefined;
+
+  const typeCandidates = [
+    match?.entity_type,
+    match?.entityType,
+    entityTypeName,
+    match?.type?.name,
+    match?.type,
+  ];
+
+  for (const candidate of typeCandidates) {
+    const direct = getMatchLinkValue(matchLinks, candidate);
+    if (direct) return direct;
+  }
+
+  const idBasedPrefixes = [
+    match?.lith_id != null || match?.lith_att_id != null ? ["lithology", "lith", "lithologies"] : [],
+    match?.strat_name_id != null ? ["strat_name", "strat_names"] : [],
+    match?.concept_id != null ? ["concept", "concepts"] : [],
+    match?.interval_id != null ? ["interval", "intervals"] : [],
+    match?.lith_att_id != null ? ["lith_att", "lith_atts"] : [],
+  ];
+
+  for (const prefixGroup of idBasedPrefixes) {
+    for (const prefix of prefixGroup) {
+      const value = getMatchLinkValue(matchLinks, prefix);
+      if (value) return value;
+    }
+  }
+
+  for (const prefix of ["lithology", "lith", "lithologies", "strat_name", "strat_names", "concept", "concepts", "interval", "intervals", "lith_att", "lith_atts"]) {
+    const value = getMatchLinkValue(matchLinks, prefix);
+    if (value) return value;
+  }
+
+  if (Object.keys(matchLinks).length === 1) {
+    return matchLinks[Object.keys(matchLinks)[0]];
+  }
+
+  return undefined;
+}
+
+function getMatchLinkValue(matchLinks: Record<string, string>, candidate?: unknown) {
+  if (!candidate) return undefined;
+
+  const rawKey = String(candidate);
+  const aliases = [rawKey, rawKey.toLowerCase(), rawKey.toUpperCase()];
+  const normalizedAliases = [
+    normalizeMatchLinkKey(rawKey),
+    normalizeMatchLinkKey(rawKey.toLowerCase()),
+    normalizeMatchLinkKey(rawKey.toUpperCase()),
+  ];
+
+  for (const alias of [...aliases, ...normalizedAliases]) {
+    if (!alias) continue;
+    const value = matchLinks[alias];
+    if (value) return value;
+  }
+
+  return undefined;
+}
+
+function normalizeMatchLinkKey(key: string) {
+  if (!key) return undefined;
+
+  const normalized = key.toLowerCase().replace(/\s+/g, "_");
+  const aliasMap = {
+    lith: "lithology",
+    lithology: "lithology",
+    lithologies: "lithology",
+    strat_name: "strat_name",
+    strat_names: "strat_name",
+    strat_name_concept: "concept",
+    concept: "concept",
+    concepts: "concept",
+    interval: "interval",
+    intervals: "interval",
+    lith_att: "lith_att",
+    lith_atts: "lith_att",
+  };
+
+  return aliasMap[normalized] ?? normalized;
+}
+
+function getMatchId(match: any) {
+  return (
+    match?.entity_id ??
+    match?.macrostrat_terms_id ??
+    match?.strat_name_id ??
+    match?.lith_id ??
+    match?.concept_id ??
+    match?.lith_att_id ??
+    match?.interval_id ??
+    null
+  );
 }
 
 export function HighlightedText(props: {

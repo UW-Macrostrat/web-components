@@ -207,17 +207,118 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
       },
       h(DataField, {
         className: "match-item",
-        label: entity_type.replace(/^./, (c) => c.toUpperCase()),
+        label: entity_type?.replace(/^./, (c) => c.toUpperCase()),
         value: h(LithologyTag, {
           data: { name: data.name, id: data.macrostrat_terms_id, lith_id: 1 },
-          onClick: () =>
-            window.open(
-              matchLinks.entity_type + "/" + data.entity_id,
-              "_blank",
-            ),
+          onClick: () => {
+            const matchUrl = getMatchUrl(data, matchLinks);
+            if (matchUrl != null) window.open(matchUrl, "_blank");
+          },
         }),
       }),
     );
 
   return h(JSONView, { data });
+}
+
+function getMatchUrl(match: any, matchLinks?: Record<string, string>) {
+  if (!match || !matchLinks) return undefined;
+
+  const prefix = getMatchPrefix(match, matchLinks);
+  const matchId = getMatchId(match);
+
+  if (!prefix || matchId == null) return undefined;
+  return `${prefix.replace(/\/$/, "")}/${matchId}`;
+}
+
+function getMatchPrefix(match: any, matchLinks?: Record<string, string>) {
+  if (!match || !matchLinks) return undefined;
+
+  const typeCandidates = [match?.entity_type, match?.entityType, match?.type?.name, match?.type];
+
+  for (const candidate of typeCandidates) {
+    const direct = getMatchLinkValue(matchLinks, candidate);
+    if (direct) return direct;
+  }
+
+  const idBasedPrefixes = [
+    match?.lith_id != null || match?.lith_att_id != null ? ["lithology", "lith", "lithologies"] : [],
+    match?.strat_name_id != null ? ["strat_name", "strat_names"] : [],
+    match?.concept_id != null ? ["concept", "concepts"] : [],
+    match?.interval_id != null ? ["interval", "intervals"] : [],
+    match?.lith_att_id != null ? ["lith_att", "lith_atts"] : [],
+  ];
+
+  for (const prefixGroup of idBasedPrefixes) {
+    for (const prefix of prefixGroup) {
+      const value = getMatchLinkValue(matchLinks, prefix);
+      if (value) return value;
+    }
+  }
+
+  for (const prefix of ["lithology", "lith", "lithologies", "strat_name", "strat_names", "concept", "concepts", "interval", "intervals", "lith_att", "lith_atts"]) {
+    const value = getMatchLinkValue(matchLinks, prefix);
+    if (value) return value;
+  }
+
+  if (Object.keys(matchLinks).length === 1) {
+    return matchLinks[Object.keys(matchLinks)[0]];
+  }
+
+  return undefined;
+}
+
+function getMatchLinkValue(matchLinks: Record<string, string>, candidate?: unknown) {
+  if (!candidate) return undefined;
+
+  const rawKey = String(candidate);
+  const aliases = [rawKey, rawKey.toLowerCase(), rawKey.toUpperCase()];
+  const normalizedAliases = [
+    normalizeMatchLinkKey(rawKey),
+    normalizeMatchLinkKey(rawKey.toLowerCase()),
+    normalizeMatchLinkKey(rawKey.toUpperCase()),
+  ];
+
+  for (const alias of [...aliases, ...normalizedAliases]) {
+    if (!alias) continue;
+    const value = matchLinks[alias];
+    if (value) return value;
+  }
+
+  return undefined;
+}
+
+function normalizeMatchLinkKey(key: string) {
+  if (!key) return undefined;
+
+  const normalized = key.toLowerCase().replace(/\s+/g, "_");
+  const aliasMap = {
+    lith: "lithology",
+    lithology: "lithology",
+    lithologies: "lithology",
+    strat_name: "strat_name",
+    strat_names: "strat_name",
+    strat_name_concept: "concept",
+    concept: "concept",
+    concepts: "concept",
+    interval: "interval",
+    intervals: "interval",
+    lith_att: "lith_att",
+    lith_atts: "lith_att",
+  };
+
+  return aliasMap[normalized] ?? normalized;
+}
+
+function getMatchId(match: any) {
+  return (
+    match?.entity_id ??
+    match?.macrostrat_terms_id ??
+    match?.strat_name_id ??
+    match?.lith_id ??
+    match?.concept_id ??
+    match?.lith_att_id ??
+    match?.interval_id ??
+    null
+  );
 }

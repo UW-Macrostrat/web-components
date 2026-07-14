@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.2.0] - 2026-07-14
+
+- Tree node links fixed
+
 ## [2.1.4] - 2026-06-28
 
 - Supports macrostrat terms id

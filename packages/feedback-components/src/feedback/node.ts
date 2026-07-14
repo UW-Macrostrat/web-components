@@ -47,6 +47,7 @@ function Node({
   dragHandle,
   tree,
   matchComponent,
+  matchLinks,
   viewOnly,
 }: any) {
   let highlighted: boolean = isNodeHighlighted(node, tree);
@@ -66,6 +67,7 @@ function Node({
       active: viewOnly ? false : active,
       highlighted: viewOnly ? true : highlighted,
       matchComponent,
+      matchLinks,
       onClickType() {
         dispatch({ type: "toggle-entity-type-selector" });
       },
