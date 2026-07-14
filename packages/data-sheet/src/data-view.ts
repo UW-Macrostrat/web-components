@@ -71,22 +71,16 @@ export function DataView<T>(props: DataViewProps<T>) {
   }
 
   return h(
-    ErrorBoundary,
-    h(
-      ToasterContext,
-      h(
-        DataSheetProvider<T>,
-        {
-          data: resolvedData,
-          columnSpec,
-          columnSpecOptions,
-          editable,
-          dataProvider,
-          refreshToken: common.refreshToken,
-          identity: common.identity,
-        },
-        renderer,
-      ),
-    ),
+    DataSheetProvider<T>,
+    {
+      data: resolvedData,
+      columnSpec,
+      columnSpecOptions,
+      editable,
+      dataProvider,
+      refreshToken: common.refreshToken,
+      identity: common.identity,
+    },
+    renderer,
   );
 }

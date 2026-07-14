@@ -11,7 +11,7 @@ import {
 import type { ColumnSpec } from "./utils";
 import { ComponentType, MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import { TableAction, TableFilter } from "./actions";
-import { Region, TableProps } from "@blueprintjs/table";
+import { Region, RegionCardinality, TableProps } from "@blueprintjs/table";
 import type { ColumnSpecOptions } from "./utils";
 
 export type FetchMode = "scroll" | "paged";
@@ -21,8 +21,20 @@ export interface FetchDataOptions {
   fetchMode?: FetchMode;
 }
 
+export interface InteractionOptions {
+  /** Options for data interaction (editing and selection) */
+  /** @deprecated: Use enableEditing instead */
+  editable?: boolean;
+  enableEditing?: boolean;
+  enableSelection?: boolean;
+  enableMultipleSelection?: boolean;
+  // Enable drag-to-select (data table only)
+  enableDragValue?: boolean;
+  selectionModes?: RegionCardinality[];
+}
+
 /** Props shared between the wrapper components and the provider */
-export interface DataViewCoreProps<T> {
+export interface DataViewCoreProps<T> extends InteractionOptions {
   /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
    * driven through the same loader as any other source. */
   data?: T[];
@@ -33,7 +45,6 @@ export interface DataViewCoreProps<T> {
    * `columnSpecOptions`. */
   columnSpec?: ColumnSpec[] | ((rows: T[]) => ColumnSpec[]);
   columnSpecOptions?: ColumnSpecOptions<T>;
-  editable?: boolean;
   enableColumnReordering?: boolean;
   defaultColumnWidth?: number;
   // function to fetch a chunk of data (the read side of a data provider)
@@ -53,10 +64,6 @@ export interface DataViewCoreProps<T> {
   /** Bump to force a re-fetch from scratch (e.g. after an immediate edit that
    * mutated rows through the provider). */
   refreshToken?: number | string;
-  // Note: shadows table provider prop
-  enableMultipleSelection?: boolean;
-  // Enable drag-to-select (data table only)
-  enableDragValue?: boolean;
 }
 
 export interface DataViewSharedProps<T = any>

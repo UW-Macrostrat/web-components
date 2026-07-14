@@ -26,6 +26,7 @@ import {
   DEFAULT_ROW_STATUS_STYLES,
   FetchData,
   persistViaProvider,
+  resolveInteractionOptions,
   RowStatusStyles,
   storeAtom,
   TableActionContext,
@@ -90,6 +91,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
   // `DataSheetProviderInner`), so the loader and store read it. Shared with
   // `DataPanel` / `DataView` via `useResolvedProvider`.
   const { data: _data, dataProvider } = useResolvedProvider<T>(props);
+  const interactionOptions = resolveInteractionOptions(props, "table");
 
   return h(
     DataSheetProvider<T>,
@@ -99,16 +101,17 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
       columnSpecOptions,
       enableColumnReordering,
       defaultColumnWidth,
-      editable,
+      editable: interactionOptions.enableEditing,
       dataProvider,
       ...rest,
     },
     h(DataSheetRenderer<any>, {
       ...rest,
       children,
-      editable,
+      editable: interactionOptions.enableEditing,
       enableColumnReordering,
       enableFocusedCell,
+      ...interactionOptions,
     }),
   );
 }

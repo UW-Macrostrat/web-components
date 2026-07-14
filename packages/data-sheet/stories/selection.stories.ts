@@ -38,6 +38,13 @@ export const FullyDisabled = {
   },
 };
 
+export const FullyDisabledConvenienceProp = {
+  name: "Fully disabled (via convenience shorthand)",
+  args: {
+    enableSelection: false,
+  },
+};
+
 export const RowsOnly = {
   args: {
     editable: false,

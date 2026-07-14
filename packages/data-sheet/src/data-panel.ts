@@ -39,11 +39,11 @@ import {
   dataProviderAtom,
   DataSheetProvider,
   FetchData,
+  resolveInteractionOptions,
   useResolvedProvider,
   useSelector,
   useStoreAPI,
 } from "./provider";
-import { ToasterContext } from "@macrostrat/ui-components";
 import {
   ActionsToolbar,
   buildDataViewSelection,
@@ -77,10 +77,11 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
     refreshToken,
     identity,
     itemLabel,
-    editable = true,
     ...rest
   } = props;
   const { data: _data, dataProvider } = useResolvedProvider<T>(props);
+
+  const interactionOptions = resolveInteractionOptions(props, "cards");
 
   return h(
     DataSheetProvider<T>,
@@ -88,13 +89,16 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
       data: _data,
       columnSpec,
       columnSpecOptions,
-      editable,
+      editable: interactionOptions.enableEditing,
       dataProvider,
       refreshToken,
       identity,
       itemLabel,
     },
-    h(DataPanelRenderer<any>, rest),
+    h(DataPanelRenderer<any>, {
+      ...rest,
+      ...interactionOptions,
+    }),
   );
 }
 
