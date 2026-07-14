@@ -234,11 +234,31 @@ function getMatchUrl(match: any, matchLinks?: Record<string, string>) {
 function getMatchPrefix(match: any, matchLinks?: Record<string, string>) {
   if (!match || !matchLinks) return undefined;
 
-  const candidates = [match?.entity_type, match?.entityType, match?.type?.name, match?.type];
+  const typeCandidates = [match?.entity_type, match?.entityType, match?.type?.name, match?.type];
 
-  for (const candidate of candidates) {
+  for (const candidate of typeCandidates) {
     const direct = getMatchLinkValue(matchLinks, candidate);
     if (direct) return direct;
+  }
+
+  const idBasedPrefixes = [
+    match?.lith_id != null || match?.lith_att_id != null ? ["lithology", "lith", "lithologies"] : [],
+    match?.strat_name_id != null ? ["strat_name", "strat_names"] : [],
+    match?.concept_id != null ? ["concept", "concepts"] : [],
+    match?.interval_id != null ? ["interval", "intervals"] : [],
+    match?.lith_att_id != null ? ["lith_att", "lith_atts"] : [],
+  ];
+
+  for (const prefixGroup of idBasedPrefixes) {
+    for (const prefix of prefixGroup) {
+      const value = getMatchLinkValue(matchLinks, prefix);
+      if (value) return value;
+    }
+  }
+
+  for (const prefix of ["lithology", "lith", "lithologies", "strat_name", "strat_names", "concept", "concepts", "interval", "intervals", "lith_att", "lith_atts"]) {
+    const value = getMatchLinkValue(matchLinks, prefix);
+    if (value) return value;
   }
 
   if (Object.keys(matchLinks).length === 1) {
