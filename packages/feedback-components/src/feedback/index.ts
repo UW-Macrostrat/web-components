@@ -6,6 +6,7 @@ import Node from "./node";
 import { FeedbackText } from "./text-visualizer";
 import type { InternalEntity, TreeData } from "./types";
 import type { Entity } from "../extractions";
+import type { EntityType } from "../extractions/types";
 import { getTagStyle, ModelInfo } from "../extractions";
 import {
   TreeDispatchContext,
@@ -65,7 +66,7 @@ export function FeedbackComponent({
 
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
-    entities.map(processEntity) as any,
+    entities.map((entity) => processEntity(entity, entityTypes)) as any,
     entityTypes,
     viewOnly,
     matchMode,
@@ -148,6 +149,7 @@ export function FeedbackComponent({
               width,
               height,
               matchComponent,
+              matchLinks: match,
               viewOnly,
             }),
             h.if(state.viewMode == "graph")(GraphView, {
@@ -228,15 +230,32 @@ export function FeedbackComponent({
   ]);
 }
 
-function processEntity(entity: Entity): InternalEntity {
-  // @ts-ignore
+function normalizeMatch(match: any) {
+  if (match == null) return match;
+
+  const entity_id =
+    match.entity_id ??
+    match.macrostrat_terms_id ??
+    match.strat_name_id ??
+    match.lith_id ??
+    match.concept_id ??
+    match.lith_att_id ??
+    match.interval_id;
+
+  return entity_id != null ? { ...match, entity_id } : match;
+}
+
+function processEntity(entity: Entity, entityTypes: Map<number, EntityType>): InternalEntity {
+  const type = typeof entity.type === "number" ? entityTypes.get(entity.type) : entity.type;
+
   return {
     ...entity,
-    // @ts-ignore
-    term_type: entity.type.name,
+    type: type ?? { id: -1, name: "unknown", description: null, color: "#999" },
+    term_type: type?.name ?? "unknown",
     txt_range: [entity.indices],
-    children: entity.children?.map(processEntity) ?? [],
-  };
+    match: normalizeMatch(entity.match),
+    children: entity.children?.map((child) => processEntity(child, entityTypes)) ?? [],
+  } as InternalEntity;
 }
 
 function EntityTypeSelector({
@@ -315,6 +334,7 @@ function ManagedSelectionTree(props) {
     height,
     width,
     matchComponent,
+    matchLinks,
     viewOnly,
   } = props;
 
@@ -323,8 +343,8 @@ function ManagedSelectionTree(props) {
   const clickedRef = useRef(false);
 
   const _Node = useCallback(
-    (props) => h(Node, { ...props, matchComponent, viewOnly }),
-    [matchComponent, viewOnly],
+    (props) => h(Node, { ...props, matchComponent, matchLinks, viewOnly }),
+    [matchComponent, matchLinks, viewOnly],
   );
 
   // Update Tree selection when selectedNodes change

@@ -152,6 +152,7 @@ type EntityTagProps = {
   active?: boolean;
   onClickType?: (type: EntityType) => void;
   matchComponent?: MatchComponent;
+  matchLinks?: Record<string, string>;
 };
 
 export function EntityTag({
@@ -160,6 +161,7 @@ export function EntityTag({
   active = false,
   onClickType,
   matchComponent = null,
+  matchLinks,
 }: EntityTagProps) {
   const { name, type, match } = data;
 
@@ -177,9 +179,41 @@ export function EntityTag({
     _matchLink = h(matchComponent, { data: match });
   }
 
+  const matchId =
+    match != null
+      ? match.macrostrat_terms_id ??
+        match.entity_id ??
+        match.strat_name_id ??
+        match.lith_id ??
+        match.concept_id ??
+        match.lith_att_id ??
+        match.interval_id ??
+        null
+      : null;
+
+  const entityTypeLabel =
+    type?.name ?? match?.entity_type ?? match?.entityType ?? "entity";
+  const matchLabel =
+    matchId != null ? `${entityTypeLabel} #${matchId}` : entityTypeLabel;
+  const matchUrl = getMatchUrl(match, matchLinks, type?.name);
+
+  const content = matchUrl
+    ? h(
+        "a",
+        {
+          href: matchUrl,
+          target: "_blank",
+          rel: "noreferrer noopener",
+          onClick(evt) {
+            evt.stopPropagation();
+          },
+        },
+        [matchLabel ?? type?.name],
+      )
+    : _matchLink ?? matchLabel ?? type?.name;
+
   return h(Tag, { style, className }, [
     h("span.entity-name", name),
-    " ",
     h(
       "code.entity-type.bp6-code",
       {
@@ -190,9 +224,109 @@ export function EntityTag({
           }
         },
       },
-      [type?.name, _matchLink],
+      [content],
     ),
   ]);
+}
+
+function getMatchUrl(
+  match: any,
+  matchLinks?: Record<string, string>,
+  entityTypeName?: string,
+) {
+  if (!match || !matchLinks) return undefined;
+
+  const prefix = getMatchPrefix(match, matchLinks, entityTypeName);
+  const matchId = getMatchId(match);
+
+  if (!prefix || matchId == null) {
+    return undefined;
+  }
+
+  const normalized = prefix.replace(/\/$/, "");
+  return `${normalized}/${matchId}`;
+}
+
+function getMatchPrefix(
+  match: any,
+  matchLinks?: Record<string, string>,
+  entityTypeName?: string,
+) {
+  if (!match || !matchLinks) return undefined;
+
+  const candidates = [
+    match?.entity_type,
+    match?.entityType,
+    entityTypeName,
+    match?.type?.name,
+    match?.type,
+  ];
+
+  for (const candidate of candidates) {
+    const direct = getMatchLinkValue(matchLinks, candidate);
+    if (direct) return direct;
+  }
+
+  if (Object.keys(matchLinks).length === 1) {
+    return matchLinks[Object.keys(matchLinks)[0]];
+  }
+
+  return undefined;
+}
+
+function getMatchLinkValue(matchLinks: Record<string, string>, candidate?: unknown) {
+  if (!candidate) return undefined;
+
+  const rawKey = String(candidate);
+  const aliases = [rawKey, rawKey.toLowerCase(), rawKey.toUpperCase()];
+  const normalizedAliases = [
+    normalizeMatchLinkKey(rawKey),
+    normalizeMatchLinkKey(rawKey.toLowerCase()),
+    normalizeMatchLinkKey(rawKey.toUpperCase()),
+  ];
+
+  for (const alias of [...aliases, ...normalizedAliases]) {
+    if (!alias) continue;
+    const value = matchLinks[alias];
+    if (value) return value;
+  }
+
+  return undefined;
+}
+
+function normalizeMatchLinkKey(key: string) {
+  if (!key) return undefined;
+
+  const normalized = key.toLowerCase().replace(/\s+/g, "_");
+  const aliasMap = {
+    lith: "lithology",
+    lithology: "lithology",
+    lithologies: "lithology",
+    strat_name: "strat_name",
+    strat_names: "strat_name",
+    strat_name_concept: "concept",
+    concept: "concept",
+    concepts: "concept",
+    interval: "interval",
+    intervals: "interval",
+    lith_att: "lith_att",
+    lith_atts: "lith_att",
+  };
+
+  return aliasMap[normalized] ?? normalized;
+}
+
+function getMatchId(match: any) {
+  return (
+    match?.entity_id ??
+    match?.macrostrat_terms_id ??
+    match?.strat_name_id ??
+    match?.lith_id ??
+    match?.concept_id ??
+    match?.lith_att_id ??
+    match?.interval_id ??
+    null
+  );
 }
 
 function ExtractionInfo({

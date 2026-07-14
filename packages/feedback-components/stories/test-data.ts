@@ -15,9 +15,9 @@ export const matchData = {
 "type": 3,
 "match": {
 "name": "abelsonite",
-"entity_id": 1,
-"entity_table": "minerals",
-"macrostrat_terms_id": 1
+"entity_id": 999,
+"entity_type": "minerals",
+"macrostrat_terms_id": 99
 },
 "indices": [
 65,
