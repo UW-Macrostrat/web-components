@@ -8,7 +8,7 @@ import type {
 } from "../provider/types.ts";
 import update from "immutability-helper";
 import { SelectModifiers } from "../types.ts";
-import { Ref, RefObject } from "react";
+import { RefObject } from "react";
 
 export function buildDataViewSelection(
   // index of selected item
@@ -16,6 +16,7 @@ export function buildDataViewSelection(
   anchorRef: RefObject<number | null>,
   selection: Region[],
   mods: SelectModifiers,
+  enableMultipleSelection: boolean,
 ): Region[] {
   /** Build the selection for data views */
   const current = new Set(getSelectedRowIndices(selection));
@@ -23,6 +24,16 @@ export function buildDataViewSelection(
 
   const isSingleSelect = current.size === 1;
   const isCurrentlySelected = current.has(index);
+
+  if (!enableMultipleSelection) {
+    // Simpler path for single selection
+    next = new Set();
+    if (!isCurrentlySelected) {
+      next.add(index);
+    }
+    return rowIndicesToRegions(next);
+  }
+  // multiple selection
   if (isSingleSelect && isCurrentlySelected && !mods.additive && !mods.range) {
     // Clicking the only selected row with no modifiers clears the selection.
     next = new Set();
@@ -46,12 +57,12 @@ export function buildDataViewSelection(
     anchorRef.current = index;
   }
 
-  return indicesToRegions(next);
+  return rowIndicesToRegions(next);
 }
 
 /** Collapse a set of selected row indices into `FULL_ROWS` regions, merging
  * contiguous runs into a single `{ rows: [start, end] }` range. */
-export function indicesToRegions(indices: Set<number>): Region[] {
+export function rowIndicesToRegions(indices: Set<number>): Region[] {
   const sorted = Array.from(indices).sort((a, b) => a - b);
   const regions: Region[] = [];
   let start: number | null = null;

@@ -85,6 +85,7 @@ export const SelectionDisabled: StoryObj = {
         itemComponent: SampleCard,
         name: "Samples",
         editable: false,
+        enableSelection: false,
       }),
     ),
 };

@@ -1,5 +1,4 @@
 import {
-  DataSheetProviderProps,
   EditEvent,
   FetchData,
   RowHeaderRenderContext,
@@ -22,7 +21,7 @@ export interface FetchDataOptions {
   fetchMode?: FetchMode;
 }
 
-/** Props shared with the provider */
+/** Props shared between the wrapper components and the provider */
 export interface DataViewCoreProps<T> {
   /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
    * driven through the same loader as any other source. */
@@ -56,6 +55,8 @@ export interface DataViewCoreProps<T> {
   refreshToken?: number | string;
   // Note: shadows table provider prop
   enableMultipleSelection?: boolean;
+  // Enable drag-to-select (data table only)
+  enableDragValue?: boolean;
 }
 
 export interface DataViewSharedProps<T = any>

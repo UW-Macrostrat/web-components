@@ -22,7 +22,7 @@ import {
   FetchData,
   TableDataProvider,
 } from "./table-data.ts";
-import { ErrorBoundary } from "@macrostrat/ui-components";
+import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
 
 /** Create a Jotai scoped store */
 export const ctx = createScopedStore();
@@ -175,7 +175,7 @@ function _DataSheetProvider<T>(
 }
 
 export function DataSheetProvider<T>(props: DataSheetProviderProps<T>) {
-  return h(ErrorBoundary, h(_DataSheetProvider<T>, props));
+  return h(ToasterContext, h(ErrorBoundary, h(_DataSheetProvider<T>, props)));
 }
 
 export function DataSheetProviderInner<T>({

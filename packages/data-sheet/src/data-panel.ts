@@ -33,7 +33,6 @@ import {
   useRef,
   useState,
 } from "react";
-import type { Region } from "@blueprintjs/table";
 import { Button, Menu, PopoverNext, Spinner } from "@blueprintjs/core";
 import {
   ctx,
@@ -44,7 +43,7 @@ import {
   useSelector,
   useStoreAPI,
 } from "./provider";
-import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
+import { ToasterContext } from "@macrostrat/ui-components";
 import {
   ActionsToolbar,
   buildDataViewSelection,
@@ -52,9 +51,9 @@ import {
   ColumnSortMenu,
   FilterBar,
   getSelectedRowIndices,
-  indicesToRegions,
   isColumnFilterable,
   resolveColumnFilter,
+  rowIndicesToRegions,
 } from "./actions";
 import {
   autoLoadPagesAtom,
@@ -63,12 +62,7 @@ import {
 } from "./postgrest-table";
 import classNames from "classnames";
 import { LoadProgressIndicator } from "./components";
-import {
-  DataPanelProps,
-  FetchDataOptions,
-  ScrollBodyProps,
-  SelectModifiers,
-} from "./types.ts";
+import { DataPanelProps, FetchDataOptions, SelectModifiers } from "./types";
 
 /**
  * Resolve the data source (shared with `DataSheet` / `DataView` via
@@ -89,24 +83,18 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
   const { data: _data, dataProvider } = useResolvedProvider<T>(props);
 
   return h(
-    ErrorBoundary,
-    h(
-      ToasterContext,
-      h(
-        DataSheetProvider<T>,
-        {
-          data: _data,
-          columnSpec,
-          columnSpecOptions,
-          editable,
-          dataProvider,
-          refreshToken,
-          identity,
-          itemLabel,
-        },
-        h(DataPanelRenderer<any>, rest),
-      ),
-    ),
+    DataSheetProvider<T>,
+    {
+      data: _data,
+      columnSpec,
+      columnSpecOptions,
+      editable,
+      dataProvider,
+      refreshToken,
+      identity,
+      itemLabel,
+    },
+    h(DataPanelRenderer<any>, rest),
   );
 }
 
@@ -129,6 +117,8 @@ export function DataPanelRenderer<T>({
   scrollBody,
   topFade = true,
   className,
+  enableSelection = true,
+  enableMultipleSelection = true,
 }: Omit<DataPanelProps<T>, "provider" | "fetchData" | "data" | "identity">) {
   const {
     provider: activeProvider,
@@ -188,7 +178,7 @@ export function DataPanelRenderer<T>({
   useEffect(() => {
     if (selection == null || !selection.some((r) => r.cols != null)) return;
     storeAPI.setState({
-      selection: indicesToRegions(new Set(getSelectedRowIndices(selection))),
+      selection: rowIndicesToRegions(new Set(getSelectedRowIndices(selection))),
       focusedCell: null,
       topLeftCell: null,
     });
@@ -201,14 +191,21 @@ export function DataPanelRenderer<T>({
   // shift = range from the anchor.
   const select = useCallback(
     (index: number, mods: SelectModifiers) => {
+      if (!enableSelection) return;
       const selection = storeAPI.getState().selection;
       storeAPI.setState({
-        selection: buildDataViewSelection(index, anchorRef, selection, mods),
+        selection: buildDataViewSelection(
+          index,
+          anchorRef,
+          selection,
+          mods,
+          enableMultipleSelection ?? true,
+        ),
         focusedCell: null,
         topLeftCell: null,
       });
     },
-    [storeAPI],
+    [storeAPI, enableSelection, enableMultipleSelection],
   );
 
   const loadedCount = useMemo(() => {
@@ -238,7 +235,7 @@ export function DataPanelRenderer<T>({
   const cards: ReactNode[] = [];
   data.forEach((row, i) => {
     if (row == null) return;
-    const selected = selectedIndices.has(i);
+    const selected = enableSelection && selectedIndices.has(i);
     cards.push(
       h(
         "div.data-panel-item",
