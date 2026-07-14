@@ -1,5 +1,5 @@
 import { RegionCardinality } from "@blueprintjs/table";
-import { InteractionOptions } from "../types.ts";
+import { InteractionOptions, SelectionInteractionStyle } from "../types.ts";
 import { atom } from "jotai";
 import { storeAtom } from "./core.ts";
 
@@ -11,6 +11,8 @@ export enum DataViewRendererType {
 export interface InteractionOptionsResolved {
   enableEditing: boolean;
   enableSelection: boolean;
+  // We have a potentially modal selection
+  enableModalSelection: boolean;
   /** Options for data interaction (editing and selection) */
   enableMultipleSelection: boolean;
   // Enable drag-to-select (data table only)
@@ -34,13 +36,35 @@ export function resolveInteractionOptions(
   let {
     enableEditing,
     selectionModes,
+    enableSelection: _enableSelection,
     enableDragValue,
-    enableSelection,
     enableMultipleSelection,
   } = opts;
 
-  enableEditing ??= opts.editable ?? opts.enableSelection ?? true;
-  enableSelection ??= true;
+  if (renderer == DataViewRendererType.CARDS) {
+    _enableSelection ??= SelectionInteractionStyle.MODAL;
+  }
+
+  let enableSelection: boolean;
+  let enableModalSelection = false;
+  if (typeof _enableSelection === "string") {
+    switch (_enableSelection) {
+      case SelectionInteractionStyle.ALWAYS:
+        enableSelection = true;
+        break;
+      case SelectionInteractionStyle.NEVER:
+        enableSelection = false;
+        break;
+      case SelectionInteractionStyle.MODAL:
+        enableSelection = false;
+        enableModalSelection = true;
+        break;
+    }
+  } else {
+    enableSelection ??= _enableSelection ?? true;
+  }
+
+  enableEditing ??= opts.editable ?? enableSelection ?? true;
   enableMultipleSelection ??= true;
   if (renderer == DataViewRendererType.TABLE) {
     if (selectionModes != null) {
@@ -57,7 +81,7 @@ export function resolveInteractionOptions(
       enableEditing ??= true;
       enableDragValue ??= true;
     } else {
-      selectionModes ??= [];
+      selectionModes ??= [RegionCardinality.FULL_TABLE];
     }
     if (!selectionModes.includes(RegionCardinality.CELLS)) {
       enableEditing = false;
@@ -66,10 +90,13 @@ export function resolveInteractionOptions(
   } else if (renderer == DataViewRendererType.CARDS) {
     if (enableSelection) {
       // Only one selection mode possible
-      selectionModes = [RegionCardinality.FULL_ROWS];
+      selectionModes = [
+        RegionCardinality.FULL_ROWS,
+        RegionCardinality.FULL_TABLE,
+      ];
       enableEditing ??= true;
     } else {
-      selectionModes = [];
+      selectionModes = [RegionCardinality.FULL_TABLE];
     }
     enableDragValue = false;
   }
@@ -82,6 +109,7 @@ export function resolveInteractionOptions(
     enableDragValue: enableDragValue ?? false,
     enableMultipleSelection,
     selectionModes: selectionModes as RegionCardinality[],
+    enableModalSelection,
     enableSelection,
   };
 }

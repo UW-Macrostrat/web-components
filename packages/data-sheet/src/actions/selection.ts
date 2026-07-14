@@ -131,7 +131,7 @@ export function getApplicableActions<T>(
   editable: boolean,
 ): TableAction<T>[] {
   return actions.filter((action) => {
-    if (action.requiresEditable !== false && !editable) return false;
+    if (action.requiresEditable && !editable) return false;
     return action.targets.includes(cardinality);
   });
 }

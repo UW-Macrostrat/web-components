@@ -53,7 +53,6 @@ import {
   buildDataViewSelection,
   ColumnFilterMenuItem,
   ColumnSortMenu,
-  FilterBar,
   getSelectedRowIndices,
   isColumnFilterable,
   resolveColumnFilter,
@@ -380,6 +379,7 @@ export function useDataPanelControls(): TableAction[] {
     };
     actions.push(sortAction);
   }
+
   return actions;
 }
 

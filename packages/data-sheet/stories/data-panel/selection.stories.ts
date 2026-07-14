@@ -87,18 +87,24 @@ export const SelectionDisabled: StoryObj = {
 
 const SelectModeContext = createContext(false);
 
-function LinkCard({ data, selected, onSelect }: ItemComponentProps<Sample>) {
-  const selectMode = useContext(SelectModeContext);
+function LinkCard({
+  data,
+  selected,
+  onSelect,
+  selectable,
+}: ItemComponentProps<Sample>) {
   return h(
     DataCard,
     {
       // In select-mode the whole card toggles (additive) — one consistent
       // interaction. The checkbox is a pure indicator (pointer-events: none),
       // so clicking *it* falls through to the card rather than fighting it.
-      onSelect: selectMode ? () => onSelect({ additive: true }) : undefined,
+      onSelect,
+      selected,
+      selectable,
     },
     [
-      selectMode
+      selectable
         ? h(Checkbox, {
             checked: selected,
             readOnly: true,
@@ -113,7 +119,7 @@ function LinkCard({ data, selected, onSelect }: ItemComponentProps<Sample>) {
           href: `#sample-${data.id}`,
           style: { fontWeight: 600, flex: 1 },
           onClick: (e: any) => {
-            if (selectMode) e.preventDefault();
+            if (selectable) e.preventDefault();
             else e.stopPropagation();
           },
         },
@@ -154,6 +160,7 @@ function ModalSelectionDemo() {
     container(
       h(DataPanel<Sample>, {
         data: ALL,
+        enableSelection: "modal",
         identity: (r: Sample) => r.id,
         columnSpec: fullSpec,
         itemComponent: LinkCard,

@@ -466,11 +466,11 @@ function remapOverlayByIdentity(
   };
 }
 
-const itemLabelAtom = atom<string>("row");
+const itemLabelAtom = atom<string | null>(null);
 
 export function useItemCount(n: number) {
   const dataKind = ctx.useValue(itemLabelAtom);
-  return itemCount(n, dataKind);
+  return itemCount(n, dataKind ?? "row");
 }
 
 function itemCount(n: number, dataKind: string) {

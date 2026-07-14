@@ -104,43 +104,6 @@ export function ActionsToolbar<T>({
     return null;
   }
 
-  // The toolbar is always mounted if actions are available, so it can't flicker
-  // in/out as the selection or action set changes — the container is stable;
-  // only its contents (title + buttons) change. Avoids layout jank.
-  //
-  // The leading title doubles as the clear-selection affordance: with an active
-  // selection it renders as a dismissible tag (its ✕ clears the selection),
-  // which ties "clear" to the selection it acts on and frees toolbar space.
-  // With no selection it's a plain label (table name).
-  // Both states render as a `large` `Tag` so the title keeps a constant font
-  // and height; only the selected one has a filled background + a ✕ (which
-  // clears the selection). The unselected label is a transparent, non-removable
-  // tag — visually a plain title, but the same box.
-  const hasSelection = selection != null && selection.length > 0;
-  let _name = tableName ?? "Table";
-  if (hasSelection) {
-    _name = selectionTitle(ctx) ?? _name;
-  }
-
-  const titleNode = h(
-    Tag,
-    {
-      key: "title",
-      minimal: true,
-      large: true,
-      onRemove: hasSelection
-        ? () =>
-            storeAPI.setState({
-              selection: [],
-              focusedCell: null,
-              topLeftCell: null,
-            })
-        : undefined,
-      style: hasSelection ? undefined : { background: "transparent" },
-    },
-    _name,
-  );
-
   // Order left→right by generality: actions that require editing
   // are "global" and sit after a spacer on the right (Save /
   // Reset); everything else is contextual and stays on the left. So the left
@@ -157,7 +120,7 @@ export function ActionsToolbar<T>({
   const globalActions = shownActions.filter(isGlobal);
 
   return h("div.actions-toolbar", [
-    titleNode,
+    h(SelectionIndicator, { tableName, context: ctx }),
     h(
       ButtonGroup,
       { key: "contextual", minimal: true },
@@ -175,6 +138,52 @@ export function ActionsToolbar<T>({
       ),
     ),
   ]);
+}
+
+function SelectionIndicator({
+  tableName,
+  context,
+}: {
+  tableName?: string;
+  context: TableActionContext<any>;
+}) {
+  /** An indicator that shows the table's current selection shape, and optionally modal selection status */
+  // The leading title doubles as the clear-selection affordance: with an active
+  // selection it renders as a dismissible tag (its ✕ clears the selection),
+  // which ties "clear" to the selection it acts on and frees toolbar space.
+  // With no selection it's a plain label (table name).
+  // Both states render as a `large` `Tag` so the title keeps a constant font
+  // and height; only the selected one has a filled background + a ✕ (which
+  // clears the selection). The unselected label is a transparent, non-removable
+  // tag — visually a plain title, but the same box.
+
+  const selection = useSelector((state) => state.selection);
+  const storeAPI = useStoreAPI();
+
+  const hasSelection = selection != null && selection.length > 0;
+  let _name = tableName ?? "Table";
+  if (hasSelection) {
+    _name = selectionTitle(context) ?? _name;
+  }
+
+  return h(
+    Tag,
+    {
+      key: "title",
+      minimal: true,
+      large: true,
+      onRemove: hasSelection
+        ? () =>
+            storeAPI.setState({
+              selection: [],
+              focusedCell: null,
+              topLeftCell: null,
+            })
+        : undefined,
+      style: hasSelection ? undefined : { background: "transparent" },
+    },
+    _name,
+  );
 }
 
 function getMessageForError(e: any) {

@@ -21,12 +21,18 @@ export interface FetchDataOptions {
   fetchMode?: FetchMode;
 }
 
+export enum SelectionInteractionStyle {
+  ALWAYS = "always",
+  NEVER = "never",
+  MODAL = "modal",
+}
+
 export interface InteractionOptions {
   /** Options for data interaction (editing and selection) */
   /** @deprecated: Use enableEditing instead */
   editable?: boolean;
   enableEditing?: boolean;
-  enableSelection?: boolean;
+  enableSelection?: boolean | SelectionInteractionStyle;
   enableMultipleSelection?: boolean;
   // Enable drag-to-select (data table only)
   enableDragValue?: boolean;
