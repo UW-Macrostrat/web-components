@@ -7,6 +7,7 @@ import type {
 import { ColumnSpec, ColumnSpecOptions } from "../utils";
 import { OverlayToaster } from "@blueprintjs/core";
 import { SelectionCardinality, SelectionShape } from "../actions";
+import { DataViewCoreProps } from "../types";
 
 /** A single column sort entry for client-side sorting.
  * Defined here (rather than in actions/types) to avoid circular imports. */
@@ -31,19 +32,6 @@ export type EditEvent<T = any> =
   | { type: "restoreRows"; rowIndices: number[] }
   | { type: "addRow"; rowIndex: number; value: Partial<T> }
   | { type: "resetChanges" };
-
-export interface DataSheetCoreProps<T> {
-  data: T[];
-  /** Column definitions. Either a static array, or a function derived from the
-   * loaded rows — invoked once the first rows arrive (and re-invoked when the
-   * function's identity changes), so a data-shaped spec needs no separate fetch
-   * of sample data. Omit entirely to auto-generate a plain spec via
-   * `columnSpecOptions`. */
-  columnSpec?: ColumnSpec[] | ((rows: T[]) => ColumnSpec[]);
-  editable?: boolean;
-  enableColumnReordering?: boolean;
-  defaultColumnWidth?: number;
-}
 
 export enum TableElementStatus {
   DELETED = "deleted",
@@ -208,7 +196,7 @@ export interface DataSheetState<T> {
   };
 }
 
-type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
+type DataSheetVals<T> = DataSheetState<T> & DataViewCoreProps<T>;
 export type StateUpdater<T> = T[] | ((state: T[]) => T[]);
 
 export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
@@ -259,22 +247,9 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   editable: boolean;
 }
 
-export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
+export type DataSheetProviderProps<T> = DataViewCoreProps<T> & {
   children: React.ReactNode;
-  columnSpecOptions?: ColumnSpecOptions<T>;
   toaster?: OverlayToaster;
-  /** Bump to force the active data provider to re-fetch from scratch (e.g.
-   * after a save/delete that invalidated the loaded rows). Hoisted here from
-   * `_DataSheet`/`_DataPanel` so both renderers share one refresh + row-editing
-   * wiring, driven off the provider-level `dataProvider`. */
-  refreshToken?: number | string;
-  /** Row identity for the edit overlay — stable across a provider re-sort. A
-   * data provider supplies its own (takes precedence); this is the fallback
-   * for a loose `data`/`fetchData` source with no explicit identity. Synced
-   * into the store here, shared by `_DataSheet` and `_DataPanel`. */
-  identity?: (row: any) => string | number | null | undefined;
-  // itemLabel (e.g., "row", "item")
-  itemLabel?: string;
 };
 
 export interface VisibleCells {

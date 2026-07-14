@@ -13,6 +13,7 @@ import type { ColumnSpec } from "./utils";
 import { ComponentType, MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import { TableAction, TableFilter } from "./actions";
 import { Region, TableProps } from "@blueprintjs/table";
+import type { ColumnSpecOptions } from "./utils";
 
 export type FetchMode = "scroll" | "paged";
 
@@ -21,16 +22,21 @@ export interface FetchDataOptions {
   fetchMode?: FetchMode;
 }
 
-export interface DataViewSharedProps<T = any> extends FetchDataOptions {
-  /** Shown as the toolbar's leading label when nothing is selected. */
-  name?: string;
+/** Props shared with the provider */
+export interface DataViewCoreProps<T> {
   /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
    * driven through the same loader as any other source. */
   data?: T[];
-  /** Passed through from the public props so a function form can be derived
-   * from the loaded rows here (a static array is handled by the provider). */
+  /** Column definitions. Either a static array, or a function derived from the
+   * loaded rows — invoked once the first rows arrive (and re-invoked when the
+   * function's identity changes), so a data-shaped spec needs no separate fetch
+   * of sample data. Omit entirely to auto-generate a plain spec via
+   * `columnSpecOptions`. */
   columnSpec?: ColumnSpec[] | ((rows: T[]) => ColumnSpec[]);
-  columnSpecOptions?: Record<string, Partial<ColumnSpec>>;
+  columnSpecOptions?: ColumnSpecOptions<T>;
+  editable?: boolean;
+  enableColumnReordering?: boolean;
+  defaultColumnWidth?: number;
   // function to fetch a chunk of data (the read side of a data provider)
   fetchData?: FetchData<T>;
   /** A data provider instantiated separately and passed in — bundles the read
@@ -43,6 +49,19 @@ export interface DataViewSharedProps<T = any> extends FetchDataOptions {
    * data provider supplies its own; defaults to `(row) => row?.id`). Lets edits
    * survive a re-ordered re-fetch. */
   identity?: (row: T) => string | number | null | undefined;
+  // itemLabel (e.g., "row", "item")
+  itemLabel?: string;
+  /** Bump to force a re-fetch from scratch (e.g. after an immediate edit that
+   * mutated rows through the provider). */
+  refreshToken?: number | string;
+  // Note: shadows table provider prop
+  enableMultipleSelection?: boolean;
+}
+
+export interface DataViewSharedProps<T = any>
+  extends FetchDataOptions, DataViewCoreProps<T> {
+  /** Shown as the toolbar's leading label when nothing is selected. */
+  name?: string;
   /** Configurable table actions shown in a selection-aware toolbar.
    * When provided, the actions toolbar renders alongside the existing
    * edit toolbar. Actions are filtered by the current selection cardinality. */
@@ -50,15 +69,7 @@ export interface DataViewSharedProps<T = any> extends FetchDataOptions {
   /** Available column/table filters shown in a filter bar.
    * Filters can also be defined per-column via `ColumnSpec.filters`. */
   filters?: TableFilter<T>[];
-  /** Bump to force a re-fetch from scratch (e.g. after an immediate edit that
-   * mutated rows through the provider). */
-  refreshToken?: number | string;
-  itemLabel?: string;
-  // Whether the items are editable. Note: this may be better expressed through the TableDataProvider
-  editable?: boolean;
   enableSelection?: boolean;
-  // Note: shadows table provider prop
-  enableMultipleSelection?: boolean;
 }
 
 export interface DataPanelProps<T = any> extends DataViewSharedProps<T> {
@@ -217,5 +228,5 @@ export interface DataSheetRendererProps<T = any>
   rowHeaderRenderer?: (ctx: RowHeaderRenderContext<T>) => ReactNode;
 }
 
-export type DataSheetProps<T> = DataSheetProviderProps<T> &
+export type DataSheetProps<T> = DataViewCoreProps<T> &
   DataSheetRendererProps<T>;

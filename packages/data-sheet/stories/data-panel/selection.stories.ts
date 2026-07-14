@@ -63,6 +63,19 @@ export const SelectableCards: StoryObj = {
     ),
 };
 
+export const SingleSelectionOnly: StoryObj = {
+  render: () =>
+    container(
+      h(DataPanel<Sample>, {
+        data: ALL,
+        columnSpec: minimalSpec,
+        itemComponent: SampleCard,
+        name: "Samples",
+        enableMultipleSelection: false,
+      }),
+    ),
+};
+
 export const SelectionDisabled: StoryObj = {
   render: () =>
     container(

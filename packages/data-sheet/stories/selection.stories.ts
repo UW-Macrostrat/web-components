@@ -45,6 +45,12 @@ export const RowsOnly = {
   },
 };
 
+export const SingleSelectionOnly = {
+  args: {
+    enableMultipleSelection: false,
+  },
+};
+
 enum EditMode {
   Reshape = "reshape",
   Edit = "edit",

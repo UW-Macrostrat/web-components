@@ -7,6 +7,68 @@ import type {
   TableActionContext,
 } from "../provider/types.ts";
 import update from "immutability-helper";
+import { SelectModifiers } from "../types.ts";
+import { Ref, RefObject } from "react";
+
+export function buildDataViewSelection(
+  // index of selected item
+  index: number,
+  anchorRef: RefObject<number | null>,
+  selection: Region[],
+  mods: SelectModifiers,
+): Region[] {
+  /** Build the selection for data views */
+  const current = new Set(getSelectedRowIndices(selection));
+  let next: Set<number>;
+
+  const isSingleSelect = current.size === 1;
+  const isCurrentlySelected = current.has(index);
+  if (isSingleSelect && isCurrentlySelected && !mods.additive && !mods.range) {
+    // Clicking the only selected row with no modifiers clears the selection.
+    next = new Set();
+  } else if (mods.range && anchorRef.current != null) {
+    // We have a range select and an anchor: select the range between the anchor and the clicked row.
+    const a = anchorRef.current;
+    const [lo, hi] = a <= index ? [a, index] : [index, a];
+    // Shift extends the existing selection when combined with cmd/ctrl,
+    // otherwise replaces it with the range. The anchor stays put so the
+    // range can be re-dragged from the same origin.
+    next = mods.additive ? new Set(current) : new Set();
+    for (let i = lo; i <= hi; i++) next.add(i);
+  } else if (mods.additive) {
+    // We are adding or removing to the selection with the ctrl key
+    next = new Set(current);
+    if (next.has(index)) next.delete(index);
+    else next.add(index);
+    anchorRef.current = index;
+  } else {
+    next = new Set([index]);
+    anchorRef.current = index;
+  }
+
+  return indicesToRegions(next);
+}
+
+/** Collapse a set of selected row indices into `FULL_ROWS` regions, merging
+ * contiguous runs into a single `{ rows: [start, end] }` range. */
+export function indicesToRegions(indices: Set<number>): Region[] {
+  const sorted = Array.from(indices).sort((a, b) => a - b);
+  const regions: Region[] = [];
+  let start: number | null = null;
+  let prev: number | null = null;
+  for (const i of sorted) {
+    if (start == null) {
+      start = prev = i;
+    } else if (i === prev! + 1) {
+      prev = i;
+    } else {
+      regions.push({ rows: [start, prev!] });
+      start = prev = i;
+    }
+  }
+  if (start != null) regions.push({ rows: [start, prev!] });
+  return regions;
+}
 
 /** Derive the selection cardinality from the current set of selected regions.
  * Returns "null" when there is no active selection. */
