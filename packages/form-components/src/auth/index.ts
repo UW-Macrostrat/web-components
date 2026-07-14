@@ -5,10 +5,7 @@ import { useAuth } from "./context";
 import styles from "./main.module.sass";
 const h = hyperStyled(styles);
 
-/* Display user's name in the login button field.
-  It'll render the user from `/security/me` and fall back to 'Logged in' when no
-  name is available. */
-function userDisplayName(user: unknown): string {
+function defaultUserDisplayName(user: unknown): string {
   if (typeof user === "string") return user;
   if (user != null && typeof user === "object") {
     const u = user as Record<string, unknown>;
@@ -20,7 +17,12 @@ function userDisplayName(user: unknown): string {
 
 function AuthStatus(props) {
   const { runAction, user } = useAuth();
-  let { className, large = true, showText = true } = props;
+  let {
+    className,
+    large = true,
+    showText = true,
+    userDisplayName = defaultUserDisplayName,
+  } = props;
 
   let text = "Not logged in";
   let icon: IconName = "blocked-person";
@@ -45,7 +47,7 @@ function AuthStatus(props) {
   ]);
 }
 
-export { AuthStatus };
+export { AuthStatus, defaultUserDisplayName };
 export * from "./login-form";
 export * from "./util";
 export * from "./context";

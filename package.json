@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "repository": "https://github.com/UW-Macrostrat/web-components.git",
-  "version": "4.2.1",
+  "version": "4.2.0",
   "scripts": {
     "dev": "NODE_NO_WARNINGS=1 storybook dev -p 6006 --no-open",
     "build:storybook": "storybook build --debug",
