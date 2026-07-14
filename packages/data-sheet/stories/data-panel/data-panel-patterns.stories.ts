@@ -645,14 +645,12 @@ function ExpandableFilters() {
     h(
       "div",
       {
-        key: "bar",
         style: { display: "flex", alignItems: "center", gap: "8px" },
       },
       [
         h(
           Button,
           {
-            key: "toggle",
             icon: "filter",
             rightIcon: open ? "chevron-up" : "chevron-down",
             active: open,
@@ -661,7 +659,7 @@ function ExpandableFilters() {
           "Filters & Sort",
         ),
         // Active filters stay visible as chips even when the panel is collapsed.
-        h(FilterBar, { key: "chips" }),
+        h(FilterBar),
       ],
     ),
     panel,

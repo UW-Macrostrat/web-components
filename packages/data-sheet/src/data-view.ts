@@ -14,7 +14,12 @@
 import h from "@macrostrat/hyper";
 import { ReactNode } from "react";
 import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
-import { DataSheetProvider, useResolvedProvider } from "./provider";
+import {
+  DataSheetProvider,
+  DataViewRendererType,
+  resolveInteractionOptions,
+  useResolvedProvider,
+} from "./provider";
 import { DataSheetRenderer } from "./data-sheet.ts";
 import { DataPanelRenderer } from "./data-panel.ts";
 import { DataPanelProps } from "./types.ts";
@@ -51,6 +56,11 @@ export function DataView<T>(props: DataViewProps<T>) {
 
   const { data: resolvedData, dataProvider } = useResolvedProvider<T>(props);
 
+  const interactionOptions = resolveInteractionOptions(
+    props,
+    view as DataViewRendererType,
+  );
+
   let renderer: ReactNode;
   if (view === "cards") {
     renderer = h(DataPanelRenderer<any>, {
@@ -78,6 +88,7 @@ export function DataView<T>(props: DataViewProps<T>) {
       columnSpecOptions,
       editable,
       dataProvider,
+      interactionOptions,
       refreshToken: common.refreshToken,
       identity: common.identity,
     },
