@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.10
+## [1.0.10] - 2026-07-14 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/form-components-v1.0.9...@macrostrat/form-components-v1.0.10)
 
 ### Patch Changes
 
