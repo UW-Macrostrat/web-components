@@ -66,6 +66,7 @@ import classNames from "classnames";
 import { LoadProgressIndicator } from "./components";
 import { DataPanelProps, FetchDataOptions, SelectModifiers } from "./types";
 import { atom } from "jotai";
+import { Region } from "@blueprintjs/table";
 
 /**
  * Resolve the data source (shared with `DataSheet` / `DataView` via
@@ -107,19 +108,57 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
   );
 }
 
+// The anchor for shift-range selection: the last row clicked without shift.
+// Reset when the selection is cleared elsewhere (e.g. the toolbar's ✕).
+const anchorRefAtom = atom<{ current: number | null }>({ current: null });
+
 const selectionAtom = atom(
   (get) => {
     if (!get(interactionOptionsAtom).enableSelection) return [];
-    return get(storeAtom)?.selection ?? [];
+    const selection = get(storeAtom)?.selection ?? [];
+    if (selection.some((r) => r.cols != null)) {
+      // A card list has no cells or columns. When the selection carries columns —
+      // inherited from a shared store the sheet also drives (a `DataView` toggle) —
+      // coerce it to the full rows it covers, so the toolbar shows row-scoped
+      // actions rather than column/cell ones for a column that isn't visible here.
+      // Column-only selections (no rows) collapse to nothing.
+      return rowIndicesToRegions(new Set(getSelectedRowIndices(selection)));
+    } else {
+      return selection;
+    }
   },
-  (get, set, args) => {
+  (get, set, regions: Region[]) => {
     if (!get(interactionOptionsAtom).enableSelection) return;
+    if (regions.length === 0) {
+      get(anchorRefAtom).current = null;
+    }
     set(storeAtom, (s) => ({
       ...s,
-      selection: args,
+      selection: regions,
       focusedCell: null,
       topLeftCell: null,
     }));
+  },
+);
+
+const updateSelectionAtom = atom(
+  null,
+  (get, set, index: number, mods: SelectModifiers) => {
+    /** Update selection from a row index and modifiers. */
+    const { enableMultipleSelection, enableSelection } = get(
+      interactionOptionsAtom,
+    );
+    if (!enableSelection) return;
+    const selection = get(selectionAtom);
+    const anchorRef = get(anchorRefAtom);
+    const res = buildDataViewSelection(
+      index,
+      mods,
+      selection,
+      anchorRef,
+      enableMultipleSelection,
+    );
+    set(selectionAtom, res);
   },
 );
 
@@ -148,7 +187,6 @@ export function DataPanelRenderer<T>({
   topFade = true,
   className,
   enableSelection = true,
-  enableMultipleSelection = true,
 }: Omit<DataPanelProps<T>, "provider" | "fetchData" | "data" | "identity">) {
   const {
     provider: activeProvider,
@@ -169,8 +207,6 @@ export function DataPanelRenderer<T>({
   const loaderPageSize = isLocalProvider ? Math.max(localCount, 1) : pageSize;
 
   const data = useSelector((s) => s.data);
-  const selection = ctx.useValue(selectionAtom);
-  const storeAPI = useStoreAPI();
 
   // Load state + pause/resume live in the store, read via `useLoadControls`
   // (also available to the caller's `footer` via the same hook). The panel's
@@ -188,51 +224,7 @@ export function DataPanelRenderer<T>({
   }, []);
 
   const selectedIndices = ctx.useValue(selectedRowIndicesAtom);
-
-  // The anchor for shift-range selection: the last row clicked without shift.
-  // Reset when the selection is cleared elsewhere (e.g. the toolbar's ✕).
-  const anchorRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (selection == null || selection.length === 0) anchorRef.current = null;
-  }, [selection]);
-
-  // A card list has no cells or columns. When the selection carries columns —
-  // inherited from a shared store the sheet also drives (a `DataView` toggle) —
-  // coerce it to the full rows it covers, so the toolbar shows row-scoped
-  // actions rather than column/cell ones for a column that isn't visible here.
-  // Column-only selections (no rows) collapse to nothing. Self-limiting: the
-  // panel's own selections never carry columns, so this only fires on inherit.
-  const setSelection = ctx.useSet(selectionAtom);
-  useEffect(() => {
-    if (selection == null || !selection.some((r) => r.cols != null)) return;
-    setSelection(
-      rowIndicesToRegions(new Set(getSelectedRowIndices(selection))),
-    );
-  }, [selection, setSelection]);
-
-  // Selection is expressed as `FULL_ROWS` regions (contiguous runs merged into
-  // ranges) so the existing row-targeted action machinery (toolbar title,
-  // `getSelectedRowIndices`, delete/tag actions) applies unchanged. Modifier
-  // keys follow the familiar list idiom: plain = replace, cmd/ctrl = toggle one,
-  // shift = range from the anchor.
-  const select = useCallback(
-    (index: number, mods: SelectModifiers) => {
-      if (!enableSelection) return;
-      const selection = storeAPI.getState().selection;
-      storeAPI.setState({
-        selection: buildDataViewSelection(
-          index,
-          anchorRef,
-          selection,
-          mods,
-          enableMultipleSelection ?? true,
-        ),
-        focusedCell: null,
-        topLeftCell: null,
-      });
-    },
-    [storeAPI, enableSelection, enableMultipleSelection],
-  );
+  const select = ctx.useSet(updateSelectionAtom);
 
   const loadedCount = useMemo(() => {
     let n = 0;

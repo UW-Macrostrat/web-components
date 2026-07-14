@@ -13,9 +13,9 @@ import { RefObject } from "react";
 export function buildDataViewSelection(
   // index of selected item
   index: number,
-  anchorRef: RefObject<number | null>,
-  selection: Region[],
   mods: SelectModifiers,
+  selection: Region[],
+  anchorRef: RefObject<number | null>,
   enableMultipleSelection: boolean,
 ): Region[] {
   /** Build the selection for data views */
