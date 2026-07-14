@@ -39,7 +39,9 @@ import {
   dataProviderAtom,
   DataSheetProvider,
   FetchData,
+  interactionOptionsAtom,
   resolveInteractionOptions,
+  storeAtom,
   useResolvedProvider,
   useSelector,
   useStoreAPI,
@@ -63,6 +65,7 @@ import {
 import classNames from "classnames";
 import { LoadProgressIndicator } from "./components";
 import { DataPanelProps, FetchDataOptions, SelectModifiers } from "./types";
+import { atom } from "jotai";
 
 /**
  * Resolve the data source (shared with `DataSheet` / `DataView` via
@@ -103,6 +106,27 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
     ],
   );
 }
+
+const selectionAtom = atom(
+  (get) => {
+    if (!get(interactionOptionsAtom).enableSelection) return [];
+    return get(storeAtom)?.selection ?? [];
+  },
+  (get, set, args) => {
+    if (!get(interactionOptionsAtom).enableSelection) return;
+    set(storeAtom, (s) => ({
+      ...s,
+      selection: args,
+      focusedCell: null,
+      topLeftCell: null,
+    }));
+  },
+);
+
+const selectedRowIndicesAtom = atom((get) => {
+  const sel = get(selectionAtom);
+  return new Set(getSelectedRowIndices(sel));
+});
 
 /** The card-list renderer. Assumes it is rendered inside a `DataSheetProvider`
  * (the `DataPanel` wrapper, or `DataView`). Exported so a shared-store
@@ -145,7 +169,7 @@ export function DataPanelRenderer<T>({
   const loaderPageSize = isLocalProvider ? Math.max(localCount, 1) : pageSize;
 
   const data = useSelector((s) => s.data);
-  const selection = useSelector((s) => s.selection);
+  const selection = ctx.useValue(selectionAtom);
   const storeAPI = useStoreAPI();
 
   // Load state + pause/resume live in the store, read via `useLoadControls`
@@ -163,10 +187,7 @@ export function DataPanelRenderer<T>({
     setScrolled(e.currentTarget.scrollTop > 4);
   }, []);
 
-  const selectedIndices = useMemo(
-    () => new Set(getSelectedRowIndices(selection)),
-    [selection],
-  );
+  const selectedIndices = ctx.useValue(selectedRowIndicesAtom);
 
   // The anchor for shift-range selection: the last row clicked without shift.
   // Reset when the selection is cleared elsewhere (e.g. the toolbar's ✕).
@@ -181,14 +202,13 @@ export function DataPanelRenderer<T>({
   // actions rather than column/cell ones for a column that isn't visible here.
   // Column-only selections (no rows) collapse to nothing. Self-limiting: the
   // panel's own selections never carry columns, so this only fires on inherit.
+  const setSelection = ctx.useSet(selectionAtom);
   useEffect(() => {
     if (selection == null || !selection.some((r) => r.cols != null)) return;
-    storeAPI.setState({
-      selection: rowIndicesToRegions(new Set(getSelectedRowIndices(selection))),
-      focusedCell: null,
-      topLeftCell: null,
-    });
-  }, [selection, storeAPI]);
+    setSelection(
+      rowIndicesToRegions(new Set(getSelectedRowIndices(selection))),
+    );
+  }, [selection, setSelection]);
 
   // Selection is expressed as `FULL_ROWS` regions (contiguous runs merged into
   // ranges) so the existing row-targeted action machinery (toolbar title,
