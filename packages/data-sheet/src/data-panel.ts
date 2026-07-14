@@ -24,6 +24,7 @@
  */
 import h from "./data-panel.module.sass";
 import {
+  CSSProperties,
   MouseEvent as ReactMouseEvent,
   ReactNode,
   UIEvent as ReactUIEvent,
@@ -66,7 +67,12 @@ import {
 } from "./postgrest-table";
 import classNames from "classnames";
 import { LoadProgressIndicator } from "./components";
-import { DataPanelProps, FetchDataOptions, SelectModifiers } from "./types";
+import {
+  DataPanelProps,
+  FetchDataOptions,
+  ItemComponentProps,
+  SelectModifiers,
+} from "./types";
 import { atom } from "jotai";
 import { Region } from "@blueprintjs/table";
 
@@ -203,6 +209,7 @@ export function DataPanelRenderer<T>({
           data: row,
           index: i,
           selected,
+          selectable: enableSelection,
           onSelect: (arg?: SelectModifiers | ReactMouseEvent) =>
             select(i, modifiersOf(arg)),
         }),
@@ -513,3 +520,50 @@ const selectedRowIndicesAtom = atom((get) => {
   const sel = get(selectionAtom);
   return new Set(getSelectedRowIndices(sel));
 });
+
+type ItemSelectionKeys = "onSelect" | "selected" | "selectable";
+
+type DataCardProps = {
+  children: ReactNode;
+  className: string;
+  style?: CSSProperties;
+} & Pick<ItemComponentProps, ItemSelectionKeys>;
+
+export function DataCard<T = any>(props: DataCardProps) {
+  /** A basic card that implements the data panel's selection behavior. */
+  return h(
+    "div.data-card.data-panel-item",
+    {
+      className: classNames(props.className, {
+        selected: props.selected,
+        selectable: props.selectable,
+      }),
+      onClick: props.onSelect,
+      style: props.style,
+    },
+    props.children,
+  );
+}
+
+type DataCardInnerComponent<T> = (
+  props: ItemComponentProps<T>,
+) => React.ReactNode;
+
+export function createDataCard<T>(
+  component: DataCardInnerComponent<T>,
+  extraProps = {},
+) {
+  return (props: ItemComponentProps<T>) => {
+    const { selected, selectable, onSelect } = props;
+    return h(
+      DataCard,
+      {
+        selected,
+        selectable,
+        onSelect,
+        ...extraProps,
+      },
+      h(component, props),
+    );
+  };
+}

@@ -13,7 +13,6 @@
  */
 import h from "@macrostrat/hyper";
 import { ReactNode } from "react";
-import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
 import {
   DataSheetProvider,
   DataViewRendererType,

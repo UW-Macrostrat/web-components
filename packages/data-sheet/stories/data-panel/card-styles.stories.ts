@@ -1,7 +1,13 @@
 // Selection is "modal": a toolbar toggle enters select-mode. Outside it, a card
 // is a link (its title navigates); inside it, cards show a checkbox and a click
 // selects. So item interactivity and selection never fight over the click.
-import { DataPanel, ItemComponentProps, ScrollBodyProps } from "../../src";
+import {
+  createDataCard,
+  DataCard,
+  DataPanel,
+  ItemComponentProps,
+  ScrollBodyProps,
+} from "../../src";
 import {
   Children,
   cloneElement,
@@ -43,44 +49,40 @@ function blurbFor(id: number): string {
   return Array.from({ length: paragraphs }, () => LIPSUM).join("\n\n");
 }
 
-function MasonryCard({ data, selected, onSelect }: ItemComponentProps<Sample>) {
-  return h(
-    "div",
-    {
-      onClick: onSelect,
-      style: {
-        ...cardStyle(selected),
-        flexDirection: "column",
-        alignItems: "flex-start",
-        gap: "4px",
-        // Column children need their own vertical gap (multicol has no `gap`
-        // between stacked items).
-        marginBottom: "8px",
-      },
-    },
-    [
-      h("span", { key: "n", style: { fontWeight: 600 } }, data.name),
-      h(
-        Tag,
-        { key: "c", minimal: true, intent: CATEGORY_INTENT[data.category] },
-        data.category,
-      ),
-      h(
-        "p",
-        {
-          key: "b",
-          style: {
-            margin: 0,
-            fontSize: 12,
-            opacity: 0.75,
-            whiteSpace: "pre-line",
-          },
+function MasonryCardContent({ data }) {
+  return h([
+    h("span", { key: "n", style: { fontWeight: 600 } }, data.name),
+    h(
+      Tag,
+      { key: "c", minimal: true, intent: CATEGORY_INTENT[data.category] },
+      data.category,
+    ),
+    h(
+      "p",
+      {
+        key: "b",
+        style: {
+          margin: 0,
+          fontSize: 12,
+          opacity: 0.75,
+          whiteSpace: "pre-line",
         },
-        blurbFor(data.id),
-      ),
-    ],
-  );
+      },
+      blurbFor(data.id),
+    ),
+  ]);
 }
+
+const MasonryCard = createDataCard(MasonryCardContent, {
+  style: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: "4px",
+    // Column children need their own vertical gap (multicol has no `gap`
+    // between stacked items).
+    marginBottom: "8px",
+  },
+});
 
 const MASONRY_COLUMNS = 3;
 
@@ -188,13 +190,19 @@ export const Masonry: StoryObj = {
       }),
     ),
 };
-function GridCard({ data, selected, onSelect }: ItemComponentProps<Sample>) {
+function GridCard({
+  data,
+  selected,
+  onSelect,
+  selectable,
+}: ItemComponentProps<Sample>) {
   return h(
-    "div",
+    DataCard,
     {
-      onClick: onSelect,
+      onSelect,
+      selected,
+      selectable,
       style: {
-        ...cardStyle(selected),
         flexDirection: "column",
         alignItems: "flex-start",
         gap: "4px",

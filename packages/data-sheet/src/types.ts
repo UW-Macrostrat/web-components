@@ -147,6 +147,8 @@ export interface ItemComponentProps<T = any> {
   index: number;
   /** Whether this row is in the current selection. */
   selected: boolean;
+  /** Whether the row can be selected */
+  selectable: boolean;
   /** Select this row. Pass the click's `MouseEvent` (or `React.MouseEvent`) to
    * honor shift / cmd / ctrl automatically — the usual wiring is
    * `onClick: onSelect`. Or pass an explicit `SelectModifiers` object; no

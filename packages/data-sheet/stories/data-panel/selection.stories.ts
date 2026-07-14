@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { ColumnSpec, DataPanel, ItemComponentProps } from "../../src";
+import { ColumnSpec, DataCard, DataPanel, ItemComponentProps } from "../../src";
 import {
   ALL,
   cardStyle,
@@ -90,13 +90,12 @@ const SelectModeContext = createContext(false);
 function LinkCard({ data, selected, onSelect }: ItemComponentProps<Sample>) {
   const selectMode = useContext(SelectModeContext);
   return h(
-    "div",
+    DataCard,
     {
-      style: cardStyle(selected),
       // In select-mode the whole card toggles (additive) — one consistent
       // interaction. The checkbox is a pure indicator (pointer-events: none),
       // so clicking *it* falls through to the card rather than fighting it.
-      onClick: selectMode ? () => onSelect({ additive: true }) : undefined,
+      onSelect: selectMode ? () => onSelect({ additive: true }) : undefined,
     },
     [
       selectMode

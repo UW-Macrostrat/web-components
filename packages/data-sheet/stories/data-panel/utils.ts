@@ -1,9 +1,12 @@
 import {
   ColumnSpec,
+  createDataCard,
   createLocalProvider,
+  DataCard,
   FetchDataParams,
   FetchDataResult,
   ItemComponentProps,
+  SelectableCard,
   TableAction,
   TableDataProvider,
 } from "../../src";
@@ -185,12 +188,8 @@ export const cardStyle = (selected: boolean): CSSProperties => ({
   background: selected ? "rgba(45,114,210,0.12)" : "rgba(128,128,128,0.04)",
 });
 
-export function SampleCard({
-  data,
-  selected,
-  onSelect,
-}: ItemComponentProps<Sample>) {
-  return h("div", { onClick: onSelect, style: cardStyle(selected) }, [
+function SampleCardContent({ data }: ItemComponentProps<Sample>) {
+  return h([
     h("span", { key: "n", style: { fontWeight: 600, flex: 1 } }, data.name),
     h(
       Tag,
@@ -201,6 +200,9 @@ export function SampleCard({
     h("code", { key: "v" }, data.value),
   ]);
 }
+
+export const SampleCard = createDataCard(SampleCardContent);
+
 const TAG_INTENT: Record<string, any> = {
   priority: "danger",
   review: "warning",
@@ -208,19 +210,13 @@ const TAG_INTENT: Record<string, any> = {
   verified: "success",
 };
 
-export function TaggedCard({
-  data,
-  selected,
-  onSelect,
-}: ItemComponentProps<Sample>) {
-  return h(
-    "div",
-    { onClick: (e: any) => onSelect(e), style: cardStyle(selected) },
-    [
-      h("span", { key: "n", style: { fontWeight: 600, flex: 1 } }, data.name),
-      ...(data.tags ?? []).map((t) =>
-        h(Tag, { key: t, minimal: true, intent: TAG_INTENT[t] }, t),
-      ),
-    ],
-  );
+function TaggedCardContent({ data }: ItemComponentProps<Sample>) {
+  return h([
+    h("span", { key: "n", style: { fontWeight: 600, flex: 1 } }, data.name),
+    ...(data.tags ?? []).map((t) =>
+      h(Tag, { key: t, minimal: true, intent: TAG_INTENT[t] }, t),
+    ),
+  ]);
 }
+
+export const TaggedCard = createDataCard(TaggedCardContent);
