@@ -10,12 +10,12 @@ import h from "@macrostrat/hyper";
 import { ColumnHeaderCell, RegionCardinality } from "@blueprintjs/table";
 import { Icon, Menu, MenuItem } from "@blueprintjs/core";
 import { ctx, tableActionsAtom, useStoreAPI } from "../provider";
-import { buildActionContext } from "../actions/selection";
 import type { ColumnSpec } from "../utils/column-spec";
 import type {
   PostgrestColumnFilter,
   ColumnSortEntry,
 } from "../postgrest-table";
+import { buildActionContext } from "../actions/context.ts";
 
 export interface ColumnActionsConfig {
   activeSort?: ColumnSortEntry | null;
@@ -172,7 +172,11 @@ function ColumnHeaderControls({ colIndex }: { colIndex: number }) {
     .map((a, i) => {
       if (a.renderMenuItem != null) return a.renderMenuItem(actionCtx);
       if (a.render != null)
-        return h("li.column-header-control", { key: a.id ?? i }, a.render(actionCtx));
+        return h(
+          "li.column-header-control",
+          { key: a.id ?? i },
+          a.render(actionCtx),
+        );
       return h(MenuItem, {
         key: a.id ?? i,
         icon: a.icon,

@@ -13,7 +13,6 @@ import {
   useStoreAPI,
 } from "../provider";
 import {
-  buildActionContext,
   getApplicableActions,
   getSelectionCardinality,
   mergeColumnActions,
@@ -25,6 +24,7 @@ import { DataSheetStore } from "../provider/types.ts";
 import { ColumnSpec, passThroughGet } from "../utils";
 import { atom } from "jotai";
 import classNames from "classnames";
+import { buildActionContext } from "./context.ts";
 
 /** A short title describing the current selection (its shape), shown as the
  * toolbar's leading label — no icon. */
@@ -37,6 +37,38 @@ function selectionTitle<T>(
     case RegionCardinality.FULL_COLUMNS: {
       if (ctx.columnKey != null) {
         const col = ctx.columnSpec.find((c) => c.key === ctx.columnKey);
+        return col?.name ?? "Column";
+      }
+      return `${sh.columns} columns`;
+    }
+    case RegionCardinality.FULL_ROWS:
+      return ctx.rowIndex != null ? `1 ${itemName}` : `${sh.rows} ${itemName}s`;
+    case RegionCardinality.CELLS:
+      if (ctx.cell != null) {
+        return "1 cell";
+      }
+      if (sh.columns == 1 || sh.rows == 1) {
+        const nCells = Math.max(sh.columns, sh.rows);
+        return `${nCells} cells`;
+      }
+      return `${sh.columns}×${sh.rows} cells`;
+    case RegionCardinality.FULL_TABLE:
+      return null;
+    default:
+      return null;
+  }
+}
+
+function selectionTitleInner<T>(
+  ctx: TableActionContext<T>,
+  columnSpec: ColumnSpec[],
+  itemName = "row",
+): string | null {
+  const sh = ctx.selectionShape;
+  switch (sh.cardinality) {
+    case RegionCardinality.FULL_COLUMNS: {
+      if (ctx.columnKey != null) {
+        const col = columnSpec.find((c) => c.key === ctx.columnKey);
         return col?.name ?? "Column";
       }
       return `${sh.columns} columns`;
