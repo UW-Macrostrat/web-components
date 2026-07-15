@@ -1,4 +1,9 @@
-import type { CellEdit, DataSheetStore, TableActionContext } from "../provider";
+import {
+  CellEdit,
+  DataSheetStore,
+  TableActionContext,
+  tableDataAtom,
+} from "../provider";
 import { RegionCardinality } from "@blueprintjs/table";
 import update from "immutability-helper";
 import {
@@ -25,6 +30,11 @@ export function useActionContext<T>(): TableActionContext {
   return buildActionContext(store.get, store.set);
 }
 
+/** Construct a `TableActionContext` from the current store state.
+ * Call this at action-run time (not render time) to ensure
+ * the context reflects the latest state.
+ * @param setState - Optional store setState for direct mutation. Omit for
+ *   read-only contexts (e.g., disabled checks). */
 export function buildActionContext<T>(
   get: Getter,
   set: Setter,
@@ -37,30 +47,21 @@ export function buildActionContext<T>(
     );
   }
 
+  const data = get(tableDataAtom) as T[];
+
   let state = storeAPI.getState();
   if (options?.singleColumn != null) {
     const colIndex = options.singleColumn;
     state.selection = [{ cols: [colIndex, colIndex], rows: undefined }];
   }
+  const setState = storeAPI.setState;
 
-  return buildActionContextLegacyAPI<T>(state, storeAPI.setState);
-}
-
-/** Construct a `TableActionContext` from the current store state.
- * Call this at action-run time (not render time) to ensure
- * the context reflects the latest state.
- * @param setState - Optional store setState for direct mutation. Omit for
- *   read-only contexts (e.g., disabled checks). */
-export function buildActionContextLegacyAPI<T>(
-  state: DataSheetStore<T>,
-  setState: (partial: Record<string, any>) => void = () => {},
-): TableActionContext<T> {
   // Lazy-compute filteredRowIndices to avoid cost during disabled checks
   let _filteredRowIndices: number[] | null | undefined = undefined;
   function getFilteredRowIndices(): number[] | null {
     if (_filteredRowIndices === undefined) {
       _filteredRowIndices = computeFilteredRowIndices(
-        state.data,
+        data,
         state.updatedData,
         state.activeFilters,
       );
@@ -68,7 +69,7 @@ export function buildActionContextLegacyAPI<T>(
     return _filteredRowIndices;
   }
 
-  const { selection, data, updatedData, rowStatus, rowEditing = {} } = state;
+  const { selection, updatedData, rowStatus, rowEditing = {} } = state;
 
   const shape = computeSelectionShape(selection);
 
@@ -119,7 +120,7 @@ export function buildActionContextLegacyAPI<T>(
       getSelectedRowIndices(state.selection, getFilteredRowIndices()),
     getSelectedRows: () =>
       getSelectedRowIndices(state.selection, getFilteredRowIndices())
-        .map((i) => state.data[i])
+        .map((i) => data[i])
         .filter((r) => r != null),
     getSelectedColumnKeys: () =>
       getSelectedColumnKeys(state.selection, state.columnSpec),
@@ -147,7 +148,7 @@ export function buildActionContextLegacyAPI<T>(
           rowIndex: e.rowIndex,
           column: (e as any).columnKey ?? e.column,
           value: e.value,
-          row: state.data[e.rowIndex],
+          row: data[e.rowIndex],
         })),
       });
     },
