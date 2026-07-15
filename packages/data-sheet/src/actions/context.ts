@@ -7,13 +7,35 @@ import {
   getSelectedColumnKeys,
   getSelectedRowIndices,
 } from "./selection.ts";
+import { Getter, Setter } from "jotai";
+import type { Store as JotaiStore } from "jotai/vanilla/store";
+import { storeAPIAtom, ctx } from "../provider/core";
+
+interface ActionContextOptions {
+  /** Override the action context to scope to a single column.
+   This is needed for actions that are invoked for a column header
+   drop-down, for instance */
+  singleColumn: number;
+}
+
+type StoreInterface = Omit<JotaiStore, "sub">;
+
+export function useActionContext<T>(): TableActionContext {
+  const store = ctx.useStore() as StoreInterface;
+  return buildActionContext(store.get, store.set);
+}
+
+export function buildActionContext<T>(get: Getter, set: Setter) {
+  const storeAPI = get(storeAPIAtom);
+  return buildActionContextLegacyAPI<T>(storeAPI.getState(), storeAPI.setState);
+}
 
 /** Construct a `TableActionContext` from the current store state.
  * Call this at action-run time (not render time) to ensure
  * the context reflects the latest state.
  * @param setState - Optional store setState for direct mutation. Omit for
  *   read-only contexts (e.g., disabled checks). */
-export function buildActionContext<T>(
+export function buildActionContextLegacyAPI<T>(
   state: DataSheetStore<T>,
   setState: (partial: Record<string, any>) => void = () => {},
 ): TableActionContext<T> {

@@ -5,7 +5,6 @@ import {
   ctx,
   interactionOptionsAtom,
   itemLabelAtom,
-  storeAtom,
   selectionAtom,
   TableActionContext,
   tableNameAtom,
@@ -24,7 +23,7 @@ import { DataSheetStore } from "../provider/types.ts";
 import { ColumnSpec, passThroughGet } from "../utils";
 import { atom } from "jotai";
 import classNames from "classnames";
-import { buildActionContext } from "./context.ts";
+import { buildActionContextLegacyAPI, useActionContext } from "./context.ts";
 
 /** A short title describing the current selection (its shape), shown as the
  * toolbar's leading label — no icon. */
@@ -99,7 +98,6 @@ function selectionTitleInner<T>(
  * current selection polarity. */
 export function ActionsToolbar<T>({
   actions,
-  tableName,
   children,
   className,
 }: {
@@ -111,7 +109,6 @@ export function ActionsToolbar<T>({
   const selection = useSelector((state) => state.selection);
   const editable = useSelector((state) => state.editable);
   const columnSpec = useSelector((state) => state.columnSpec);
-  const storeAPI = useStoreAPI();
 
   const cardinality = useMemo(
     () => getSelectionCardinality(selection) ?? RegionCardinality.FULL_TABLE,
@@ -131,10 +128,7 @@ export function ActionsToolbar<T>({
 
   // Context for `render`-style controls (they subscribe to the store
   // themselves; this resolves the selected column/rows).
-  const ctx = buildActionContext(
-    storeAPI.getState(),
-    storeAPI.setState,
-  ) as TableActionContext<T>;
+  const ctx = useActionContext<T>();
 
   // The toolbar is for actions that AREN'T keyboard-accessible: any action
   // with a `hotkey` (copy/cut/paste, etc.) is reachable from the keyboard and
@@ -294,7 +288,10 @@ export function runActionWrapper<T>(
   toaster: any,
   configState: any = undefined,
 ) {
-  const ctx = buildActionContext(state, setState) as TableActionContext<T>;
+  const ctx = buildActionContextLegacyAPI(
+    state,
+    setState,
+  ) as TableActionContext<T>;
   if (action.disabled instanceof Function) {
     if (action.disabled(ctx)) {
       return;

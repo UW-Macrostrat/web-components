@@ -9,13 +9,13 @@
 import h from "@macrostrat/hyper";
 import { ColumnHeaderCell, RegionCardinality } from "@blueprintjs/table";
 import { Icon, Menu, MenuItem } from "@blueprintjs/core";
-import { ctx, tableActionsAtom, useStoreAPI } from "../provider";
+import { ctx, storeAPIAtom, tableActionsAtom, useStoreAPI } from "../provider";
 import type { ColumnSpec } from "../utils/column-spec";
 import type {
   PostgrestColumnFilter,
   ColumnSortEntry,
 } from "../postgrest-table";
-import { buildActionContext } from "../actions/context.ts";
+import { buildActionContextLegacyAPI } from "../actions/context.ts";
 
 export interface ColumnActionsConfig {
   activeSort?: ColumnSortEntry | null;
@@ -138,11 +138,13 @@ function ColumnHeaderName({ col, hasSortActive, hasFilterActive, activeSort }) {
  * single-column selection context — so the header and toolbar render the same
  * sort/filter (and custom column) controls. */
 function ColumnHeaderControls({ colIndex }: { colIndex: number }) {
-  const storeAPI = useStoreAPI();
+  //const storeAPI = useStoreAPI();
   const actions = ctx.useValue(tableActionsAtom);
+  const store = ctx.useStore();
+  const storeAPI = store.get(storeAPIAtom);
 
   // Scope the action context to this column (as if it were the selection).
-  const actionCtx = buildActionContext(
+  const actionCtx = buildActionContextLegacyAPI(
     {
       ...storeAPI.getState(),
       selection: [{ cols: [colIndex, colIndex], rows: undefined }],

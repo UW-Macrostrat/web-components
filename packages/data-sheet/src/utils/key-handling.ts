@@ -7,7 +7,7 @@ import {
   singleFocusedCell,
 } from "../provider";
 import { atom } from "jotai";
-import { buildActionContext, runActionWrapper } from "../actions";
+import { runActionWrapper } from "../actions";
 import { HotkeyConfig } from "@blueprintjs/core";
 import { toasterAtom } from "../notifications.ts";
 
