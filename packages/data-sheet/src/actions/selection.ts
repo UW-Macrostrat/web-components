@@ -113,13 +113,22 @@ export interface SelectionShape {
 /** Compute the concrete shape of a selection (cardinality + column/row spans). */
 export function computeSelectionShape(regions: Region[]): SelectionShape {
   const cardinality = getSelectionCardinality(regions) ?? "none";
-  const region = regions?.[0];
-  const cols = region?.cols;
-  const rows = region?.rows;
+  let columns = 0;
+  let rows = 0;
+  for (const region of regions) {
+    const c = region.cols;
+    if (c != null) {
+      columns += c[1] - c[0] + 1;
+    }
+    const r = region.rows;
+    if (r != null) {
+      rows += r[1] - r[0] + 1;
+    }
+  }
   return {
     cardinality,
-    columns: cols != null ? cols[1] - cols[0] + 1 : 0,
-    rows: rows != null ? rows[1] - rows[0] + 1 : 0,
+    columns,
+    rows,
   };
 }
 

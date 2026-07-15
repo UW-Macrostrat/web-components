@@ -6,7 +6,9 @@ import {
   interactionOptionsAtom,
   itemLabelAtom,
   storeAtom,
+  selectionAtom,
   TableActionContext,
+  tableNameAtom,
   useSelector,
   useStoreAPI,
 } from "../provider";
@@ -20,7 +22,7 @@ import type { TableAction } from "./types";
 import { RegionCardinality } from "@blueprintjs/table";
 import { useToaster } from "../notifications.ts";
 import { DataSheetStore } from "../provider/types.ts";
-import { ColumnSpec } from "../utils";
+import { ColumnSpec, passThroughGet } from "../utils";
 import { atom } from "jotai";
 import classNames from "classnames";
 
@@ -67,10 +69,12 @@ export function ActionsToolbar<T>({
   actions,
   tableName,
   children,
+  className,
 }: {
   actions: TableAction<T>[];
   tableName?: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   const selection = useSelector((state) => state.selection);
   const editable = useSelector((state) => state.editable);
@@ -132,8 +136,8 @@ export function ActionsToolbar<T>({
 
   const globalActions = shownActions.filter(isGlobal);
 
-  return h("div.actions-toolbar", [
-    h(SelectionIndicator, { tableName, context: ctx }),
+  return h("div.actions-toolbar", { className }, [
+    h(SelectionIndicator, { context: ctx }),
     h(
       ButtonGroup,
       { key: "contextual", minimal: true },
@@ -159,7 +163,7 @@ const toggleModalSelectionAtom = atom(null, (get, set) => {
     const enableSelection = !interactionState.enableSelection;
 
     if (!enableSelection) {
-      set(clearSelectionAtom);
+      set(clearableSelectionAtom);
     }
 
     set(interactionOptionsAtom, {
@@ -169,22 +173,14 @@ const toggleModalSelectionAtom = atom(null, (get, set) => {
   }
 });
 
-const clearSelectionAtom = atom(null, (get, set) => {
-  set(storeAtom, (s) => ({
-    ...s,
-    selection: [],
-    focusedCell: null,
-    topLeftCell: null,
-  }));
-});
+const clearableSelectionAtom = atom(
+  (get) => get(selectionAtom),
+  (get, set) => {
+    set(selectionAtom, []);
+  },
+);
 
-function SelectionIndicator({
-  tableName,
-  context,
-}: {
-  tableName?: string;
-  context: TableActionContext<any>;
-}) {
+function SelectionIndicator({ context }: { context: TableActionContext<any> }) {
   /** An indicator that shows the table's current selection shape, and optionally modal selection status */
   // The leading title doubles as the clear-selection affordance: with an active
   // selection it renders as a dismissible tag (its ✕ clears the selection),
@@ -195,18 +191,17 @@ function SelectionIndicator({
   // clears the selection). The unselected label is a transparent, non-removable
   // tag — visually a plain title, but the same box.
 
-  const selection = useSelector((state) => state.selection);
-
+  const [selection, clearSelection] = ctx.use(clearableSelectionAtom);
   const interactionState = ctx.useValue(interactionOptionsAtom);
+  const tableName = ctx.useValue(tableNameAtom);
   const itemLabel = ctx.useValue(itemLabelAtom);
 
   const toggleModalSelection = ctx.useSet(toggleModalSelectionAtom);
-  const clearSelection = ctx.useSet(clearSelectionAtom);
 
   const hasSelection = selection != null && selection.length > 0;
-  let _name = tableName ?? "Table";
+  let _name = tableName;
   if (hasSelection) {
-    _name = selectionTitle(context, itemLabel) ?? _name;
+    _name = selectionTitle(context, itemLabel) ?? tableName;
   }
 
   let onClick = null;

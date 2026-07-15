@@ -65,6 +65,8 @@ export interface DataViewCoreProps<T> extends InteractionOptions {
    * data provider supplies its own; defaults to `(row) => row?.id`). Lets edits
    * survive a re-ordered re-fetch. */
   identity?: (row: T) => string | number | null | undefined;
+  /** Shown as the toolbar's leading label when nothing is selected. */
+  name?: string;
   // itemLabel (e.g., "row", "item")
   itemLabel?: string;
   /** Bump to force a re-fetch from scratch (e.g. after an immediate edit that
@@ -74,8 +76,6 @@ export interface DataViewCoreProps<T> extends InteractionOptions {
 
 export interface DataViewSharedProps<T = any>
   extends FetchDataOptions, DataViewCoreProps<T> {
-  /** Shown as the toolbar's leading label when nothing is selected. */
-  name?: string;
   /** Configurable table actions shown in a selection-aware toolbar.
    * When provided, the actions toolbar renders alongside the existing
    * edit toolbar. Actions are filtered by the current selection cardinality. */
@@ -84,6 +84,12 @@ export interface DataViewSharedProps<T = any>
    * Filters can also be defined per-column via `ColumnSpec.filters`. */
   filters?: TableFilter<T>[];
   enableSelection?: boolean;
+}
+
+export enum DataPanelToolbarStyle {
+  BORDERED = "border",
+  FADE = "fade",
+  OVERLAY = "overlay",
 }
 
 export interface DataPanelProps<T = any> extends DataViewSharedProps<T> {

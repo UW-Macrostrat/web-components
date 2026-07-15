@@ -201,7 +201,6 @@ export const WithFooter: StoryObj = {
                 flexDirection: "row",
                 gap: "8px",
                 padding: "8px 10px",
-                background: "rgba(45,114,210,0.06)",
                 marginRight: "auto",
               },
             },
@@ -251,7 +250,6 @@ function FacetSection({
   const filter = useMemo(
     () =>
       columnFilter({
-        key: field,
         name: title,
         dataType: "string",
       } as ColumnSpec),
@@ -266,12 +264,11 @@ function FacetSection({
     else st.setFilter(filter.id, filter, { operator: "eq", value: v });
   };
   return h("div", { style: { marginBottom: "16px" } }, [
-    h("h6", { key: "t", style: { margin: "0 0 6px" } }, title),
+    h("h4", { style: { margin: "0 0 6px" } }, title),
     ...options.map((o) =>
       h(
         "div",
         {
-          key: o,
           onClick: () => set(o),
           style: {
             display: "flex",
@@ -298,15 +295,13 @@ function FacetSection({
 
 function FilterSidebar() {
   return h("div", [
-    h("h5", { key: "h", style: { marginTop: 0 } }, "Filters"),
+    h("h3", { style: { marginTop: 0 } }, "Filters"),
     h(FacetSection, {
-      key: "cat",
       title: "Category",
       field: "category",
       options: CATEGORIES,
     }),
     h(FacetSection, {
-      key: "st",
       title: "Status",
       field: "status",
       options: STATUSES,
@@ -346,7 +341,7 @@ function EditTagsDemo() {
       itemComponent: TaggedCard,
       actions: [addTagAction, removeTagAction],
       pageSize: 25,
-      name: "Samples",
+      itemLabel: "sample",
     }),
   );
 }
@@ -502,6 +497,7 @@ function InlineFooter() {
       Button,
       {
         large: true,
+        minimal: true,
         intent: "primary",
         icon: "chevron-down",
         onClick: c.loadMore,

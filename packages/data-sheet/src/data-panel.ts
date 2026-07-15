@@ -34,16 +34,17 @@ import {
   useRef,
   useState,
 } from "react";
-import { Button, Menu, PopoverNext, Spinner } from "@blueprintjs/core";
+import { Button, Icon, Menu, PopoverNext, Spinner } from "@blueprintjs/core";
 import {
+  anchorRefAtom,
   ctx,
-  DataViewRendererType,
   dataProviderAtom,
   DataSheetProvider,
+  DataViewRendererType,
   FetchData,
   interactionOptionsAtom,
   resolveInteractionOptions,
-  storeAtom,
+  selectionAtom,
   useResolvedProvider,
   useSelector,
 } from "./provider";
@@ -73,7 +74,7 @@ import {
   SelectModifiers,
 } from "./types";
 import { atom } from "jotai";
-import { Region } from "@blueprintjs/table";
+import { passThroughSet } from "./utils";
 
 /**
  * Resolve the data source (shared with `DataSheet` / `DataView` via
@@ -88,6 +89,7 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
     refreshToken,
     identity,
     itemLabel,
+    name,
     ...rest
   } = props;
   const { data: _data, dataProvider } = useResolvedProvider<T>(props);
@@ -108,6 +110,7 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
       refreshToken,
       identity,
       itemLabel,
+      name,
     },
     h(DataPanelRenderer<any>, rest),
   );
@@ -119,7 +122,6 @@ export function DataPanel<T>(props: DataPanelProps<T>) {
 export function DataPanelRenderer<T>({
   itemComponent,
   actions = [],
-  filters = [],
   pageSize = 50,
   name,
   // Bottom bar
@@ -255,19 +257,26 @@ export function DataPanelRenderer<T>({
   // The top fade is gated on being scrolled (via `.is-scrolled`), so the first
   // item isn't clipped at rest.
 
-  let _contentFooter: ReactNode = null;
-  if (showInlineFooter) {
-    _contentFooter = h(
-      "div.content-footer-holder",
-      { ref: sentinelRef },
-      contentFooter,
-    );
-  } else if (showSentinel) {
-    _contentFooter = h("div.sentinel", { ref: sentinelRef }, [
+  const showStatusBar = statusBar !== false;
+
+  let defaultFooter: ReactNode = null;
+  if (shouldLoadNextPage) {
+    defaultFooter = h("div.sentinel", { ref: sentinelRef }, [
       h(Spinner, { size: 16 }),
-      "Loading…",
+      "Loading...",
+    ]);
+  } else if (!showStatusBar) {
+    defaultFooter = h("div.sentinel", [
+      h(Icon, { size: 16, icon: "tick" }),
+      "Loaded",
     ]);
   }
+
+  const _contentFooter = h(
+    "div.content-footer-holder",
+    { ref: sentinelRef },
+    contentFooter ?? defaultFooter,
+  );
 
   // Body + optional filter/detail sidebar share a horizontal row so each
   // scrolls independently.
@@ -276,7 +285,7 @@ export function DataPanelRenderer<T>({
   // when an inline footer carries the counter itself.
   let footer: ReactNode = null;
   let _statusBarContent = statusBar ?? h(DataPanelStatusBar);
-  if (_statusBarContent !== false) {
+  if (showStatusBar) {
     footer = h("div.data-panel-footer", [_statusBarContent]);
   }
 
@@ -287,6 +296,7 @@ export function DataPanelRenderer<T>({
       {
         actions: _actions,
         tableName: name,
+        className: "data-panel-toolbar",
       },
       toolbar,
     ),
@@ -462,38 +472,20 @@ function useBottomSentinel<E extends HTMLElement>(
   return setRef;
 }
 
-// The anchor for shift-range selection: the last row clicked without shift.
-// Reset when the selection is cleared elsewhere (e.g. the toolbar's ✕).
-const anchorRefAtom = atom<{ current: number | null }>({ current: null });
-
-const selectionAtom = atom(
-  (get) => {
-    if (!get(interactionOptionsAtom).enableSelection) return [];
-    const selection = get(storeAtom)?.selection ?? [];
-    if (selection.some((r) => r.cols != null)) {
-      // A card list has no cells or columns. When the selection carries columns —
-      // inherited from a shared store the sheet also drives (a `DataView` toggle) —
-      // coerce it to the full rows it covers, so the toolbar shows row-scoped
-      // actions rather than column/cell ones for a column that isn't visible here.
-      // Column-only selections (no rows) collapse to nothing.
-      return rowIndicesToRegions(new Set(getSelectedRowIndices(selection)));
-    } else {
-      return selection;
-    }
-  },
-  (get, set, regions: Region[]) => {
-    if (!get(interactionOptionsAtom).enableSelection) return;
-    if (regions.length === 0) {
-      get(anchorRefAtom).current = null;
-    }
-    set(storeAtom, (s) => ({
-      ...s,
-      selection: regions,
-      focusedCell: null,
-      topLeftCell: null,
-    }));
-  },
-);
+const rowSelectionAtom = atom((get) => {
+  /** Coerce selection to full rows, for use with data panel instead of data sheet. */
+  const selection = get(selectionAtom);
+  if (selection.some((r) => r.cols != null)) {
+    // A card list has no cells or columns. When the selection carries columns —
+    // inherited from a shared store the sheet also drives (a `DataView` toggle) —
+    // coerce it to the full rows it covers, so the toolbar shows row-scoped
+    // actions rather than column/cell ones for a column that isn't visible here.
+    // Column-only selections (no rows) collapse to nothing.
+    return rowIndicesToRegions(new Set(getSelectedRowIndices(selection)));
+  } else {
+    return selection;
+  }
+}, passThroughSet(selectionAtom));
 
 const updateSelectionAtom = atom(
   null,
@@ -503,7 +495,7 @@ const updateSelectionAtom = atom(
       interactionOptionsAtom,
     );
     if (!enableSelection) return;
-    const selection = get(selectionAtom);
+    const selection = get(rowSelectionAtom);
     const anchorRef = get(anchorRefAtom);
     const res = buildDataViewSelection(
       index,

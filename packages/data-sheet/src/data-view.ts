@@ -47,6 +47,7 @@ export function DataView<T>(props: DataViewProps<T>) {
     contentFooter,
     autoLoadPages,
     scrollBody,
+    name,
     topFade,
     // The rest (provider/fetchData/identity/actions/filters/pageSize/
     // name/statusBar/refreshToken) is common to both renderers.
@@ -90,6 +91,7 @@ export function DataView<T>(props: DataViewProps<T>) {
       interactionOptions,
       refreshToken: common.refreshToken,
       identity: common.identity,
+      name,
     },
     renderer,
   );

@@ -3,9 +3,8 @@
   flex-direction: row
   gap: 8px
   align-items: center
-  min-height: 32px
-  padding: 4px 8px
-  background-color: var(--panel-secondary-background-color)
+  padding: 0.2em var(--data-panel-content-padding)
+  min-height: var(--panel-header-height, 40px)
 
 // Leading label naming the current selection shape (no icon) — reads as the
 // toolbar's title.
@@ -63,4 +62,9 @@
     :global(.bp6-icon)
       color: var(--intent-primary)
 
-  :not(.enabled)
+  &.interactive
+    cursor: pointer
+
+  &:not(.interactive)
+    background: transparent !important
+

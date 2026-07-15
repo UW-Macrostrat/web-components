@@ -184,6 +184,7 @@ export function DataSheetProviderInner<T>({
   data,
   columnSpec,
   columnSpecOptions,
+  name,
   itemLabel,
   enableColumnReordering,
   defaultColumnWidth = 150,
@@ -204,7 +205,11 @@ export function DataSheetProviderInner<T>({
   ctx.useSync(dataProviderAtom, dataProvider ?? DEFAULT_DATA_PROVIDER);
   ctx.useSync(interactionOptionsAtom, interactionOptions);
 
-  ctx.useSync(itemLabelAtom, itemLabel ?? "row");
+  const contentLabels = useMemo(() => {
+    return { tableName: name, itemLabel };
+  }, [name, itemLabel]);
+
+  ctx.useSync(contentLabelsAtom, contentLabels);
 
   // A function `columnSpec` is derived from the loaded rows later (in
   // `_DataSheet`), not here — start it empty. Crucially it's kept OUT of the
@@ -466,7 +471,26 @@ function remapOverlayByIdentity(
   };
 }
 
-export const itemLabelAtom = atom<string | null>(null);
+interface ContentLabels {
+  tableName: string | null;
+  itemLabel: string | null;
+}
+
+const contentLabelsAtom = atom<ContentLabels>({
+  tableName: null,
+  itemLabel: null,
+});
+
+export const itemLabelAtom = atom<string>((get) => {
+  return get(contentLabelsAtom).itemLabel ?? "row";
+});
+export const tableNameAtom = atom<string | null>((get) => {
+  let { tableName, itemLabel } = get(contentLabelsAtom);
+  if (tableName == null && itemLabel != null) {
+    return capitalize(pluralize(itemLabel, 2));
+  }
+  return "Table";
+});
 
 export function useItemCount(n: number) {
   const dataKind = ctx.useValue(itemLabelAtom);
@@ -478,9 +502,13 @@ function itemCount(n: number, dataKind: string) {
   return base + " " + pluralize(dataKind, n);
 }
 
-function pluralize(singularForm: string, n: number) {
+export function pluralize(singularForm: string, n: number) {
   const pluralForm = singularForm + "s";
   if (n == 0) return `${pluralForm}`;
   if (n == 1) return singularForm;
   return pluralForm;
+}
+
+export function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }

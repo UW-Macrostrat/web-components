@@ -81,6 +81,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     enableFocusedCell = false,
     defaultColumnWidth = 150,
     children,
+    name,
     ...rest
   } = props;
 
@@ -103,6 +104,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
       defaultColumnWidth,
       interactionOptions,
       dataProvider,
+      name,
       ...rest,
     },
     h(DataSheetRenderer<any>, {
@@ -553,7 +555,7 @@ export function DataSheetRenderer<T>({
   return h("div.data-sheet-container", { className, style }, [
     // The actions/tools toolbar (selection-modal). Table-scoped controls like
     // scroll-to-row / full-text search live here as ordinary actions.
-    h(ActionsToolbar, { actions: _actions, tableName: name }),
+    h(ActionsToolbar, { actions: _actions }),
     dataLoader,
     children,
     h(
