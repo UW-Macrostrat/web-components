@@ -209,7 +209,7 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
         className: "match-item",
         label: entity_type?.replace(/^./, (c) => c.toUpperCase()),
         value: h(LithologyTag, {
-          data: { name: data.name, id: data.macrostrat_terms_id, lith_id: 1 },
+          data: { name: data.name, id: data.macrostrat_terms_id, lith_id: data.macrostrat_terms_id },
           onClick: () => {
             const matchUrl = getMatchUrl(data, matchLinks);
             if (matchUrl != null) window.open(matchUrl, "_blank");
