@@ -19,11 +19,10 @@ import {
 import type { TableAction } from "./types";
 import { RegionCardinality } from "@blueprintjs/table";
 import { useToaster } from "../notifications.ts";
-import { DataSheetStore } from "../provider/types.ts";
-import { ColumnSpec, passThroughGet } from "../utils";
-import { atom } from "jotai";
+import { ColumnSpec } from "../utils";
+import { atom, Getter, Setter } from "jotai";
 import classNames from "classnames";
-import { buildActionContextLegacyAPI, useActionContext } from "./context.ts";
+import { buildActionContext, useActionContext } from "./context.ts";
 
 /** A short title describing the current selection (its shape), shown as the
  * toolbar's leading label — no icon. */
@@ -283,15 +282,12 @@ function isActionDisabled(action: TableAction, state: any): boolean {
 
 export function runActionWrapper<T>(
   action: TableAction<T>,
-  state: DataSheetStore<any>,
-  setState: (state: Partial<DataSheetStore<any>>) => void,
+  get: Getter,
+  set: Setter,
   toaster: any,
   configState: any = undefined,
 ) {
-  const ctx = buildActionContextLegacyAPI(
-    state,
-    setState,
-  ) as TableActionContext<T>;
+  const ctx = buildActionContext(get, set) as TableActionContext<T>;
   if (action.disabled instanceof Function) {
     if (action.disabled(ctx)) {
       return;
@@ -330,7 +326,7 @@ function ActionButton<T>({
 
 /** A run/detailsForm action rendered as a button. */
 function RunActionButton<T>({ action }: { action: TableAction<T> }) {
-  const storeAPI = useStoreAPI();
+  const store = ctx.useStore();
   const toaster = useToaster();
 
   // Reactive disabled check — re-renders when relevant state changes
@@ -340,15 +336,9 @@ function RunActionButton<T>({ action }: { action: TableAction<T> }) {
 
   const runAction = useCallback(
     (configState?: any) => {
-      runActionWrapper(
-        action,
-        storeAPI.getState(),
-        storeAPI.setState,
-        toaster,
-        configState,
-      );
+      runActionWrapper(action, store.get, store.set, toaster, configState);
     },
-    [storeAPI, action, toaster],
+    [action, toaster],
   );
 
   if (action.detailsForm != null) {

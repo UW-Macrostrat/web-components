@@ -225,9 +225,15 @@ export function DataSheetRenderer<T>({
     return _actions;
   }, [actions, enableClipboard, editable, saveHandler]);
 
+  /*** TODO: generalize this, probably shouldn't need 'set' */
   ctx.useSync(tableActionsAtom, _actions);
+  const getHotkeys = ctx.useSet(tableHotkeysAtom);
 
-  const hotkeysConfig = ctx.useValue(tableHotkeysAtom);
+  // This is quite hacky!
+  const hotkeysConfig = useMemo(() => {
+    return getHotkeys();
+  }, [_actions]);
+
   const { handleKeyDown, handleKeyUp } = useHotkeys(hotkeysConfig);
 
   // For now, we only consider a single cell "focused" when we have one cell selected.

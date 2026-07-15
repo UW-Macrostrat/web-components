@@ -25,9 +25,25 @@ export function useActionContext<T>(): TableActionContext {
   return buildActionContext(store.get, store.set);
 }
 
-export function buildActionContext<T>(get: Getter, set: Setter) {
+export function buildActionContext<T>(
+  get: Getter,
+  set: Setter,
+  options?: ActionContextOptions,
+): TableActionContext<T> {
   const storeAPI = get(storeAPIAtom);
-  return buildActionContextLegacyAPI<T>(storeAPI.getState(), storeAPI.setState);
+  if (storeAPI == null) {
+    throw new Error(
+      "No DataSheetProvider found in context. Wrap your component in a <DataSheetProvider>.",
+    );
+  }
+
+  let state = storeAPI.getState();
+  if (options?.singleColumn != null) {
+    const colIndex = options.singleColumn;
+    state.selection = [{ cols: [colIndex, colIndex], rows: undefined }];
+  }
+
+  return buildActionContextLegacyAPI<T>(state, storeAPI.setState);
 }
 
 /** Construct a `TableActionContext` from the current store state.
