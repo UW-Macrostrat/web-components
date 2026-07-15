@@ -342,8 +342,8 @@ function normalizeMatchLinkKey(key: string) {
 
 function getMatchId(match: any) {
   return (
-    match?.entity_id ??
     match?.macrostrat_terms_id ??
+    match?.entity_id ??
     match?.strat_name_id ??
     match?.lith_id ??
     match?.concept_id ??

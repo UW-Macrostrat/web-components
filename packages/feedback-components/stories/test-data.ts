@@ -10,14 +10,14 @@ export const matchData = {
 ],
 "children": [
 {
-"id": 197,
+"id": 4,
 "name": "fossil",
 "type": 3,
 "match": {
 "name": "abelsonite",
-"entity_id": 999,
+"entity_id": 2,
 "entity_type": "minerals",
-"macrostrat_terms_id": 99
+"macrostrat_terms_id": 1
 },
 "indices": [
 65,
