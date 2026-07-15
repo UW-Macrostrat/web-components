@@ -48,3 +48,19 @@
 .filter-window
   opacity: 0.8
   font-variant-numeric: tabular-nums
+
+.selection-indicator
+  user-select: none
+
+.selection-indicator-tag
+  display: flex
+  align-items: center
+  gap: 4px
+  :global(.bp6-icon)
+    color: var(--bp-typography-color-muted)
+
+  &.enabled
+    :global(.bp6-icon)
+      color: var(--intent-primary)
+
+  :not(.enabled)

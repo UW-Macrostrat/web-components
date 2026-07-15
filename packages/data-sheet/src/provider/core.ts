@@ -466,7 +466,7 @@ function remapOverlayByIdentity(
   };
 }
 
-const itemLabelAtom = atom<string | null>(null);
+export const itemLabelAtom = atom<string | null>(null);
 
 export function useItemCount(n: number) {
   const dataKind = ctx.useValue(itemLabelAtom);

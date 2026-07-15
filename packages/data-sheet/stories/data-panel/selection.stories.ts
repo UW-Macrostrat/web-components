@@ -54,6 +54,7 @@ export const SelectableCards: StoryObj = {
         columnSpec: minimalSpec,
         itemComponent: SampleCard,
         name: "Samples",
+        itemLabel: "sample",
       }),
     ),
 };
@@ -136,24 +137,7 @@ function LinkCard({
 
 function ModalSelectionDemo() {
   const [selectMode, setSelectMode] = useState(false);
-  const toolbar = h(
-    "div",
-    { style: { display: "flex", gap: "8px", alignItems: "center" } },
-    [
-      h(
-        Button,
-        {
-          key: "toggle",
-          small: true,
-          active: selectMode,
-          intent: selectMode ? "primary" : "none",
-          icon: selectMode ? "tick-circle" : "selection",
-          onClick: () => setSelectMode((v) => !v),
-        },
-        selectMode ? "Selecting" : "Select",
-      ),
-    ],
-  );
+
   return h(
     SelectModeContext.Provider,
     { value: selectMode },
@@ -164,8 +148,8 @@ function ModalSelectionDemo() {
         identity: (r: Sample) => r.id,
         columnSpec: fullSpec,
         itemComponent: LinkCard,
-        toolbar,
         name: "Samples",
+        itemLabel: "sample",
       }),
     ),
   );

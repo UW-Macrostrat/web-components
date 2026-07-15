@@ -42,7 +42,7 @@ export function resolveInteractionOptions(
   } = opts;
 
   if (renderer == DataViewRendererType.CARDS) {
-    _enableSelection ??= SelectionInteractionStyle.MODAL;
+    _enableSelection ??= true;
   }
 
   let enableSelection: boolean;

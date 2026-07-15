@@ -1,7 +1,15 @@
 import { Button, ButtonGroup, PopoverNext, Tag } from "@blueprintjs/core";
 import { useCallback, useMemo, useState } from "react";
 import h from "./toolbar.module.sass";
-import { TableActionContext, useSelector, useStoreAPI } from "../provider";
+import {
+  ctx,
+  interactionOptionsAtom,
+  itemLabelAtom,
+  storeAtom,
+  TableActionContext,
+  useSelector,
+  useStoreAPI,
+} from "../provider";
 import {
   buildActionContext,
   getApplicableActions,
@@ -13,10 +21,15 @@ import { RegionCardinality } from "@blueprintjs/table";
 import { useToaster } from "../notifications.ts";
 import { DataSheetStore } from "../provider/types.ts";
 import { ColumnSpec } from "../utils";
+import { atom } from "jotai";
+import classNames from "classnames";
 
 /** A short title describing the current selection (its shape), shown as the
  * toolbar's leading label — no icon. */
-function selectionTitle<T>(ctx: TableActionContext<T>): string | null {
+function selectionTitle<T>(
+  ctx: TableActionContext<T>,
+  itemName = "row",
+): string | null {
   const sh = ctx.selectionShape;
   switch (sh.cardinality) {
     case RegionCardinality.FULL_COLUMNS: {
@@ -27,7 +40,7 @@ function selectionTitle<T>(ctx: TableActionContext<T>): string | null {
       return `${sh.columns} columns`;
     }
     case RegionCardinality.FULL_ROWS:
-      return ctx.rowIndex != null ? "1 row" : `${sh.rows} rows`;
+      return ctx.rowIndex != null ? `1 ${itemName}` : `${sh.rows} ${itemName}s`;
     case RegionCardinality.CELLS:
       if (ctx.cell != null) {
         return "1 cell";
@@ -140,6 +153,31 @@ export function ActionsToolbar<T>({
   ]);
 }
 
+const toggleModalSelectionAtom = atom(null, (get, set) => {
+  const interactionState = get(interactionOptionsAtom);
+  if (interactionState.enableModalSelection) {
+    const enableSelection = !interactionState.enableSelection;
+
+    if (!enableSelection) {
+      set(clearSelectionAtom);
+    }
+
+    set(interactionOptionsAtom, {
+      ...interactionState,
+      enableSelection,
+    });
+  }
+});
+
+const clearSelectionAtom = atom(null, (get, set) => {
+  set(storeAtom, (s) => ({
+    ...s,
+    selection: [],
+    focusedCell: null,
+    topLeftCell: null,
+  }));
+});
+
 function SelectionIndicator({
   tableName,
   context,
@@ -158,32 +196,53 @@ function SelectionIndicator({
   // tag — visually a plain title, but the same box.
 
   const selection = useSelector((state) => state.selection);
-  const storeAPI = useStoreAPI();
+
+  const interactionState = ctx.useValue(interactionOptionsAtom);
+  const itemLabel = ctx.useValue(itemLabelAtom);
+
+  const toggleModalSelection = ctx.useSet(toggleModalSelectionAtom);
+  const clearSelection = ctx.useSet(clearSelectionAtom);
 
   const hasSelection = selection != null && selection.length > 0;
   let _name = tableName ?? "Table";
   if (hasSelection) {
-    _name = selectionTitle(context) ?? _name;
+    _name = selectionTitle(context, itemLabel) ?? _name;
   }
 
-  return h(
-    Tag,
-    {
-      key: "title",
-      minimal: true,
-      large: true,
-      onRemove: hasSelection
-        ? () =>
-            storeAPI.setState({
-              selection: [],
-              focusedCell: null,
-              topLeftCell: null,
-            })
-        : undefined,
-      style: hasSelection ? undefined : { background: "transparent" },
-    },
-    _name,
-  );
+  let onClick = null;
+  let icon: string | null = null;
+  let enterSelectionButton: React.ReactNode = null;
+  if (interactionState.enableModalSelection) {
+    onClick = toggleModalSelection;
+    if (!hasSelection) {
+      icon = "more";
+    }
+  }
+
+  const showAsEnabled =
+    hasSelection ||
+    (interactionState.enableModalSelection && interactionState.enableSelection);
+
+  const className = classNames("selection-indicator-tag", {
+    enabled: showAsEnabled,
+    interactive: onClick != null || hasSelection,
+  });
+
+  return h("div.selection-indicator", [
+    h(
+      Tag,
+      {
+        minimal: true,
+        large: true,
+        onClick,
+        rightIcon: icon,
+        intent: showAsEnabled ? "primary" : undefined,
+        className,
+        onRemove: hasSelection ? clearSelection : undefined,
+      },
+      [_name, enterSelectionButton],
+    ),
+  ]);
 }
 
 function getMessageForError(e: any) {
