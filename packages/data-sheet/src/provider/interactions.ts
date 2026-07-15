@@ -1,5 +1,4 @@
 import { RegionCardinality } from "@blueprintjs/table";
-import { InteractionOptions, SelectionInteractionStyle } from "../types.ts";
 import { atom } from "jotai";
 import { storeAtom } from "./core.ts";
 
@@ -20,18 +19,57 @@ export interface InteractionOptionsResolved {
   selectionModes: RegionCardinality[];
 }
 
-export const interactionOptionsAtom = atom<InteractionOptionsResolved>({
+const defaultInteractionOptions: InteractionOptionsResolved = {
   enableEditing: false,
   enableSelection: false,
+  enableModalSelection: false,
   enableMultipleSelection: false,
   enableDragValue: false,
   selectionModes: [],
-});
+};
 
+/** Atom to store interaction options state */
+export const interactionOptionsAtom = atom<InteractionOptionsResolved>(
+  defaultInteractionOptions,
+);
+
+export enum SelectionInteractionStyle {
+  ALWAYS = "always",
+  NEVER = "never",
+  MODAL = "modal",
+}
+
+export interface InteractionOptions {
+  /** Options for data interaction (editing and selection) */
+  /** @deprecated: Use enableEditing instead */
+  editable?: boolean;
+  enableEditing?: boolean;
+  enableSelection?: boolean | SelectionInteractionStyle;
+  enableMultipleSelection?: boolean;
+  // Enable drag-to-select (data table only)
+  enableDragValue?: boolean;
+  selectionModes?: RegionCardinality[];
+  interactionOptions?: InteractionOptionsResolved;
+}
+
+export const interactionOptionsKeys: Set<keyof InteractionOptions> = new Set([
+  "editable",
+  "enableEditing",
+  "enableSelection",
+  "enableMultipleSelection",
+  "enableDragValue",
+  "selectionModes",
+  "interactionOptions",
+]);
+
+/** Resolve the granular interaction options for a particular editing domain */
 export function resolveInteractionOptions(
   opts: InteractionOptions,
   renderer: DataViewRendererType,
 ): InteractionOptionsResolved {
+  // If the user has provided interaction options, use them.
+  if (opts.interactionOptions) return opts.interactionOptions;
+
   /** Resolve a unified set of interaction options for the table and cards */
   let {
     enableEditing,

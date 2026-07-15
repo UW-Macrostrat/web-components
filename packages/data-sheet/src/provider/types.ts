@@ -8,7 +8,11 @@ import { ColumnSpec, ColumnSpecOptions } from "../utils";
 import { OverlayToaster } from "@blueprintjs/core";
 import { SelectionCardinality, SelectionShape } from "../actions";
 import { DataViewCoreProps } from "../types";
-import { InteractionOptionsResolved } from "./interactions.ts";
+import {
+  DataViewRendererType,
+  InteractionOptions,
+  InteractionOptionsResolved,
+} from "./interactions.ts";
 
 /** A single column sort entry for client-side sorting.
  * Defined here (rather than in actions/types) to avoid circular imports. */
@@ -249,9 +253,8 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
 }
 
 export type DataSheetProviderProps<T> = DataViewCoreProps<T> & {
-  children: React.ReactNode;
   toaster?: OverlayToaster;
-  interactionOptions: InteractionOptionsResolved;
+  viewType?: DataViewRendererType;
 };
 
 export interface VisibleCells {

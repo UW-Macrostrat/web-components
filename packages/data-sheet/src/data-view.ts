@@ -17,28 +17,27 @@ import {
   DataSheetProvider,
   DataViewRendererType,
   resolveInteractionOptions,
+  splitDataProviderProps,
   useResolvedProvider,
 } from "./provider";
 import { DataSheetRenderer } from "./data-sheet.ts";
-import { DataPanelRenderer } from "./data-panel.ts";
 import { DataPanelProps } from "./types.ts";
+import { DataPanelRenderer } from "./data-panel.ts";
 
 export interface DataViewProps<T = any> extends DataPanelProps<T> {
   /** Which renderer to show. `cards` needs `itemComponent`. */
-  view: "table" | "cards";
+  viewType: DataViewRendererType;
   /** Passed to the table renderer (ignored by cards). Defaults to `true`. */
   editable?: boolean;
 }
 
 export function DataView<T>(props: DataViewProps<T>) {
+  const [providerProps, rendererProps] = splitDataProviderProps(props);
+  const { viewType, editable } = providerProps;
+
   const {
-    view,
-    columnSpec,
-    columnSpecOptions,
-    editable = true,
     // `data` is only the source for the resolved provider (below); renderers
     // read live rows from the store, so it's kept out of `common`.
-    data: _data,
     // Card-only props — kept off the table renderer so they don't leak onto
     // the Blueprint table.
     itemComponent,
@@ -47,22 +46,14 @@ export function DataView<T>(props: DataViewProps<T>) {
     contentFooter,
     autoLoadPages,
     scrollBody,
-    name,
     topFade,
     // The rest (provider/fetchData/identity/actions/filters/pageSize/
     // name/statusBar/refreshToken) is common to both renderers.
     ...common
-  } = props;
-
-  const { data: resolvedData, dataProvider } = useResolvedProvider<T>(props);
-
-  const interactionOptions = resolveInteractionOptions(
-    props,
-    view as DataViewRendererType,
-  );
+  } = rendererProps;
 
   let renderer: ReactNode;
-  if (view === "cards") {
+  if (viewType === "cards") {
     renderer = h(DataPanelRenderer<any>, {
       ...common,
       itemComponent,
@@ -80,19 +71,5 @@ export function DataView<T>(props: DataViewProps<T>) {
     });
   }
 
-  return h(
-    DataSheetProvider<T>,
-    {
-      data: resolvedData,
-      columnSpec,
-      columnSpecOptions,
-      editable,
-      dataProvider,
-      interactionOptions,
-      refreshToken: common.refreshToken,
-      identity: common.identity,
-      name,
-    },
-    renderer,
-  );
+  return h(DataSheetProvider<T>, providerProps, renderer);
 }

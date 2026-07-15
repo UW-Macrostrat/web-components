@@ -1,6 +1,7 @@
 import {
   EditEvent,
   FetchData,
+  InteractionOptions,
   RowHeaderRenderContext,
   RowStatusStyles,
   TableActionContext,
@@ -8,35 +9,16 @@ import {
   TableElementStatus,
   VisibleCells,
 } from "./provider";
-import type { ColumnSpec } from "./utils";
+import type { ColumnSpec, ColumnSpecOptions } from "./utils";
 import { ComponentType, MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import { TableAction, TableFilter } from "./actions";
-import { Region, RegionCardinality, TableProps } from "@blueprintjs/table";
-import type { ColumnSpecOptions } from "./utils";
+import { Region, TableProps } from "@blueprintjs/table";
 
 export type FetchMode = "scroll" | "paged";
 
 export interface FetchDataOptions {
   pageSize?: number;
   fetchMode?: FetchMode;
-}
-
-export enum SelectionInteractionStyle {
-  ALWAYS = "always",
-  NEVER = "never",
-  MODAL = "modal",
-}
-
-export interface InteractionOptions {
-  /** Options for data interaction (editing and selection) */
-  /** @deprecated: Use enableEditing instead */
-  editable?: boolean;
-  enableEditing?: boolean;
-  enableSelection?: boolean | SelectionInteractionStyle;
-  enableMultipleSelection?: boolean;
-  // Enable drag-to-select (data table only)
-  enableDragValue?: boolean;
-  selectionModes?: RegionCardinality[];
 }
 
 /** Props shared between the wrapper components and the provider */
@@ -83,7 +65,7 @@ export interface DataViewSharedProps<T = any>
   /** Available column/table filters shown in a filter bar.
    * Filters can also be defined per-column via `ColumnSpec.filters`. */
   filters?: TableFilter<T>[];
-  enableSelection?: boolean;
+  //enableSelection?: boolean;
 }
 
 export enum DataPanelToolbarStyle {

@@ -2,7 +2,7 @@ import { SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, StoreApi, useStore } from "zustand";
 import { Table } from "@blueprintjs/table";
-import { type ColumnSpec, generateColumnSpec } from "../utils";
+import { type ColumnSpec, generateColumnSpec, splitProps } from "../utils";
 import { createScopedStore } from "@macrostrat/data-components";
 import {
   DataSheetProviderProps,
@@ -23,7 +23,15 @@ import {
   TableDataProvider,
 } from "./table-data.ts";
 import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
-import { enableDragValueAtom, interactionOptionsAtom } from "./interactions.ts";
+import {
+  DataViewRendererType,
+  InteractionOptions,
+  interactionOptionsAtom,
+  interactionOptionsKeys,
+  resolveInteractionOptions,
+} from "./interactions.ts";
+import { DataViewProps } from "../data-view.ts";
+import { DataPanelProps, DataSheetProps } from "../types.ts";
 
 /** Create a Jotai scoped store */
 export const ctx = createScopedStore();
@@ -175,25 +183,74 @@ function _DataSheetProvider<T>(
   );
 }
 
-export function DataSheetProvider<T>(props: DataSheetProviderProps<T>) {
+const dataSheetProviderKeys = new Set([
+  "data",
+  "columnSpec",
+  "columnSpecOptions",
+  "name",
+  "itemLabel",
+  "enableColumnReordering",
+  "defaultColumnWidth",
+  "refreshToken",
+  "identity",
+  "dataProvider",
+  "toaster",
+  "viewType",
+  "interactionOptions",
+]);
+
+type AnyDataSheetProps<T> =
+  | DataViewProps<T>
+  | DataPanelProps<T>
+  | DataSheetProps<T>;
+
+export function splitDataProviderProps<T>(props: AnyDataSheetProps<T>) {
+  /** Split provided props based on provider's needs */
+  return splitProps<AnyDataSheetProps<T>, DataSheetProviderProps<T>>(
+    props,
+    dataSheetProviderKeys.union(interactionOptionsKeys) as Set<
+      keyof DataSheetProviderProps<T>
+    >,
+  );
+}
+
+export function DataSheetProvider<T>(
+  props: DataSheetProviderProps<T> & { children: React.ReactNode },
+) {
   return h(ToasterContext, h(ErrorBoundary, h(_DataSheetProvider<T>, props)));
 }
 
-export function DataSheetProviderInner<T>({
-  children,
-  data,
-  columnSpec,
-  columnSpecOptions,
-  name,
-  itemLabel,
-  enableColumnReordering,
-  defaultColumnWidth = 150,
-  dataProvider,
-  refreshToken,
-  identity,
-  interactionOptions,
-}: DataSheetProviderProps<T> & { dataProvider?: ResolvedDataProvider }) {
+type DataSheetProviderInnerProps<T> = DataSheetProviderProps<T> & {
+  dataProvider?: ResolvedDataProvider;
+};
+
+export function DataSheetProviderInner<T>(
+  props: DataSheetProviderInnerProps<T>,
+) {
   const tableRef = useRef<Table>(null);
+
+  const [interactionOptionsProps, providerProps] = splitProps<
+    DataSheetProviderInnerProps<T>,
+    InteractionOptions
+  >(props, interactionOptionsKeys);
+  const interactionOptions = resolveInteractionOptions(
+    interactionOptionsProps,
+    props.viewType ?? DataViewRendererType.TABLE,
+  );
+
+  const {
+    children,
+    columnSpec,
+    columnSpecOptions,
+    name,
+    itemLabel,
+    enableColumnReordering,
+    defaultColumnWidth = 150,
+    refreshToken,
+    identity,
+  } = providerProps;
+
+  const { data, dataProvider } = useResolvedProvider<T>(providerProps);
 
   const initializeStore = ctx.useSet(initializeStoreAtom);
   const storeAPI = useStoreAPI<T>();
@@ -472,8 +529,8 @@ function remapOverlayByIdentity(
 }
 
 interface ContentLabels {
-  tableName: string | null;
-  itemLabel: string | null;
+  tableName: string | null | undefined;
+  itemLabel: string | null | undefined;
 }
 
 const contentLabelsAtom = atom<ContentLabels>({

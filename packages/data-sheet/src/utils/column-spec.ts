@@ -118,10 +118,7 @@ export interface ColumnSpec {
    * A falsy result maps to an `error`. */
   isValid?: (d: any) => boolean;
   transformValue?: (d: any) => any;
-  valueRenderer?: (
-    d: any,
-    ctx?: CellRenderContext,
-  ) => string | React.ReactNode;
+  valueRenderer?: (d: any, ctx?: CellRenderContext) => string | React.ReactNode;
   headerRenderer?: (d: any) => string | React.ReactNode;
   dataEditor?: any;
   /**
@@ -258,9 +255,9 @@ export function generateDefaultColumnSpec<T>(
   }
 
   // Build a column spec
-  const spec = [];
+  const spec: ColumnSpec[] = [];
   for (const key of keys) {
-    let width = null;
+    let width: number | undefined = undefined;
     if (calculateWidths) {
       // If we are calculating widths, use the value lengths
       width = Math.min(
@@ -296,15 +293,10 @@ export function generateDefaultColumnSpec<T>(
 
 export function generateColumnSpec<T>(
   data: T[],
-  options: ColumnSpecOptions<T>,
+  options: Partial<ColumnSpecOptions<T>> = {},
 ): ColumnSpec[] {
   /** Generate a column spec from a dataset */
-  const {
-    overrides = {},
-    nRows = 10,
-    omitColumns,
-    includeColumns,
-  } = options ?? {};
+  const { overrides = {}, nRows = 10, omitColumns, includeColumns } = options;
 
   if (data == null) return [];
 

@@ -74,7 +74,7 @@ function TableCardsDemo() {
             },
           },
           h(DataView<Sample>, {
-            view,
+            viewType: view,
             provider,
             columnSpec: toggleSpec,
             actions: [addTagAction, removeTagAction],

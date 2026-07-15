@@ -43,9 +43,8 @@ import {
   DataViewRendererType,
   FetchData,
   interactionOptionsAtom,
-  resolveInteractionOptions,
   selectionAtom,
-  useResolvedProvider,
+  splitDataProviderProps,
   useSelector,
 } from "./provider";
 import {
@@ -82,37 +81,14 @@ import { passThroughSet } from "./utils";
  * panel.
  */
 export function DataPanel<T>(props: DataPanelProps<T>) {
-  const {
-    data,
-    columnSpec,
-    columnSpecOptions,
-    refreshToken,
-    identity,
-    itemLabel,
-    name,
-    ...rest
-  } = props;
-  const { data: _data, dataProvider } = useResolvedProvider<T>(props);
-
-  const interactionOptions = resolveInteractionOptions(
-    props,
-    DataViewRendererType.CARDS,
-  );
-
+  const [providerProps, rendererProps] = splitDataProviderProps({
+    ...props,
+    viewType: DataViewRendererType.CARDS,
+  });
   return h(
     DataSheetProvider<T>,
-    {
-      data: _data,
-      columnSpec,
-      columnSpecOptions,
-      interactionOptions,
-      dataProvider,
-      refreshToken,
-      identity,
-      itemLabel,
-      name,
-    },
-    h(DataPanelRenderer<any>, rest),
+    providerProps,
+    h(DataPanelRenderer<any>, rendererProps),
   );
 }
 

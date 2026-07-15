@@ -23,11 +23,13 @@ import {
   dataProviderAtom,
   dataRefreshTokenAtom,
   DataSheetProvider,
+  DataViewRendererType,
   DEFAULT_ROW_STATUS_STYLES,
   FetchData,
   persistViaProvider,
   resolveInteractionOptions,
   RowStatusStyles,
+  splitDataProviderProps,
   storeAtom,
   TableActionContext,
   tableActionsAtom,
@@ -56,8 +58,8 @@ import {
 import {
   CellInteraction,
   DataSheetDensity,
-  DataSheetRendererProps,
   DataSheetProps,
+  DataSheetRendererProps,
   FetchDataOptions,
 } from "./types.ts";
 import { ErrorCallout } from "@macrostrat/ui-components";
@@ -85,36 +87,14 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     ...rest
   } = props;
 
-  // Resolve the data source ONCE, here in the wrapper (not per-render inside
-  // `_DataSheet`): an explicit `provider` wins; else a loose `fetchData`
-  // (+ identity) is wrapped as one; else in-memory `data` becomes a local
-  // provider. Held in the provider layer via `dataProviderAtom` (see
-  // `DataSheetProviderInner`), so the loader and store read it. Shared with
-  // `DataPanel` / `DataView` via `useResolvedProvider`.
-  const { data: _data, dataProvider } = useResolvedProvider<T>(props);
-  const interactionOptions = resolveInteractionOptions(props, "table");
-
+  const [providerProps, rendererProps] = splitDataProviderProps<T>({
+    ...props,
+    viewType: DataViewRendererType.TABLE,
+  });
   return h(
     DataSheetProvider<T>,
-    {
-      data: _data,
-      columnSpec,
-      columnSpecOptions,
-      enableColumnReordering,
-      defaultColumnWidth,
-      interactionOptions,
-      dataProvider,
-      name,
-      ...rest,
-    },
-    h(DataSheetRenderer<any>, {
-      ...rest,
-      children,
-      editable: interactionOptions.enableEditing,
-      enableColumnReordering,
-      enableFocusedCell,
-      ...interactionOptions,
-    }),
+    providerProps,
+    h(DataSheetRenderer<any>, rendererProps),
   );
 }
 
