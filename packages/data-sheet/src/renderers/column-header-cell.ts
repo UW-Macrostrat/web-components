@@ -16,6 +16,7 @@ import type {
   ColumnSortEntry,
 } from "../postgrest-table";
 import { buildActionContext } from "../actions/context.ts";
+import { useMemo } from "react";
 
 export interface ColumnActionsConfig {
   activeSort?: ColumnSortEntry | null;
@@ -138,15 +139,15 @@ function ColumnHeaderName({ col, hasSortActive, hasFilterActive, activeSort }) {
  * single-column selection context — so the header and toolbar render the same
  * sort/filter (and custom column) controls. */
 function ColumnHeaderControls({ colIndex }: { colIndex: number }) {
-  //const storeAPI = useStoreAPI();
   const actions = ctx.useValue(tableActionsAtom);
   const store = ctx.useStore();
-  const storeAPI = store.get(storeAPIAtom);
 
   // Scope the action context to this column (as if it were the selection).
-  const actionCtx = buildActionContext(store.get, store.set, {
-    singleColumn: colIndex,
-  });
+  const actionCtx = useMemo(() => {
+    return buildActionContext(store.get, store.set, {
+      singleColumn: colIndex,
+    });
+  }, [actions, colIndex, store]);
 
   // Only actions *limited* to column scope belong in a column's dropdown —
   // sort/filter and column-specific actions. Global actions (Save / Reset /

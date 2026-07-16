@@ -2,6 +2,7 @@ import {
   CellEdit,
   ClipboardProxy,
   RowStatusValue,
+  selectionAtom,
   tableDataAtom,
 } from "../provider";
 import { type Region, RegionCardinality } from "@blueprintjs/table";
@@ -110,11 +111,6 @@ export interface TableActionContext<T = any> {
   /** Row index mapping when filters are active. When non-null,
    * visible row `i` maps to data row `filteredRowIndices[i]`. */
   filteredRowIndices: number[] | null;
-}
-
-export function useActionContext<T>(): TableActionContext {
-  const store = ctx.useStore() as StoreInterface;
-  return buildActionContext(store.get, store.set);
 }
 
 /** Construct a `TableActionContext` from the current store state.

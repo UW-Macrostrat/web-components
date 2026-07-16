@@ -90,16 +90,15 @@ export function ColumnSortMenu({
   columnKey: string;
   text?: string;
 }) {
-  const storeAPI = useStoreAPI();
+  const setColumnSort = useSelector((s) => s.setColumnSort);
   const sort = useSelector((s) =>
     s.columnSorts.find((x) => x.key === columnKey),
   );
   const toggle = (ascending: boolean) => {
-    const store = storeAPI.getState();
     // A second click on the current direction toggles the sort off.
     const next =
       sort != null && sort.ascending === ascending ? null : ascending;
-    store.setColumnSort(columnKey, next);
+    setColumnSort(columnKey, next);
   };
   const icon =
     sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
@@ -144,9 +143,7 @@ export const columnSortAction: TableAction = {
   },
 };
 
-// ---- Filter ----
-
-/** The filter offered for a column: its own rich `TableFilter` (from
+/** The filter for a column: its own rich `TableFilter` (from
  * `col.filters`) when present — so the header matches the top bar and the rich
  * filter is prioritized — else the built-in operator `columnFilter`. */
 export function resolveColumnFilter(col: ColumnSpec): TableFilter {

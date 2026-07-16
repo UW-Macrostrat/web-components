@@ -1,7 +1,14 @@
 import { Button, ButtonGroup, PopoverNext } from "@blueprintjs/core";
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useMemo,
+  useState,
+  type ReactNode,
+  useEffect,
+  useRef,
+} from "react";
 import h from "./toolbar.module.sass";
-import { ctx, useSelector } from "../provider";
+import { ctx, selectionAtom, useSelector } from "../provider";
 import {
   getApplicableActions,
   getSelectionCardinality,
@@ -12,12 +19,27 @@ import { RegionCardinality } from "@blueprintjs/table";
 import { useToaster } from "../notifications.ts";
 import { ColumnSpec } from "../utils";
 import { Getter, Setter } from "jotai";
-import {
-  buildActionContext,
-  TableActionContext,
-  useActionContext,
-} from "./context.ts";
+import { buildActionContext, TableActionContext } from "./context.ts";
 import { SelectionIndicator } from "../components";
+
+function usePropChanges(props) {
+  /** Show which props have changed since the last render. */
+  const lastPropsRef = useRef(props);
+  const changedProps = useMemo(() => {
+    const changes = {};
+    for (const key in props) {
+      if (props[key] !== lastPropsRef.current[key]) {
+        changes[key] = { from: lastPropsRef.current[key], to: props[key] };
+      }
+    }
+    lastPropsRef.current = props;
+    return changes;
+  }, [props]);
+  if (Object.keys(changedProps).length > 0) {
+    console.log("usePropChanges", changedProps);
+  }
+  return changedProps;
+}
 
 /** Toolbar that renders the actions/controls applicable to the current
  * selection cardinality (modal by selection) and edit mode. Actions with a
@@ -26,7 +48,7 @@ import { SelectionIndicator } from "../components";
  * are merged when their columns are selected. A capsule on the left shows the
  * current selection polarity. */
 export function ActionsToolbar<T>({
-  actions,
+  actions: _actions,
   children,
   className,
   compact = false,
@@ -37,9 +59,12 @@ export function ActionsToolbar<T>({
   className?: string;
   compact: boolean;
 }) {
-  const selection = useSelector((state) => state.selection);
+  const selection = ctx.useValue(selectionAtom);
   const editable = useSelector((state) => state.editable);
   const columnSpec = useSelector((state) => state.columnSpec);
+
+  const actionIDs = new Set(_actions.map((a) => a.id));
+  const actions = useMemo(() => _actions, [actionIDs]);
 
   const cardinality = useMemo(
     () => getSelectionCardinality(selection) ?? RegionCardinality.FULL_TABLE,
@@ -57,16 +82,20 @@ export function ActionsToolbar<T>({
     [allActions, cardinality, editable],
   );
 
+  const store = ctx.useStore();
   // Context for `render`-style controls (they subscribe to the store
   // themselves; this resolves the selected column/rows).
-  const ctx = useActionContext<T>();
+  const actionContext = useMemo(() => {
+    return buildActionContext(store.get, store.set);
+  }, [allActions]);
 
   // The toolbar is for actions that AREN'T keyboard-accessible: any action
   // with a `hotkey` (copy/cut/paste, etc.) is reachable from the keyboard and
   // is omitted here (it still works via its shortcut). Then refine by selection
   // shape beyond cardinality (e.g. single column only).
   const shownActions = applicableActions.filter(
-    (action) => action.hotkey == null && (action.appliesTo?.(ctx) ?? true),
+    (action) =>
+      action.hotkey == null && (action.appliesTo?.(actionContext) ?? true),
   );
 
   const toolbarIsShown = useMemo(
@@ -99,7 +128,7 @@ export function ActionsToolbar<T>({
       ButtonGroup,
       { minimal: true },
       contextual.map((action) =>
-        h(ActionButton, { key: action.id, action, ctx }),
+        h(ActionButton, { key: action.id, action, ctx: actionContext }),
       ),
     ),
     children,
@@ -108,7 +137,7 @@ export function ActionsToolbar<T>({
       ButtonGroup,
       { minimal: true },
       globalActions.map((action) =>
-        h(ActionButton, { key: action.id, action, ctx }),
+        h(ActionButton, { key: action.id, action, ctx: actionContext }),
       ),
     ),
   ]);
@@ -136,6 +165,7 @@ export function runActionWrapper<T>(
   toaster: any,
   configState: any = undefined,
 ) {
+  console.log("runActionWrapper", action.id, configState);
   const ctx = buildActionContext(get, set) as TableActionContext<T>;
   if (action.disabled instanceof Function) {
     if (action.disabled(ctx)) {
