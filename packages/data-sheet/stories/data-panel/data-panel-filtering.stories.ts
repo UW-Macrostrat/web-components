@@ -5,6 +5,7 @@ import {
   Button,
   Checkbox,
   FormGroup,
+  InputGroup,
   PopoverNext,
   SegmentedControl,
 } from "@blueprintjs/core";
@@ -112,7 +113,13 @@ const categoryFilter: TableFilter<Sample, { category: string }> = {
 // One column carries the custom filter; the rest opt into the standard operator
 // filter via `filterable`. Everything is `sortable`.
 const filterSpec: ColumnSpec[] = [
-  { key: "name", name: "Name", dataType: "text", filterable: true, sortable: true },
+  {
+    key: "name",
+    name: "Name",
+    dataType: "text",
+    filterable: true,
+    sortable: true,
+  },
   {
     key: "category",
     name: "Category",
@@ -120,8 +127,20 @@ const filterSpec: ColumnSpec[] = [
     filters: [categoryFilter],
     sortable: true,
   },
-  { key: "status", name: "Status", dataType: "string", filterable: true, sortable: true },
-  { key: "value", name: "Value", dataType: "integer", filterable: true, sortable: true },
+  {
+    key: "status",
+    name: "Status",
+    dataType: "string",
+    filterable: true,
+    sortable: true,
+  },
+  {
+    key: "value",
+    name: "Value",
+    dataType: "integer",
+    filterable: true,
+    sortable: true,
+  },
 ];
 
 /**
@@ -174,7 +193,8 @@ function CustomToolbar() {
   const setStatus = (v: string) => {
     const st = storeAPI.getState();
     if (v === "all") st.removeFilter(statusFilter.id);
-    else st.setFilter(statusFilter.id, statusFilter, { operator: "eq", value: v });
+    else
+      st.setFilter(statusFilter.id, statusFilter, { operator: "eq", value: v });
   };
   const cycleValueSort = () => {
     const next = valueSort == null ? true : valueSort.ascending ? false : null;
@@ -464,6 +484,63 @@ export const ExpandableFilterPanel: StoryObj = {
         itemComponent: SampleCard,
         name: "Samples",
         toolbar: h(ExpandableFilters),
+      }),
+    ),
+};
+
+// This is a generic text search filter
+const basicSearchFilter: TableFilter = {
+  id: "name-search",
+  name: "contains",
+  icon: "search",
+  columnKey: "name",
+  subject: "Name",
+  description: "Show only rows where the name contains a string.",
+  defaultState: { search: "" },
+  describeState: (state) => state?.search,
+  filterForm({ state, setState }) {
+    return h(InputGroup, {
+      placeholder: "Search...",
+      value: state?.search ?? "",
+      onChange(event) {
+        setState({ ...state, search: event.target.value });
+        // Ensure that we don't delete the selection when clearing this text form
+        event.stopPropagation();
+      },
+    });
+  },
+  predicate(row, state) {
+    if (state?.search == null || state.search === "") return true;
+    return row.name.toLowerCase().includes(state.search.toLowerCase());
+  },
+};
+
+const abbreviatedSpec: ColumnSpec[] = [
+  {
+    key: "name",
+    name: "Name",
+    dataType: "text",
+    filters: [basicSearchFilter],
+    sortable: true,
+  },
+  {
+    key: "category",
+    name: "Category",
+    dataType: "string",
+    filters: [categoryFilter],
+  },
+];
+
+export const AbbreviatedFilters: StoryObj = {
+  name: "Abbreviated filters panel",
+  render: () =>
+    container(
+      h(DataPanel<Sample>, {
+        data: ALL,
+        identity: (r: Sample) => r.id,
+        columnSpec: abbreviatedSpec,
+        itemComponent: SampleCard,
+        name: "Samples",
       }),
     ),
 };
