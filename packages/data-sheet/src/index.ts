@@ -10,3 +10,4 @@ export * from "./filters/operators";
 export * from "./types";
 
 export { Cell } from "@blueprintjs/table";
+export { useDataPanelControls } from "./components";
