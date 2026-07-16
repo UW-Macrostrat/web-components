@@ -9,11 +9,18 @@ import h from "@macrostrat/hyper";
 import { useMemo } from "react";
 import { Button, Menu, MenuItem, PopoverNext } from "@blueprintjs/core";
 import { RegionCardinality } from "@blueprintjs/table";
-import { useSelector, useStoreAPI } from "../provider";
+import {
+  ColumnSort,
+  ctx,
+  storeAtom,
+  useSelector,
+  useStoreAPI,
+} from "../provider";
 import type { TableAction, TableFilter } from "./types";
 import type { ColumnSpec } from "../utils/column-spec";
 import { columnFilter, columnFilterId } from "./column-filter";
 import { TableActionContext } from "./context.ts";
+import { atom } from "jotai";
 
 function selectedColumn(ctx: TableActionContext) {
   const key = ctx.getSelectedColumnKeys()[0];
@@ -23,46 +30,45 @@ function selectedColumn(ctx: TableActionContext) {
 
 // ---- Sort ----
 
-function ColumnSortControl({ columnKey }: { columnKey: string }) {
-  const storeAPI = useStoreAPI();
-  const sort = useSelector((s) =>
-    s.columnSorts.find((x) => x.key === columnKey),
-  );
-  const set = (ascending: boolean | null) =>
-    storeAPI.getState().setColumnSort(columnKey, ascending);
+function ColumnSortActions({ sort, setSort }) {
+  return h([
+    h(MenuItem, {
+      key: "asc",
+      text: "Ascending",
+      icon: "sort-asc",
+      active: sort?.ascending === true,
+      onClick: () => setSort(true),
+      shouldDismissPopover: false,
+    }),
+    h(MenuItem, {
+      key: "desc",
+      text: "Descending",
+      icon: "sort-desc",
+      active: sort?.ascending === false,
+      onClick: () => setSort(false),
+      shouldDismissPopover: false,
+    }),
+  ]);
+}
 
+function displayParamsForSort(sort: ColumnSort | undefined) {
   const icon =
     sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
   const label =
     sort == null ? "Sort" : sort.ascending ? "Ascending" : "Descending";
+  return { icon, label };
+}
+
+function ColumnSortControl({ columnKey }: { columnKey: string }) {
+  const [sort, setSort] = useSortAtom(columnKey);
+  const { icon, label } = displayParamsForSort(sort);
 
   return h(
     PopoverNext,
     {
       placement: "bottom-start",
-      content: h(Menu, [
-        h(MenuItem, {
-          key: "asc",
-          text: "Ascending",
-          icon: "sort-asc",
-          active: sort?.ascending === true,
-          onClick: () => set(true),
-        }),
-        h(MenuItem, {
-          key: "desc",
-          text: "Descending",
-          icon: "sort-desc",
-          active: sort?.ascending === false,
-          onClick: () => set(false),
-        }),
-        h(MenuItem, {
-          key: "clear",
-          text: "Clear sort",
-          icon: "cross",
-          disabled: sort == null,
-          onClick: () => set(null),
-        }),
-      ]),
+      arrow: false,
+      content: h(Menu, h(ColumnSortActions, { sort, setSort })),
     },
     h(
       Button,
@@ -78,6 +84,36 @@ function ColumnSortControl({ columnKey }: { columnKey: string }) {
   );
 }
 
+function useSortAtom(columnKey) {
+  const sortAtom = useMemo(
+    () =>
+      atom(
+        (get) => {
+          return get(storeAtom)?.columnSorts.find((x) => x.key === columnKey);
+        },
+        (get, set, ascending: boolean | null) => {
+          const store = get(storeAtom);
+          if (store == null) return;
+          const currentVal = store.columnSorts.find(
+            (x) => x.key === columnKey,
+          )?.ascending;
+          let nextVal = ascending;
+          if (currentVal != null) {
+            if (currentVal == nextVal) {
+              // Unset
+              nextVal = null;
+            }
+          }
+
+          store.setColumnSort(columnKey, nextVal);
+        },
+      ),
+    [columnKey],
+  );
+
+  return ctx.use(sortAtom);
+}
+
 /** Menu-native sort: a "Sort" item whose submenu holds Ascending / Descending.
  * Clicking the *active* direction again clears the sort (toggle off) — there's
  * no explicit "Clear" item, since the active-filter/sort tag in the status bar
@@ -85,41 +121,17 @@ function ColumnSortControl({ columnKey }: { columnKey: string }) {
  * `DataPanel` uses the column name, so its Sort menu lists one item per field). */
 export function ColumnSortMenu({
   columnKey,
-  text = "Sort",
 }: {
   columnKey: string;
   text?: string;
 }) {
-  const setColumnSort = useSelector((s) => s.setColumnSort);
-  const sort = useSelector((s) =>
-    s.columnSorts.find((x) => x.key === columnKey),
+  const [sort, setSort] = useSortAtom(columnKey);
+  const { icon, label } = displayParamsForSort(sort);
+  return h(
+    MenuItem,
+    { icon, text: label },
+    h(ColumnSortActions, { sort, setSort }),
   );
-  const toggle = (ascending: boolean) => {
-    // A second click on the current direction toggles the sort off.
-    const next =
-      sort != null && sort.ascending === ascending ? null : ascending;
-    setColumnSort(columnKey, next);
-  };
-  const icon =
-    sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
-  return h(MenuItem, { icon, text }, [
-    h(MenuItem, {
-      key: "asc",
-      icon: "sort-asc",
-      text: "Ascending",
-      active: sort?.ascending === true,
-      shouldDismissPopover: false,
-      onClick: () => toggle(true),
-    }),
-    h(MenuItem, {
-      key: "desc",
-      icon: "sort-desc",
-      text: "Descending",
-      active: sort?.ascending === false,
-      shouldDismissPopover: false,
-      onClick: () => toggle(false),
-    }),
-  ]);
 }
 
 /** Single-column sort control. Gated by `col.sortable`. */

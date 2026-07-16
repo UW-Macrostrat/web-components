@@ -1,10 +1,6 @@
 import { RegionCardinality } from "@blueprintjs/table";
 import type { TableAction } from "./types";
-import type {
-  CellEdit,
-  ClipboardProxy,
-
-} from "../provider/types.ts";
+import type { CellEdit, ClipboardProxy } from "../provider/types.ts";
 import { TableActionContext } from "./context.ts";
 
 /** Serialize the current selection to tab-separated values.

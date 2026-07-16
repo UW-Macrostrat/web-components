@@ -3,5 +3,4 @@ export * from "./cell-detail";
 export * from "./colors";
 export * from "./text-areas";
 export * from "./view-info";
-export { LoadProgressIndicator } from "./view-info.ts";
-export { SelectionIndicator } from "./selection-indicator.ts";
+export * from "./selection-indicator.ts";

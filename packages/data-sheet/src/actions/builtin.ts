@@ -1,8 +1,5 @@
 import { RegionCardinality } from "@blueprintjs/table";
 import type { TableAction } from "./types";
-import { copyAction, pasteAction, clipboardActions } from "./clipboard";
-
-export { copyAction, pasteAction, clipboardActions };
 
 /** Delete all rows in the current selection. Disabled when the data provider
  * can't delete (no `deleteRows`). */
