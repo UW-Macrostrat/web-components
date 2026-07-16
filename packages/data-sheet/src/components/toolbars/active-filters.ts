@@ -1,15 +1,18 @@
 import { Button, Menu, MenuItem, PopoverNext, Tag } from "@blueprintjs/core";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { RegionCardinality } from "@blueprintjs/table";
-import h from "./toolbar.module.sass";
-import { useSelector, useStoreAPI } from "../provider";
-import { getSelectionCardinality } from "./selection";
-import type { TableFilter } from "./types";
-import type { ColumnSpec } from "../utils";
-import { columnFilter } from "./column-filter";
+import h from "./actions-toolbar.module.sass";
+import { useSelector, useStoreAPI } from "../../provider";
+import {
+  columnFilter,
+  getSelectionCardinality,
+  type TableFilter,
+} from "../../actions";
+import type { ColumnSpec } from "../../utils";
+import { ActiveFilterTag } from "../indicators";
 
 /** Collect all available filters from global filters and column specs. */
-export function collectAllFilters<T>(
+function collectAllFilters<T>(
   globalFilters: TableFilter<T>[],
   columnSpec: ColumnSpec[],
 ): TableFilter<T>[] {
@@ -40,7 +43,11 @@ export function collectAllFilters<T>(
  * "Add filter" button offers only **table-level** filters (no `columnKey`) and
  * only when no column is selected — per-column filters are added/configured
  * from the column header dropdown instead, so there's no redundancy. */
-export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
+export function ActiveFiltersList<T>({
+  filters = [],
+}: {
+  filters?: TableFilter<T>[];
+}) {
   const columnSpec = useSelector((state) => state.columnSpec);
   const storeAPI = useStoreAPI();
   const activeFilters = useSelector((state) => state.activeFilters);
@@ -112,67 +119,6 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
       }),
     ),
   ]);
-}
-
-/** A single active filter displayed as a tag. Clicking opens a popover
- * for reconfiguring the filter; the remove button deactivates it. */
-function ActiveFilterTag<T>({
-  filterId,
-  entry,
-}: {
-  filterId: string;
-  entry: { filter: TableFilter<T>; state: any };
-}) {
-  const storeAPI = useStoreAPI();
-  const [configOpen, setConfigOpen] = useState(false);
-  const { filter, state: filterState } = entry;
-
-  // Summarize the active filter's window (e.g. "0–250") next to its name, so
-  // the tag conveys not just what is filtered but the current setting.
-  const summary = filter.describeState?.(filterState);
-
-  const tag = h(
-    Tag,
-    {
-      icon: filter.icon ?? "filter",
-      onRemove() {
-        storeAPI.getState().removeFilter(filterId);
-      },
-      className: "filter-tag",
-      interactive: true,
-      intent: "primary",
-      onClick: filter.filterForm ? () => setConfigOpen(!configOpen) : undefined,
-    },
-    [
-      filter.name,
-      summary != null && summary !== ""
-        ? h("span.filter-window", [": ", summary])
-        : null,
-    ],
-  );
-
-  if (filter.filterForm == null) return tag;
-
-  return h(
-    PopoverNext,
-    {
-      isOpen: configOpen,
-      onClose: () => setConfigOpen(false),
-      content: h("div.filter-config", [
-        h.if(filter.description != null)("p.description", filter.description),
-        h(filter.filterForm, {
-          state: filterState,
-          setState(newState) {
-            storeAPI.getState().setFilter(filterId, filter, newState);
-          },
-        }),
-      ]),
-      placement: "bottom-start",
-      enforceFocus: false,
-      autoFocus: false,
-    },
-    tag,
-  );
 }
 
 /** Popover menu listing available (not-yet-active) filters. */

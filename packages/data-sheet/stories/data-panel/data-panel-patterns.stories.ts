@@ -14,7 +14,7 @@ import {
   columnFilter,
   ColumnSpec,
   DataPanel,
-  FilterBar,
+  ActiveFiltersList,
   getSelectedRowIndices,
   LoadProgressIndicator,
   LoadProgressLabel,
@@ -655,7 +655,7 @@ function ExpandableFilters() {
           "Filters & Sort",
         ),
         // Active filters stay visible as chips even when the panel is collapsed.
-        h(FilterBar),
+        h(ActiveFiltersList),
       ],
     ),
     panel,

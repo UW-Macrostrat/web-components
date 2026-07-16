@@ -49,14 +49,10 @@ import {
   useSelector,
 } from "./provider";
 import {
-  ActionsToolbar,
   ALL_CARDINALITIES,
   buildDataViewSelection,
-  ColumnFilterMenuItem,
-  ColumnSortMenu,
   getSelectedRowIndices,
   isColumnFilterable,
-  resolveColumnFilter,
   rowIndicesToRegions,
   TableAction,
 } from "./actions";
@@ -66,7 +62,13 @@ import {
   useLoadControls,
 } from "./postgrest-table";
 import classNames from "classnames";
-import { LoadProgressIndicator } from "./components";
+import {
+  ActionsToolbar,
+  ColumnFilterMenuItem,
+  ColumnSortMenu,
+  LoadProgressIndicator,
+  resolveColumnFilter,
+} from "./components";
 import { DataViewSharedProps, FetchDataOptions } from "./types";
 import { atom } from "jotai";
 import { passThroughSet } from "./utils";

@@ -6,12 +6,12 @@ import {
   pluralize,
   selectionAtom,
   tableNameAtom,
-} from "../provider";
+} from "../../provider";
 import { atom } from "jotai";
-import { computeSelectionShape, getSelectedColumnKeys } from "../actions";
+import { computeSelectionShape, getSelectedColumnKeys } from "../../actions";
 import { RegionCardinality } from "@blueprintjs/table";
 import classNames from "classnames";
-import h from "./selection-indicator.module.sass";
+import h from "./selection.module.sass";
 import { Tag } from "@blueprintjs/core";
 
 /** A short title describing the current selection (its shape), shown as the

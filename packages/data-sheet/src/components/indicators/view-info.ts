@@ -1,22 +1,7 @@
-import h from "../postgrest-table/main.module.sass";
-import {
-  ViewInfo,
-  viewInfoAtom,
-  tableFooterAtom,
-  chunkPageAtom,
-} from "../postgrest-table";
-import { ctx, useItemCount } from "../provider";
+import h from "../../postgrest-table/main.module.sass";
+import { tableFooterAtom, chunkPageAtom } from "../../postgrest-table";
+import { ctx, useItemCount } from "../../provider";
 import { Button, ButtonGroup, Icon, Spinner } from "@blueprintjs/core";
-
-function VisibleRegionControl() {
-  const viewInfo: ViewInfo = ctx.useValue(viewInfoAtom);
-
-  return h("p", [
-    `Rows ${viewInfo.visibleRegion.rowIndexStart}–${viewInfo.visibleRegion.rowIndexEnd}`,
-    " of ",
-    h("span.total-count", viewInfo.totalCount),
-  ]);
-}
 
 /** A minimal bottom-of-table footer reflecting the `useChunkLoader` source. In
  * scroll mode: rows loaded, "of total" when known, and a status icon (spinner

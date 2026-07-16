@@ -2,7 +2,6 @@ import {
   CellEdit,
   ClipboardProxy,
   RowStatusValue,
-  selectionAtom,
   tableDataAtom,
 } from "../provider";
 import { type Region, RegionCardinality } from "@blueprintjs/table";
@@ -17,8 +16,9 @@ import {
 } from "./selection.ts";
 import { Getter, Setter } from "jotai";
 import type { Store as JotaiStore } from "jotai/vanilla/store";
-import { ctx, storeAPIAtom } from "../provider/core";
+import { storeAPIAtom } from "../provider/core";
 import { ColumnSpec } from "../utils";
+import type { TableAction } from "./types.ts";
 
 interface ActionContextOptions {
   /** Override the action context to scope to a single column.
@@ -250,4 +250,50 @@ export function buildActionContext<T>(
       return getFilteredRowIndices();
     },
   };
+}
+
+function getMessageForError(e: any) {
+  if (e instanceof Error) return e.message;
+  if (typeof e === "string") return e;
+  if (e instanceof Object) return JSON.stringify(e);
+  return null;
+}
+
+export function runActionWrapper<T>(
+  action: TableAction<T>,
+  get: Getter,
+  set: Setter,
+  toaster: any,
+  configState: any = undefined,
+) {
+  console.log("runActionWrapper", action.id, configState);
+  const ctx = buildActionContext(get, set) as TableActionContext<T>;
+  if (action.disabled instanceof Function) {
+    if (action.disabled(ctx)) {
+      return;
+    }
+  } else if (action.disabled) {
+    return;
+  }
+  try {
+    const res = action.run?.(ctx, configState);
+    if (res instanceof Promise) {
+      res
+        .then(() => {})
+        .catch((e) => {
+          displayErrorForAction(action, e, toaster);
+        });
+    }
+  } catch (e) {
+    displayErrorForAction(action, e, toaster);
+  }
+}
+
+function displayErrorForAction(action: TableAction, error: any, toaster: any) {
+  const message =
+    getMessageForError(error) ?? action.errorMessage ?? "Action failed";
+  toaster.show({
+    message,
+    intent: "danger",
+  });
 }

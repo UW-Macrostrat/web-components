@@ -1,45 +1,20 @@
 import { Button, ButtonGroup, PopoverNext } from "@blueprintjs/core";
-import {
-  useCallback,
-  useMemo,
-  useState,
-  type ReactNode,
-  useEffect,
-  useRef,
-} from "react";
-import h from "./toolbar.module.sass";
-import { ctx, selectionAtom, useSelector } from "../provider";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
+import h from "./actions-toolbar.module.sass";
+import { ctx, selectionAtom, useSelector } from "../../provider";
 import {
   getApplicableActions,
   getSelectionCardinality,
   mergeColumnActions,
-} from "./selection";
-import type { TableAction } from "./types";
+  buildActionContext,
+  TableActionContext,
+  runActionWrapper,
+  type TableAction,
+} from "../../actions";
 import { RegionCardinality } from "@blueprintjs/table";
-import { useToaster } from "../notifications.ts";
-import { ColumnSpec } from "../utils";
-import { Getter, Setter } from "jotai";
-import { buildActionContext, TableActionContext } from "./context.ts";
-import { SelectionIndicator } from "../components";
-
-function usePropChanges(props) {
-  /** Show which props have changed since the last render. */
-  const lastPropsRef = useRef(props);
-  const changedProps = useMemo(() => {
-    const changes = {};
-    for (const key in props) {
-      if (props[key] !== lastPropsRef.current[key]) {
-        changes[key] = { from: lastPropsRef.current[key], to: props[key] };
-      }
-    }
-    lastPropsRef.current = props;
-    return changes;
-  }, [props]);
-  if (Object.keys(changedProps).length > 0) {
-    console.log("usePropChanges", changedProps);
-  }
-  return changedProps;
-}
+import { useToaster } from "../../notifications.ts";
+import { ColumnSpec } from "../../utils";
+import { SelectionIndicator } from "../index.ts";
 
 /** Toolbar that renders the actions/controls applicable to the current
  * selection cardinality (modal by selection) and edit mode. Actions with a
@@ -143,49 +118,12 @@ export function ActionsToolbar<T>({
   ]);
 }
 
-function getMessageForError(e: any) {
-  if (e instanceof Error) return e.message;
-  if (typeof e === "string") return e;
-  if (e instanceof Object) return JSON.stringify(e);
-  return null;
-}
-
 function isActionDisabled(action: TableAction, state: any): boolean {
   if (typeof action.disabled === "boolean") return action.disabled;
   if (typeof action.disabled === "function") {
     return action.disabled(state);
   }
   return false;
-}
-
-export function runActionWrapper<T>(
-  action: TableAction<T>,
-  get: Getter,
-  set: Setter,
-  toaster: any,
-  configState: any = undefined,
-) {
-  console.log("runActionWrapper", action.id, configState);
-  const ctx = buildActionContext(get, set) as TableActionContext<T>;
-  if (action.disabled instanceof Function) {
-    if (action.disabled(ctx)) {
-      return;
-    }
-  } else if (action.disabled) {
-    return;
-  }
-  try {
-    const res = action.run?.(ctx, configState);
-    if (res instanceof Promise) {
-      res
-        .then(() => {})
-        .catch((e) => {
-          displayErrorForAction(action, e, toaster);
-        });
-    }
-  } catch (e) {
-    displayErrorForAction(action, e, toaster);
-  }
 }
 
 /** Dispatcher: a live control (`action.render`) or a run/detailsForm button.
@@ -236,15 +174,6 @@ function RunActionButton<T>({ action }: { action: TableAction<T> }) {
     },
     action.name,
   );
-}
-
-function displayErrorForAction(action: TableAction, error: any, toaster: any) {
-  const message =
-    getMessageForError(error) ?? action.errorMessage ?? "Action failed";
-  toaster.show({
-    message,
-    intent: "danger",
-  });
 }
 
 /** Action button that opens a popover for pre-run configuration. */

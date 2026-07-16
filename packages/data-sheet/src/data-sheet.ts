@@ -14,7 +14,11 @@ import {
   useMemo,
   useRef,
 } from "react";
-import { LoadProgressIndicator } from "./components";
+import {
+  LoadProgressIndicator,
+  ActionsToolbar,
+  ActiveFiltersList,
+} from "./components";
 import { basicCellRenderer, renderColumnHeaderCell } from "./renderers";
 import h from "./main.module.sass";
 import {
@@ -27,13 +31,11 @@ import {
   DEFAULT_ROW_STATUS_STYLES,
   FetchData,
   persistViaProvider,
-  resolveInteractionOptions,
   RowStatusStyles,
   splitDataProviderProps,
   storeAtom,
   tableActionsAtom,
   TableElementStatus,
-  useResolvedProvider,
   useSelector,
   useStoreAPI,
   VisibleCells,
@@ -41,11 +43,9 @@ import {
 import { atom } from "jotai";
 import { CellRendererDebugOverlay, tableHotkeysAtom } from "./utils";
 import {
-  ActionsToolbar,
   clipboardActions,
   columnControlActions,
   createSaveAction,
-  FilterBar,
   resetChangesAction,
   TableAction,
   TableActionContext,
@@ -536,7 +536,7 @@ export function DataSheetRenderer<T>({
   console.log("Filters", filters, showFilterBar);
   let filterStatus: ReactNode = null;
   if (showFilterBar) {
-    filterStatus = h(FilterBar, { filters: filters ?? [] });
+    filterStatus = h(ActiveFiltersList, { filters: filters ?? [] });
   }
 
   return h("div.data-sheet-container", { className, style }, [
