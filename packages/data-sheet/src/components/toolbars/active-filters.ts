@@ -9,7 +9,7 @@ import {
   type TableFilter,
 } from "../../actions";
 import type { ColumnSpec } from "../../utils";
-import { ActiveFilterTag } from "../indicators";
+import { FilterIndicator } from "../indicators";
 
 /** Collect all available filters from global filters and column specs. */
 function collectAllFilters<T>(
@@ -93,7 +93,7 @@ export function ActiveFiltersList<T>({
     h(
       "div.group.filters",
       filterArray.map(([id, entry]) =>
-        h(ActiveFilterTag, { key: id, filterId: id, entry }),
+        h(FilterIndicator, { key: id, ...entry, large: false, minimal: false }),
       ),
     ),
     h(

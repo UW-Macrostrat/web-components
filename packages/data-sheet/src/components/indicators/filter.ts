@@ -1,10 +1,23 @@
 import type { ColumnSpec } from "../../utils";
 import { useMemo, useState } from "react";
-import { columnFilter, columnFilterId, ColumnFilterState, type TableFilter } from "../../actions";
+import {
+  columnFilter,
+  columnFilterId,
+  ColumnFilterState,
+  type TableFilter,
+} from "../../actions";
 import { useSelector, useStoreAPI } from "../../provider";
-import { Button, HTMLSelect, InputGroup, MenuItem, PopoverNext, Tag } from "@blueprintjs/core";
+import {
+  Button,
+  HTMLSelect,
+  InputGroup,
+  MenuItem,
+  PopoverNext,
+  Tag,
+} from "@blueprintjs/core";
 import { FilterOperator, OPERATOR_LABELS } from "../../filters/operators.ts";
-import h from "../toolbars/actions-toolbar.module.sass";
+import h from "./filter.module.sass";
+import classNames from "classnames";
 
 /** The filter for a column: its own rich `TableFilter` (from
  * `col.filters`) when present — so the header matches the top bar and the rich
@@ -17,14 +30,30 @@ export function resolveColumnFilter(col: ColumnSpec): TableFilter {
   return columnFilter(col);
 }
 
+/** Shows an active column filter in the top menu */
 export function ColumnFilterControl({ col }: { col: ColumnSpec }) {
-  const storeAPI = useStoreAPI();
   // Same `TableFilter` the FilterBar and any provider consume, so the header,
   // the bar, and the query stay in sync (rich filter prioritized).
   const filter = useMemo(() => resolveColumnFilter(col), [col]);
   const state = useSelector((s) => s.activeFilters.get(filter.id)?.state);
+  return h(FilterIndicator, { filter, state, large: true, minimal: true });
+}
+
+export function FilterIndicator({
+  filter,
+  state,
+  large,
+  minimal = false,
+}: {
+  filter: TableFilter;
+  state: any;
+  large?: boolean;
+  minimal?: boolean;
+}) {
+  const storeAPI = useStoreAPI();
+
   const isActive = state != null;
-  const summary = isActive ? filter.describeState?.(state) : null;
+  let summary = isActive ? filter.describeState?.(state) : null;
 
   const setState = (next: any) => {
     const store = storeAPI.getState();
@@ -36,13 +65,30 @@ export function ColumnFilterControl({ col }: { col: ColumnSpec }) {
     }
   };
 
-  const label = isActive ? String(summary ?? filter.name) : "Filter";
+  let onRemove: any = undefined;
+  let label: ReactNode = "Filter";
+  let rightIcon: string = "caret-down";
+  if (isActive) {
+    rightIcon = undefined;
+    label = summary ?? filter.name;
+    onRemove = (event) => {
+      storeAPI.getState().removeFilter(filter.id);
+      event.stopPropagation();
+    };
+  }
+
+  if (isActive && !minimal) {
+    label = h([
+      filter.name,
+      summary != null && summary !== ""
+        ? h("span.filter-window", [": ", summary])
+        : null,
+    ]);
+  }
 
   return h(
-    PopoverNext,
+    MenuDropdown,
     {
-      placement: "bottom-start",
-      arrow: false,
       content: h(
         "div",
         { style: { padding: "6px", minWidth: "220px" } },
@@ -55,16 +101,31 @@ export function ColumnFilterControl({ col }: { col: ColumnSpec }) {
       ),
     },
     h(
-      Button,
+      Tag,
       {
-        small: true,
         minimal: true,
-        icon: "filter",
-        rightIcon: "caret-down",
+        large,
+        icon: filter.icon ?? "filter",
+        rightIcon,
         intent: isActive ? "primary" : "none",
+        onRemove,
+        className: classNames("filter-tag", { active: isActive }),
       },
-      label,
+      h("span.filter-label", label),
     ),
+  );
+}
+
+function MenuDropdown({ children, content, isOpen, ...props }: any) {
+  return h(
+    PopoverNext,
+    {
+      content,
+      placement: "bottom-start",
+      enforceFocus: true,
+      autoFocus: false,
+    },
+    children,
   );
 }
 
@@ -227,65 +288,5 @@ export function ColumnFilterForm({
         },
       }),
     ],
-  );
-}
-/** A single active filter displayed as a tag. Clicking opens a popover
- * for reconfiguring the filter; the remove button deactivates it. */
-export function ActiveFilterTag<T>({
-  filterId,
-  entry,
-}: {
-  filterId: string;
-  entry: { filter: TableFilter<T>; state: any };
-}) {
-  const storeAPI = useStoreAPI();
-  const [configOpen, setConfigOpen] = useState(false);
-  const { filter, state: filterState } = entry;
-
-  // Summarize the active filter's window (e.g. "0–250") next to its name, so
-  // the tag conveys not just what is filtered but the current setting.
-  const summary = filter.describeState?.(filterState);
-
-  const tag = h(
-    Tag,
-    {
-      icon: filter.icon ?? "filter",
-      onRemove() {
-        storeAPI.getState().removeFilter(filterId);
-      },
-      className: "filter-tag",
-      interactive: true,
-      intent: "primary",
-      onClick: filter.filterForm ? () => setConfigOpen(!configOpen) : undefined,
-    },
-    [
-      filter.name,
-      summary != null && summary !== ""
-        ? h("span.filter-window", [": ", summary])
-        : null,
-    ],
-  );
-
-  if (filter.filterForm == null) return tag;
-
-  return h(
-    PopoverNext,
-    {
-      isOpen: configOpen,
-      onClose: () => setConfigOpen(false),
-      content: h("div.filter-config", [
-        h.if(filter.description != null)("p.description", filter.description),
-        h(filter.filterForm, {
-          state: filterState,
-          setState(newState) {
-            storeAPI.getState().setFilter(filterId, filter, newState);
-          },
-        }),
-      ]),
-      placement: "bottom-start",
-      enforceFocus: false,
-      autoFocus: false,
-    },
-    tag,
   );
 }

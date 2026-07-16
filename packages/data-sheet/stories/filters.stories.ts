@@ -50,7 +50,7 @@ const nameFilter: TableFilter = {
   columnKey: "name",
   description: "Show only rows where the name contains a string.",
   defaultState: { search: "" },
-  describeState: (state) => (state?.search ? `"${state.search}"` : null),
+  describeState: (state) => state?.search,
   filterForm({ state, setState }) {
     return h(InputGroup, {
       placeholder: "Search by name...",
@@ -60,14 +60,6 @@ const nameFilter: TableFilter = {
         // Ensure that we don't delete the selection when clearing this text form
         event.stopPropagation();
       },
-      rightElement: h(Button, {
-        minimal: true,
-        icon: "cross",
-        disabled: state?.search == null || state.search === "",
-        onClick() {
-          setState({ ...state, search: "" });
-        },
-      }),
     });
   },
   predicate(row, state) {
