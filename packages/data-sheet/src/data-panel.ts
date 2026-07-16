@@ -75,6 +75,7 @@ export enum DataPanelToolbarStyle {
   BORDERED = "border",
   FADE = "fade",
   OVERLAY = "overlay",
+  MINIMAL = "minimal",
 }
 
 /** Props for a custom scroll-body layout component. It receives the
@@ -138,11 +139,8 @@ export interface DataPanelProps<T = any> extends DataViewSharedProps<T> {
    * sentinel, so paging and selection keep working. Defaults to a vertical
    * flex list. */
   scrollBody?: ComponentType<ScrollBodyProps>;
-  /** Fade the top of the scroll content as it slips under the toolbar. Only
-   * active once scrolled (so the first item isn't clipped at rest). Default
-   * `true`. */
-  topFade?: boolean;
   className?: string;
+  toolbarStyle?: DataPanelToolbarStyle | string;
 }
 
 /**
@@ -186,8 +184,8 @@ export function DataPanelRenderer<T>({
   contentFooter,
   autoLoadPages,
   scrollBody,
-  topFade = true,
   className,
+  toolbarStyle = DataPanelToolbarStyle.BORDERED,
 }: Omit<DataPanelProps<T>, "provider" | "fetchData" | "data" | "identity">) {
   const {
     provider: activeProvider,
@@ -272,11 +270,6 @@ export function DataPanelRenderer<T>({
     );
   });
 
-  // An inline footer is the end-of-scroll region itself, so it always renders
-  // (deciding its own content: spinner mid-burst, "Load more" at a pause, or an
-  // end-of-list note). It carries the sentinel ref; auto-load is gated by
-  // `canLoadMore`, so a paused/exhausted footer just sits there.
-  const showInlineFooter = contentFooter != null;
   // The default spinner sentinel (below-placement): hidden while paused so the
   // pinned footer's "Load more" takes over.
   const shouldLoadNextPage = (hasMore || loading) && !paused;
@@ -341,39 +334,40 @@ export function DataPanelRenderer<T>({
     );
   }
 
-  return h("div.data-panel", { className }, [
-    h("div.data-panel-main", [
-      loaderNode,
-      h(
-        "div.data-panel-toolbar",
+  return h(
+    "div.data-panel",
+    { className: classNames(className, "toolbar-style-" + toolbarStyle) },
+    [
+      h("div.data-panel-main", [
+        loaderNode,
         h(
-          ActionsToolbar,
-          {
-            actions: _actions,
-            tableName: name,
-            className: "data-panel-toolbar-content",
-          },
-          toolbar,
-        ),
-      ),
-      h(
-        "div.data-panel-body",
-        {
-          onScroll,
-          className: classNames(
-            { "top-fade": topFade, "is-scrolled": scrolled },
-            className,
+          "div.data-panel-toolbar",
+          h(
+            ActionsToolbar,
+            {
+              actions: _actions,
+              tableName: name,
+              className: "data-panel-toolbar-content",
+            },
+            toolbar,
           ),
-        },
-        h("div.data-panel-body-content", [
-          h(ScrollBody, cards),
-          _contentFooter,
-        ]),
-      ),
-      footer,
-    ]),
-    h.if(sidebar != null)("div.data-panel-sidebar-container", sidebar),
-  ]);
+        ),
+        h(
+          "div.data-panel-body",
+          {
+            onScroll,
+            className: classNames({ "is-scrolled": scrolled }),
+          },
+          h("div.data-panel-body-content", [
+            h(ScrollBody, cards),
+            _contentFooter,
+          ]),
+        ),
+        footer,
+      ]),
+      h.if(sidebar != null)("div.data-panel-sidebar-container", sidebar),
+    ],
+  );
 }
 
 function DataPanelStatusBar({ children }) {

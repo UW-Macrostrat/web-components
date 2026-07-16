@@ -42,12 +42,6 @@
   overflow-y: auto
   padding: var(--data-panel-content-padding)
 
-  // Fade content into the top edge as it slips under the toolbar — but only
-  // once scrolled, so the first item isn't clipped at rest.
-  &.top-fade.is-scrolled
-    mask-image: linear-gradient(to bottom, transparent 0, #000 14px)
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px)
-
 .data-panel-main > *
   display: flex
   flex-direction: column
@@ -90,17 +84,11 @@
   color: var(--text-subtle, #738091)
   font-size: 13px
 
-.data-panel-toolbar
-  background-color: var(--panel-secondary-background-color)
-  border-bottom: 1px solid var(--panel-rule-color)
-
 .data-panel-toolbar-content
   max-width: var(--data-panel-content-width)
 
 .data-panel-footer
   color: var(--text-subtle, #738091)
-  background-color: var(--panel-secondary-background-color)
-  border-top: 1px solid var(--panel-rule-color)
 
 .data-panel-footer-content
   gap: var(--data-panel-item-gap, 8px)
@@ -134,3 +122,64 @@
     &:hover
       border-color: rgba(128,128,128,0.5)
       background: rgba(128,128,128,0.08)
+
+.data-panel
+  &.toolbar-style-bordered
+    .data-panel-toolbar, .data-panel-footer
+      background-color: var(--panel-secondary-background-color)
+
+    .data-panel-toolbar
+      border-bottom: 1px solid var(--panel-rule-color)
+
+    .data-panel-footer
+      border-top: 1px solid var(--panel-rule-color)
+
+  &.toolbar-style-floating
+    --data-panel-top-margin: calc(var(--data-panel-toolbar-height, 40px) + 2 * var(--data-panel-content-padding, 12px))
+
+    .data-panel-toolbar, .data-panel-footer
+      //background-color: var(--panel-secondary-background-color)
+      border-radius: 4px
+      //box-shadow: 0 0 0 1px var(--panel-rule-color)
+
+    .data-panel-footer, .data-panel-toolbar
+      z-index: 50
+      min-width: 0
+      max-width: fit-content
+      position: absolute
+      width: var(--data-panel-content-width, 100%)
+
+      &>*
+        max-width: unset
+        flex-grow: unset
+        width: unset
+
+    .data-panel-toolbar
+      left: 50%
+      transform: translateX(calc((var(--data-panel-content-width, 100%) / -2) - 4px))
+      top: var(--data-panel-content-padding, 12px)
+      background-color: var(--panel-secondary-background-color)
+      box-shadow: 0 0 0 1px var(--panel-rule-color)
+      .data-panel-toolbar-content
+        padding-left: 6px
+        padding-right: 6px
+        &>*:empty
+          display: none
+
+
+    .data-panel-footer
+      bottom: var(--data-panel-content-padding, 12px)
+      height: fit-content
+      right: var(--data-panel-content-padding, 12px)
+      background-color: var(--background-color)
+
+    .data-panel-body
+      padding-top: var(--data-panel-top-margin)
+      mask-image: linear-gradient(to bottom, transparent 4px, var(--background-color) var(--data-panel-top-margin))
+
+  &.toolbar-style-fade
+    // Fade content into the top edge as it slips under the toolbar — but only
+    // once scrolled, so the first item isn't clipped at rest.
+    .data-panel-body.is-scrolled
+      mask-image: linear-gradient(to bottom, transparent 0, var(--background-color) 20px)
+

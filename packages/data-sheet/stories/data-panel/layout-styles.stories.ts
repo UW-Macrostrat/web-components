@@ -10,17 +10,15 @@ import { MasonryCard, MasonryScrollBody } from "./layout-helpers.ts";
 const meta: Meta<any> = {
   title: "Data sheet/Data panel/Layouts",
   parameters: { layout: "fullscreen" },
-};
-export default meta;
-
-/**
- * A masonry layout for variable-height items via a custom `scrollBody`. Uses an
- * append-only, measured column distribution (see `MasonryScrollBody`) so new
- * pages don't reflow the existing layout. Paging and selection are unaffected.
- */
-export const Masonry: StoryObj = {
-  render: () =>
-    container(
+  argTypes: {
+    // toolbarStyle: {
+    //   control: { type: "select" },
+    //   options: ["bordered", "transparent"],
+    // },
+  },
+  render(args) {
+    const { toolbarStyle } = args;
+    return container(
       h(DataPanel<Sample>, {
         fetchData: fetchSamples,
         className: "masonry-panel",
@@ -31,6 +29,27 @@ export const Masonry: StoryObj = {
         name: "Samples",
         itemLabel: "sample",
         scrollBody: MasonryScrollBody,
+        toolbarStyle,
       }),
-    ),
+    );
+  },
+};
+export default meta;
+
+export const Bordered: StoryObj = {
+  args: {
+    toolbarStyle: "bordered",
+  },
+};
+
+export const Fade: StoryObj = {
+  args: {
+    toolbarStyle: "fade",
+  },
+};
+
+export const Floating: StoryObj = {
+  args: {
+    toolbarStyle: "floating",
+  },
 };

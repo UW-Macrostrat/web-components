@@ -43,7 +43,6 @@ export function DataView<T>(props: DataViewProps<T>) {
     contentFooter,
     autoLoadPages,
     scrollBody,
-    topFade,
     // The rest (provider/fetchData/identity/actions/filters/pageSize/
     // name/statusBar/refreshToken) is common to both renderers.
     ...common
@@ -59,7 +58,6 @@ export function DataView<T>(props: DataViewProps<T>) {
       contentFooter,
       autoLoadPages,
       scrollBody,
-      topFade,
     });
   } else {
     renderer = h(DataSheetRenderer<any>, {
