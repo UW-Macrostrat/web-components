@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { ReactNode, useMemo, useState } from "react";
-import { Button, Checkbox, FormGroup, SegmentedControl } from "@blueprintjs/core";
+import { useMemo, useState } from "react";
+import {
+  Button,
+  Checkbox,
+  FormGroup,
+  PopoverNext,
+  SegmentedControl,
+} from "@blueprintjs/core";
 import { RegionCardinality } from "@blueprintjs/table";
 import {
   ActiveFiltersList,
@@ -375,76 +381,77 @@ function SortControls() {
   ]);
 }
 
-// An expandable filter/sort panel as the `toolbar`: collapsed to a toggle +
-// active-filter chips, expanding to the full faceted controls. Reuses the same
-// store-driven `FacetSection` / `SortControls` / `ActiveFiltersList` building
-// blocks.
+// An expandable filter/sort panel as the `toolbar`: a toggle button that opens
+// a popover of the full faceted controls, with the unified active-filter/sort
+// tags always visible beside it. Reuses the store-driven `FacetSection` /
+// `SortControls` / `ActiveFiltersList` building blocks.
 function ExpandableFilters() {
   const [open, setOpen] = useState(false);
-  let panel: ReactNode = null;
-  if (open) {
-    panel = h(
-      "div",
-      {
-        style: {
-          display: "flex",
-          gap: "28px",
-          padding: "12px",
-          marginTop: "4px",
-          border: "1px solid rgba(128,128,128,0.25)",
-          borderRadius: "4px",
+
+  const panel = h(
+    "div",
+    {
+      style: {
+        display: "flex",
+        gap: "28px",
+        padding: "12px",
+      },
+    },
+    [
+      h(FacetSection, {
+        key: "cat",
+        title: "Category",
+        field: "category",
+        options: CATEGORIES,
+      }),
+      h(FacetSection, {
+        key: "st",
+        title: "Status",
+        field: "status",
+        options: STATUSES,
+      }),
+      h(SortControls, { key: "sort" }),
+    ],
+  );
+
+  return h(
+    "div",
+    { style: { display: "flex", alignItems: "center", gap: "8px" } },
+    [
+      h(
+        PopoverNext,
+        {
+          key: "popover",
+          isOpen: open,
+          onInteraction: (next: boolean) => setOpen(next),
+          content: panel,
+          placement: "bottom-start",
         },
-      },
-      [
-        h(FacetSection, {
-          key: "cat",
-          title: "Category",
-          field: "category",
-          options: CATEGORIES,
-        }),
-        h(FacetSection, {
-          key: "st",
-          title: "Status",
-          field: "status",
-          options: STATUSES,
-        }),
-        h(SortControls, { key: "sort" }),
-      ],
-    );
-  }
-  return h("div", { style: { display: "flex", flexDirection: "column" } }, [
-    h(
-      "div",
-      {
-        style: { display: "flex", alignItems: "center", gap: "8px" },
-      },
-      [
         h(
           Button,
           {
-            key: "toggle",
+            minimal: true,
+            small: true,
             icon: "filter",
             rightIcon: open ? "chevron-up" : "chevron-down",
             active: open,
-            onClick: () => setOpen((o) => !o),
           },
           "Filters & Sort",
         ),
-        // Active filters + sorts stay visible as tags even when the panel is
-        // collapsed.
-        h(ActiveFiltersList, { key: "active" }),
-      ],
-    ),
-    panel,
-  ]);
+      ),
+      // Active filters + sorts stay visible as tags whether the popover is open
+      // or not.
+      h(ActiveFiltersList, { key: "active" }),
+    ],
+  );
 }
 
 /**
- * An **expandable filter/sort panel** via the `toolbar` slot: collapsed to a
- * toggle + the unified active-filter/sort tags, expanding to full faceted
- * controls + sort. All of it drives the shared store, reusing `FacetSection` /
- * `SortControls` / `ActiveFiltersList` — the toolbar seam takes arbitrary
- * interactive chrome.
+ * An **expandable filter/sort panel** via the `toolbar` slot: a toggle button
+ * that opens a popover of the full faceted controls + sort, with the unified
+ * active-filter/sort tags always visible beside it. All of it drives the shared
+ * store, reusing `FacetSection` / `SortControls` / `ActiveFiltersList` — the
+ * toolbar seam takes arbitrary interactive chrome.
  */
 export const ExpandableFilterPanel: StoryObj = {
   name: "Expandable filter/sort panel",

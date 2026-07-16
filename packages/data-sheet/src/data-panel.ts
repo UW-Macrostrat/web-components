@@ -289,8 +289,20 @@ export function DataPanelRenderer<T>({
 
   const coreActions = useDataPanelControls();
 
+  // Merge consumer actions with the synthesized Filter/Sort controls, deduped
+  // by id — consumer actions come first, so passing an action with id `filter`
+  // or `sort` *replaces* the built-in one (a hybrid set keeps the others).
+  // Mirrors the sheet's action registry contract (see `data-sheet.ts`).
   const _actions = useMemo(() => {
-    return [...actions, ...coreActions];
+    const merged: TableAction[] = [];
+    const add = (list: TableAction[]) => {
+      for (const a of list) {
+        if (!merged.some((x) => x.id === a.id)) merged.push(a);
+      }
+    };
+    add(actions);
+    add(coreActions);
+    return merged;
   }, [actions, coreActions]);
 
   const ScrollBody = scrollBody ?? DefaultScrollBody;
