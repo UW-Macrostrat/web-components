@@ -164,9 +164,7 @@ export function useResolvedProvider<T>(props: {
   return { data: _data, isLocalProvider, activeProvider, dataProvider };
 }
 
-function _DataSheetProvider<T>(
-  props: DataSheetProviderProps<T> & { dataProvider?: ResolvedDataProvider },
-) {
+function DataSheetStoreWrapper<T>(props: DataSheetProviderProps<T>) {
   const { toaster, ...rest } = props;
   const [store] = useState(() => {
     return createStore<DataSheetStore<T>>(createZustandStore);
@@ -183,8 +181,14 @@ function _DataSheetProvider<T>(
   );
 }
 
-const dataSheetProviderKeys = new Set([
+const tableDataProviderKeys = new Set([
+  "provider",
+  "fetchData",
   "data",
+  "identity",
+]);
+
+const dataProviderKeys = new Set([
   "columnSpec",
   "columnSpecOptions",
   "name",
@@ -193,7 +197,6 @@ const dataSheetProviderKeys = new Set([
   "defaultColumnWidth",
   "refreshToken",
   "identity",
-  "dataProvider",
   "toaster",
   "viewType",
   "interactionOptions",
@@ -208,16 +211,19 @@ export function splitDataProviderProps<T>(props: AnyDataSheetProps<T>) {
   /** Split provided props based on provider's needs */
   return splitProps<AnyDataSheetProps<T>, DataSheetProviderProps<T>>(
     props,
-    dataSheetProviderKeys.union(interactionOptionsKeys) as Set<
-      keyof DataSheetProviderProps<T>
-    >,
+    dataProviderKeys
+      .union(interactionOptionsKeys)
+      .union(tableDataProviderKeys) as Set<keyof DataSheetProviderProps<T>>,
   );
 }
 
 export function DataSheetProvider<T>(
   props: DataSheetProviderProps<T> & { children: React.ReactNode },
 ) {
-  return h(ToasterContext, h(ErrorBoundary, h(_DataSheetProvider<T>, props)));
+  return h(
+    ToasterContext,
+    h(ErrorBoundary, h(DataSheetStoreWrapper<T>, props)),
+  );
 }
 
 type DataSheetProviderInnerProps<T> = DataSheetProviderProps<T> & {
@@ -259,6 +265,7 @@ export function DataSheetProviderInner<T>(
   // scoped atom so the loader/store read it, rather than the inner render
   // component resolving it each render. Kept updated as `data`/`provider`
   // changes.
+
   ctx.useSync(dataProviderAtom, dataProvider ?? DEFAULT_DATA_PROVIDER);
   ctx.useSync(interactionOptionsAtom, interactionOptions);
 
@@ -543,9 +550,8 @@ export const itemLabelAtom = atom<string>((get) => {
 });
 export const tableNameAtom = atom<string | null>((get) => {
   let { tableName, itemLabel } = get(contentLabelsAtom);
-  if (tableName == null && itemLabel != null) {
-    return capitalize(pluralize(itemLabel, 2));
-  }
+  if (tableName != null) return tableName;
+  if (itemLabel != null) capitalize(pluralize(itemLabel, 2));
   return "Table";
 });
 

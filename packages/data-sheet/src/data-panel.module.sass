@@ -2,25 +2,27 @@
 // the consumer's `itemComponent`; the panel owns only the surrounding chrome.
 
 :root
-  --data-panel-content-padding: 12px
-  --data-panel-item-gap: 8px
-  --data-panel-selected-color: #2d72d2
-  --data-panel-selected-background: rgba(45, 114, 210, 0.1)
+  --data-panel-content-padding: 0px
 
 
 .data-panel
   display: flex
-  flex-direction: column
-  height: 100%
+  flex: 1 1 auto
   min-height: 0
-
+  flex-direction: row
+  width: 100%
+  min-width: 0
+  --data-panel-content-padding: 12px
+  --data-panel-item-gap: 8px
+  --data-panel-content-width: 100%
+  --data-panel-selected-color: #2d72d2
+  --data-panel-selected-background: rgba(45, 114, 210, 0.1)
 
 // Body + optional sidebar share a horizontal row, each scrolling on its own.
 .data-panel-main
-  flex: 1 1 auto
-  min-height: 0
   display: flex
-  flex-direction: row
+  flex-direction: column
+  flex: 1 1 auto
 
 .data-panel-sidebar-container
   flex: 0 0 auto
@@ -38,9 +40,6 @@
   min-height: 0
   min-width: 0
   overflow-y: auto
-  display: flex
-  flex-direction: column
-  gap: 8px
   padding: var(--data-panel-content-padding)
 
   // Fade content into the top edge as it slips under the toolbar — but only
@@ -48,6 +47,16 @@
   &.top-fade.is-scrolled
     mask-image: linear-gradient(to bottom, transparent 0, #000 14px)
     -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px)
+
+.data-panel-main > *
+  display: flex
+  flex-direction: column
+  align-items: center
+  &>*
+    flex: 1
+    max-width: var(--data-panel-content-width, 100%)
+    width: var(--data-panel-content-width, 100%)
+    min-width: 0
 
 // The inline end-of-scroll region (default spinner sentinel, or an inline
 // footer). Sits in the scroll flow, so it's seen only at the bottom.
@@ -61,6 +70,7 @@
   display: flex
   flex-direction: column
   gap: var(--data-panel-item-gap, 8px)
+  flex-grow: 1
 
 .data-panel-item
   // Rows are click-selectable, so suppress native text selection — otherwise
@@ -84,13 +94,17 @@
   background-color: var(--panel-secondary-background-color)
   border-bottom: 1px solid var(--panel-rule-color)
 
+.data-panel-toolbar-content
+  max-width: var(--data-panel-content-width)
+
 .data-panel-footer
-  gap: var(--data-panel-item-gap, 8px)
-  padding: 0.2em var(--data-panel-content-padding)
   color: var(--text-subtle, #738091)
   background-color: var(--panel-secondary-background-color)
   border-top: 1px solid var(--panel-rule-color)
 
+.data-panel-footer-content
+  gap: var(--data-panel-item-gap, 8px)
+  padding: 0.2em var(--data-panel-content-padding)
   .spacer
     flex: 1
 
@@ -102,8 +116,8 @@
 
 .data-card
   display: flex
-  gap: 10px
-  padding: 8px 10px
+  gap: var(--data-panel-item-gap, 1em)
+  padding: var(--data-panel-card-padding, 1em)
   border: 1px solid rgba(128,128,128,0.25)
   border-radius: 4px
   background: var(--card-background-color)

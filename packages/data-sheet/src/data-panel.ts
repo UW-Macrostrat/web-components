@@ -203,8 +203,6 @@ export function DataPanelRenderer<T>({
   // pinned footer's "Load more" takes over.
   const shouldLoadNextPage = (hasMore || loading) && !paused;
 
-  const showSentinel = !showInlineFooter && shouldLoadNextPage;
-
   // Mount the loader only once the provider resolves (see `PanelLoader`). Built
   // as a real conditional — `h.if(...)` evaluates its arguments eagerly, so
   // `activeProvider.fetchData` can't be referenced inside it while null.
@@ -237,10 +235,7 @@ export function DataPanelRenderer<T>({
 
   let defaultFooter: ReactNode = null;
   if (shouldLoadNextPage) {
-    defaultFooter = h("div.sentinel", { ref: sentinelRef }, [
-      h(Spinner, { size: 16 }),
-      "Loading...",
-    ]);
+    defaultFooter = h("div.sentinel", [h(Spinner, { size: 16 }), "Loading..."]);
   } else if (!showStatusBar) {
     defaultFooter = h("div.sentinel", [
       h(Icon, { size: 16, icon: "tick" }),
@@ -262,21 +257,27 @@ export function DataPanelRenderer<T>({
   let footer: ReactNode = null;
   let _statusBarContent = statusBar ?? h(DataPanelStatusBar);
   if (showStatusBar) {
-    footer = h("div.data-panel-footer", [_statusBarContent]);
+    footer = h(
+      "div.data-panel-footer",
+      h("div.data-panel-footer-content", [_statusBarContent]),
+    );
   }
 
   return h("div.data-panel", { className }, [
-    loaderNode,
-    h(
-      ActionsToolbar,
-      {
-        actions: _actions,
-        tableName: name,
-        className: "data-panel-toolbar",
-      },
-      toolbar,
-    ),
     h("div.data-panel-main", [
+      loaderNode,
+      h(
+        "div.data-panel-toolbar",
+        h(
+          ActionsToolbar,
+          {
+            actions: _actions,
+            tableName: name,
+            className: "data-panel-toolbar-content",
+          },
+          toolbar,
+        ),
+      ),
       h(
         "div.data-panel-body",
         {
@@ -286,11 +287,14 @@ export function DataPanelRenderer<T>({
             className,
           ),
         },
-        [h(ScrollBody, cards), _contentFooter],
+        h("div.data-panel-body-content", [
+          h(ScrollBody, cards),
+          _contentFooter,
+        ]),
       ),
-      h.if(sidebar != null)("div.data-panel-sidebar-container", sidebar),
+      footer,
     ]),
-    footer,
+    h.if(sidebar != null)("div.data-panel-sidebar-container", sidebar),
   ]);
 }
 

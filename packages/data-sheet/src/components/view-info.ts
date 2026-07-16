@@ -41,9 +41,11 @@ export function LoadProgressIndicator() {
 
 export function LoadProgressLabel() {
   const { loaded, total } = ctx.useValue(tableFooterAtom);
-  let countText = useItemCount(total ?? loaded);
+  const expectedCount = total ?? loaded;
+  let countText = useItemCount(expectedCount);
+  if (expectedCount === 0) return countText;
   if (total != null && loaded <= total) {
-    countText = `${loaded} of ` + countText;
+    countText = `${loaded} of ${countText}`;
   }
   return h("span.load-progress-label", countText);
 }
