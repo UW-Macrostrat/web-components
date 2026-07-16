@@ -2,7 +2,12 @@ import { SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, StoreApi, useStore } from "zustand";
 import { Table } from "@blueprintjs/table";
-import { type ColumnSpec, generateColumnSpec, splitProps } from "../utils";
+import {
+  type ColumnSpec,
+  generateColumnSpec,
+  postprocessColumnSpec,
+} from "./column-spec.ts";
+import { splitProps } from "../utils";
 import { createScopedStore } from "@macrostrat/data-components";
 import {
   DataSheetProviderProps,
@@ -282,7 +287,11 @@ export function DataSheetProviderInner<T>(
   // when the function's identity changes (e.g. a consumer hiding a column)
   // would wipe the loaded rows. `staticSpec` is a stable value in that case.
   const isFnSpec = typeof columnSpec === "function";
-  const staticSpec = isFnSpec ? EMPTY_SPEC : columnSpec;
+
+  let staticSpec = isFnSpec ? EMPTY_SPEC : columnSpec;
+  if (staticSpec != null) {
+    staticSpec = postprocessColumnSpec(staticSpec);
+  }
 
   // Not sure how required this initialization is
   useEffect(() => {

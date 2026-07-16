@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from "react";
 import { FormGroup, Menu, SegmentedControl } from "@blueprintjs/core";
 import {
   ActiveFiltersList,
-  columnFilter,
+  buildMultiOperatorColumnFilter,
   ColumnFilterMenuItem,
   ColumnSortIndicator,
   ColumnSortMenu,
@@ -56,7 +56,13 @@ const DATA: Sample[] = [
 ];
 
 const SPEC: ColumnSpec[] = [
-  { key: "name", name: "Name", dataType: "text", filterable: true, sortable: true },
+  {
+    key: "name",
+    name: "Name",
+    dataType: "text",
+    filterable: true,
+    sortable: true,
+  },
   {
     key: "category",
     name: "Category",
@@ -96,7 +102,7 @@ const categoryFilter: TableFilter<Sample, { category: string }> = {
   predicate: (row, s) => s?.category == null || row.category === s.category,
 };
 
-const nameFilter = columnFilter(SPEC[0]);
+const nameFilter = buildMultiOperatorColumnFilter(SPEC[0]);
 
 type SeededFilter = [TableFilter<any, any>, any];
 type SeededSort = [string, boolean];
@@ -112,7 +118,8 @@ function Seed({
   const storeAPI = useStoreAPI<Sample>();
   useEffect(() => {
     const st = storeAPI.getState();
-    for (const [filter, state] of filters) st.setFilter(filter.id, filter, state);
+    for (const [filter, state] of filters)
+      st.setFilter(filter.id, filter, state);
     for (const [key, ascending] of sorts) st.setColumnSort(key, ascending);
     // Seed once; the indicators own the state from here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -166,11 +173,7 @@ function Cell({
   children: ReactNode;
 }) {
   return h("div", { style: cellStyle }, [
-    h(
-      "code",
-      { key: "l", style: { fontSize: 11, opacity: 0.7 } },
-      label,
-    ),
+    h("code", { key: "l", style: { fontSize: 11, opacity: 0.7 } }, label),
     h(Harness, { key: "h", filters, sorts }, children),
   ]);
 }
@@ -222,7 +225,13 @@ export const FilterIndicators: StoryObj = {
           label: "operator · active · minimal",
           filters: [[nameFilter, { operator: "ilike", value: "qu" }]],
         },
-        [h(FilterIndicator, { filter: nameFilter, showSubject: false, minimal: true })],
+        [
+          h(FilterIndicator, {
+            filter: nameFilter,
+            showSubject: false,
+            minimal: true,
+          }),
+        ],
       ),
       h(Cell, { key: "rich-off", label: "custom (rich) · inactive" }, [
         h(FilterIndicator, { filter: categoryFilter, showSubject: true }),
@@ -243,7 +252,13 @@ export const FilterIndicators: StoryObj = {
           label: "operator · active · large",
           filters: [[nameFilter, { operator: "eq", value: "Basalt" }]],
         },
-        [h(FilterIndicator, { filter: nameFilter, showSubject: true, large: true })],
+        [
+          h(FilterIndicator, {
+            filter: nameFilter,
+            showSubject: true,
+            large: true,
+          }),
+        ],
       ),
     ]),
 };
@@ -263,25 +278,35 @@ export const SortIndicators: StoryObj = {
       h(Cell, { key: "off", label: "inactive" }, [
         h(ColumnSortIndicator, { columnKey: "value", showColumnKey: false }),
       ]),
+      h(Cell, { key: "asc", label: "ascending", sorts: [["value", true]] }, [
+        h(ColumnSortIndicator, { columnKey: "value", showColumnKey: false }),
+      ]),
+      h(Cell, { key: "desc", label: "descending", sorts: [["value", false]] }, [
+        h(ColumnSortIndicator, { columnKey: "value", showColumnKey: false }),
+      ]),
       h(
         Cell,
-        { key: "asc", label: "ascending", sorts: [["value", true]] },
-        [h(ColumnSortIndicator, { columnKey: "value", showColumnKey: false })],
-      ),
-      h(
-        Cell,
-        { key: "desc", label: "descending", sorts: [["value", false]] },
-        [h(ColumnSortIndicator, { columnKey: "value", showColumnKey: false })],
-      ),
-      h(
-        Cell,
-        { key: "key", label: "ascending · showColumnKey", sorts: [["name", true]] },
+        {
+          key: "key",
+          label: "ascending · showColumnKey",
+          sorts: [["name", true]],
+        },
         [h(ColumnSortIndicator, { columnKey: "name", showColumnKey: true })],
       ),
       h(
         Cell,
-        { key: "large", label: "descending · large", sorts: [["value", false]] },
-        [h(ColumnSortIndicator, { columnKey: "value", showColumnKey: true, large: true })],
+        {
+          key: "large",
+          label: "descending · large",
+          sorts: [["value", false]],
+        },
+        [
+          h(ColumnSortIndicator, {
+            columnKey: "value",
+            showColumnKey: true,
+            large: true,
+          }),
+        ],
       ),
     ]),
 };
@@ -298,16 +323,24 @@ export const SortIndicators: StoryObj = {
 export const MenuVariants: StoryObj = {
   render: () =>
     h(Gallery, [
-      h(Cell, { key: "filter", label: "ColumnFilterMenuItem (operator + rich)" }, [
-        h(Menu, [
-          h(ColumnFilterMenuItem, { key: "op", filter: nameFilter, label: "Name" }),
-          h(ColumnFilterMenuItem, {
-            key: "rich",
-            filter: categoryFilter,
-            label: "Category",
-          }),
-        ]),
-      ]),
+      h(
+        Cell,
+        { key: "filter", label: "ColumnFilterMenuItem (operator + rich)" },
+        [
+          h(Menu, [
+            h(ColumnFilterMenuItem, {
+              key: "op",
+              filter: nameFilter,
+              label: "Name",
+            }),
+            h(ColumnFilterMenuItem, {
+              key: "rich",
+              filter: categoryFilter,
+              label: "Category",
+            }),
+          ]),
+        ],
+      ),
       h(Cell, { key: "sort", label: "ColumnSortMenu" }, [
         h(Menu, [
           h(ColumnSortMenu, { key: "n", columnKey: "name", text: "Name" }),

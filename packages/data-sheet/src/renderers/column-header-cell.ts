@@ -10,7 +10,7 @@ import h from "@macrostrat/hyper";
 import { ColumnHeaderCell, RegionCardinality } from "@blueprintjs/table";
 import { Icon, Menu, MenuItem } from "@blueprintjs/core";
 import { ctx, storeAPIAtom, tableActionsAtom } from "../provider";
-import type { ColumnSpec } from "../utils/column-spec";
+import type { ColumnSpec } from "../provider/column-spec.ts";
 import type {
   PostgrestColumnFilter,
   ColumnSortEntry,

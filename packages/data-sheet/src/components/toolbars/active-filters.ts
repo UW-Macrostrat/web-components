@@ -4,7 +4,7 @@ import { RegionCardinality } from "@blueprintjs/table";
 import h from "./actions-toolbar.module.sass";
 import { useSelector, useStoreAPI } from "../../provider";
 import {
-  columnFilter,
+  buildMultiOperatorColumnFilter,
   getSelectionCardinality,
   type TableFilter,
 } from "../../actions";
@@ -32,7 +32,7 @@ function collectAllFilters<T>(
     // Auto-generate the built-in operator filter for a `filterable` column,
     // unless the column already supplies an explicit filter.
     if (col.filterable && !result.some((r) => r.columnKey === col.key)) {
-      result.push(columnFilter(col) as TableFilter<T>);
+      result.push(buildMultiOperatorColumnFilter(col) as TableFilter<T>);
     }
   }
   return result;

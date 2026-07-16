@@ -12,7 +12,7 @@ import {
 import { RegionCardinality } from "@blueprintjs/table";
 import {
   ActiveFiltersList,
-  columnFilter,
+  buildMultiOperatorColumnFilter,
   ColumnSpec,
   DataPanel,
   TableFilter,
@@ -172,7 +172,7 @@ export const UnifiedFilterBar: StoryObj = {
 
 // A filter object reused by the custom toolbar (the same one the default menu
 // would build), so the bespoke control and the store stay in sync.
-const statusFilter = columnFilter({
+const statusFilter = buildMultiOperatorColumnFilter({
   key: "status",
   name: "Status",
   dataType: "string",
@@ -281,7 +281,7 @@ function FacetSection({
   // the store.
   const filter = useMemo(
     () =>
-      columnFilter({
+      buildMultiOperatorColumnFilter({
         key: field,
         name: title,
         dataType: "string",

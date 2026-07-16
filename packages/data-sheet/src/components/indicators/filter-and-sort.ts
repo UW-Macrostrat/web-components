@@ -1,7 +1,7 @@
 import type { ColumnSpec } from "../../utils";
 import { ReactNode, useCallback, useMemo, useState } from "react";
 import {
-  columnFilter,
+  buildMultiOperatorColumnFilter,
   columnFilterId,
   ColumnFilterState,
   type TableFilter,
@@ -29,7 +29,7 @@ export function resolveColumnFilter(col: ColumnSpec): TableFilter {
     (f) => (f.columnKey ?? col.key) === col.key,
   );
   if (rich != null) return { ...rich, columnKey: rich.columnKey ?? col.key };
-  return columnFilter(col);
+  return buildMultiOperatorColumnFilter(col);
 }
 
 /** Shows an active column filter in the top menu */
@@ -157,7 +157,7 @@ function applicableColumnFilters(col: ColumnSpec): TableFilter[] {
     (col.filterable === true || typeof col.filterable === "object") &&
     !hasOwnColumnFilter
   ) {
-    result.push(columnFilter(col));
+    result.push(buildMultiOperatorColumnFilter(col));
   }
   return result;
 }

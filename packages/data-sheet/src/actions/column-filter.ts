@@ -9,8 +9,8 @@
  * (overridable via `filterable: { operators }`).
  */
 import hyper from "@macrostrat/hyper";
-import type { ColumnSpec } from "../utils/column-spec";
-import type { TableFilter } from "./types";
+import type { ColumnSpec } from "../provider/column-spec.ts";
+import type { ColumnFilterOptions, TableFilter } from "./types";
 import {
   FilterOperator,
   getOperatorsForColumn,
@@ -32,16 +32,13 @@ export function columnFilterId(key: string): string {
 }
 
 /** Built-in column filter for a column. */
-export function columnFilter(
+export function buildMultiOperatorColumnFilter(
   col: ColumnSpec,
 ): TableFilter<any, ColumnFilterState> {
   const operators = getOperatorsForColumn(col);
-  return {
-    id: columnFilterId(col.key),
-    name: col.name,
-    subject: col.name,
+  return enhanceColumnFilter(col, {
+    id: "default",
     icon: "filter",
-    columnKey: col.key,
     defaultState: { operator: operators[0], value: "" },
     describeState: (s) => {
       const val = s?.value;
@@ -53,5 +50,19 @@ export function columnFilter(
       testFilterOperator(row?.[col.key], s.operator, s.value),
     filterForm: ({ state, setState }) =>
       h(ColumnFilterForm, { operators, state, setState }),
+  });
+}
+
+/** Enhance column filter into a full TableFilter object. */
+export function enhanceColumnFilter(
+  col: ColumnSpec,
+  f: ColumnFilterOptions,
+): TableFilter<any, ColumnFilterState> {
+  return {
+    ...f,
+    id: `column-filter:${col.key}:${f.id}`,
+    name: f.name ?? col.name,
+    subject: col.name,
+    columnKey: col.key,
   };
 }

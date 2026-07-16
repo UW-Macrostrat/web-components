@@ -1,4 +1,5 @@
 import React from "react";
+import { enhanceColumnFilter, TableFilter } from "../actions";
 
 const defaultRenderers = {
   string: (d) => d,
@@ -314,7 +315,7 @@ export function generateColumnSpec<T>(
   });
 
   // Apply overrides
-  return filteredSpec.map((col) => {
+  const improvedSpec = filteredSpec.map((col) => {
     let ovr = overrides[col.key];
     if (ovr == null) return col;
     if (typeof ovr === "string") {
@@ -322,4 +323,26 @@ export function generateColumnSpec<T>(
     }
     return { ...col, ...ovr };
   });
+  return postprocessColumnSpec(improvedSpec);
+}
+
+export function postprocessColumnSpec(columnSpec: ColumnSpec[]) {
+  /** Postprocess column spec to make sure that, e.g., column filters are
+   * properly established, etc.
+   */
+  return columnSpec.map((col) => {
+    return {
+      ...col,
+      filters: postprocessColumnFilters(col),
+      actions: col.actions ?? [],
+    };
+  });
+}
+
+function postprocessColumnFilters(col: ColumnSpec): TableFilter[] {
+  const { filterable = true, filters = [] } = col;
+  if (!filterable) {
+    return [];
+  }
+  return filters.map((f) => enhanceColumnFilter(col, f));
 }

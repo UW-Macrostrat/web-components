@@ -37,6 +37,18 @@ export interface TableFilter<T = any, S = any> {
   predicate(row: T, state: S): boolean;
 }
 
+export interface ColumnFilter<T = any, S = any> extends Omit<
+  TableFilter<T, S>,
+  "columnKey"
+> {
+  columnKey: string;
+}
+
+export type ColumnFilterOptions<T = any, S = any> = Omit<
+  ColumnFilter<T, S>,
+  "columnKey" | "subject" | "name"
+> & { name?: string };
+
 /** An active filter entry stored in the table state. */
 export interface ActiveFilterEntry<T = any> {
   filter: TableFilter<T>;
