@@ -339,10 +339,10 @@ export function postprocessColumnSpec(columnSpec: ColumnSpec[]) {
   });
 }
 
-function postprocessColumnFilters(col: ColumnSpec): TableFilter[] {
+function postprocessColumnFilters(col: ColumnSpec): TableFilter[] | undefined {
   const { filterable = true, filters = [] } = col;
   if (!filterable) {
-    return [];
+    return undefined;
   }
   return filters.map((f) => enhanceColumnFilter(col, f));
 }

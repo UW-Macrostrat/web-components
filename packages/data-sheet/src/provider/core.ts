@@ -288,15 +288,13 @@ export function DataSheetProviderInner<T>(
   // would wipe the loaded rows. `staticSpec` is a stable value in that case.
   const isFnSpec = typeof columnSpec === "function";
 
-  let staticSpec = isFnSpec ? EMPTY_SPEC : columnSpec;
-  if (staticSpec != null) {
-    staticSpec = postprocessColumnSpec(staticSpec);
-  }
-
+  const staticSpec = isFnSpec ? EMPTY_SPEC : columnSpec;
   // Not sure how required this initialization is
+  const baseSpec = staticSpec ?? generateColumnSpec(data, columnSpecOptions);
+
   useEffect(() => {
     initializeStore({
-      columnSpec: staticSpec ?? generateColumnSpec(data, columnSpecOptions),
+      columnSpec: postprocessColumnSpec(baseSpec),
       // A function spec is derived from the loaded rows in `_DataSheet`; tell
       // the loader not to auto-generate a plain spec from the first chunk.
       deferColumnSpec: isFnSpec,
