@@ -64,6 +64,8 @@
 
   &.interactive
     cursor: pointer
+    &:not(.enabled)
+      color: var(--bp-typography-color-muted) !important
 
   &:not(.interactive)
     background: transparent !important

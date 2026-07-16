@@ -31,7 +31,8 @@ import {
   resolveInteractionOptions,
 } from "./interactions.ts";
 import { DataViewProps } from "../data-view.ts";
-import { DataPanelProps, DataSheetProps } from "../types.ts";
+import { DataSheetProps } from "../types.ts";
+import { DataPanelProps } from "../data-panel.ts";
 
 /** Create a Jotai scoped store */
 export const ctx = createScopedStore();

@@ -628,6 +628,9 @@ export function useDataLoader<T = any>(
 ) {
   const { pageSize = 100, fetchMode = "scroll" } = options;
   const [state, dispatch] = useLazyLoaderReducer();
+
+  const { isLocalProvider, provider } = ctx.useValue(dataProviderAtom);
+
   const visibleRegion = ctx.useValue(visibleRegionAtom);
   const page = ctx.useValue(chunkPageAtom);
   const setPage = ctx.useSet(chunkPageAtom);

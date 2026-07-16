@@ -165,16 +165,16 @@ export function ActionsToolbar<T>({
     h(SelectionIndicator, { context: ctx }),
     h(
       ButtonGroup,
-      { key: "contextual", minimal: true },
+      { minimal: true },
       contextual.map((action) =>
         h(ActionButton, { key: action.id, action, ctx }),
       ),
     ),
     children,
-    h("div.toolbar-spacer", { key: "spacer", style: { flex: 1 } }),
+    h("div.toolbar-spacer", { style: { flex: 1 } }),
     h(
       ButtonGroup,
-      { key: "global", minimal: true },
+      { minimal: true },
       globalActions.map((action) =>
         h(ActionButton, { key: action.id, action, ctx }),
       ),
@@ -222,29 +222,30 @@ function SelectionIndicator({ context }: { context: TableActionContext<any> }) {
   const itemLabel = ctx.useValue(itemLabelAtom);
 
   const toggleModalSelection = ctx.useSet(toggleModalSelectionAtom);
+  const { enableModalSelection, enableSelection } = interactionState;
 
   const hasSelection = selection != null && selection.length > 0;
   let _name = tableName;
   if (hasSelection) {
     _name = selectionTitle(context, itemLabel) ?? tableName;
+  } else if (enableModalSelection) {
+    _name = "Select";
   }
+
+  const isClearable = hasSelection || (enableModalSelection && enableSelection);
 
   let onClick = null;
   let icon: string | null = null;
   let enterSelectionButton: React.ReactNode = null;
-  if (interactionState.enableModalSelection) {
+  if (enableModalSelection) {
     onClick = toggleModalSelection;
-    if (!hasSelection) {
+    if (!isClearable) {
       icon = "more";
     }
   }
 
-  const showAsEnabled =
-    hasSelection ||
-    (interactionState.enableModalSelection && interactionState.enableSelection);
-
   const className = classNames("selection-indicator-tag", {
-    enabled: showAsEnabled,
+    enabled: isClearable,
     interactive: onClick != null || hasSelection,
   });
 
@@ -256,9 +257,9 @@ function SelectionIndicator({ context }: { context: TableActionContext<any> }) {
         large: true,
         onClick,
         rightIcon: icon,
-        intent: showAsEnabled ? "primary" : undefined,
+        intent: isClearable ? "primary" : undefined,
         className,
-        onRemove: hasSelection ? clearSelection : undefined,
+        onRemove: isClearable ? clearSelection : undefined,
       },
       [_name, enterSelectionButton],
     ),

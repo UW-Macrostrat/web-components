@@ -16,13 +16,10 @@ import { ReactNode } from "react";
 import {
   DataSheetProvider,
   DataViewRendererType,
-  resolveInteractionOptions,
   splitDataProviderProps,
-  useResolvedProvider,
 } from "./provider";
 import { DataSheetRenderer } from "./data-sheet.ts";
-import { DataPanelProps } from "./types.ts";
-import { DataPanelRenderer } from "./data-panel.ts";
+import { DataPanelProps, DataPanelRenderer } from "./data-panel.ts";
 
 export interface DataViewProps<T = any> extends DataPanelProps<T> {
   /** Which renderer to show. `cards` needs `itemComponent`. */
@@ -50,7 +47,7 @@ export function DataView<T>(props: DataViewProps<T>) {
     // The rest (provider/fetchData/identity/actions/filters/pageSize/
     // name/statusBar/refreshToken) is common to both renderers.
     ...common
-  } = rendererProps;
+  } = rendererProps as DataPanelProps<T>;
 
   let renderer: ReactNode;
   if (viewType === "cards") {
