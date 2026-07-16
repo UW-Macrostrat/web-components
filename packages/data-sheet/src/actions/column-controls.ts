@@ -42,7 +42,7 @@ export const columnSortAction: TableAction = {
   renderMenuItem(ctx) {
     const col = selectedColumn(ctx);
     if (!col?.sortable) return null;
-    return h(ColumnSortMenu, { columnKey: col.key });
+    return h(ColumnSortMenu, { columnKey: col.key, defaultLabel: "Sort" });
   },
 };
 

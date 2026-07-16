@@ -46,8 +46,9 @@ export function buildMultiOperatorColumnFilter(
       const op = OPERATOR_LABELS[s.operator] ?? s.operator;
       return `${op} ${val}`;
     },
-    predicate: (row, s) =>
-      testFilterOperator(row?.[col.key], s.operator, s.value),
+    predicate: (row, s) => {
+      return testFilterOperator(row?.[col.key], s.operator, s.value);
+    },
     filterForm: ({ state, setState }) =>
       h(ColumnFilterForm, { operators, state, setState }),
   });

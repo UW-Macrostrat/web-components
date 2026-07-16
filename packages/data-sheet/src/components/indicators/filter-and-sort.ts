@@ -1,4 +1,4 @@
-import type { ColumnSpec } from "../../utils";
+import type { ColumnSpec } from "../../provider";
 import { ReactNode, useCallback, useMemo, useState } from "react";
 import {
   buildMultiOperatorColumnFilter,
@@ -93,7 +93,7 @@ export function FilterIndicator({
   );
 }
 
-function MenuDropdown({ children, content, isOpen, ...props }: any) {
+export function MenuDropdown({ children, content, isOpen, ...props }: any) {
   return h(
     PopoverNext,
     {
@@ -101,6 +101,7 @@ function MenuDropdown({ children, content, isOpen, ...props }: any) {
       placement: "bottom-start",
       enforceFocus: true,
       autoFocus: false,
+      arrow: false,
     },
     children,
   );
@@ -127,7 +128,7 @@ function buildFilterTagLabel(
     columnKeyEl = h([h("span.subject", subj), h("span.sep", " ")]);
   }
 
-  const showOperator = !minimal || !isActive;
+  const showOperator = (!minimal || !isActive) && name != subj;
   let operatorEl: ReactNode = null;
   if (showOperator) {
     operatorEl = h([h("span.operator", name), h("span.sep", ": ")]);
@@ -237,7 +238,6 @@ function useFilterProps(filter: TableFilter) {
  * in a submenu. */
 export function ColumnFilterMenu({ col }: { col: ColumnSpec }) {
   const filters = useMemo(() => applicableColumnFilters(col), [col]);
-  const builtinId = columnFilterId(col.key);
   return h(
     filters.map((f) =>
       h(ColumnFilterMenuItem, {
@@ -245,7 +245,7 @@ export function ColumnFilterMenu({ col }: { col: ColumnSpec }) {
         filter: f,
         // The generic operator filter is just "Filter" in its own column's
         // menu; rich (user-provided) filters keep their descriptive names.
-        label: f.id === builtinId ? "Filter" : f.name,
+        label: f.columnKey === col.key ? "Filter" : f.name,
       }),
     ),
   );
@@ -345,7 +345,13 @@ function displayParamsForSort(sort: ColumnSort | undefined) {
     sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
   const label =
     sort == null ? null : sort.ascending ? "Ascending" : "Descending";
-  return { icon, label };
+
+  let intent = "none";
+  if (sort != null) {
+    intent = "primary";
+  }
+
+  return { icon, label, intent };
 }
 
 export function ColumnSortIndicator({
@@ -360,17 +366,18 @@ export function ColumnSortIndicator({
   large?: boolean;
 }) {
   const [sort, setSort] = useSortAtom(columnKey);
-  const { icon, label } = displayParamsForSort(sort);
+  const { icon, label, intent } = displayParamsForSort(sort);
 
   const columnLabel = showColumnKey ? `${columnKey}: ` : "";
   let onRemove: any = undefined;
   let rightIcon: string | undefined = "caret-down";
-  let intent: "none" | "primary" = "none";
   if (sort != null) {
     rightIcon = undefined;
     onRemove = () => setSort(null);
-    intent = "primary";
   }
+
+  let valLabel = label;
+  valLabel ??= showColumnKey ? columnKey : "Sort";
 
   return h(
     MenuDropdown,
@@ -388,7 +395,7 @@ export function ColumnSortIndicator({
         intent,
         onRemove,
       },
-      h([columnLabel, label]),
+      h([columnLabel, valLabel]),
     ),
   );
 }
@@ -400,15 +407,17 @@ export function ColumnSortIndicator({
  * `DataPanel` uses the column name, so its Sort menu lists one item per field). */
 export function ColumnSortMenu({
   columnKey,
+  defaultLabel,
 }: {
   columnKey: string;
   text?: string;
+  defaultLabel?: string;
 }) {
   const [sort, setSort] = useSortAtom(columnKey);
-  const { icon, label } = displayParamsForSort(sort);
+  const { icon, label, intent } = displayParamsForSort(sort);
   return h(
     MenuItem,
-    { icon, text: label ?? columnKey },
+    { icon, text: label ?? defaultLabel ?? columnKey, intent },
     h(ColumnSortActions, { sort, setSort }),
   );
 }

@@ -138,6 +138,8 @@ export interface DataPanelProps<T = any> extends DataViewSharedProps<T> {
   scrollBody?: ComponentType<ScrollBodyProps>;
   className?: string;
   toolbarStyle?: DataPanelToolbarStyle | string;
+  /** Arbitrary children rendered inside the provider, after the panel. */
+  children?: ReactNode;
 }
 
 /**
@@ -183,6 +185,7 @@ export function DataPanelRenderer<T>({
   scrollBody,
   className,
   toolbarStyle = DataPanelToolbarStyle.BORDERED,
+  children,
 }: Omit<DataPanelProps<T>, "provider" | "fetchData" | "data" | "identity">) {
   const {
     provider: activeProvider,
@@ -375,6 +378,7 @@ export function DataPanelRenderer<T>({
         footer,
       ]),
       h.if(sidebar != null)("div.data-panel-sidebar-container", sidebar),
+      children,
     ],
   );
 }

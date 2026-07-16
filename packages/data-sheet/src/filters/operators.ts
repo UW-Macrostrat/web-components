@@ -4,7 +4,7 @@
  * translates it to a query). Promoted to core from the PostgREST column header,
  * so there is one operator model, not two.
  */
-import type { ColumnSpec } from "../provider/column-spec.ts";
+import type { ColumnSpec } from "../provider";
 
 /** Column-filter operators. A superset that covers both in-memory comparison
  * and common backend query operators (PostgREST maps onto these names).

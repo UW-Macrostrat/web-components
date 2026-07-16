@@ -75,6 +75,7 @@ export function createLocalProvider<T = any>(
 ): TableDataProvider<T> {
   const identity: (row: T) => string | number =
     options.identity ?? defaultLocalIdentity;
+
   return {
     identity,
     async fetchData({ offset, limit, sorts, filters }) {
