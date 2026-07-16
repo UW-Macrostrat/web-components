@@ -8,11 +8,7 @@ import {
   tableNameAtom,
 } from "../provider";
 import { atom } from "jotai";
-import {
-  computeSelectionShape,
-  getSelectedColumnKeys,
-  TableActionContext,
-} from "../actions";
+import { computeSelectionShape, getSelectedColumnKeys } from "../actions";
 import { RegionCardinality } from "@blueprintjs/table";
 import classNames from "classnames";
 import h from "./selection-indicator.module.sass";
@@ -77,11 +73,7 @@ const clearableSelectionAtom = atom(
   },
 );
 
-export function SelectionIndicator({
-  context,
-}: {
-  context: TableActionContext<any>;
-}) {
+export function SelectionIndicator({ minimal = true }: { minimal?: boolean }) {
   /** An indicator that shows the table's current selection shape, and optionally modal selection status */
   // The leading title doubles as the clear-selection affordance: with an active
   // selection it renders as a dismissible tag (its ✕ clears the selection),
@@ -111,6 +103,10 @@ export function SelectionIndicator({
   }
 
   const isClearable = hasSelection || (enableModalSelection && enableSelection);
+
+  if (minimal && !(hasSelection || enableModalSelection)) {
+    return null;
+  }
 
   let onClick = null;
   let icon: string | null = null;

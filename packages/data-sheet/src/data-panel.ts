@@ -72,9 +72,8 @@ import { atom } from "jotai";
 import { passThroughSet } from "./utils";
 
 export enum DataPanelToolbarStyle {
-  BORDERED = "border",
+  BORDERED = "bordered",
   FADE = "fade",
-  OVERLAY = "overlay",
   MINIMAL = "minimal",
 }
 

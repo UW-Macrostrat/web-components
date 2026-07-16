@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, PopoverNext } from "@blueprintjs/core";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import h from "./toolbar.module.sass";
 import { ctx, useSelector } from "../provider";
 import {
@@ -29,11 +29,13 @@ export function ActionsToolbar<T>({
   actions,
   children,
   className,
+  compact = false,
 }: {
   actions: TableAction<T>[];
   tableName?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
+  compact: boolean;
 }) {
   const selection = useSelector((state) => state.selection);
   const editable = useSelector((state) => state.editable);
@@ -92,7 +94,7 @@ export function ActionsToolbar<T>({
   const globalActions = shownActions.filter(isGlobal);
 
   return h("div.actions-toolbar", { className }, [
-    h(SelectionIndicator, { context: ctx }),
+    h(SelectionIndicator, { minimal: compact }),
     h(
       ButtonGroup,
       { minimal: true },
