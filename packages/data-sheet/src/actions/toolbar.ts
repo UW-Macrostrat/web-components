@@ -2,16 +2,19 @@ import { Button, ButtonGroup, PopoverNext, Tag } from "@blueprintjs/core";
 import { useCallback, useMemo, useState } from "react";
 import h from "./toolbar.module.sass";
 import {
+  columnSpecAtom,
   ctx,
   interactionOptionsAtom,
   itemLabelAtom,
+  pluralize,
   selectionAtom,
   tableNameAtom,
   useSelector,
-  useStoreAPI,
 } from "../provider";
 import {
+  computeSelectionShape,
   getApplicableActions,
+  getSelectedColumnKeys,
   getSelectionCardinality,
   mergeColumnActions,
 } from "./selection";
@@ -29,60 +32,28 @@ import {
 
 /** A short title describing the current selection (its shape), shown as the
  * toolbar's leading label — no icon. */
-function selectionTitle<T>(
-  ctx: TableActionContext<T>,
-  itemName = "row",
-): string | null {
-  const sh = ctx.selectionShape;
-  switch (sh.cardinality) {
-    case RegionCardinality.FULL_COLUMNS: {
-      if (ctx.columnKey != null) {
-        const col = ctx.columnSpec.find((c) => c.key === ctx.columnKey);
-        return col?.name ?? "Column";
-      }
-      return `${sh.columns} columns`;
-    }
-    case RegionCardinality.FULL_ROWS:
-      return ctx.rowIndex != null ? `1 ${itemName}` : `${sh.rows} ${itemName}s`;
-    case RegionCardinality.CELLS:
-      if (ctx.cell != null) {
-        return "1 cell";
-      }
-      if (sh.columns == 1 || sh.rows == 1) {
-        const nCells = Math.max(sh.columns, sh.rows);
-        return `${nCells} cells`;
-      }
-      return `${sh.columns}×${sh.rows} cells`;
-    case RegionCardinality.FULL_TABLE:
-      return null;
-    default:
-      return null;
-  }
-}
+const selectionTitleAtom = atom<string | null>((get) => {
+  const sel = get(selectionAtom);
+  if (sel == null || sel.length === 0) return null;
+  const sh = computeSelectionShape(sel);
+  const itemName = get(itemLabelAtom);
 
-function selectionTitleInner<T>(
-  ctx: TableActionContext<T>,
-  columnSpec: ColumnSpec[],
-  itemName = "row",
-): string | null {
-  const sh = ctx.selectionShape;
   switch (sh.cardinality) {
     case RegionCardinality.FULL_COLUMNS: {
-      if (ctx.columnKey != null) {
-        const col = columnSpec.find((c) => c.key === ctx.columnKey);
-        return col?.name ?? "Column";
+      if (sh.columns == 1) {
+        const columnSpec = get(columnSpecAtom);
+        const columnKey = getSelectedColumnKeys(sel, columnSpec)[0];
+        const col = columnSpec.find((c) => c.key === columnKey);
+        return col?.name ?? "1 column";
       }
-      return `${sh.columns} columns`;
+      return itemCount(sh.columns, "column");
     }
     case RegionCardinality.FULL_ROWS:
-      return ctx.rowIndex != null ? `1 ${itemName}` : `${sh.rows} ${itemName}s`;
+      return itemCount(sh.rows, itemName);
     case RegionCardinality.CELLS:
-      if (ctx.cell != null) {
-        return "1 cell";
-      }
       if (sh.columns == 1 || sh.rows == 1) {
         const nCells = Math.max(sh.columns, sh.rows);
-        return `${nCells} cells`;
+        return itemCount(nCells, "cell");
       }
       return `${sh.columns}×${sh.rows} cells`;
     case RegionCardinality.FULL_TABLE:
@@ -90,6 +61,10 @@ function selectionTitleInner<T>(
     default:
       return null;
   }
+});
+
+function itemCount(n: number, itemType: string) {
+  return `${n} ` + pluralize(itemType, n);
 }
 
 /** Toolbar that renders the actions/controls applicable to the current
@@ -222,15 +197,17 @@ function SelectionIndicator({ context }: { context: TableActionContext<any> }) {
   const [selection, clearSelection] = ctx.use(clearableSelectionAtom);
   const interactionState = ctx.useValue(interactionOptionsAtom);
   const tableName = ctx.useValue(tableNameAtom);
-  const itemLabel = ctx.useValue(itemLabelAtom);
 
   const toggleModalSelection = ctx.useSet(toggleModalSelectionAtom);
   const { enableModalSelection, enableSelection } = interactionState;
 
   const hasSelection = selection != null && selection.length > 0;
+
+  let selectionName: string | null = ctx.useValue(selectionTitleAtom);
+
   let _name = tableName;
   if (hasSelection) {
-    _name = selectionTitle(context, itemLabel) ?? tableName;
+    _name = selectionName ?? tableName;
   } else if (enableModalSelection) {
     _name = "Select";
   }
