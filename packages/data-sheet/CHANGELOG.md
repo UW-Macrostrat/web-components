@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [4.2.0] - 2026-07-16
 
 Major refactor to data providers
 
