@@ -9,7 +9,7 @@ import {
   type TableFilter,
 } from "../../actions";
 import type { ColumnSpec } from "../../utils";
-import { FilterIndicator } from "../indicators";
+import { ColumnSortIndicator, FilterIndicator } from "../indicators";
 
 /** Collect all available filters from global filters and column specs. */
 function collectAllFilters<T>(
@@ -93,27 +93,24 @@ export function ActiveFiltersList<T>({
     h(
       "div.group.filters",
       filterArray.map(([id, entry]) =>
-        h(FilterIndicator, { key: id, ...entry, large: false, minimal: false }),
+        h(FilterIndicator, {
+          key: id,
+          ...entry,
+          large: false,
+          minimal: false,
+          showSubject: true,
+        }),
       ),
     ),
     h(
       "div.group.sorts",
-      columnSorts.map((s) =>
-        h(
-          Tag,
-          {
-            key: `sort-${s.key}`,
-            icon: s.ascending ? "sort-asc" : "sort-desc",
-            intent: "primary",
-            minimal: true,
-            className: "filter-tag",
-            onRemove() {
-              storeAPI.getState().setColumnSort(s.key, null);
-            },
-          },
-          `${s.key}: ${s.ascending ? "Ascending" : "Descending"}`,
-        ),
-      ),
+      columnSorts.map((s) => {
+        return h(ColumnSortIndicator, {
+          columnKey: s.key,
+          large: false,
+          showColumnKey: true,
+        });
+      }),
       h.if(showAdd)(AddFilterPopover, {
         filters: availableFilters,
       }),

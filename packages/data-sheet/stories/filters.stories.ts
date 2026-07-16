@@ -13,7 +13,6 @@ import {
   SegmentedControl,
   NumericInput,
   InputGroup,
-  Button,
 } from "@blueprintjs/core";
 
 const h = hyper;
@@ -45,7 +44,7 @@ const testData = buildData();
 // This is a generic text search filter
 const nameFilter: TableFilter = {
   id: "name-filter",
-  name: "Name contains",
+  name: "contains",
   icon: "search",
   columnKey: "name",
   description: "Show only rows where the name contains a string.",

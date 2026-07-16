@@ -13,7 +13,7 @@ import { TableActionContext } from "./context.ts";
 import {
   ColumnFilterControl,
   ColumnFilterMenu,
-  ColumnSortControl,
+  ColumnSortIndicator,
   ColumnSortMenu,
 } from "../components";
 
@@ -37,7 +37,7 @@ export const columnSortAction: TableAction = {
   render(ctx) {
     const col = selectedColumn(ctx);
     if (!col?.sortable) return null;
-    return h(ColumnSortControl, { columnKey: col.key });
+    return h(ColumnSortIndicator, { columnKey: col.key, large: true });
   },
   renderMenuItem(ctx) {
     const col = selectedColumn(ctx);

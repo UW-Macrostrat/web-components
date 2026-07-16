@@ -100,8 +100,7 @@ export function ActionsToolbar<T>({
   return h("div.actions-toolbar", { className }, [
     h(SelectionIndicator, { minimal: compact }),
     h(
-      ButtonGroup,
-      { minimal: true },
+      "div.toolbar-group.contextual",
       contextual.map((action) =>
         h(ActionButton, { key: action.id, action, ctx: actionContext }),
       ),

@@ -29,7 +29,9 @@ export interface TableFilter<T = any, S = any> {
   /** Summarize the current filter state for display on the active-filter tag
    * (e.g. the range `0–250` or the search term). Keep it short — the tag also
    * shows the filter name. Return `null` to show just the name. */
-  describeState?: (state: S) => import("react").ReactNode;
+  describeState?: (state: S) => ReactNode;
+  /** The entity (e.g., a column) being described. */
+  subject?: string;
   /** Row predicate: return `true` if the row should be visible.
    * Receives the merged row (updatedData overlaid on data). */
   predicate(row: T, state: S): boolean;

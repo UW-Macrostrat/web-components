@@ -39,13 +39,16 @@ export function columnFilter(
   return {
     id: columnFilterId(col.key),
     name: col.name,
+    subject: col.name,
     icon: "filter",
     columnKey: col.key,
     defaultState: { operator: operators[0], value: "" },
-    describeState: (s) =>
-      s?.value
-        ? `${OPERATOR_LABELS[s.operator] ?? s.operator} ${s.value}`
-        : null,
+    describeState: (s) => {
+      const val = s?.value;
+      if (val == null || val === "") return null;
+      const op = OPERATOR_LABELS[s.operator] ?? s.operator;
+      return `${op} ${val}`;
+    },
     predicate: (row, s) =>
       testFilterOperator(row?.[col.key], s.operator, s.value),
     filterForm: ({ state, setState }) =>
