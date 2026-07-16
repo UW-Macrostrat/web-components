@@ -1,5 +1,5 @@
 import { type Region, RegionCardinality } from "@blueprintjs/table";
-import type { ColumnSpec } from "../utils";
+import type { ColumnSpec } from "../provider";
 import type { TableAction } from "./types";
 import { RefObject } from "react";
 import { SelectModifiers } from "../data-panel.ts";

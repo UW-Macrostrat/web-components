@@ -6,7 +6,6 @@ import {
   DS_ROW_ID,
   StateUpdater,
   TableElementStatus,
-  VisibleCells,
 } from "./types.ts";
 import {
   type FocusedCellCoordinates,
@@ -222,7 +221,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     },
     resetChanges(regions?: Region[]) {
       // Reset the updated data to the initial data
-      set((state) => resetChangesForSelection(state, regions));
+      set((state) => resetChangesForSelection(state, regions ?? []));
       get().onEdit?.({ type: "resetChanges" });
     },
     onColumnWidthChanged(columnIx: number, newWidth: number) {
@@ -570,7 +569,7 @@ function fillValues<T>(state: DataSheetStore<T>, selection: Region[]) {
   let regions = selection.map((region) => {
     const { cols, rows } = region;
     // Get the first column (maybe should be the last)
-    const [col] = cols;
+    const [col] = cols ?? [];
     return { cols: [col, col], rows };
   });
 
@@ -584,7 +583,7 @@ function fillValues<T>(state: DataSheetStore<T>, selection: Region[]) {
   const spec = {};
   for (const region of regions) {
     const { rows } = region;
-    for (const visibleRow of range(rows)) {
+    for (const visibleRow of range(rows ?? [])) {
       const row = toDataRowIndex(state, visibleRow);
       let op = updatedData[row] == null ? "$set" : "$merge";
       spec[row] = { [op]: { [key]: value } };
@@ -680,7 +679,7 @@ function resetChangesForSelection<T>(
       }
       // TODO: if we allow column addition/deletion, this will require more adjustment
       return {
-        updatedData: update(updatedData, spec),
+        updatedData: update(updatedData, spec as any),
         ...emptySelection,
       };
     case RegionCardinality.FULL_ROWS:

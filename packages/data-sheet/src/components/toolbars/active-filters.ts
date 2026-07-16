@@ -8,7 +8,7 @@ import {
   getSelectionCardinality,
   type TableFilter,
 } from "../../actions";
-import type { ColumnSpec } from "../../utils";
+import type { ColumnSpec } from "../../provider";
 import { ColumnSortIndicator, FilterIndicator } from "../indicators";
 
 /** Collect all available filters from global filters and column specs. */
@@ -84,10 +84,7 @@ export function ActiveFiltersList<T>({
       h("p.description", "No active filters or sorts"),
     );
 
-  const filterArray = Array.from(activeFilters.entries()) as [
-    string,
-    TableFilter<T> & { state: any },
-  ][];
+  const filterArray = Array.from(activeFilters.entries()) as any[];
 
   return h("div.filter-bar", [
     h(

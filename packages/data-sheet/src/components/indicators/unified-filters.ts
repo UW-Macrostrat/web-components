@@ -2,12 +2,11 @@ import {
   ALL_CARDINALITIES,
   isColumnFilterable,
   TableAction,
-  type TableFilter,
 } from "../../actions";
 import { ctx, storeAtom, useSelector } from "../../provider";
 import { useMemo } from "react";
 import h from "../../data-panel.module.sass";
-import { Button, Menu, PopoverNext, Tag } from "@blueprintjs/core";
+import { Menu, Tag } from "@blueprintjs/core";
 import {
   ColumnFilterMenuItem,
   ColumnSortMenu,

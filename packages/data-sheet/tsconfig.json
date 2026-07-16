@@ -4,11 +4,11 @@
     "composite": true,
     // Note: adjusted rootDir to contain stories, so utility functions can
     // be resolved across multiple story files.
-    "rootDir": ".",
+    "rootDir": "src",
     "outDir": "dist",
     "declarationDir": "dist"
   },
-  "include": ["src", "stories"],
+  "include": ["src", ],
   "references": [
     { "path": "../color-utils" },
     { "path": "../data-components" },

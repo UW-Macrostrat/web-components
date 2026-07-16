@@ -2,7 +2,6 @@ import type { ColumnSpec } from "../../provider";
 import { ReactNode, useCallback, useMemo, useState } from "react";
 import {
   buildMultiOperatorColumnFilter,
-  columnFilterId,
   ColumnFilterState,
   type TableFilter,
 } from "../../actions";

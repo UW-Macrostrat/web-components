@@ -5,6 +5,7 @@ import { debounce } from "underscore";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import update, { Spec } from "immutability-helper";
 import {
+  ClientServerOptions,
   PostgrestClient,
   PostgrestFilterBuilder,
   PostgrestQueryBuilder,
@@ -75,6 +76,7 @@ export interface PostgrestColumnFilter {
 }
 
 export interface PostgrestFilter {
+  id?: string;
   type: "filter";
   apply(
     req: PostgrestFilterBuilder<any, any, any, any>,
@@ -155,7 +157,7 @@ function lazyLoadingReducer<T>(
       return {
         ...state,
         loading: false,
-        data: update(state.data, action.changes),
+        data: update(state.data, action.changes as any),
       };
     case "loaded":
       let data = adjustArraySize(state.data, action.totalSize);
@@ -282,7 +284,7 @@ function buildKeysetPredicate(
 }
 
 function buildQuery<T>(
-  client: PostgrestQueryBuilder<T, any, any>,
+  client: PostgrestQueryBuilder<any, any, any>,
   config: QueryConfig,
 ) {
   const { columns = "*", count, lastLoadedRowIndex } = config;
@@ -324,7 +326,7 @@ function buildQuery<T>(
     if (pred != null) query = query.or(pred);
   }
 
-  let offset = null;
+  let offset: number | null = null;
   if (!hasOrdering && lastLoadedRowIndex > 0) {
     // We need to load based on offsets
     offset = lastLoadedRowIndex + 1;
@@ -339,7 +341,6 @@ function buildQuery<T>(
     }
   }
 
-  console.log("query", query.url.search);
   return query;
 }
 

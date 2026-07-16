@@ -16,8 +16,8 @@ import {
 } from "./selection.ts";
 import { Getter, Setter } from "jotai";
 import type { Store as JotaiStore } from "jotai/vanilla/store";
-import { storeAPIAtom } from "../provider/core";
-import { ColumnSpec } from "../utils";
+import { storeAPIAtom } from "../provider";
+import type { ColumnSpec } from "../provider";
 import type { TableAction } from "./types.ts";
 
 interface ActionContextOptions {
@@ -54,9 +54,9 @@ export interface TableActionContext<T = any> {
   /** The table's base data */
   data: T[];
   /** Sparse overlay of edited data */
-  updatedData: T[];
+  updatedData: (T | null | undefined)[];
   /** Row status tracking added/deleted rows */
-  rowStatus: RowStatusValue[];
+  rowStatus: (RowStatusValue | null | undefined)[];
   /** Column definitions */
   columnSpec: ColumnSpec[];
   /** Whether the table is in edit mode */

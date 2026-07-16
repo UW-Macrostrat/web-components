@@ -61,7 +61,7 @@ export const storeAtom = atom(
     }
     return get(storeWrapper);
   },
-  (get, set, action: SetStateAction<T>) => {
+  (get, set, action: SetStateAction<any>) => {
     const storeWrapper = get(storeWrapperAtom);
     if (storeWrapper == null) {
       throw new Error("Missing DataSheetProvider");
@@ -76,7 +76,7 @@ const EMPTY_SPEC: ColumnSpec[] = [];
 
 const initializeStoreAtom = atom(
   null,
-  (get, set, payload: Partial<DataSheetStore<T>>) => {
+  (get, set, payload: Partial<DataSheetStore<any>>) => {
     set(storeAtom, (state) => {
       return {
         ...state,
@@ -321,7 +321,7 @@ export function DataSheetProviderInner<T>(
   // — hidden columns, order, overrides). Guarded by the function identity, so
   // it never re-runs as more rows page in (which would clobber in-store column
   // state on scroll).
-  const loadedData = useSelector<T, T[]>((s) => s.data);
+  const loadedData = useSelector<T, T[]>((s) => s.data ?? []);
   const derivedSpecFor = useRef<unknown>(null);
   useEffect(() => {
     if (typeof columnSpec !== "function") return;
@@ -407,7 +407,7 @@ export function useStoreAPI<T>(): StoreApi<DataSheetStore<T>> {
 }
 
 export function useSelector<T = any, A = any>(
-  selector: (state: DataSheetStore<T> & DataSheetComputedVals) => A,
+  selector: (state: DataSheetStore<T>) => A,
 ): A {
   const store = useStoreAPI<T>();
   return useStore(store, selector);

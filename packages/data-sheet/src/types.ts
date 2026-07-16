@@ -8,7 +8,7 @@ import {
   TableElementStatus,
   VisibleCells,
 } from "./provider";
-import type { ColumnSpec, ColumnSpecOptions } from "./utils";
+import type { ColumnSpec, ColumnSpecOptions } from "./provider";
 import { ReactNode } from "react";
 import { TableAction, TableActionContext, TableFilter } from "./actions";
 import { Region, TableProps } from "@blueprintjs/table";
@@ -148,6 +148,9 @@ export interface DataSheetRendererProps<T = any>
    * nullish value to keep the default. For group-key labels, omit indicators,
    * etc. Header-cell *styling* still comes from `rowStatusStyles`. */
   rowHeaderRenderer?: (ctx: RowHeaderRenderContext<T>) => ReactNode;
+  minRowHeight: number;
+  defaultColumnWidth: number;
+  debug: boolean;
 }
 
 export type DataSheetProps<T> = DataViewCoreProps<T> &

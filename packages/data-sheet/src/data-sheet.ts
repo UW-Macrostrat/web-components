@@ -98,11 +98,6 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
   );
 }
 
-interface DataSheetRendererInternalProps<T> extends DataSheetRendererProps<T> {
-  minRowHeight: number;
-  defaultColumnWidth: number;
-}
-
 const verboseAtom = atom(false);
 
 /** The table (cell-grid) renderer. Assumes it is rendered inside a
@@ -143,7 +138,7 @@ export function DataSheetRenderer<T>({
   rowHeaderRenderer,
   children,
   ...tableProps
-}: DataSheetRendererInternalProps<T>) {
+}: DataSheetRendererProps<T>) {
   /**
    * @param data: The data to be displayed in the table
    * @param columnSpec: The specification for all columns in the table. If not provided, the column spec will be generated from the data.
@@ -380,11 +375,11 @@ export function DataSheetRenderer<T>({
   const realizedColumns = useMemo(() => {
     return columnSpec.map((col, colIndex) => {
       let fn =
-        col.headerCellRenderer ??
+        col.headerRenderer ??
         columnHeaderCellRenderer ??
         renderColumnHeaderCell;
-      let activeSort = null;
-      let activeFilter = null;
+      let activeSort: any = null;
+      let activeFilter: any = null;
       if (col.sortable) {
         activeSort = columnSorts?.find((s) => s.key === col.key);
       }
@@ -398,19 +393,22 @@ export function DataSheetRenderer<T>({
         }
       }
 
-      const _columnHeaderCellRenderer = (colIndex) => {
-        return fn({
-          col,
+      const _columnHeaderCellRenderer: any = (colIndex) => {
+        return fn(
+          {
+            col,
+            colIndex,
+            activeSort,
+            activeFilter,
+          },
           colIndex,
-          activeSort,
-          activeFilter,
-        });
+        );
       };
 
       return h(Column, {
         id: col.key,
         name: col.name,
-        columnHeaderCellRenderer: _columnHeaderCellRenderer,
+        columnHeaderCellRenderer: _columnHeaderCellRenderer as any,
         cellRenderer: (rowIndex) => {
           const state = storeAPI.getState();
           return basicCellRenderer<T>(
@@ -600,8 +598,14 @@ export function DataSheetRenderer<T>({
   ]);
 }
 
-const columnWidthsIndexAtom = atom((get) => get(storeAtom).columnWidthsIndex);
-const defaultColumnWidthAtom = atom((get) => get(storeAtom).defaultColumnWidth);
+const EMPTY_MAP = new Map<string, number>();
+
+const columnWidthsIndexAtom = atom(
+  (get) => get(storeAtom)?.columnWidthsIndex ?? EMPTY_MAP,
+);
+const defaultColumnWidthAtom = atom(
+  (get) => get(storeAtom)?.defaultColumnWidth ?? 150,
+);
 
 const columnWidthsAtom = atom((get) => {
   const ix = get(columnWidthsIndexAtom);

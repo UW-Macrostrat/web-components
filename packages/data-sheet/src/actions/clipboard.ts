@@ -231,7 +231,7 @@ function buildPasteEdits(
       const value = row[srcC] ?? "";
       edits.push({
         rowIndex: dataRow,
-        columnKey: ctx.columnSpec[colIdx].key,
+        column: ctx.columnSpec[colIdx].key,
         value,
       });
     }

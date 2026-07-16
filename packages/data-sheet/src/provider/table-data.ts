@@ -73,8 +73,7 @@ export function createLocalProvider<T = any>(
   data: T[],
   options: { identity?: (row: T) => string | number } = {},
 ): TableDataProvider<T> {
-  const identity: (row: T) => string | number =
-    options.identity ?? defaultLocalIdentity;
+  const identity: any = options.identity ?? defaultLocalIdentity;
 
   return {
     identity,

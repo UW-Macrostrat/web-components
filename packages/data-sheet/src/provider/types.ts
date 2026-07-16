@@ -4,7 +4,7 @@ import type {
   RegionCardinality,
   Table2,
 } from "@blueprintjs/table";
-import { ColumnSpec } from "../utils";
+import type { ColumnSpec, ColumnSpecOptions } from "./column-spec";
 import { OverlayToaster } from "@blueprintjs/core";
 import { DataViewCoreProps } from "../types";
 import { DataViewRendererType } from "./interactions.ts";
@@ -110,6 +110,7 @@ export interface ClipboardProxy {
 export interface DataSheetState<T> {
   selection: Region[];
   columnSpec: ColumnSpec[];
+  columnSpecOptions?: ColumnSpecOptions<T>;
   /** When `true`, the loader's first-chunk auto-generation of `columnSpec` is
    * suppressed — a function `columnSpec` derives it from the loaded rows
    * instead (in `_DataSheet`). Set at init from the prop's shape. */
@@ -124,13 +125,14 @@ export interface DataSheetState<T> {
    * This is used to track which rows should be reverted when
    * a "reset" action is performed.
    */
-  rowStatus: RowStatusValue[];
+  rowStatus: (RowStatusValue | undefined)[];
   /** Presentation per row-status value (merged: defaults + the
    * `rowStatusStyles` prop). Read by the cell renderer and row-header renderer
    * to style rows by status. */
   rowStatusStyles: RowStatusStyles;
   // Sparse data structure for updated data
-  updatedData: T[];
+  updatedData: (T | null | undefined)[];
+  data: T[];
   initialized: boolean;
   columnWidthsIndex: Map<string, number>;
   /** Active column/table filters. Keys are filter IDs, values carry the
@@ -236,11 +238,11 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   clearColumnSorts(): void;
   /** Store a clipboard proxy for potential backend-mediated paste */
   setClipboardProxy(proxy: ClipboardProxy | null): void;
-  initialize(props: Partial<DataSheetStoreMain<T>>): void;
+  //initialize(props: Partial<DataSheetStoreMain<T>>): void;
   onSelection(selection: Region[]): void;
   // Internal method used for infinite scrolling
   scrollToRow(rowIndex: number): void;
-  tableRef: React.MutableRefObject<Table2>;
+  tableRef: React.MutableRefObject<Table2> | null;
   columnWidthsIndex: Map<string, number>;
   defaultColumnWidth: number;
   // Editable is not optional on store

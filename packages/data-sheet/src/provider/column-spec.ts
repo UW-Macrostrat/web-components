@@ -58,7 +58,7 @@ export interface CellRenderContext<T = any> {
   /** The full column spec for this cell's column. */
   column: ColumnSpec;
   /** The full row object backing this cell (may be undefined while loading). */
-  row: T | undefined;
+  row: T | null | undefined;
   /** Whether this cell has an uncommitted edit. */
   isEdited: boolean;
   /** Whether this cell's row is marked for deletion. */

@@ -8,7 +8,7 @@
 import h from "@macrostrat/hyper";
 import { RegionCardinality } from "@blueprintjs/table";
 import type { TableAction } from "./types";
-import type { ColumnSpec } from "../provider/column-spec.ts";
+import type { ColumnSpec } from "../provider";
 import { TableActionContext } from "./context.ts";
 import {
   ColumnFilterControl,

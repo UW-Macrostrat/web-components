@@ -13,7 +13,7 @@ import {
 } from "../../actions";
 import { RegionCardinality } from "@blueprintjs/table";
 import { useToaster } from "../../notifications.ts";
-import { ColumnSpec } from "../../utils";
+import type { ColumnSpec } from "../../provider";
 import { SelectionIndicator } from "../index.ts";
 
 /** Toolbar that renders the actions/controls applicable to the current
@@ -69,8 +69,9 @@ export function ActionsToolbar<T>({
   // is omitted here (it still works via its shortcut). Then refine by selection
   // shape beyond cardinality (e.g. single column only).
   const shownActions = applicableActions.filter(
-    (action) =>
-      action.hotkey == null && (action.appliesTo?.(actionContext) ?? true),
+    (action: TableAction<T, any>) =>
+      action.hotkey == null &&
+      (action.appliesTo?.(actionContext as any) ?? true),
   );
 
   const toolbarIsShown = useMemo(
@@ -202,7 +203,7 @@ function ActionButtonWithForm<T, S>({
       onClose: () => setIsOpen(false),
       content: h("div.action-popover-content", [
         h.if(action.description != null)("p.description", action.description),
-        h(action.detailsForm, {
+        h(action.detailsForm as any, {
           state: configState,
           setState: setConfigState,
         }),

@@ -1,17 +1,18 @@
-import {
+import type {
   ColumnSpec,
   CellRenderContext,
   CellDetailContext,
-  editorKeyHandlerAtom,
-  validateCell,
-} from "../utils";
-import { DataSheetStore, TableElementStatus } from "../provider/types.ts";
+  DataSheetStore,
+} from "../provider";
+import { TableElementStatus } from "../provider";
+import { editorKeyHandlerAtom, validateCell } from "../utils";
 import h from "../main.module.sass";
 import { memo, ReactNode, useEffect, useRef, useState } from "react";
 import { EditorPopup, CellDetailModal } from "../components";
-import { singleFocusedCell } from "../provider/zustand-store.ts";
+import { singleFocusedCell } from "../provider";
 import { Cell } from "@blueprintjs/table";
 import { ctx, dragValueHandlerAtom, useSelector } from "../provider";
+import { Intent } from "@blueprintjs/core";
 
 /** Two validations are equivalent if they convey the same thing — so a fresh
  * `validateCell` result object doesn't force a re-render when nothing changed. */
@@ -121,7 +122,7 @@ export function basicCellRenderer<T>(
   // state overrides the edited-green so an edited-but-invalid cell reads as
   // invalid. A row's status intent (e.g. deleted → danger) outranks the
   // edited-green so status reads through even on an edited row.
-  let intent: string | undefined;
+  let intent: Intent | undefined;
   if (validation?.severity === "error") {
     intent = "danger";
   } else if (validation?.severity === "warning") {
@@ -176,10 +177,10 @@ export function basicCellRenderer<T>(
       {
         intent,
         loading,
-        value,
+        //value,
         style,
         interactive: false,
-        disabled: tableIsEditable && !editable,
+        //disabled: tableIsEditable && !editable,
       },
       h(CellContent, { cellContext }),
     );
@@ -187,7 +188,7 @@ export function basicCellRenderer<T>(
 
   const isEmpty = value == null || value === "";
 
-  const _renderedValue = isEmpty
+  const _renderedValue: any = isEmpty
     ? null
     : (col.valueRenderer?.(value, cellContext) ?? value);
 
@@ -347,7 +348,7 @@ export function basicCellRenderer<T>(
     );
   }
 
-  let cellContents: ReactNode = _renderedValue;
+  let cellContents: any = _renderedValue;
 
   let _dataEditor: ReactNode = null;
   let className: string | null = null;

@@ -9,13 +9,12 @@
 import h from "@macrostrat/hyper";
 import { ColumnHeaderCell, RegionCardinality } from "@blueprintjs/table";
 import { Icon, Menu, MenuItem } from "@blueprintjs/core";
-import { ctx, storeAPIAtom, tableActionsAtom } from "../provider";
-import type { ColumnSpec } from "../provider/column-spec.ts";
+import { ctx, tableActionsAtom, type ColumnSpec } from "../provider";
 import type {
   PostgrestColumnFilter,
   ColumnSortEntry,
 } from "../postgrest-table";
-import { buildActionContext } from "../actions/context.ts";
+import { buildActionContext } from "../actions";
 import { useMemo } from "react";
 
 export interface ColumnActionsConfig {
@@ -61,7 +60,7 @@ export function renderColumnHeaderCell({
           hasSortActive: false,
           hasFilterActive: false,
           activeSort: null,
-        }),
+        }) as any,
     });
   }
 
@@ -78,7 +77,12 @@ export function renderColumnHeaderCell({
     // column was selected.
     enableColumnInteractionBar: true,
     nameRenderer: () =>
-      h(ColumnHeaderName, { col, hasSortActive, hasFilterActive, activeSort }),
+      h(ColumnHeaderName, {
+        col,
+        hasSortActive,
+        hasFilterActive,
+        activeSort,
+      }) as any,
     menuRenderer: () => h(ColumnHeaderControls, { colIndex }),
   });
 }

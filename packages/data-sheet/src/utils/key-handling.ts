@@ -48,7 +48,7 @@ export const tableHotkeysAtom = atom<null, [], HotkeyConfig[]>(
         const state = store.getState();
         const setState = store.setState;
         try {
-          const res = actionRunner(e, state, setState);
+          const res = actionRunner(e as any, state, setState);
           if (res instanceof Promise) {
             res
               .then(() => {})
@@ -77,7 +77,7 @@ export const tableHotkeysAtom = atom<null, [], HotkeyConfig[]>(
         label: "Move focus " + dir,
         preventDefault: true,
         onKeyDown: keyHandler((e, state) => {
-          state.moveFocusedCell(dir);
+          state.moveFocusedCell(dir as any);
         }),
       };
     });
@@ -203,7 +203,7 @@ export const tableHotkeysAtom = atom<null, [], HotkeyConfig[]>(
 
 const selectionAtom = atom((get) => {
   const store = get(storeAtom);
-  return store.selection;
+  return store?.selection ?? [];
 });
 
 const isSingleCellSelectionAtom = atom((get) => {
@@ -227,7 +227,7 @@ export const editorKeyHandlerAtom = atom((get) => {
       return;
     }
     const isSingleCellSelection = get(isSingleCellSelectionAtom);
-    editorKeyHandler(e, isSingleCellSelection);
+    editorKeyHandler(e as any, isSingleCellSelection);
   };
 });
 
@@ -273,11 +273,11 @@ function editorKeyHandler(
     //console.log(tableElement);
     //tableElement.focus();
     //target.parentNode?.dispatchEvent(e);
-    target.parentNode?.dispatchEvent(new KeyboardEvent("keydown", e));
+    target.parentNode?.dispatchEvent(new KeyboardEvent("keydown", e as any));
   }
 }
 
-function shouldPropagateKeystroke(evt: KeyboardEvent): boolean {
+function shouldPropagateKeystroke(evt: any): boolean {
   if (evt.target.selectionStart == evt.target.selectionEnd) {
     // We don't have anything selected, so we can propagate the event potentially
     // Propagate copy and paste events even if there is no selection, since they might want to copy/paste an entire row/column based on the focused cell.
@@ -316,7 +316,7 @@ function shouldPropagateKeystroke(evt: KeyboardEvent): boolean {
   return false;
 }
 
-export function multiLineTextKeyHandler(evt: InputEvent) {
+export function multiLineTextKeyHandler(evt: any) {
   if (evt.key === "Enter") {
     //evt.preventDefault();
     evt.stopPropagation();
