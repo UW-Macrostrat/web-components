@@ -1,20 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import { ReactNode, useMemo, useState } from "react";
-import {
-  Button,
-  Checkbox,
-  PopoverNext,
-  SegmentedControl,
-  Spinner,
-} from "@blueprintjs/core";
+import { Button, PopoverNext, Spinner } from "@blueprintjs/core";
 import { RegionCardinality } from "@blueprintjs/table";
 import { TagEditor, type TagUsage } from "@macrostrat/data-components";
 import {
-  columnFilter,
-  ColumnSpec,
   DataPanel,
-  ActiveFiltersList,
   getSelectedRowIndices,
   LoadProgressIndicator,
   LoadProgressLabel,
@@ -27,7 +18,6 @@ import { FlexRow } from "@macrostrat/ui-components";
 import {
   addTagAction,
   ALL,
-  CATEGORIES,
   container,
   fetchSamples,
   fullSpec,
@@ -35,18 +25,17 @@ import {
   removeTagAction,
   Sample,
   SampleCard,
-  STATUSES,
   TAG_PALETTE,
   TaggedCard,
 } from "./utils.ts";
 
 /**
- * Progressive-enhancement patterns for `DataPanel`. Scrolling lists are more
- * multi-faceted than a sheet, so the panel exposes a few composable seams —
- * per-column facet opt-in, a `toolbar` slot, a `footer` slot, `bodyStyle` for
- * layout, and `onSelect` for selection — that these stories exercise in
- * isolation. All use a synthetic in-memory dataset (no backend) so the focus is
- * the interaction model, not the data source.
+ * Miscellaneous progressive-enhancement patterns for `DataPanel` — the
+ * composable seams beyond sort/filter: a `statusBar` slot, an inline
+ * `contentFooter`, bulk-edit actions over a selection, and pausing/auto-load.
+ * (Filter & sort patterns live in `data-panel-filtering.stories.ts`.) All use a
+ * synthetic in-memory dataset (no backend) so the focus is the interaction
+ * model, not the data source.
  */
 
 const meta: Meta<any> = {
@@ -55,130 +44,7 @@ const meta: Meta<any> = {
 };
 export default meta;
 
-// ---- Synthetic dataset ----
-
-// ---- 1. Minimal facets (opt-in / opt-out per column) ----
-
-/**
- * Facets are per-column: `filterable` / `sortable` are opt-in flags on the
- * column spec, so a consumer exposes only what makes sense. Here only
- * `category` is filterable and only `name` / `value` are sortable — the Filter
- * and Sort menus list exactly those, nothing else.
- */
-const minimalSpec: ColumnSpec[] = [
-  { key: "name", name: "Name", dataType: "text", sortable: true },
-  { key: "category", name: "Category", dataType: "string", filterable: true },
-  { key: "status", name: "Status", dataType: "string" },
-  { key: "value", name: "Value", dataType: "integer", sortable: true },
-];
-
-export const MinimalFacets: StoryObj = {
-  render: () =>
-    container(
-      h(DataPanel<Sample>, {
-        data: ALL,
-        identity: (r: Sample) => r.id,
-        columnSpec: minimalSpec,
-        itemComponent: SampleCard,
-        name: "Samples",
-      }),
-    ),
-};
-
-// ---- 2. Custom toolbar (with sane defaults) ----
-
-// A filter object reused by the custom toolbar (same one the default menu would
-// build), so the bespoke control and the store stay in sync.
-const statusFilter = columnFilter({
-  key: "status",
-  name: "Status",
-  dataType: "string",
-} as ColumnSpec);
-
-/** A bespoke toolbar built from the store hooks, sitting alongside the default
- * `FacetControls` — "sane defaults + custom". A segmented Status control and a
- * one-click Value sort drive the same store the default menus do. */
-function CustomToolbar() {
-  const storeAPI = useStoreAPI();
-  const status = useSelector(
-    (s: any) => s.activeFilters.get(statusFilter.id)?.state?.value ?? "all",
-  );
-  const valueSort = useSelector((s: any) =>
-    s.columnSorts.find((x: any) => x.key === "value"),
-  );
-
-  const setStatus = (v: string) => {
-    const st = storeAPI.getState();
-    if (v === "all") st.removeFilter(statusFilter.id);
-    else
-      st.setFilter(statusFilter.id, statusFilter, { operator: "eq", value: v });
-  };
-  const cycleValueSort = () => {
-    const next = valueSort == null ? true : valueSort.ascending ? false : null;
-    storeAPI.getState().setColumnSort("value", next);
-  };
-
-  return h(
-    "div",
-    {
-      style: {
-        display: "flex",
-        gap: "8px",
-        alignItems: "center",
-        flexWrap: "wrap",
-      },
-    },
-    [
-      h("div", {
-        key: "sep",
-        style: { width: 1, height: 20, background: "rgba(128,128,128,0.3)" },
-      }),
-      h(SegmentedControl, {
-        key: "status",
-        small: true,
-        options: [
-          { label: "All", value: "all" },
-          ...STATUSES.map((s) => ({ label: s, value: s })),
-        ],
-        value: status,
-        onValueChange: setStatus,
-      }),
-      h(
-        Button,
-        {
-          key: "sort",
-          small: true,
-          minimal: true,
-          icon:
-            valueSort == null
-              ? "sort"
-              : valueSort.ascending
-                ? "sort-asc"
-                : "sort-desc",
-          onClick: cycleValueSort,
-        },
-        "Value",
-      ),
-    ],
-  );
-}
-
-export const CustomToolbarStory: StoryObj = {
-  name: "Custom toolbar children",
-  render: () =>
-    container(
-      h(DataPanel<Sample>, {
-        data: ALL,
-        identity: (r: Sample) => r.id,
-        columnSpec: fullSpec,
-        itemComponent: SampleCard,
-        toolbar: h(CustomToolbar),
-        name: "Samples",
-      }),
-    ),
-};
-
-// ---- 3. Footer below the scroll ----
+// ---- 1. Footer below the scroll ----
 
 /** A pinned `footer` slot below the scroll body — a persistent summary / action
  * bar that doesn't scroll with the list. */
@@ -228,109 +94,7 @@ export const WithFooter: StoryObj = {
     ),
 };
 
-// ---- 4. Interactive/linkable items + modal selection ----
-
-// ---- 5. Grid layout (several per row) + infinite scroll ----
-
-// ---- 6. Custom filter sidebar ----
-
-/** One faceted section: a field's values as a click-to-toggle list, driving an
- * `eq` filter on the shared store — the same seam the toolbar menus use, just
- * placed in the sidebar. */
-function FacetSection({
-  title,
-  field,
-  options,
-}: {
-  title: string;
-  field: string;
-  options: string[];
-}) {
-  const storeAPI = useStoreAPI();
-  const filter = useMemo(
-    () =>
-      columnFilter({
-        name: title,
-        dataType: "string",
-      } as ColumnSpec),
-    [field, title],
-  );
-  const active = useSelector(
-    (s: any) => s.activeFilters.get(filter.id)?.state?.value,
-  );
-  const set = (v: string) => {
-    const st = storeAPI.getState();
-    if (active === v) st.removeFilter(filter.id);
-    else st.setFilter(filter.id, filter, { operator: "eq", value: v });
-  };
-  return h("div", { style: { marginBottom: "16px" } }, [
-    h("h4", { style: { margin: "0 0 6px" } }, title),
-    ...options.map((o) =>
-      h(
-        "div",
-        {
-          onClick: () => set(o),
-          style: {
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "2px 4px",
-            cursor: "pointer",
-            fontWeight: active === o ? 600 : 400,
-          },
-        },
-        [
-          h(Checkbox, {
-            key: "cb",
-            checked: active === o,
-            readOnly: true,
-            style: { margin: 0, pointerEvents: "none" },
-          }),
-          o,
-        ],
-      ),
-    ),
-  ]);
-}
-
-function FilterSidebar() {
-  return h("div", [
-    h("h3", { style: { marginTop: 0 } }, "Filters"),
-    h(FacetSection, {
-      title: "Category",
-      field: "category",
-      options: CATEGORIES,
-    }),
-    h(FacetSection, {
-      title: "Status",
-      field: "status",
-      options: STATUSES,
-    }),
-  ]);
-}
-
-/**
- * A faceted **filter sidebar** (`sidebar` slot) instead of the top toolbar
- * menus (`toolbar: null` hides those). The sidebar drives the same store, so
- * the list filters server-side exactly as the menu version would.
- */
-export const FilterSidebarStory: StoryObj = {
-  name: "Custom filter sidebar",
-  render: () =>
-    container(
-      h(DataPanel<Sample>, {
-        data: ALL,
-        identity: (r: Sample) => r.id,
-        columnSpec: fullSpec,
-        itemComponent: SampleCard,
-        name: "Samples",
-        toolbar: null,
-        sidebar: h(FilterSidebar),
-      }),
-    ),
-};
-
-// ---- 7. Editing: add / remove tags across a selection ----
+// ---- 2. Editing: add / remove tags across a selection ----
 
 function EditTagsDemo() {
   const provider = useMemo(makeEditableProvider, []);
@@ -565,122 +329,3 @@ export const PausingFooter: StoryObj = {
     ),
 };
 
-// ---- 9. Masonry layout (variable-height items) ----
-
-// ---- 10. Expandable filter/sort panel ----
-
-// Inline sort controls: one toggle button per sortable field, cycling
-// asc → desc → off, driving the shared store (same as the menu, laid out flat).
-function SortControls() {
-  const storeAPI = useStoreAPI();
-  const sorts = useSelector((s: any) => s.columnSorts);
-  const fields = [
-    { key: "name", label: "Name" },
-    { key: "value", label: "Value" },
-  ];
-  return h("div", { style: { minWidth: "120px" } }, [
-    h("h6", { key: "t", style: { margin: "0 0 6px" } }, "Sort"),
-    ...fields.map((f) => {
-      const s = sorts.find((x: any) => x.key === f.key);
-      const next = s == null ? true : s.ascending ? false : null;
-      return h(
-        Button,
-        {
-          key: f.key,
-          small: true,
-          minimal: true,
-          fill: true,
-          alignText: "left",
-          active: s != null,
-          icon: s == null ? "sort" : s.ascending ? "sort-asc" : "sort-desc",
-          onClick: () => storeAPI.getState().setColumnSort(f.key, next),
-        },
-        f.label,
-      );
-    }),
-  ]);
-}
-
-// An expandable filter/sort panel as the `toolbar`: collapsed to a toggle +
-// active-filter chips, expanding to the full faceted controls. Reuses the same
-// store-driven `FacetSection` / `SortControls` / `FilterBar` building blocks.
-function ExpandableFilters() {
-  const [open, setOpen] = useState(false);
-  let panel: ReactNode = null;
-  if (open) {
-    panel = h(
-      "div",
-      {
-        style: {
-          display: "flex",
-          gap: "28px",
-          padding: "12px",
-          marginTop: "4px",
-          border: "1px solid rgba(128,128,128,0.25)",
-          borderRadius: "4px",
-        },
-      },
-      [
-        h(FacetSection, {
-          key: "cat",
-          title: "Category",
-          field: "category",
-          options: CATEGORIES,
-        }),
-        h(FacetSection, {
-          key: "st",
-          title: "Status",
-          field: "status",
-          options: STATUSES,
-        }),
-        h(SortControls, { key: "sort" }),
-      ],
-    );
-  }
-  return h("div", { style: { display: "flex", flexDirection: "column" } }, [
-    h(
-      "div",
-      {
-        style: { display: "flex", alignItems: "center", gap: "8px" },
-      },
-      [
-        h(
-          Button,
-          {
-            icon: "filter",
-            rightIcon: open ? "chevron-up" : "chevron-down",
-            active: open,
-            onClick: () => setOpen((o) => !o),
-          },
-          "Filters & Sort",
-        ),
-        // Active filters stay visible as chips even when the panel is collapsed.
-        h(ActiveFiltersList),
-      ],
-    ),
-    panel,
-  ]);
-}
-
-/**
- * An **expandable filter/sort panel** via the `toolbar` slot: collapsed to a
- * toggle + active-filter chips, expanding to full faceted controls + sort. All
- * of it drives the shared store, reusing `FacetSection` / `SortControls` /
- * `FilterBar` — the toolbar seam takes arbitrary interactive chrome.
- */
-export const ExpandableFilterPanel: StoryObj = {
-  name: "Expandable filter/sort panel",
-  render: () =>
-    container(
-      h(DataPanel<Sample>, {
-        data: ALL,
-        identity: (r: Sample) => r.id,
-        columnSpec: fullSpec,
-        itemComponent: SampleCard,
-        name: "Samples",
-        toolbar: h(ExpandableFilters),
-      }),
-    ),
-};
-
-// ---- 11. Table / cards toggle (shared provider, columns, actions) ----

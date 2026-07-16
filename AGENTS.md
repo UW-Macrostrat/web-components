@@ -151,6 +151,10 @@ yarn dlx madge --circular --extensions ts <path>  # Circular deps in path
   vite-plugin-hyperstyles)
 - Package builds: Use root `tsconfig.base.json`
 - Global types: `global.d.ts` in root
+- **Storybook stories are in the typecheck scope.** Package `tsconfig.json`s
+  include `stories` alongside `src` (e.g. `packages/data-sheet`), so
+  `yarn run check-types` covers `*.stories.ts` — a clean run validates story
+  files too. (This is a PnP repo: run `yarn run check-types`, not a bare `tsc`.)
 
 Please note that we use Typescript types mostly to guide new feature
 development, and to help with internal consistency. We do not enforce strict

@@ -344,7 +344,7 @@ function displayParamsForSort(sort: ColumnSort | undefined) {
   const icon =
     sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
   const label =
-    sort == null ? "Sort" : sort.ascending ? "Ascending" : "Descending";
+    sort == null ? null : sort.ascending ? "Ascending" : "Descending";
   return { icon, label };
 }
 
@@ -408,7 +408,7 @@ export function ColumnSortMenu({
   const { icon, label } = displayParamsForSort(sort);
   return h(
     MenuItem,
-    { icon, text: label },
+    { icon, text: label ?? columnKey },
     h(ColumnSortActions, { sort, setSort }),
   );
 }
