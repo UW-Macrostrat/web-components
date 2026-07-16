@@ -32,7 +32,7 @@ export function columnFilterId(key: string): string {
   return `column-filter:${key}`;
 }
 
-/** Generate the built-in operator filter for a `filterable` column. */
+/** Built-in column filter for a column. */
 export function columnFilter(
   col: ColumnSpec,
 ): TableFilter<any, ColumnFilterState> {
@@ -69,9 +69,7 @@ function ColumnFilterForm({
   // otherwise snap the dropdown back to the default — the operator wouldn't
   // "stick" until a value was typed. The value commits (triggering a server
   // re-fetch) on blur / Enter, not on every keystroke.
-  const [op, setOp] = useState<FilterOperator>(
-    state?.operator ?? operators[0],
-  );
+  const [op, setOp] = useState<FilterOperator>(state?.operator ?? operators[0]);
   const [val, setVal] = useState<string>(state?.value ?? "");
 
   const commit = (nextOp: FilterOperator, nextVal: string) =>

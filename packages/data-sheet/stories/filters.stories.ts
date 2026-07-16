@@ -13,6 +13,7 @@ import {
   SegmentedControl,
   NumericInput,
   InputGroup,
+  Button,
 } from "@blueprintjs/core";
 
 const h = hyper;
@@ -45,28 +46,35 @@ const testData = buildData();
 const nameFilter: TableFilter = {
   id: "name-filter",
   name: "Name contains",
-  icon: "text-search",
+  icon: "search",
   columnKey: "name",
   description: "Show only rows where the name contains a string.",
   defaultState: { search: "" },
   describeState: (state) => (state?.search ? `"${state.search}"` : null),
   filterForm({ state, setState }) {
-    return h(FormGroup, { label: "Name contains" }, [
-      h(InputGroup, {
-        placeholder: "Search by name...",
-        value: state?.search ?? "",
-        onChange(event) {
-          setState({ ...state, search: event.target.value });
+    return h(InputGroup, {
+      placeholder: "Search by name...",
+      value: state?.search ?? "",
+      onChange(event) {
+        setState({ ...state, search: event.target.value });
+        // Ensure that we don't delete the selection when clearing this text form
+        event.stopPropagation();
+      },
+      rightElement: h(Button, {
+        minimal: true,
+        icon: "cross",
+        disabled: state?.search == null || state.search === "",
+        onClick() {
+          setState({ ...state, search: "" });
         },
       }),
-    ]);
+    });
   },
   predicate(row, state) {
     if (state?.search == null || state.search === "") return true;
     return row.name.toLowerCase().includes(state.search.toLowerCase());
   },
 };
-
 
 function Wrapper(props) {
   return h(
@@ -309,4 +317,3 @@ export const AutoColumnSpec: StoryObj = {
       editable: false,
     }),
 };
-

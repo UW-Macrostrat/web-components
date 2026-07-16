@@ -34,14 +34,21 @@
   flex-direction: row
   flex-wrap: wrap
   gap: 4px
-  margin-bottom: 4px
   align-items: center
   justify-content: flex-start
+  height: var(--filter-bar-height, 24px)
+  .description
+    margin: 0
+    color: var(--secondary-color)
+    font-size: 0.9em
 
   &>.group
     display: flex
     flex-direction: row
     gap: 4px
+
+  .filter-tag
+    display: flex
 
 // The current filter window shown after the filter name on its tag
 .filter-window

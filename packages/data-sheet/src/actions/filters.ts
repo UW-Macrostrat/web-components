@@ -66,13 +66,29 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
     () => allFilters.filter((f) => f.columnKey == null && !activeIds.has(f.id)),
     [allFilters, activeIds],
   );
+
   const showAdd = !columnSelected && availableFilters.length > 0;
 
   const hasAnything =
     columnSorts.length > 0 || activeFilters.size > 0 || showAdd;
-  if (!hasAnything) return null;
+  if (!hasAnything)
+    return h(
+      "div.filter-bar.empty",
+      h("p.description", "No active filters or sorts"),
+    );
+
+  const filterArray = Array.from(activeFilters.entries()) as [
+    string,
+    TableFilter<T> & { state: any },
+  ][];
 
   return h("div.filter-bar", [
+    h(
+      "div.group.filters",
+      filterArray.map(([id, entry]) =>
+        h(ActiveFilterTag, { key: id, filterId: id, entry }),
+      ),
+    ),
     h(
       "div.group.sorts",
       columnSorts.map((s) =>
@@ -83,6 +99,7 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
             icon: s.ascending ? "sort-asc" : "sort-desc",
             intent: "primary",
             minimal: true,
+            className: "filter-tag",
             onRemove() {
               storeAPI.getState().setColumnSort(s.key, null);
             },
@@ -90,18 +107,10 @@ export function FilterBar<T>({ filters = [] }: { filters?: TableFilter<T>[] }) {
           `${s.key}: ${s.ascending ? "Ascending" : "Descending"}`,
         ),
       ),
+      h.if(showAdd)(AddFilterPopover, {
+        filters: availableFilters,
+      }),
     ),
-    h(
-      "div.group.filters",
-      activeFilters
-        .entries()
-        .map(([id, entry]) =>
-          h(ActiveFilterTag, { key: id, filterId: id, entry }),
-        ),
-    ),
-    h.if(showAdd)(AddFilterPopover, {
-      filters: availableFilters,
-    }),
   ]);
 }
 
@@ -129,6 +138,7 @@ function ActiveFilterTag<T>({
       onRemove() {
         storeAPI.getState().removeFilter(filterId);
       },
+      className: "filter-tag",
       interactive: true,
       intent: "primary",
       onClick: filter.filterForm ? () => setConfigOpen(!configOpen) : undefined,
