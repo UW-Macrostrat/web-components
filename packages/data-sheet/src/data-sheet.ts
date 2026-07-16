@@ -533,7 +533,6 @@ export function DataSheetRenderer<T>({
   const showFilterBar =
     (filters != null && filters.length > 0) || hasSortableOrFilterable;
 
-  console.log("Filters", filters, showFilterBar);
   let filterStatus: ReactNode = null;
   if (showFilterBar) {
     filterStatus = h(ActiveFiltersList, { filters: filters ?? [] });
