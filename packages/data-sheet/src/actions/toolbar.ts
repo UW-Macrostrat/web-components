@@ -6,7 +6,6 @@ import {
   interactionOptionsAtom,
   itemLabelAtom,
   selectionAtom,
-  TableActionContext,
   tableNameAtom,
   useSelector,
   useStoreAPI,
@@ -22,7 +21,11 @@ import { useToaster } from "../notifications.ts";
 import { ColumnSpec } from "../utils";
 import { atom, Getter, Setter } from "jotai";
 import classNames from "classnames";
-import { buildActionContext, useActionContext } from "./context.ts";
+import {
+  buildActionContext,
+  TableActionContext,
+  useActionContext,
+} from "./context.ts";
 
 /** A short title describing the current selection (its shape), shown as the
  * toolbar's leading label — no icon. */

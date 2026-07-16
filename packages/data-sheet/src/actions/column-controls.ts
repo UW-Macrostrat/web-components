@@ -9,10 +9,11 @@ import h from "@macrostrat/hyper";
 import { useMemo } from "react";
 import { Button, Menu, MenuItem, PopoverNext } from "@blueprintjs/core";
 import { RegionCardinality } from "@blueprintjs/table";
-import { TableActionContext, useSelector, useStoreAPI } from "../provider";
+import { useSelector, useStoreAPI } from "../provider";
 import type { TableAction, TableFilter } from "./types";
 import type { ColumnSpec } from "../utils/column-spec";
 import { columnFilter, columnFilterId } from "./column-filter";
+import { TableActionContext } from "./context.ts";
 
 function selectedColumn(ctx: TableActionContext) {
   const key = ctx.getSelectedColumnKeys()[0];

@@ -3,8 +3,9 @@ import type { TableAction } from "./types";
 import type {
   CellEdit,
   ClipboardProxy,
-  TableActionContext,
+
 } from "../provider/types.ts";
+import { TableActionContext } from "./context.ts";
 
 /** Serialize the current selection to tab-separated values.
  * For full-row/column copies, includes a header row and produces

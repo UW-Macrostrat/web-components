@@ -1,5 +1,6 @@
-import { ColumnSort, TableActionContext, TableElementStatus } from "./types.ts";
+import { ColumnSort, TableElementStatus } from "./types.ts";
 import { atom } from "jotai";
+import { TableActionContext } from "../actions";
 
 /** The active view state (a filter's id / column / config), passed to a
  * `fetchChunk`. A server provider translates `columnKey` + `state` into a

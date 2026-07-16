@@ -1,7 +1,7 @@
 import type { IconName, Intent } from "@blueprintjs/core";
 import type { ComponentType, ReactNode } from "react";
-import { TableActionContext } from "../provider/types.ts";
 import { SelectionCardinality } from "./selection.ts";
+import { TableActionContext } from "./context.ts";
 
 /** A column filter that can be activated to hide non-matching rows.
  * Parallel to `TableAction` but with persistent state while active.

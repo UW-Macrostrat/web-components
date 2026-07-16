@@ -31,7 +31,6 @@ import {
   RowStatusStyles,
   splitDataProviderProps,
   storeAtom,
-  TableActionContext,
   tableActionsAtom,
   TableElementStatus,
   useResolvedProvider,
@@ -49,6 +48,7 @@ import {
   FilterBar,
   resetChangesAction,
   TableAction,
+  TableActionContext,
 } from "./actions";
 import {
   tableFooterAtom,

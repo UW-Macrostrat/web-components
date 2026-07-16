@@ -4,14 +4,13 @@ import {
   InteractionOptions,
   RowHeaderRenderContext,
   RowStatusStyles,
-  TableActionContext,
   TableDataProvider,
   TableElementStatus,
   VisibleCells,
 } from "./provider";
 import type { ColumnSpec, ColumnSpecOptions } from "./utils";
 import { ReactNode } from "react";
-import { TableAction, TableFilter } from "./actions";
+import { TableAction, TableActionContext, TableFilter } from "./actions";
 import { Region, TableProps } from "@blueprintjs/table";
 
 export type FetchMode = "scroll" | "paged";
