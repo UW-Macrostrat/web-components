@@ -7,21 +7,21 @@ import { Button, ButtonGroup, Icon, Spinner } from "@blueprintjs/core";
  * scroll mode: rows loaded, "of total" when known, and a status icon (spinner
  * loading / check complete / dots incomplete). In paged mode: prev/next page
  * controls with "Page X of Y". */
-export function LoadProgressIndicator() {
+export function LoadProgressIndicator({ iconSize: size = 12, className }) {
   const footer = ctx.useValue(tableFooterAtom);
   if (footer.mode === "paged") return h(PageControl);
 
   const { loaded, total, loading } = footer;
   let status: any;
   if (loading) {
-    status = h(Spinner, { size: 12 });
+    status = h(Spinner, { size });
   } else if (total != null && loaded >= total) {
-    status = h(Icon, { icon: "tick", size: 12 });
+    status = h(Icon, { icon: "tick", size });
   } else {
-    status = h(Icon, { icon: "more", size: 12 });
+    status = h(Icon, { icon: "more", size });
   }
 
-  return h("div.load-progress", [h(LoadProgressLabel), status]);
+  return h("div.load-progress", { className }, [h(LoadProgressLabel), status]);
 }
 
 export function LoadProgressLabel() {

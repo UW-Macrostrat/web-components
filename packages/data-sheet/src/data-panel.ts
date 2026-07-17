@@ -256,8 +256,8 @@ export function DataPanelRenderer<T>({
     const selected = enableSelection && selectedIndices.has(i);
     cards.push(
       h(
-        "div.data-panel-item",
-        { key: `row-${i}`, className: classNames({ selected }) },
+        "div.data-panel-item-container",
+        { key: `item-${i}`, className: classNames({ selected }) },
         h(itemComponent, {
           data: row,
           index: i,
