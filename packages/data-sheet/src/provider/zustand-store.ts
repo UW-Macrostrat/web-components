@@ -6,20 +6,19 @@ import {
   DS_ROW_ID,
   StateUpdater,
   TableElementStatus,
-  VisibleCells,
 } from "./types.ts";
 import {
   type FocusedCellCoordinates,
   type Region,
   RegionCardinality,
 } from "@blueprintjs/table";
-import { range } from "./utils";
 import update, { Spec } from "immutability-helper";
 import {
   getSelectedColumnKeys,
   getSelectedRowIndices,
   getSelectionCardinality,
-} from "./actions";
+  range,
+} from "../actions";
 
 /** Monotonic counter for synthetic ids on in-table-added rows. */
 let _addedRowCounter = 0;
@@ -222,7 +221,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     },
     resetChanges(regions?: Region[]) {
       // Reset the updated data to the initial data
-      set((state) => resetChangesForSelection(state, regions));
+      set((state) => resetChangesForSelection(state, regions ?? []));
       get().onEdit?.({ type: "resetChanges" });
     },
     onColumnWidthChanged(columnIx: number, newWidth: number) {
@@ -274,8 +273,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       }
     },
     clearSelection() {
-      const edits: { rowIndex: number; column: string; value: any; row?: any }[] =
-        [];
+      const edits: {
+        rowIndex: number;
+        column: string;
+        value: any;
+        row?: any;
+      }[] = [];
       set((state) => {
         // Delete all selected cells
         const { selection, updatedData, columnSpec, data } = state;
@@ -298,7 +301,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
               const currentValue = updatedData[row]?.[key] ?? data[row]?.[key];
               if (currentValue != null && currentValue !== "") {
                 vals[key] = "";
-                edits.push({ rowIndex: row, column: key, value: "", row: data[row] });
+                edits.push({
+                  rowIndex: row,
+                  column: key,
+                  value: "",
+                  row: data[row],
+                });
               }
             }
             let op = updatedData[row] == null ? "$set" : "$merge";
@@ -315,8 +323,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     },
     onSelection(selection: Region[]) {
       set((state) => {
+        const isSameAsPrevSelection = selectionEquals(
+          selection,
+          state.selection,
+        );
         if (
-          selectionEquals(selection, state.selection) &&
+          isSameAsPrevSelection &&
           singleFocusedCell(selection) == null // Only if we're in a multi-cell selection mode
         ) {
           // If the selection is the same as the current selection, remove the selection.
@@ -351,8 +363,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     },
     onSelectionEdited(value: any) {
       // Apply the same value to all selected cells
-      const edits: { rowIndex: number; column: string; value: any; row?: any }[] =
-        [];
+      const edits: {
+        rowIndex: number;
+        column: string;
+        value: any;
+        row?: any;
+      }[] = [];
       set((state) => {
         const { selection, updatedData, columnSpec, editable } = state;
         if (!editable) return {};
@@ -369,7 +385,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
             for (const col of colRange) {
               const key = columnSpec[col].key;
               vals[key] = value;
-              edits.push({ rowIndex: row, column: key, value, row: state.data[row] });
+              edits.push({
+                rowIndex: row,
+                column: key,
+                value,
+                row: state.data[row],
+              });
             }
             let op = updatedData[row] == null ? "$set" : "$merge";
             spec[row] = { [op]: vals };
@@ -548,7 +569,7 @@ function fillValues<T>(state: DataSheetStore<T>, selection: Region[]) {
   let regions = selection.map((region) => {
     const { cols, rows } = region;
     // Get the first column (maybe should be the last)
-    const [col] = cols;
+    const [col] = cols ?? [];
     return { cols: [col, col], rows };
   });
 
@@ -562,7 +583,7 @@ function fillValues<T>(state: DataSheetStore<T>, selection: Region[]) {
   const spec = {};
   for (const region of regions) {
     const { rows } = region;
-    for (const visibleRow of range(rows)) {
+    for (const visibleRow of range(rows ?? [])) {
       const row = toDataRowIndex(state, visibleRow);
       let op = updatedData[row] == null ? "$set" : "$merge";
       spec[row] = { [op]: { [key]: value } };
@@ -658,7 +679,7 @@ function resetChangesForSelection<T>(
       }
       // TODO: if we allow column addition/deletion, this will require more adjustment
       return {
-        updatedData: update(updatedData, spec),
+        updatedData: update(updatedData, spec as any),
         ...emptySelection,
       };
     case RegionCardinality.FULL_ROWS:

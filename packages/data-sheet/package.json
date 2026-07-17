@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-sheet",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "description": "Scalable data sheet with optional editing capabilities",
   "repository": {
     "type": "git",
@@ -62,7 +62,8 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:*"
+    "@macrostrat/web-components-bundler": "workspace:*",
+    "@storybook/react-vite": "*"
   },
   "publishConfig": {
     "access": "public"

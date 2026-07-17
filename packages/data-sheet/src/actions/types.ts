@@ -1,32 +1,7 @@
 import type { IconName, Intent } from "@blueprintjs/core";
-import type { Region, RegionCardinality } from "@blueprintjs/table";
 import type { ComponentType, ReactNode } from "react";
-import type { ColumnSpec } from "../utils";
-import { ClipboardProxy, TableElementStatus } from "../types.ts";
-
-/** Selection cardinality including the case of no active selection */
-export type SelectionCardinality = RegionCardinality | "none";
-
-/** The concrete *shape* of the current selection — richer than cardinality
- * alone. The "single X" cases are exposed as resolved identity fields on the
- * action context (`columnKey`, `rowIndex`, `cell`); this carries the counts. */
-export interface SelectionShape {
-  cardinality: SelectionCardinality;
-  /** Number of columns the selection spans (0 when not column-scoped). */
-  columns: number;
-  /** Number of rows the selection spans (0 when not row-scoped). */
-  rows: number;
-}
-
-/** A single cell edit, used with `editCells` for batch updates. */
-export interface CellEdit {
-  rowIndex: number;
-  column: string;
-  value: any;
-  /** The underlying row (base data). Populated on emitted `onEdit` events so a
-   * handler can address the row (identity) without reaching into the store. */
-  row?: any;
-}
+import { SelectionCardinality } from "./selection.ts";
+import { TableActionContext } from "./context.ts";
 
 /** A column filter that can be activated to hide non-matching rows.
  * Parallel to `TableAction` but with persistent state while active.
@@ -54,89 +29,30 @@ export interface TableFilter<T = any, S = any> {
   /** Summarize the current filter state for display on the active-filter tag
    * (e.g. the range `0–250` or the search term). Keep it short — the tag also
    * shows the filter name. Return `null` to show just the name. */
-  describeState?: (state: S) => import("react").ReactNode;
+  describeState?: (state: S) => ReactNode;
+  /** The entity (e.g., a column) being described. */
+  subject?: string;
   /** Row predicate: return `true` if the row should be visible.
    * Receives the merged row (updatedData overlaid on data). */
   predicate(row: T, state: S): boolean;
 }
 
+export interface ColumnFilter<T = any, S = any> extends Omit<
+  TableFilter<T, S>,
+  "columnKey"
+> {
+  columnKey: string;
+}
+
+export type ColumnFilterOptions<T = any, S = any> = Omit<
+  ColumnFilter<T, S>,
+  "columnKey" | "subject" | "name"
+> & { name?: string };
+
 /** An active filter entry stored in the table state. */
 export interface ActiveFilterEntry<T = any> {
   filter: TableFilter<T>;
   state: any;
-}
-
-// Re-export ColumnSort from the main types module (defined there to
-// avoid a circular import, since actions/types imports from types.ts).
-export type { ColumnSort } from "../types.ts";
-
-/** Context passed to an action's `run` function, providing both data access
- * and store manipulation methods. Constructed fresh at action-run time
- * to ensure current state. */
-export interface TableActionContext<T = any> {
-  /** Current selection regions */
-  selection: Region[];
-  /** Derived cardinality of the current selection */
-  selectionCardinality: SelectionCardinality;
-  /** Concrete shape of the current selection (cardinality + column/row counts). */
-  selectionShape: SelectionShape;
-  /** The single selected column's key when exactly one column is scoped
-   * (a single full column, or cells within one column); otherwise `null`. */
-  columnKey: string | null;
-  /** The single selected data-row index when exactly one row is scoped;
-   * otherwise `null`. */
-  rowIndex: number | null;
-  /** The single selected cell (data-row index + column key) when exactly one
-   * cell is selected; otherwise `null`. Presence of these resolved fields is
-   * how actions discriminate selection shape — e.g. `appliesTo: ctx =>
-   * ctx.cell != null` for a single-cell control, or `ctx.columnKey != null`
-   * within a `FULL_COLUMNS` target for a single-column control. */
-  cell: { rowIndex: number; columnKey: string } | null;
-  /** The table's base data */
-  data: T[];
-  /** Sparse overlay of edited data */
-  updatedData: T[];
-  /** Row status tracking added/deleted rows */
-  rowStatus: TableElementStatus[];
-  /** Column definitions */
-  columnSpec: ColumnSpec[];
-  /** Whether the table is in edit mode */
-  editable: boolean;
-  /** Whether row deletion is available (false when the provider can't delete). */
-  canDeleteRows: boolean;
-
-  // Convenience methods (derived from selection)
-  /** Row indices covered by the current selection */
-  getSelectedRowIndices(): number[];
-  /** Column keys covered by the current selection */
-  getSelectedColumnKeys(): string[];
-
-  // Store manipulation methods
-  onCellEdited(rowIndex: number, columnKey: string, value: any): void;
-  /** Edit multiple cells in a single batch update. Preferred over calling
-   * `onCellEdited` in a loop, which triggers separate store updates
-   * and may produce inconsistent intermediate states. */
-  editCells(edits: CellEdit[]): void;
-  deleteSelectedRows(): void;
-  addRow(row?: Partial<T>): void;
-  setUpdatedData(data: any): void;
-  resetChanges(region?: Region[]): void;
-  clearSelection(): void;
-  scrollToRow(rowIndex: number): void;
-  /** Direct store mutation for cases not covered by the convenience methods
-   * above (e.g., modifying `columnSpec` or `deletedRows`). */
-  setState(partial: Record<string, any>): void;
-
-  // Clipboard proxy support
-  /** Active clipboard proxy from a prior copy, if any */
-  clipboardProxy: ClipboardProxy | null;
-  /** Store a clipboard proxy for potential backend-mediated paste */
-  setClipboardProxy(proxy: ClipboardProxy | null): void;
-
-  // Filter support
-  /** Row index mapping when filters are active. When non-null,
-   * visible row `i` maps to data row `filteredRowIndices[i]`. */
-  filteredRowIndices: number[] | null;
 }
 
 /** Definition of a table action. Follows the `ActionDef` pattern from

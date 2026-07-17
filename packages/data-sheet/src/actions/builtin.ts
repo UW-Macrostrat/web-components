@@ -1,14 +1,11 @@
 import { RegionCardinality } from "@blueprintjs/table";
 import type { TableAction } from "./types";
-import { copyAction, pasteAction, clipboardActions } from "./clipboard";
-
-export { copyAction, pasteAction, clipboardActions };
 
 /** Delete all rows in the current selection. Disabled when the data provider
  * can't delete (no `deleteRows`). */
 export const deleteRowsAction: TableAction = {
   id: "delete-rows",
-  name: "Delete rows",
+  name: "Delete",
   icon: "trash",
   intent: "danger",
   targets: [RegionCardinality.FULL_ROWS],

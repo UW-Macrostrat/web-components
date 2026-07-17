@@ -1,18 +1,82 @@
 import { type Region, RegionCardinality } from "@blueprintjs/table";
-import type { ColumnSpec } from "../utils";
-import type {
-  CellEdit,
-  SelectionShape,
-  TableAction,
-  TableActionContext,
-  TableFilter,
-} from "./types";
-import type { DataSheetStore } from "../types";
-import { columnFilter } from "./column-filter";
-import update from "immutability-helper";
+import type { ColumnSpec } from "../provider";
+import type { TableAction } from "./types";
+import { RefObject } from "react";
+import { SelectModifiers } from "../data-panel.ts";
+
+export function buildDataViewSelection(
+  // index of selected item
+  index: number,
+  mods: SelectModifiers,
+  selection: Region[],
+  anchorRef: RefObject<number | null>,
+  enableMultipleSelection: boolean,
+): Region[] {
+  /** Build the selection for data views */
+  const current = new Set(getSelectedRowIndices(selection));
+  let next: Set<number>;
+
+  const isSingleSelect = current.size === 1;
+  const isCurrentlySelected = current.has(index);
+
+  if (!enableMultipleSelection) {
+    // Simpler path for single selection
+    next = new Set();
+    if (!isCurrentlySelected) {
+      next.add(index);
+    }
+    return rowIndicesToRegions(next);
+  }
+  // multiple selection
+  if (isSingleSelect && isCurrentlySelected && !mods.additive && !mods.range) {
+    // Clicking the only selected row with no modifiers clears the selection.
+    next = new Set();
+  } else if (mods.range && anchorRef.current != null) {
+    // We have a range select and an anchor: select the range between the anchor and the clicked row.
+    const a = anchorRef.current;
+    const [lo, hi] = a <= index ? [a, index] : [index, a];
+    // Shift extends the existing selection when combined with cmd/ctrl,
+    // otherwise replaces it with the range. The anchor stays put so the
+    // range can be re-dragged from the same origin.
+    next = mods.additive ? new Set(current) : new Set();
+    for (let i = lo; i <= hi; i++) next.add(i);
+  } else if (mods.additive) {
+    // We are adding or removing to the selection with the ctrl key
+    next = new Set(current);
+    if (next.has(index)) next.delete(index);
+    else next.add(index);
+    anchorRef.current = index;
+  } else {
+    next = new Set([index]);
+    anchorRef.current = index;
+  }
+
+  return rowIndicesToRegions(next);
+}
+
+/** Collapse a set of selected row indices into `FULL_ROWS` regions, merging
+ * contiguous runs into a single `{ rows: [start, end] }` range. */
+export function rowIndicesToRegions(indices: Set<number>): Region[] {
+  const sorted = Array.from(indices).sort((a, b) => a - b);
+  const regions: Region[] = [];
+  let start: number | null = null;
+  let prev: number | null = null;
+  for (const i of sorted) {
+    if (start == null) {
+      start = prev = i;
+    } else if (i === prev! + 1) {
+      prev = i;
+    } else {
+      regions.push({ rows: [start, prev!] });
+      start = prev = i;
+    }
+  }
+  if (start != null) regions.push({ rows: [start, prev!] });
+  return regions;
+}
 
 /** Derive the selection cardinality from the current set of selected regions.
- * Returns "none" when there is no active selection. */
+ * Returns "null" when there is no active selection. */
 export function getSelectionCardinality(
   regions: Region[],
 ): RegionCardinality | null {
@@ -26,16 +90,39 @@ export function getSelectionCardinality(
   return RegionCardinality.FULL_TABLE;
 }
 
+/** Selection cardinality including the case of no active selection */
+export type SelectionCardinality = RegionCardinality | "none";
+
+/** The concrete *shape* of the current selection — richer than cardinality
+ * alone. The "single X" cases are exposed as resolved identity fields on the
+ * action context (`columnKey`, `rowIndex`, `cell`); this carries the counts. */
+export interface SelectionShape {
+  cardinality: SelectionCardinality;
+  /** Number of columns the selection spans (0 when not column-scoped). */
+  columns: number;
+  /** Number of rows the selection spans (0 when not row-scoped). */
+  rows: number;
+}
+
 /** Compute the concrete shape of a selection (cardinality + column/row spans). */
 export function computeSelectionShape(regions: Region[]): SelectionShape {
   const cardinality = getSelectionCardinality(regions) ?? "none";
-  const region = regions?.[0];
-  const cols = region?.cols;
-  const rows = region?.rows;
+  let columns = 0;
+  let rows = 0;
+  for (const region of regions) {
+    const c = region.cols;
+    if (c != null) {
+      columns += c[1] - c[0] + 1;
+    }
+    const r = region.rows;
+    if (r != null) {
+      rows += r[1] - r[0] + 1;
+    }
+  }
   return {
     cardinality,
-    columns: cols != null ? cols[1] - cols[0] + 1 : 0,
-    rows: rows != null ? rows[1] - rows[0] + 1 : 0,
+    columns,
+    rows,
   };
 }
 
@@ -47,7 +134,7 @@ export function getApplicableActions<T>(
   editable: boolean,
 ): TableAction<T>[] {
   return actions.filter((action) => {
-    if (action.requiresEditable !== false && !editable) return false;
+    if (action.requiresEditable && !editable) return false;
     return action.targets.includes(cardinality);
   });
 }
@@ -94,119 +181,6 @@ export function getSelectedColumnKeys(
     }
   }
   return Array.from(keys);
-}
-
-/** Construct a `TableActionContext` from the current store state.
- * Call this at action-run time (not render time) to ensure
- * the context reflects the latest state.
- * @param setState - Optional store setState for direct mutation. Omit for
- *   read-only contexts (e.g., disabled checks). */
-export function buildActionContext<T>(
-  state: DataSheetStore<T>,
-  setState: (partial: Record<string, any>) => void = () => {},
-): TableActionContext<T> {
-  // Lazy-compute filteredRowIndices to avoid cost during disabled checks
-  let _filteredRowIndices: number[] | null | undefined = undefined;
-  function getFilteredRowIndices(): number[] | null {
-    if (_filteredRowIndices === undefined) {
-      _filteredRowIndices = computeFilteredRowIndices(
-        state.data,
-        state.updatedData,
-        state.activeFilters,
-      );
-    }
-    return _filteredRowIndices;
-  }
-
-  const shape = computeSelectionShape(state.selection);
-
-  return {
-    selection: state.selection,
-    selectionCardinality: getSelectionCardinality(state.selection),
-    selectionShape: shape,
-    // Resolved single-target identity (lazy — mapping rows through filters is
-    // only paid when accessed).
-    get columnKey() {
-      return shape.columns === 1
-        ? (getSelectedColumnKeys(state.selection, state.columnSpec)[0] ?? null)
-        : null;
-    },
-    get rowIndex() {
-      return shape.rows === 1
-        ? (getSelectedRowIndices(state.selection, getFilteredRowIndices())[0] ??
-            null)
-        : null;
-    },
-    get cell() {
-      if (
-        shape.cardinality !== RegionCardinality.CELLS ||
-        shape.columns !== 1 ||
-        shape.rows !== 1
-      ) {
-        return null;
-      }
-      const columnKey =
-        getSelectedColumnKeys(state.selection, state.columnSpec)[0] ?? null;
-      const rowIndex =
-        getSelectedRowIndices(state.selection, getFilteredRowIndices())[0] ??
-        null;
-      return columnKey != null && rowIndex != null
-        ? { rowIndex, columnKey }
-        : null;
-    },
-    data: state.data,
-    updatedData: state.updatedData,
-    rowStatus: state.rowStatus,
-    columnSpec: state.columnSpec,
-    editable: state.editable,
-    canDeleteRows: state.canDeleteRows,
-    getSelectedRowIndices: () =>
-      getSelectedRowIndices(state.selection, getFilteredRowIndices()),
-    getSelectedColumnKeys: () =>
-      getSelectedColumnKeys(state.selection, state.columnSpec),
-    onCellEdited: state.onCellEdited,
-    editCells(edits: CellEdit[]) {
-      state.setUpdatedData((updatedData: T[]) => {
-        const spec: Record<number, any> = {};
-        for (const e of edits) {
-          const rowIndex = e.rowIndex;
-          const columnKey = (e as any).columnKey ?? e.column;
-          if (spec[rowIndex] == null) {
-            const op = updatedData[rowIndex] != null ? "$merge" : "$set";
-            spec[rowIndex] = { [op]: {} };
-          }
-          const opKey = Object.keys(spec[rowIndex])[0];
-          spec[rowIndex][opKey][columnKey] = e.value;
-        }
-        return update(updatedData, spec);
-      });
-      // Emit a structured edit event so controlled consumers capture programmatic
-      // batch edits (clipboard paste, fill) the same as inline edits.
-      state.onEdit?.({
-        type: "setCells",
-        cells: edits.map((e) => ({
-          rowIndex: e.rowIndex,
-          column: (e as any).columnKey ?? e.column,
-          value: e.value,
-          row: state.data[e.rowIndex],
-        })),
-      });
-    },
-    deleteSelectedRows: state.deleteSelectedRows,
-    addRow: state.addRow,
-    setUpdatedData: state.setUpdatedData,
-    resetChanges: state.resetChanges,
-    clearSelection: state.clearSelection,
-    scrollToRow: state.scrollToRow,
-    setState,
-    clipboardProxy: state.clipboardProxy,
-    setClipboardProxy(proxy) {
-      state.setClipboardProxy(proxy);
-    },
-    get filteredRowIndices() {
-      return getFilteredRowIndices();
-    },
-  };
 }
 
 /** Compute which data row indices are visible given the active filters.
@@ -263,29 +237,8 @@ export function mergeColumnActions<T>(
   return [...globalActions, ...columnActions];
 }
 
-/** Collect all available filters from global filters and column specs. */
-export function collectAllFilters<T>(
-  globalFilters: TableFilter<T>[],
-  columnSpec: ColumnSpec[],
-): TableFilter<T>[] {
-  const result: TableFilter<T>[] = [...globalFilters];
-  for (const col of columnSpec) {
-    if (col.filters != null) {
-      for (const f of col.filters as TableFilter<T>[]) {
-        const withKey: TableFilter<T> = {
-          ...f,
-          columnKey: f.columnKey ?? col.key,
-        };
-        if (!result.some((r) => r.id === withKey.id)) {
-          result.push(withKey);
-        }
-      }
-    }
-    // Auto-generate the built-in operator filter for a `filterable` column,
-    // unless the column already supplies an explicit filter.
-    if (col.filterable && !result.some((r) => r.columnKey === col.key)) {
-      result.push(columnFilter(col) as TableFilter<T>);
-    }
-  }
-  return result;
+export function range(arr: number[]) {
+  if (arr.length != 2) throw new Error("Range must have two elements");
+  const [start, end] = arr;
+  return Array.from({ length: end - start + 1 }, (_, i) => i + start);
 }

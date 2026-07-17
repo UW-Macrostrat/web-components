@@ -1,189 +1,77 @@
 import { useHotkeys } from "@blueprintjs/core";
 import {
   Column,
-  Region,
   RegionCardinality,
   RowHeaderCell,
   Table,
-  TableProps,
 } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
-import { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
-import { LoadProgressIndicator } from "./components";
-import { renderColumnHeaderCell } from "./renderers";
+import {
+  CSSProperties,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
+import {
+  LoadProgressIndicator,
+  ActionsToolbar,
+  ActiveFiltersList,
+} from "./components";
+import { basicCellRenderer, renderColumnHeaderCell } from "./renderers";
 import h from "./main.module.sass";
 import {
   columnSpecAtom,
   ctx,
   dataProviderAtom,
+  dataRefreshTokenAtom,
   DataSheetProvider,
+  DataViewRendererType,
+  DEFAULT_ROW_STATUS_STYLES,
+  FetchData,
+  persistViaProvider,
+  RowStatusStyles,
+  splitDataProviderProps,
   storeAtom,
   tableActionsAtom,
+  TableElementStatus,
   useSelector,
   useStoreAPI,
+  VisibleCells,
 } from "./provider";
 import { atom } from "jotai";
+import { CellRendererDebugOverlay, tableHotkeysAtom } from "./utils";
 import {
-  DataSheetProviderProps,
-  DEFAULT_ROW_STATUS_STYLES,
-  EditEvent,
-  RowHeaderRenderContext,
-  RowStatusStyles,
-  TableElementStatus,
-  VisibleCells,
-} from "./types.ts";
-import { basicCellRenderer } from "./cell-renderer.ts";
-import {
-  CellRendererDebugOverlay,
-  tableHotkeysAtom,
-  type ColumnSpec,
-} from "./utils";
-import {
-  ActionsToolbar,
   clipboardActions,
   columnControlActions,
   createSaveAction,
-  FilterBar,
   resetChangesAction,
   TableAction,
   TableActionContext,
-  TableFilter,
 } from "./actions";
 import {
-  createLocalProvider,
-  dataRefreshTokenAtom,
-  FetchData,
-  FetchDataOptions,
   tableFooterAtom,
-  TableDataProvider,
-  useScrollHandler,
   useDataLoader,
+  useScrollHandler,
 } from "./postgrest-table";
+import {
+  CellInteraction,
+  DataSheetDensity,
+  DataSheetProps,
+  DataSheetRendererProps,
+  FetchDataOptions,
+} from "./types.ts";
+import { ErrorCallout } from "@macrostrat/ui-components";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
 // TODO: add a "copy to selection" tool (the little square in the bottom right corner of a cell)
 // This should copy the value of a cell (or a set of cells in the same row) downwards.
 
-export enum DataSheetDensity {
-  HIGH = "high",
-  MEDIUM = "medium",
-  LOW = "low",
-}
-
 /** Approximate column-header + scrollbar allowance, used to size the table to
  * its content in paged mode. */
 const COLUMN_HEADER_HEIGHT = 34;
-
-/**
- * How selecting a cell activates its surface (an editor, or a read-only detail
- * panel):
- * - `"auto"` (default when `autoFocusEditor` is `true`): open the surface on
- *   selection and, for editors, focus it. Editors relinquish focus at their
- *   edges — arrow past the start/end of a text cell, or press Escape, and focus
- *   returns to the table — so the keyboard stays operable without the mouse.
- *   Pressing Escape drops into navigation mode (surfaces stop auto-opening)
- *   until the next click.
- * - `"manual"` (default when `autoFocusEditor` is `false`): the surface stays
- *   closed until the cell is clicked; arrow keys always navigate the table.
- */
-export type CellInteraction = "auto" | "manual";
-
-interface DataSheetInternalProps<T> extends TableProps, FetchDataOptions {
-  /** In-memory rows. Internally wrapped in a local `TableDataProvider` and
-   * driven through the same loader as any other source. */
-  data?: T[];
-  /** Passed through from the public props so a function form can be derived
-   * from the loaded rows here (a static array is handled by the provider). */
-  columnSpec?: ColumnSpec[] | ((rows: T[]) => ColumnSpec[]);
-  // function to fetch a chunk of data (the read side of a data provider)
-  fetchData?: FetchData<T>;
-  /** A data provider instantiated separately and passed in — bundles the read
-   * side (`fetchData` + `identity`) and, optionally, the persistence side
-   * (`saveRows` / `deleteRows` / `insertRow`) that drives the Save action. An
-   * explicit alternative to the loose `data` / `fetchData` / `identity` props;
-   * takes precedence when given. */
-  provider?: TableDataProvider<T>;
-  // An optional table name that will be used in toolbars if given
-  name?: string;
-  onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
-  onUpdateData?: (updatedData: any[], data: T[]) => void;
-  /** Observer called for every user edit as a structured `EditEvent`
-   * (Workstream A). Additive: the built-in `updatedData` overlay still
-   * applies. */
-  onEdit?: (event: EditEvent<T>) => void;
-  /** Controlled edited-cell overlay (Workstream A). When provided, it is
-   * synced into the store as the source of truth for edited values — pair with
-   * `onEdit` to own edit state externally (e.g. an ops model). Optimistic
-   * in-table edits are superseded by the next value you pass back. */
-  updatedData?: T[];
-  /** Controlled row-status overlay (edited / added / deleted), the companion
-   * to `updatedData`. */
-  rowStatus?: TableElementStatus[];
-  /** Row identity for the edit overlay — stable across a provider re-sort (a
-   * data provider supplies its own; defaults to `(row) => row?.id`). Lets edits
-   * survive a re-ordered re-fetch. */
-  identity?: (row: T) => string | number | null | undefined;
-  /** Derive the controlled edit overlay from the loaded rows, *inside* the
-   * sheet. For provider-backed tables whose overlay is a function of the loaded
-   * data plus external edit state (e.g. an ops stack): the library owns the
-   * rows, so it calls this with them and uses the result as the controlled
-   * overlay, re-deriving when the rows — or this function's identity (close it
-   * over your edit state) — change. Supersedes `updatedData`/`rowStatus`. */
-  deriveOverlay?: (rows: T[]) => {
-    updatedData: T[];
-    rowStatus: TableElementStatus[];
-  };
-  /** Bump to force the data provider to re-fetch from scratch (e.g. after a
-   * save/delete that invalidated the loaded rows). */
-  refreshToken?: number | string;
-  /** Persistence handler for the built-in Save action. When provided, a Save
-   * control is added to the toolbar (always visible, disabled when there are
-   * no pending changes). */
-  onSave?: (ctx: TableActionContext<T>) => void | Promise<void>;
-  onDeleteRows?: (selection: Region[]) => void;
-  verbose?: boolean;
-  enableColumnReordering?: boolean;
-  enableClipboard?: boolean;
-  enableFocusedCell?: boolean;
-  editable?: boolean;
-  /** @deprecated Prefer `cellInteraction`. `true` maps to `"auto"`,
-   * `false` to `"manual"`. */
-  autoFocusEditor?: boolean;
-  /** How selecting a cell activates its surface (editor or detail panel).
-   * Defaults from `autoFocusEditor` for backward compatibility. */
-  cellInteraction?: CellInteraction;
-  density?: DataSheetDensity;
-  /** Configurable table actions shown in a selection-aware toolbar.
-   * When provided, the actions toolbar renders alongside the existing
-   * edit toolbar. Actions are filtered by the current selection cardinality. */
-  actions?: TableAction<T>[];
-  /** Available column/table filters shown in a filter bar.
-   * Filters can also be defined per-column via `ColumnSpec.filters`. */
-  filters?: TableFilter<T>[];
-  /** Optional custom column header cell renderer, called for each column.
-   * Receives the ColumnSpec and column index; should return a React element
-   * (typically a Blueprint ColumnHeaderCell). */
-  columnHeaderCellRenderer?: (col: any, colIndex: number) => ReactNode;
-  /** Arbitrary nodes for the bottom status bar (left group), rendered beside
-   * the active sort/filter tags — the home for view-state controls (show/hide
-   * omitted rows/columns, a group-by indicator, etc.). */
-  statusBar?: ReactNode;
-  /** Presentation per row-status value, merged over the built-in defaults
-   * (which style `"deleted"`). Supply styles for consumer-defined statuses
-   * (e.g. `"omitted"`) and/or override the defaults. Each entry may set the
-   * cells' style/intent and the row header's style. */
-  rowStatusStyles?: RowStatusStyles;
-  /** Render the content of a row's header cell (the left gutter). Receives the
-   * row, its status, and the default 1-based label; return a node to use, or a
-   * nullish value to keep the default. For group-key labels, omit indicators,
-   * etc. Header-cell *styling* still comes from `rowStatusStyles`. */
-  rowHeaderRenderer?: (ctx: RowHeaderRenderContext<T>) => ReactNode;
-}
-
-type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
-
-const emptyData: any[] = [];
 
 export function DataSheet<T>(props: DataSheetProps<T>) {
   const {
@@ -195,107 +83,27 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     enableFocusedCell = false,
     defaultColumnWidth = 150,
     children,
+    name,
     ...rest
   } = props;
 
-  const _data = data ?? emptyData;
-
-  // Resolve the data source ONCE, here in the wrapper (not per-render inside
-  // `_DataSheet`): an explicit `provider` wins; else a loose `fetchData`
-  // (+ identity) is wrapped as one; else in-memory `data` becomes a local
-  // provider. Held in the provider layer via `dataProviderAtom` (see
-  // `DataSheetProviderInner`), so the loader and store read it and future
-  // derived state can be computed alongside it.
-  const isLocalProvider = props.provider == null && props.fetchData == null;
-  const activeProvider = useMemo<TableDataProvider<any> | null>(() => {
-    if (props.provider != null) return props.provider;
-    if (props.fetchData != null) {
-      return {
-        fetchData: props.fetchData,
-        identity: props.identity ?? ((r: any) => r?.id),
-      };
-    }
-    if (_data.length > 0) {
-      return createLocalProvider(
-        _data,
-        props.identity != null ? { identity: props.identity } : undefined,
-      );
-    }
-    return null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.provider, props.fetchData, _data, props.identity]);
-  const dataProvider = useMemo(
-    () => ({ provider: activeProvider, isLocalProvider }),
-    [activeProvider, isLocalProvider],
-  );
-
+  const [providerProps, rendererProps] = splitDataProviderProps<T>({
+    ...props,
+    viewType: DataViewRendererType.TABLE,
+  });
   return h(
     DataSheetProvider<T>,
-    {
-      data: _data,
-      columnSpec,
-      columnSpecOptions,
-      enableColumnReordering,
-      defaultColumnWidth,
-      editable,
-      dataProvider,
-      ...rest,
-    },
-    h(_DataSheet<any>, {
-      ...rest,
-      data: _data,
-      columnSpec,
-      children,
-      editable,
-      enableColumnReordering,
-      enableFocusedCell,
-    }),
+    providerProps,
+    h(DataSheetRenderer<any>, rendererProps),
   );
 }
 
-/** Persist all pending changes through a data provider: added rows via
- * `insertRow`, edited rows via `saveRows`, deleted rows via `deleteRows`
- * (addressed by `provider.identity`). Used by the built-in Save action when an
- * explicit provider owns persistence. */
-async function persistViaProvider<T>(
-  provider: TableDataProvider<T>,
-  ctx: TableActionContext<T>,
-): Promise<void> {
-  const base = (ctx.data ?? []) as any[];
-  const updates = (ctx.updatedData ?? []) as any[];
-  const status = (ctx.rowStatus ?? []) as any[];
-  const n = Math.max(base.length, updates.length, status.length);
-  const toSave: T[] = [];
-  const toInsert: T[] = [];
-  const toDelete: Array<string | number> = [];
-  for (let i = 0; i < n; i++) {
-    if (status[i] === TableElementStatus.DELETED) {
-      const id = provider.identity(base[i]);
-      if (id != null) toDelete.push(id);
-      continue;
-    }
-    const upd = updates[i];
-    const hasEdit =
-      upd != null && typeof upd === "object" && Object.keys(upd).length > 0;
-    if (status[i] === TableElementStatus.ADDED) {
-      toInsert.push({ ...base[i], ...upd } as T);
-    } else if (hasEdit) {
-      toSave.push({ ...base[i], ...upd } as T);
-    }
-  }
-  if (toDelete.length > 0 && provider.deleteRows != null) {
-    await provider.deleteRows(toDelete);
-  }
-  for (const row of toInsert) {
-    if (provider.insertRow != null) await provider.insertRow(row);
-  }
-  if (toSave.length > 0 && provider.saveRows != null) {
-    await provider.saveRows(toSave);
-  }
-}
+const verboseAtom = atom(false);
 
-function _DataSheet<T>({
-  data: sourceData,
+/** The table (cell-grid) renderer. Assumes it is rendered inside a
+ * `DataSheetProvider` (the `DataSheet` wrapper, or `DataView`). Exported so a
+ * shared-store `DataView` can mount it directly alongside `_DataPanel`. */
+export function DataSheetRenderer<T>({
   fetchData,
   provider,
   pageSize,
@@ -306,12 +114,16 @@ function _DataSheet<T>({
   onSave,
   updatedData: updatedDataProp,
   rowStatus: rowStatusProp,
-  identity,
+  // Identity/canDeleteRows sync (was here) is now handled by the provider
+  // (`DataSheetProviderInner`); still destructured so `identity`/`refreshToken`
+  // don't leak into `...rest` (spread onto the Blueprint `Table` below).
+  identity: _identity,
   deriveOverlay,
-  refreshToken,
+  refreshToken: _refreshToken,
   onDeleteRows,
   name,
   verbose = false,
+  debug = false,
   enableFocusedCell,
   autoFocusEditor = true,
   cellInteraction,
@@ -321,28 +133,29 @@ function _DataSheet<T>({
   actions,
   filters,
   columnHeaderCellRenderer,
-  columnSpec: columnSpecProp,
   statusBar,
   rowStatusStyles,
   rowHeaderRenderer,
   children,
-  ...rest
-}: DataSheetInternalProps<T>) {
+  ...tableProps
+}: DataSheetRendererProps<T>) {
   /**
    * @param data: The data to be displayed in the table
    * @param columnSpec: The specification for all columns in the table. If not provided, the column spec will be generated from the data.
    * @param columnSpecOptions: Options for generating a column spec from data
    */
 
-  // Turn on debug features
-  const debugMode = false;
+  ctx.useSync(verboseAtom, verbose);
 
   const editable = useSelector((state) => state.editable);
 
   // The active data source is resolved in the wrapper (`DataSheet`) and held in
   // the provider layer; read it here rather than resolving per render.
-  const { provider: activeProvider, isLocalProvider } =
-    ctx.useValue(dataProviderAtom);
+  const {
+    provider: activeProvider,
+    isLocalProvider,
+    localCount,
+  } = ctx.useValue(dataProviderAtom);
 
   // When an explicit provider owns persistence, its methods drive the built-in
   // Save (batch: edits→saveRows, added→insertRow, deleted→deleteRows), then a
@@ -387,9 +200,15 @@ function _DataSheet<T>({
     return _actions;
   }, [actions, enableClipboard, editable, saveHandler]);
 
+  /*** TODO: generalize this, probably shouldn't need 'set' */
   ctx.useSync(tableActionsAtom, _actions);
+  const getHotkeys = ctx.useSet(tableHotkeysAtom);
 
-  const hotkeysConfig = ctx.useValue(tableHotkeysAtom);
+  // This is quite hacky!
+  const hotkeysConfig = useMemo(() => {
+    return getHotkeys();
+  }, [_actions]);
+
   const { handleKeyDown, handleKeyUp } = useHotkeys(hotkeysConfig);
 
   // For now, we only consider a single cell "focused" when we have one cell selected.
@@ -458,13 +277,13 @@ function _DataSheet<T>({
   // In paged mode the row count is small and fixed, so let the table size to
   // its content (header + rows) instead of filling the viewport.
   const footerInfo = ctx.useValue(tableFooterAtom);
-  const holderStyle =
-    footerInfo.mode === "paged"
-      ? {
-          flex: "0 0 auto" as const,
-          height: numRows * rowHeight + COLUMN_HEADER_HEIGHT,
-        }
-      : undefined;
+  let holderStyle: CSSProperties | undefined = undefined;
+  if (footerInfo.mode === "paged") {
+    holderStyle = {
+      flex: "0 0 auto" as const,
+      height: numRows * rowHeight + COLUMN_HEADER_HEIGHT,
+    };
+  }
 
   const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
 
@@ -526,57 +345,21 @@ function _DataSheet<T>({
   // when the rows load/change or the function's identity changes (close it over
   // your external edit state). The `controlledOverlay` flag above suppresses the
   // loader-boundary identity remap so this derivation is authoritative.
-  const loadedData = useSelector((state) => state.data);
   useEffect(() => {
     if (deriveOverlay == null) return;
-    const overlay = deriveOverlay(loadedData);
+    const overlay = deriveOverlay(data);
     storeState.setState({
       updatedData: overlay.updatedData,
       rowStatus: overlay.rowStatus,
     });
-  }, [deriveOverlay, loadedData, storeState]);
+  }, [deriveOverlay, data, storeState]);
 
-  // Function `columnSpec`: derive the spec from the loaded rows (no separate
-  // fetch of sample data). Derive once the first rows arrive, and re-derive
-  // when the function's identity changes (a consumer memoizes it over its
-  // own view state — hidden columns, order, overrides). Not re-run as more
-  // rows page in (guarded by the function identity), so it never clobbers
-  // in-store column state on scroll.
-  const derivedSpecFor = useRef<unknown>(null);
-  useEffect(() => {
-    if (typeof columnSpecProp !== "function") return;
-    if (derivedSpecFor.current === columnSpecProp) return;
-    const rows = loadedData.filter((r) => r != null);
-    if (rows.length === 0) return;
-    derivedSpecFor.current = columnSpecProp;
-    storeState.setState({ columnSpec: columnSpecProp(rows) });
-  }, [columnSpecProp, loadedData, storeState]);
+  // Function `columnSpec` derivation is hoisted to the provider
+  // (`DataSheetProviderInner`), shared by both renderers.
 
-  // Imperative re-fetch: bump `refreshToken` to reload the provider (e.g. after
-  // a save). Skips the initial mount (the loader does its own first fetch).
-  const bumpRefreshFromToken = ctx.useSet(dataRefreshTokenAtom);
-  const firstRefreshToken = useRef(true);
-  useEffect(() => {
-    if (firstRefreshToken.current) {
-      firstRefreshToken.current = false;
-      return;
-    }
-    bumpRefreshFromToken((v) => v + 1);
-  }, [refreshToken, bumpRefreshFromToken]);
-
-  // The active provider supplies the row identity for the edit overlay.
-  useEffect(() => {
-    const id = activeProvider?.identity ?? identity;
-    if (id != null) storeState.setState({ identity: id });
-  }, [storeState, activeProvider, identity]);
-
-  // Row deletion is a provider capability: an explicit `provider` without
-  // `deleteRows` disables deletion entirely. (Local / loose sources keep the
-  // local delete overlay.)
-  useEffect(() => {
-    const canDeleteRows = provider == null || provider.deleteRows != null;
-    storeState.setState({ canDeleteRows });
-  }, [storeState, provider]);
+  // Identity and canDeleteRows sync are hoisted to the provider
+  // (`DataSheetProviderInner`), shared with `_DataPanel` — both depend only on
+  // the resolved data provider, not any sheet-specific state.
 
   // Merge consumer `rowStatusStyles` over the built-in defaults and hand the
   // result to the store, where the cell renderer and row-header renderer read
@@ -592,11 +375,11 @@ function _DataSheet<T>({
   const realizedColumns = useMemo(() => {
     return columnSpec.map((col, colIndex) => {
       let fn =
-        col.headerCellRenderer ??
+        col.headerRenderer ??
         columnHeaderCellRenderer ??
         renderColumnHeaderCell;
-      let activeSort = null;
-      let activeFilter = null;
+      let activeSort: any = null;
+      let activeFilter: any = null;
       if (col.sortable) {
         activeSort = columnSorts?.find((s) => s.key === col.key);
       }
@@ -610,19 +393,22 @@ function _DataSheet<T>({
         }
       }
 
-      const _columnHeaderCellRenderer = (colIndex) => {
-        return fn({
-          col,
+      const _columnHeaderCellRenderer: any = (colIndex) => {
+        return fn(
+          {
+            col,
+            colIndex,
+            activeSort,
+            activeFilter,
+          },
           colIndex,
-          activeSort,
-          activeFilter,
-        });
+        );
       };
 
       return h(Column, {
         id: col.key,
         name: col.name,
-        columnHeaderCellRenderer: _columnHeaderCellRenderer,
+        columnHeaderCellRenderer: _columnHeaderCellRenderer as any,
         cellRenderer: (rowIndex) => {
           const state = storeAPI.getState();
           return basicCellRenderer<T>(
@@ -650,20 +436,20 @@ function _DataSheet<T>({
 
   const rowHeaderCellRenderer = useCallback(
     (rowIndex: number) => {
-      const dataRowIndex =
-        filteredRowIndices != null
-          ? (filteredRowIndices[rowIndex] ?? rowIndex)
-          : rowIndex;
+      let dataRowIndex = rowIndex;
+      if (filteredRowIndices != null) {
+        dataRowIndex = filteredRowIndices[rowIndex] ?? rowIndex;
+      }
       const statusVal = rowStatus[dataRowIndex];
-      const style =
-        (statusVal != null
-          ? mergedRowStatusStyles[statusVal]?.headerStyle
-          : null) ?? null;
+      let style: CSSProperties | undefined;
+      if (statusVal != null) {
+        style = mergedRowStatusStyles[statusVal]?.headerStyle;
+      }
 
       const defaultLabel = `${dataRowIndex + 1}`;
-      let name: ReactNode = defaultLabel;
+      let name: string = defaultLabel;
       if (rowHeaderRenderer != null) {
-        const custom = rowHeaderRenderer({
+        return rowHeaderRenderer({
           rowIndex: dataRowIndex,
           visibleIndex: rowIndex,
           row: data[dataRowIndex] ?? updatedData[dataRowIndex],
@@ -671,7 +457,6 @@ function _DataSheet<T>({
           isDeleted: statusVal === TableElementStatus.DELETED,
           defaultLabel,
         });
-        if (custom != null) name = custom;
       }
 
       return h(RowHeaderCell, {
@@ -691,6 +476,23 @@ function _DataSheet<T>({
     ],
   );
 
+  // Done with hooks!
+  /** Guard for unacceptable state combinations:
+   * editable = true requires selectionModes to include cells, else the user cannot select a cell to edit.
+   * TODO: make this an impossible state to enter.
+   */
+  if (
+    editable &&
+    selectionModes &&
+    !selectionModes.includes(RegionCardinality.CELLS)
+  ) {
+    return h(ErrorCallout, {
+      title: "Invalid selection mode",
+      description: "Editable sheet requires cell selection",
+    });
+  }
+
+  // TODO: hoist this
   let _selectionModes = selectionModes;
   if (
     editable &&
@@ -716,12 +518,13 @@ function _DataSheet<T>({
   let dataLoader: ReactNode = null;
   if (activeProvider != null) {
     _showLoadProgress = !isLocalProvider;
+    // A local (in-memory) source loads all its rows in one page; its count
+    // rides on the resolved provider (`localCount`), so `_DataSheet` no longer
+    // takes a `data` prop — live rows come only from the store.
     dataLoader = h(_DataLoaderManager, {
       key: "__data_loader",
       fetchData: activeProvider.fetchData,
-      pageSize: isLocalProvider
-        ? Math.max(sourceData?.length ?? 1, 1)
-        : pageSize,
+      pageSize: isLocalProvider ? Math.max(localCount, 1) : pageSize,
       fetchMode: isLocalProvider ? undefined : fetchMode,
     });
   }
@@ -730,13 +533,13 @@ function _DataSheet<T>({
 
   let filterStatus: ReactNode = null;
   if (showFilterBar) {
-    filterStatus = h(FilterBar, { filters: filters ?? [] });
+    filterStatus = h(ActiveFiltersList, { filters: filters ?? [] });
   }
 
   return h("div.data-sheet-container", { className, style }, [
     // The actions/tools toolbar (selection-modal). Table-scoped controls like
     // scroll-to-row / full-text search live here as ordinary actions.
-    h(ActionsToolbar, { actions: _actions, tableName: name }),
+    h(ActionsToolbar, { actions: _actions }),
     dataLoader,
     children,
     h(
@@ -749,7 +552,7 @@ function _DataSheet<T>({
         style: holderStyle,
       },
       h(
-        Table,
+        Table as any, // Some sort of hyperscript type error
         {
           ref,
           numRows,
@@ -759,11 +562,10 @@ function _DataSheet<T>({
           focusedCell,
           selectedRegions,
           defaultRowHeight: rowHeight,
-          minRowHeight: rowHeight,
           columnWidths,
           onColumnWidthChanged,
           onSelection,
-          /** TODO: we could enable this, but we need a use-case first... */
+          /** TODO: we could enable this if we had a use-case */
           enableRowReordering: false,
           enableRowResizing: false,
           // The cell renderer is memoized internally based on these data dependencies
@@ -771,7 +573,7 @@ function _DataSheet<T>({
           onVisibleCellsChange: _onVisibleCellsChange,
           rowHeaderCellRenderer,
           selectionModes: _selectionModes,
-          ...rest,
+          ...tableProps,
           getCellClipboardData: null,
         },
         realizedColumns,
@@ -783,7 +585,7 @@ function _DataSheet<T>({
       h("div.spacer"),
       h.if(_showLoadProgress)(LoadProgressIndicator),
     ]),
-    h.if(debugMode)(CellRendererDebugOverlay, {
+    h.if(debug)(CellRendererDebugOverlay, {
       cellRendererDependencies,
       names: [
         "data",
@@ -796,8 +598,14 @@ function _DataSheet<T>({
   ]);
 }
 
-const columnWidthsIndexAtom = atom((get) => get(storeAtom).columnWidthsIndex);
-const defaultColumnWidthAtom = atom((get) => get(storeAtom).defaultColumnWidth);
+const EMPTY_MAP = new Map<string, number>();
+
+const columnWidthsIndexAtom = atom(
+  (get) => get(storeAtom)?.columnWidthsIndex ?? EMPTY_MAP,
+);
+const defaultColumnWidthAtom = atom(
+  (get) => get(storeAtom)?.defaultColumnWidth ?? 150,
+);
 
 const columnWidthsAtom = atom((get) => {
   const ix = get(columnWidthsIndexAtom);
@@ -806,7 +614,10 @@ const columnWidthsAtom = atom((get) => {
   );
 });
 
-function styleParamsForDensity(density: DataSheetDensity) {
+function styleParamsForDensity(density: DataSheetDensity): {
+  rowHeight: number;
+  style: Record<string, string>;
+} {
   switch (density) {
     case DataSheetDensity.MEDIUM:
       return {
@@ -846,18 +657,4 @@ function _DataLoaderManager<T = any>({
 } & FetchDataOptions) {
   useDataLoader(fetchData, rest);
   return null;
-}
-
-export function getRowsToDelete(selection) {
-  let rowIndices: number[] = [];
-  for (const sel of selection) {
-    // This isn't a full-row selection
-    if (sel.cols != null) continue;
-    if (sel.rows == null) continue;
-    const [startIndex, endIndex] = sel.rows;
-    for (let i = startIndex; i <= endIndex; i++) {
-      rowIndices.push(i);
-    }
-  }
-  return rowIndices;
 }

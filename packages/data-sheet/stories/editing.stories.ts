@@ -113,6 +113,17 @@ export const EmptyCellNormalization: StoryObj = {
     }),
 };
 
+export const DisableDragEdit: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      data: testData,
+      columnSpec,
+      editable: true,
+      actions: defaultTableActions,
+      enableDragValue: false,
+    }),
+};
+
 /**
  * **Filter-aware edit methods.**
  *

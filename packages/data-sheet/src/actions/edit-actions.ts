@@ -7,7 +7,9 @@
  */
 import { RegionCardinality } from "@blueprintjs/table";
 import { collectValidationErrors } from "../utils/validation";
-import type { SelectionCardinality, TableAction, TableActionContext } from "./types";
+import type { TableAction } from "./types";
+import { SelectionCardinality } from "./selection.ts";
+import { TableActionContext } from "./context.ts";
 
 /** Every selection cardinality — an action targeting all of these is always
  * applicable, so the toolbar never empties out. */

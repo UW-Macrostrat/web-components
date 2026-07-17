@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { DataSheet, ColorCell, ColorPicker } from "../src";
+import { ColorCell, ColorPicker, DataSheet } from "../src";
 import chroma from "chroma-js";
 import "@blueprintjs/table/lib/css/table.css";
 import { asChromaColor } from "@macrostrat/color-utils";
@@ -14,7 +14,7 @@ const defaultColumnSpec = buildColumnSpec();
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<any> = {
-  title: "Data sheet/Selection polarity",
+  title: "Data sheet/Selection",
   component: TestDataSheet,
   parameters: {
     layout: "fullscreen",
@@ -27,8 +27,35 @@ const meta: Meta<any> = {
 
 export default meta;
 
-export const Primary: StoryObj<{}> = {
+export const AllModes: StoryObj<{}> = {
   args: {},
+};
+
+export const FullyDisabled = {
+  args: {
+    editable: false,
+    selectionModes: [],
+  },
+};
+
+export const FullyDisabledConvenienceProp = {
+  name: "Fully disabled (via convenience shorthand)",
+  args: {
+    enableSelection: false,
+  },
+};
+
+export const RowsOnly = {
+  args: {
+    editable: false,
+    selectionModes: [RegionCardinality.FULL_ROWS],
+  },
+};
+
+export const SingleSelectionOnly = {
+  args: {
+    enableMultipleSelection: false,
+  },
 };
 
 enum EditMode {
@@ -109,6 +136,7 @@ export function WithModeToggle() {
   const enableColumnReordering = mode === EditMode.Reshape;
   const enableRowReordering = mode === EditMode.Reshape;
 
+  /** TODO: fix error when selection is fully disabled */
   return h(
     Box,
     {

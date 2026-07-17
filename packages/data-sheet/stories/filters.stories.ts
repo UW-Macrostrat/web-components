@@ -44,29 +44,28 @@ const testData = buildData();
 // This is a generic text search filter
 const nameFilter: TableFilter = {
   id: "name-filter",
-  name: "Name contains",
-  icon: "text-search",
+  name: "contains",
+  icon: "search",
   columnKey: "name",
   description: "Show only rows where the name contains a string.",
   defaultState: { search: "" },
-  describeState: (state) => (state?.search ? `"${state.search}"` : null),
+  describeState: (state) => state?.search,
   filterForm({ state, setState }) {
-    return h(FormGroup, { label: "Name contains" }, [
-      h(InputGroup, {
-        placeholder: "Search by name...",
-        value: state?.search ?? "",
-        onChange(event) {
-          setState({ ...state, search: event.target.value });
-        },
-      }),
-    ]);
+    return h(InputGroup, {
+      placeholder: "Search by name...",
+      value: state?.search ?? "",
+      onChange(event) {
+        setState({ ...state, search: event.target.value });
+        // Ensure that we don't delete the selection when clearing this text form
+        event.stopPropagation();
+      },
+    });
   },
   predicate(row, state) {
     if (state?.search == null || state.search === "") return true;
     return row.name.toLowerCase().includes(state.search.toLowerCase());
   },
 };
-
 
 function Wrapper(props) {
   return h(
@@ -309,4 +308,3 @@ export const AutoColumnSpec: StoryObj = {
       editable: false,
     }),
 };
-

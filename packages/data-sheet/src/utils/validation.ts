@@ -1,4 +1,4 @@
-import type { CellValidation, ColumnSpec } from "./column-spec";
+import type { CellValidation, ColumnSpec } from "../provider/column-spec.ts";
 
 /**
  * Validate a single cell against its column spec. Order: `required` (empty →
@@ -64,7 +64,12 @@ export function collectValidationErrors(s: {
     for (const col of cols) {
       const v = validateCell(col, row[col.key], row, i);
       if (v?.severity === "error") {
-        errors.push({ rowIndex: i, columnKey: col.key, severity: "error", message: v.message });
+        errors.push({
+          rowIndex: i,
+          columnKey: col.key,
+          severity: "error",
+          message: v.message,
+        });
       }
     }
   }

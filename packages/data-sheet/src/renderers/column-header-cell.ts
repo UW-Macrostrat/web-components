@@ -9,13 +9,13 @@
 import h from "@macrostrat/hyper";
 import { ColumnHeaderCell, RegionCardinality } from "@blueprintjs/table";
 import { Icon, Menu, MenuItem } from "@blueprintjs/core";
-import { ctx, tableActionsAtom, useStoreAPI } from "../provider";
-import { buildActionContext } from "../actions/selection";
-import type { ColumnSpec } from "../utils/column-spec";
+import { ctx, tableActionsAtom, type ColumnSpec } from "../provider";
 import type {
   PostgrestColumnFilter,
   ColumnSortEntry,
 } from "../postgrest-table";
+import { buildActionContext } from "../actions";
+import { useMemo } from "react";
 
 export interface ColumnActionsConfig {
   activeSort?: ColumnSortEntry | null;
@@ -60,7 +60,7 @@ export function renderColumnHeaderCell({
           hasSortActive: false,
           hasFilterActive: false,
           activeSort: null,
-        }),
+        }) as any,
     });
   }
 
@@ -77,7 +77,12 @@ export function renderColumnHeaderCell({
     // column was selected.
     enableColumnInteractionBar: true,
     nameRenderer: () =>
-      h(ColumnHeaderName, { col, hasSortActive, hasFilterActive, activeSort }),
+      h(ColumnHeaderName, {
+        col,
+        hasSortActive,
+        hasFilterActive,
+        activeSort,
+      }) as any,
     menuRenderer: () => h(ColumnHeaderControls, { colIndex }),
   });
 }
@@ -138,17 +143,15 @@ function ColumnHeaderName({ col, hasSortActive, hasFilterActive, activeSort }) {
  * single-column selection context — so the header and toolbar render the same
  * sort/filter (and custom column) controls. */
 function ColumnHeaderControls({ colIndex }: { colIndex: number }) {
-  const storeAPI = useStoreAPI();
   const actions = ctx.useValue(tableActionsAtom);
+  const store = ctx.useStore();
 
   // Scope the action context to this column (as if it were the selection).
-  const actionCtx = buildActionContext(
-    {
-      ...storeAPI.getState(),
-      selection: [{ cols: [colIndex, colIndex], rows: undefined }],
-    } as any,
-    storeAPI.setState,
-  );
+  const actionCtx = useMemo(() => {
+    return buildActionContext(store.get, store.set, {
+      singleColumn: colIndex,
+    });
+  }, [actions, colIndex, store]);
 
   // Only actions *limited* to column scope belong in a column's dropdown —
   // sort/filter and column-specific actions. Global actions (Save / Reset /
@@ -172,7 +175,11 @@ function ColumnHeaderControls({ colIndex }: { colIndex: number }) {
     .map((a, i) => {
       if (a.renderMenuItem != null) return a.renderMenuItem(actionCtx);
       if (a.render != null)
-        return h("li.column-header-control", { key: a.id ?? i }, a.render(actionCtx));
+        return h(
+          "li.column-header-control",
+          { key: a.id ?? i },
+          a.render(actionCtx),
+        );
       return h(MenuItem, {
         key: a.id ?? i,
         icon: a.icon,

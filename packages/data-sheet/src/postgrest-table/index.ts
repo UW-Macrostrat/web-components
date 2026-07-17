@@ -1,20 +1,19 @@
 import { InputGroup, OverlayToaster } from "@blueprintjs/core";
 import h from "./main.module.sass";
-import { DataSheet } from "../core";
+import { DataSheet } from "../data-sheet.ts";
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import {
   createPostgRESTProvider,
-  dataRefreshTokenAtom,
   PostgrestFilter,
   PostgrestOrder,
 } from "./data-loaders";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import { ErrorBoundary, ToasterContext } from "@macrostrat/ui-components";
 import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
 import { ColorCell } from "../components";
-import { DataSheetProviderProps } from "../types.ts";
+import { DataSheetProviderProps } from "../provider/types.ts";
 import { atom } from "jotai";
-import { columnSpecAtom, ctx } from "../provider.ts";
+import { columnSpecAtom, ctx, dataRefreshTokenAtom } from "../provider";
 import { ALL_CARDINALITIES, TableAction } from "../actions";
 
 export * from "./data-loaders";
@@ -47,7 +46,9 @@ interface PostgRESTTableViewProps<
   ): PostgrestFilterBuilder<T, any, any, any>;
 }
 
-export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
+export function PostgRESTTableView<T extends object>(
+  props: PostgRESTTableViewProps<T>,
+) {
   return h(
     ErrorBoundary,
     h(ctx.Provider, h(ToasterContext, h(_PostgRESTTableView, props))),
@@ -104,10 +105,10 @@ function _PostgRESTTableView<T>({
   editable = false,
   enableFullTableSearch = false,
   actions,
-  identityKey = null,
+  identityKey,
   filter: userFilter,
   ...rest
-}: PostgRESTTableViewProps<T>) {
+}: PostgRESTTableViewProps<any>) {
   // Boundary of Jotai store
   ctx.useSync(enableFullTextSearchAtom, enableFullTableSearch);
 
@@ -197,7 +198,7 @@ export function notifyOnError(toaster: OverlayToaster, error: any) {
   console.error(error);
   const { message, status, code, details } = error;
 
-  let errorDetails = null;
+  let errorDetails: ReactNode = null;
 
   if (details != null) {
     if (typeof details === "string") {

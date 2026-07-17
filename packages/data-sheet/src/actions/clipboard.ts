@@ -1,6 +1,7 @@
 import { RegionCardinality } from "@blueprintjs/table";
-import type { TableAction, TableActionContext, CellEdit } from "./types";
-import type { ClipboardProxy } from "../types.ts";
+import type { TableAction } from "./types";
+import type { CellEdit, ClipboardProxy } from "../provider/types.ts";
+import { TableActionContext } from "./context.ts";
 
 /** Serialize the current selection to tab-separated values.
  * For full-row/column copies, includes a header row and produces
@@ -230,7 +231,7 @@ function buildPasteEdits(
       const value = row[srcC] ?? "";
       edits.push({
         rowIndex: dataRow,
-        columnKey: ctx.columnSpec[colIdx].key,
+        column: ctx.columnSpec[colIdx].key,
         value,
       });
     }

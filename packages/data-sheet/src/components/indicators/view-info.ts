@@ -1,22 +1,7 @@
-import h from "../postgrest-table/main.module.sass";
-import {
-  ViewInfo,
-  viewInfoAtom,
-  tableFooterAtom,
-  chunkPageAtom,
-} from "../postgrest-table";
-import { ctx } from "../provider.ts";
+import h from "../../postgrest-table/main.module.sass";
+import { tableFooterAtom, chunkPageAtom } from "../../postgrest-table";
+import { ctx, useItemCount } from "../../provider";
 import { Button, ButtonGroup, Icon, Spinner } from "@blueprintjs/core";
-
-function VisibleRegionControl() {
-  const viewInfo: ViewInfo = ctx.useValue(viewInfoAtom);
-
-  return h("p", [
-    `Rows ${viewInfo.visibleRegion.rowIndexStart}–${viewInfo.visibleRegion.rowIndexEnd}`,
-    " of ",
-    h("span.total-count", viewInfo.totalCount),
-  ]);
-}
 
 /** A minimal bottom-of-table footer reflecting the `useChunkLoader` source. In
  * scroll mode: rows loaded, "of total" when known, and a status icon (spinner
@@ -31,19 +16,23 @@ export function LoadProgressIndicator() {
   if (loading) {
     status = h(Spinner, { size: 12 });
   } else if (total != null && loaded >= total) {
-    status = h(Icon, { icon: "tick-circle", intent: "success", size: 12 });
+    status = h(Icon, { icon: "tick", size: 12 });
   } else {
     status = h(Icon, { icon: "more", size: 12 });
   }
 
-  return h("div.load-progress", [
-    h("span.load-progress-label", [
-      `${loaded}`,
-      total != null ? ` of ${total}` : "",
-      " rows",
-    ]),
-    status,
-  ]);
+  return h("div.load-progress", [h(LoadProgressLabel), status]);
+}
+
+export function LoadProgressLabel() {
+  const { loaded, total } = ctx.useValue(tableFooterAtom);
+  const expectedCount = total ?? loaded;
+  let countText = useItemCount(expectedCount);
+  if (expectedCount === 0) return countText;
+  if (total != null && loaded <= total) {
+    countText = `${loaded} of ${countText}`;
+  }
+  return h("span.load-progress-label", countText);
 }
 
 /** Prev/next pager for paged fetch mode. */

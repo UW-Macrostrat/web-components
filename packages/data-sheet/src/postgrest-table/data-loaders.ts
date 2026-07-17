@@ -1,20 +1,28 @@
 /** Lazy loading of data from a PostgREST endpoint */
 
 import { useAsyncEffect } from "@macrostrat/ui-components";
-import { debounce, range } from "underscore";
+import { debounce } from "underscore";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import update, { Spec } from "immutability-helper";
 import {
+  ClientServerOptions,
   PostgrestClient,
   PostgrestFilterBuilder,
   PostgrestQueryBuilder,
 } from "@supabase/postgrest-js";
 import { adjustArraySize, RowRegion } from "./loading-utils.ts";
-import { ctx, tableDataAtom, useSelector } from "../provider.ts";
+import {
+  ctx,
+  dataProviderAtom,
+  dataRefreshTokenAtom,
+  FetchData,
+  FetchDataFilter,
+  tableDataAtom,
+  TableDataProvider,
+  useSelector,
+} from "../provider";
 import { atom } from "jotai";
-import type { ColumnSort } from "../types.ts";
-
-export type FetchMode = "scroll" | "paged";
+import { FetchDataOptions, FetchMode } from "../types.ts";
 
 interface LazyLoaderStateCore<T> {
   loading: boolean;
@@ -39,7 +47,8 @@ export interface PostgrestOrder<T> {
   nullsFirst?: boolean;
 }
 
-/** Operators available for server-side column filtering via PostgREST. */
+/** Operators available for server-side column filtering via PostgREST.
+ * `cs`/`ov` target array columns (contains / overlaps). */
 export type PostgrestFilterOperator =
   | "eq"
   | "neq"
@@ -49,7 +58,9 @@ export type PostgrestFilterOperator =
   | "lt"
   | "gte"
   | "lte"
-  | "is";
+  | "is"
+  | "cs"
+  | "ov";
 
 /** A single column sort entry. */
 export interface ColumnSortEntry {
@@ -65,6 +76,7 @@ export interface PostgrestColumnFilter {
 }
 
 export interface PostgrestFilter {
+  id?: string;
   type: "filter";
   apply(
     req: PostgrestFilterBuilder<any, any, any, any>,
@@ -88,6 +100,16 @@ export function applyColumnFilters(
 ) {
   for (const cf of filters) {
     if (cf.value === "" || cf.value == null) continue;
+    // Array-column operators need a list value and postgrest-js's dedicated
+    // builders (which emit the `{…}` array literal), not a scalar `.filter`.
+    if (cf.operator === "cs") {
+      req = req.contains(cf.key, splitFilterList(cf.value));
+      continue;
+    }
+    if (cf.operator === "ov") {
+      req = req.overlaps(cf.key, splitFilterList(cf.value));
+      continue;
+    }
     const val =
       cf.operator === "like" || cf.operator === "ilike"
         ? `*${cf.value}*`
@@ -95,6 +117,15 @@ export function applyColumnFilters(
     req = req.filter(cf.key, cf.operator, val);
   }
   return req;
+}
+
+/** Split a comma-separated filter value into trimmed, non-empty tokens (the set
+ * for `cs`/`ov`); a single value yields a one-element list. */
+function splitFilterList(value: any): string[] {
+  return String(value)
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s !== "");
 }
 
 type LazyLoaderAction<T> =
@@ -126,7 +157,7 @@ function lazyLoadingReducer<T>(
       return {
         ...state,
         loading: false,
-        data: update(state.data, action.changes),
+        data: update(state.data, action.changes as any),
       };
     case "loaded":
       let data = adjustArraySize(state.data, action.totalSize);
@@ -191,12 +222,69 @@ interface QueryConfig extends SortAndFilterOptions {
   count?: "exact" | "estimated";
   limit?: number;
   identityKey: string;
+  /** The identity column's default ordering (used when nothing in `order`
+   * already sorts it). A string ⇒ ascending; pass a `PostgrestOrder` to set the
+   * direction (e.g. `source_id` descending). */
+  identityOrder?: PostgrestOrder<any>;
   lastLoadedRow?: any;
   lastLoadedRowIndex: number;
 }
 
+/** Format a value for a PostgREST logic-tree condition. Reserved characters
+ * (`, . : ( )`), spaces, quotes, and backslashes require the value to be
+ * double-quoted, with `"` and `\` backslash-escaped inside — otherwise a map
+ * name containing a comma would break the `or=(...)` parse. */
+function formatKeysetValue(v: any): string {
+  const s = String(v);
+  if (s === "" || /[,.:()"\\ ]/.test(s)) {
+    return `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+  }
+  return s;
+}
+
+/** An equality condition for the cursor prefix (`col.eq.v`, or `col.is.null`). */
+function keysetEq(key: string, v: any): string {
+  return v == null ? `${key}.is.null` : `${key}.eq.${formatKeysetValue(v)}`;
+}
+
+/**
+ * Build the compound keyset predicate (the body of an `or=(...)`) selecting
+ * rows strictly after `lastRow` under `clauses` (lexicographic, last clause is
+ * the identity tiebreaker):
+ *
+ *   (c1 OP1 v1)
+ *   OR (c1 = v1 AND c2 OP2 v2)
+ *   OR (c1 = v1 AND c2 = v2 AND c3 OP3 v3) …
+ *
+ * `OPi` is `gt` for an ascending clause, `lt` for descending. Nulls-last: a
+ * null pivot value has no strictly-ordered non-null successor at its level, so
+ * that term is skipped and the tie defers to deeper clauses (the identity key
+ * is non-null, so at least its term is always emitted). Returns `null` if no
+ * term applies. (Known limit: rows whose *sort* column is null aren't picked up
+ * across the non-null→null boundary — an edge for nullable sort columns; the
+ * non-null identity tiebreaker keeps pagination from stalling.)
+ */
+function buildKeysetPredicate(
+  clauses: PostgrestOrder<any>[],
+  lastRow: any,
+): string | null {
+  const terms: string[] = [];
+  for (let i = 0; i < clauses.length; i++) {
+    const v = lastRow[clauses[i].key];
+    if (v == null) continue;
+    const conds: string[] = [];
+    for (let j = 0; j < i; j++) {
+      conds.push(keysetEq(clauses[j].key, lastRow[clauses[j].key]));
+    }
+    const op = (clauses[i].ascending ?? true) ? "gt" : "lt";
+    conds.push(`${clauses[i].key}.${op}.${formatKeysetValue(v)}`);
+    terms.push(conds.length === 1 ? conds[0] : `and(${conds.join(",")})`);
+  }
+  return terms.length > 0 ? terms.join(",") : null;
+}
+
 function buildQuery<T>(
-  client: PostgrestQueryBuilder<T, any, any>,
+  client: PostgrestQueryBuilder<any, any, any>,
   config: QueryConfig,
 ) {
   const { columns = "*", count, lastLoadedRowIndex } = config;
@@ -218,21 +306,27 @@ function buildQuery<T>(
 
   const orderClauses = buildPostgrestOrderClauses(
     config.order ?? [],
-    config.identityKey,
+    config.identityOrder ?? config.identityKey,
   );
 
   let hasOrdering = false;
   for (const clause of orderClauses) {
     query = query.order(clause.key, clause);
-    if (config.lastLoadedRow != null) {
-      const op = (clause.ascending ?? true) ? "gt" : "lt";
-      const value = config.lastLoadedRow[clause.key];
-      query = query[op](clause.key, value);
-    }
     hasOrdering = true;
   }
 
-  let offset = null;
+  // Keyset cursor: rows strictly after the last loaded row under the active
+  // ordering. This MUST be a compound predicate, not an independent `gt`/`lt`
+  // per column: with a leading low-cardinality sort (e.g. `state`), a plain
+  // `state.gt.X AND source_id.lt.Y` drops every row sharing the cursor's
+  // `state` (`state.gt.X` is false for them). The lexicographic form keeps the
+  // tie broken by the next column, ending on the non-null identity key.
+  if (config.lastLoadedRow != null && hasOrdering) {
+    const pred = buildKeysetPredicate(orderClauses, config.lastLoadedRow);
+    if (pred != null) query = query.or(pred);
+  }
+
+  let offset: number | null = null;
   if (!hasOrdering && lastLoadedRowIndex > 0) {
     // We need to load based on offsets
     offset = lastLoadedRowIndex + 1;
@@ -247,7 +341,6 @@ function buildQuery<T>(
     }
   }
 
-  console.log("query", query.url.search);
   return query;
 }
 
@@ -270,10 +363,6 @@ const lazyLoaderCoreStateAtom = atom<LazyLoaderStateCore<any>>({
 
 /** Current page index (0-based) for paged fetch mode. */
 export const chunkPageAtom = atom(0);
-
-/** Bump this to force the active chunk loader to reset and re-fetch from
- * scratch — e.g. after a mutation (save/delete) that invalidates loaded rows. */
-export const dataRefreshTokenAtom = atom(0);
 
 /** Footer state for the optional bottom-of-table indicator: rows loaded, the
  * source total when known, load status, and — in paged mode — the current
@@ -312,6 +401,85 @@ export const tableFooterAtom = atom<TableFooterInfo>((get) => {
     totalPages,
   };
 });
+
+/** Auto-load this many pages per burst, then pause (null ⇒ unbounded). Set by
+ * a consumer (e.g. `DataPanel`'s `autoLoadPages` prop). */
+export const autoLoadPagesAtom = atom<number | null>(null);
+
+/** Row count at the last manual "load more" — the point auto-load resumes
+ * counting a fresh burst from. */
+export const resumeBaselineAtom = atom(0);
+
+/** Live loading controls, read from the store rather than passed down a
+ * boundary contract. Any component inside the provider can call
+ * `useLoadControls()` — a footer, a toolbar button, a status line — without the
+ * renderer wiring a specific prop shape to it. */
+export interface LoadControls {
+  /** Load the next page and resume auto-loading (clears a paused state). */
+  loadMore: () => void;
+  /** A fetch is in flight. */
+  loading: boolean;
+  /** More rows remain to load. */
+  hasMore: boolean;
+  /** Rows loaded so far. */
+  loaded: number;
+  /** Source total when known, else `null`. */
+  total: number | null;
+  /** Auto-load is paused at the `autoLoadPages` checkpoint. */
+  paused: boolean;
+  /** Auto-load is currently permitted (`hasMore && !loading && !paused`) —
+   * used to gate an infinite-scroll sentinel. */
+  canLoadMore: boolean;
+  /** Advance one page *without* resuming a paused auto-load (the sentinel
+   * uses this; `loadMore` is the manual, un-pausing variant). */
+  advance: () => void;
+}
+
+/** Store-managed load controls (see `LoadControls`). Reads the loader's footer
+ * state, the loaded rows, and the pause atoms; `loadMore`/`advance` set the
+ * visible region so the loader fetches the next chunk. */
+export function useLoadControls(): LoadControls {
+  const footer = ctx.useValue(tableFooterAtom);
+  const data = ctx.useValue(tableDataAtom) ?? [];
+  const { isLocalProvider } = ctx.useValue(dataProviderAtom);
+  const resumeBaseline = ctx.useValue(resumeBaselineAtom);
+  const autoLoadPages = ctx.useValue(autoLoadPagesAtom);
+  const setResumeBaseline = ctx.useSet(resumeBaselineAtom);
+  const setVisibleRegion = ctx.useSet(visibleRegionAtom);
+
+  let loadedCount = 0;
+  for (const row of data) if (row != null) loadedCount++;
+  const pageSize = footer.pageSize || 100;
+  const dataLength = data.length;
+  const hasMore = !isLocalProvider && loadedCount < dataLength;
+  const paused =
+    autoLoadPages != null &&
+    loadedCount - resumeBaseline >= autoLoadPages * pageSize;
+  const canLoadMore = hasMore && !footer.loading && !paused;
+
+  const advance = useCallback(() => {
+    setVisibleRegion({
+      rowIndexStart: 0,
+      rowIndexEnd: Math.min(loadedCount + pageSize, dataLength),
+    });
+  }, [setVisibleRegion, loadedCount, pageSize, dataLength]);
+
+  const loadMore = useCallback(() => {
+    setResumeBaseline(loadedCount);
+    advance();
+  }, [setResumeBaseline, loadedCount, advance]);
+
+  return {
+    loadMore,
+    loading: footer.loading,
+    hasMore,
+    loaded: footer.loaded,
+    total: footer.total,
+    paused,
+    canLoadMore,
+    advance,
+  };
+}
 
 export interface ViewInfo {
   visibleRegion: RowRegion;
@@ -379,30 +547,45 @@ function buildPostgrestOrderClauses(
   sorts: (ColumnSortEntry | PostgrestOrder<any>)[],
   identityOrder: PostgrestOrder<any> | string,
 ): PostgrestOrder<any>[] {
-  // Clause to build ordering for a Postgrest table.
-  // There must be an ordering by identity key, and it must be last...
+  // Build the ORDER BY for a PostgREST query. Two invariants:
+  //  1. Each column appears at most once. Keyset pagination adds a `gt`/`lt`
+  //     cursor predicate per order clause, so a duplicated column (e.g. the
+  //     identity key present in both a base order and an active sort, with
+  //     opposite directions) would emit contradictory `col=lt.X&col=gt.X`
+  //     bounds that match nothing — an infinite empty-result reload. First
+  //     occurrence wins (active sorts should be passed ahead of base order).
+  //  2. The identity key is ordered last (a stable tiebreaker for the cursor),
+  //     appended with its default direction only if no clause already sorts it.
   const identitySort =
     typeof identityOrder == "string"
       ? { key: identityOrder, ascending: true }
       : identityOrder;
   const identityKey = identitySort.key;
-  const clauses: PostgrestOrder<any>[] = sorts.map((sort) => {
-    return {
+
+  const seen = new Set<string>();
+  const clauses: PostgrestOrder<any>[] = [];
+  for (const sort of sorts) {
+    if (seen.has(sort.key)) continue;
+    seen.add(sort.key);
+    clauses.push({
       key: sort.key,
       ascending: sort.ascending,
       nullsFirst: "nullsFirst" in sort ? sort.nullsFirst : false,
-    };
-  });
-  // sort the clauses so the identity clause is last
-  const hasIdentityClause = clauses.some((d) => d.key === identityKey);
-  if (hasIdentityClause) {
-    clauses.sort((a, b) => {
-      if (a.key === identityKey) return 1;
-      if (b.key === identityKey) return -1;
-      return 0;
     });
+  }
+
+  if (seen.has(identityKey)) {
+    // Move the (already-deduped) identity clause to the end, keeping the
+    // direction the active sort chose.
+    const idx = clauses.findIndex((c) => c.key === identityKey);
+    const [idClause] = clauses.splice(idx, 1);
+    clauses.push(idClause);
   } else {
-    clauses.push(identitySort);
+    clauses.push({
+      key: identitySort.key,
+      ascending: identitySort.ascending ?? true,
+      nullsFirst: (identitySort as any).nullsFirst ?? false,
+    });
   }
   return clauses;
 }
@@ -429,140 +612,6 @@ export function useScrollHandler() {
   );
 }
 
-/** The active view state (a filter's id / column / config), passed to a
- * `fetchChunk`. A server provider translates `columnKey` + `state` into a
- * query; a local (in-memory) provider applies `predicate` directly. Both come
- * from the same `TableFilter`, so one filter definition serves either target. */
-export interface FetchDataFilter {
-  id: string;
-  columnKey?: string;
-  state: any;
-  /** Client-side row predicate (from the `TableFilter`). Server providers
-   * ignore it and translate `columnKey` + `state` instead. */
-  predicate?: (row: any, state: any) => boolean;
-}
-
-/** Parameters passed to a `fetchChunk` implementation for one window. */
-export interface FetchDataParams {
-  /** Row offset of the requested chunk (chunk-aligned). */
-  offset: number;
-  /** Maximum rows to return. */
-  limit: number;
-  /** Aborts when the request is superseded (view change / unmount). */
-  signal: AbortSignal;
-  /** Active sorts, in priority order. */
-  sorts: ColumnSort[];
-  /** Active filters (id + column + config). */
-  filters: FetchDataFilter[];
-  /** In scroll mode, the already-loaded row immediately before this chunk
-   * (and its data-array index), or `null` at the start / in paged mode. Keyset
-   * sources can page from this cursor (e.g. `WHERE key > cursor`) instead of a
-   * slow `OFFSET`; offset-based sources can ignore it. */
-  cursor?: { row: any; index: number } | null;
-}
-
-/** Result of a `fetchChunk` call. `totalCount` reports the source length when
- * known (drives sparse-array pre-sizing and a proportional scrollbar); omit it
- * for unknown-length sources (the array grows as chunks arrive). */
-export interface FetchDataResult<T = any> {
-  rows: T[];
-  totalCount?: number | null;
-}
-
-export type FetchData<T = any> = (
-  params: FetchDataParams,
-) => Promise<FetchDataResult<T>>;
-
-/**
- * A table's data source, addressed uniformly whether it's an in-memory array or
- * a remote backend. `fetchChunk` returns a window with the active sorts/filters
- * already applied (in memory by the local provider, in SQL by a server one);
- * `identity` addresses a row for edits/mutations — stable across re-sorts,
- * unlike an array index. The mutation ops are present only for editable /
- * persisting sources. The in-memory case (`createLocalProvider`) is just the
- * degenerate implementation, so local and server tables share one path.
- */
-export interface TableDataProvider<T = any> {
-  fetchData(params: FetchDataParams): Promise<FetchDataResult<T>>;
-  identity(row: T): string | number;
-  saveRows?(rows: T[]): Promise<void>;
-  deleteRows?(ids: Array<string | number>): Promise<void>;
-  insertRow?(row: Partial<T>): Promise<void>;
-}
-
-/**
- * The degenerate provider: an in-memory array. `fetchChunk` applies the active
- * filter predicates and sorts over the array and returns the requested slice
- * plus the (fully-known) total — the same view engine used for client-side
- * tables, expressed as a provider.
- */
-export function createLocalProvider<T = any>(
-  data: T[],
-  options: { identity?: (row: T) => string | number } = {},
-): TableDataProvider<T> {
-  const identity: (row: T) => string | number =
-    options.identity ?? defaultLocalIdentity;
-  return {
-    identity,
-    async fetchData({ offset, limit, sorts, filters }) {
-      let rows = data;
-      if (filters != null && filters.length > 0) {
-        rows = rows.filter((row) =>
-          filters.every((f) =>
-            f.predicate != null ? f.predicate(row, f.state) : true,
-          ),
-        );
-      }
-      if (sorts != null && sorts.length > 0) {
-        rows = [...rows].sort(compareRowsBySorts(sorts));
-      }
-      return {
-        rows: rows.slice(offset, offset + limit),
-        totalCount: rows.length,
-      };
-    },
-  };
-}
-
-// Stable synthetic identity for in-memory rows lacking a natural `id`. Keyed by
-// object reference (a local data array keeps the same row objects across
-// re-sorts), so edits survive re-ordering even without an id field.
-const _syntheticRowIds = new WeakMap<object, string>();
-let _syntheticRowCounter = 0;
-function defaultLocalIdentity(row: any): string | number | undefined {
-  if (row == null) return undefined;
-  if (row.id != null) return row.id;
-  if (typeof row !== "object") return row;
-  let id = _syntheticRowIds.get(row);
-  if (id == null) {
-    id = `__row_${_syntheticRowCounter++}`;
-    _syntheticRowIds.set(row, id);
-  }
-  return id;
-}
-
-/** Multi-key row comparator (priority order; nulls first when ascending),
- * shared by the local provider and any other in-memory sort. */
-export function compareRowsBySorts(sorts: ColumnSort[]) {
-  return (a: any, b: any): number => {
-    for (const sort of sorts) {
-      const av = a?.[sort.key];
-      const bv = b?.[sort.key];
-      if (av == null && bv == null) continue;
-      if (av == null) return sort.ascending ? -1 : 1;
-      if (bv == null) return sort.ascending ? 1 : -1;
-      const cmp = av < bv ? -1 : av > bv ? 1 : 0;
-      if (cmp !== 0) return sort.ascending ? cmp : -cmp;
-    }
-    return 0;
-  };
-}
-
-export interface FetchDataOptions {
-  pageSize?: number;
-  fetchMode?: FetchMode;
-}
-
 /**
  * A generic, backend-agnostic windowed data source. Give it a `fetchChunk`
  * function and it drives the sheet's lazy loading: it loads the chunk covering
@@ -580,6 +629,9 @@ export function useDataLoader<T = any>(
 ) {
   const { pageSize = 100, fetchMode = "scroll" } = options;
   const [state, dispatch] = useLazyLoaderReducer();
+
+  const { isLocalProvider, provider } = ctx.useValue(dataProviderAtom);
+
   const visibleRegion = ctx.useValue(visibleRegionAtom);
   const page = ctx.useValue(chunkPageAtom);
   const setPage = ctx.useSet(chunkPageAtom);
@@ -724,6 +776,11 @@ export function createPostgRESTFetchChunk<T = any>(config: {
   endpoint: string;
   table: string;
   identityKey: string;
+  /** Default ordering direction of the identity key (applied when no active
+   * sort targets it). `false` ⇒ the table defaults to identity-descending
+   * (e.g. newest `source_id` first) without a redundant `baseOrder` entry that
+   * would otherwise collide with the identity tiebreaker. Defaults to `true`. */
+  identityAscending?: boolean;
   columns?: string | string[];
   /** Order applied before the active column sorts (identity key appended last). */
   baseOrder?: PostgrestOrder<any>[];
@@ -739,9 +796,12 @@ export function createPostgRESTFetchChunk<T = any>(config: {
   return async ({ limit, signal, sorts, filters, cursor }) => {
     const client = new PostgrestClient(config.endpoint).from(config.table);
 
+    // Active sorts first so they win the by-key dedupe in
+    // `buildPostgrestOrderClauses` (a user sort on the identity column
+    // overrides its default direction rather than colliding with it).
     const order: PostgrestOrder<any>[] = [
-      ...(config.baseOrder ?? []),
       ...sorts.map((s) => ({ key: s.key, ascending: s.ascending })),
+      ...(config.baseOrder ?? []),
     ];
 
     const pgFilters: PostgrestFilter[] = [];
@@ -760,6 +820,10 @@ export function createPostgRESTFetchChunk<T = any>(config: {
       count: cursor == null ? "exact" : undefined,
       limit,
       identityKey: config.identityKey,
+      identityOrder: {
+        key: config.identityKey,
+        ascending: config.identityAscending ?? true,
+      },
       order,
       filters: pgFilters,
       lastLoadedRow: cursor?.row ?? null,
@@ -784,6 +848,9 @@ export function createPostgRESTProvider<T = any>(config: {
   endpoint: string;
   table: string;
   identityKey: string;
+  /** Default ordering direction of the identity key (see
+   * `createPostgRESTFetchChunk`). `false` ⇒ identity-descending by default. */
+  identityAscending?: boolean;
   columns?: string | string[];
   baseOrder?: PostgrestOrder<any>[];
   baseFilter?: (
@@ -825,7 +892,13 @@ function indexOfFirstNullInRegion(
   data: any[],
   region: RowRegion,
 ): number | null {
-  for (let i = region.rowIndexStart; i < region.rowIndexEnd; i++) {
+  // Clamp to the array length: a visible region can outlast the data it was
+  // set against (e.g. a keyset page hits the end of a filtered set and the
+  // array shrinks below a region end set before the shrink). Scanning past
+  // `data.length` reads `undefined` as a fillable null and re-fetches the same
+  // now-out-of-range offset forever — the tail-of-filtered-set reload loop.
+  const end = Math.min(region.rowIndexEnd, data.length);
+  for (let i = region.rowIndexStart; i < end; i++) {
     if (data[i] == null) {
       return i;
     }
