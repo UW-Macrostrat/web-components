@@ -1,0 +1,48 @@
+// Bornite — text-style mixins
+//
+// A "text style" is a bundle of properties (family + size + line-height +
+// spacing), which a single CSS variable can't express. Mixins are the idiomatic
+// way to apply a bundle into a component's own SCSS module:
+//
+//   @use "@macrostrat/style-system/src/bornite/typography" as bn
+//   .my-heading
+//     @include bn.heading
+//
+// Every declaration resolves to a `--bn-` token, so restyling still happens at
+// the token layer. Mixins are the *component-scoped* application path; the
+// `.bn-prose` overlay in _base.scss is the *opt-in global* path built on them.
+
+@mixin heading {
+  font-family: var(--bn-heading-font);
+  font-weight: var(--bn-font-weight-normal);
+  line-height: var(--bn-line-height-tight);
+  color: var(--bn-text-emphasized-color);
+}
+
+@mixin body {
+  font-family: var(--bn-body-font);
+  font-size: var(--bn-body-font-size);
+  line-height: var(--bn-body-line-height);
+  color: var(--bn-text-color);
+}
+
+@mixin ui {
+  font-family: var(--bn-body-font);
+  font-size: var(--bn-ui-font-size);
+  line-height: var(--bn-ui-line-height);
+}
+
+@mixin prose {
+  font-family: var(--bn-prose-font);
+  font-size: var(--bn-body-font-size);
+  line-height: var(--bn-body-line-height);
+  color: var(--bn-text-color);
+}
+
+@mixin code {
+  font-family: var(--bn-font-mono);
+  font-size: 0.9em;
+  background-color: var(--bn-code-background-color);
+  border-radius: var(--bn-radius-sm);
+  padding: 0.1em 0.3em;
+}

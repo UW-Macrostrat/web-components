@@ -1,0 +1,13 @@
+// Bornite — the Macrostrat design-token system.
+//
+// Layered, all prefixed `--bn-`:
+//   primitives → semantic → (brand overrides, supplied downstream)
+// plus text-style mixins (_typography) and an opt-in `.bn-prose` overlay (_base).
+//
+// This is additive: it ships alongside the legacy unprefixed variables
+// (see ../colors.scss / ../main.sass) during migration and does not replace
+// them yet. Consumers import it transitively via `@macrostrat/style-system`.
+
+@use "primitives";
+@use "semantic";
+@use "base";

@@ -1,0 +1,96 @@
+// Bornite — primitive tokens
+//
+// Raw, role-agnostic scales. Lowest layer: semantic tokens (_semantic.scss)
+// reference these via var(), and brands may retint them. All prefixed `--bn-`.
+// Primitives are rarely consumed directly — reach for a semantic token.
+//
+// BLUEPRINT ALIGNMENT: where a value is seeded from a Blueprint core variable we
+// say so inline (`⌁ bp:$pt-…`). This is deliberate — many existing components
+// reference Blueprint tokens directly, and calling out the alignment lets us
+// "progressively enhance" (and, later, cleanly override) that coupling.
+
+@use "@blueprintjs/core/lib/scss/variables" as *;
+
+:root {
+  // --- Neutral ramp (light → dark) ⌁ bp: Blueprint gray scale ---
+  --bn-white: #{$white};
+  --bn-neutral-50: #{$light-gray5};
+  --bn-neutral-100: #{$light-gray4};
+  --bn-neutral-200: #{$light-gray3};
+  --bn-neutral-300: #{$light-gray1};
+  --bn-neutral-400: #{$gray5};
+  --bn-neutral-500: #{$gray3};
+  --bn-neutral-600: #{$gray1};
+  --bn-neutral-700: #{$dark-gray5};
+  --bn-neutral-800: #{$dark-gray2};
+  --bn-neutral-900: #141a1e;
+  --bn-black: #{$black};
+
+  // --- Macrostrat brand palette (sampled from the logos) ---
+  // Purple primary; pink + mint/teal supporting; sky secondary. This block is
+  // the brand seam — a downstream brand overrides it to re-skin. (The system's
+  // *name*, Bornite, is independent of these colors.)
+  --bn-purple-700: #492f7a;
+  --bn-purple-500: #7e66a9;
+  --bn-purple-200: #d7cce8;
+  --bn-pink-500: #f073b9;
+  --bn-pink-200: #fcd9fa;
+  --bn-mint-500: #68ded4;
+  --bn-mint-300: #a7e8cd;
+  --bn-sky-500: #5b8bd9;
+  --bn-sky-200: #b8c9e7;
+
+  // --- Functional hues ⌁ bp:$pt-intent-* (Blueprint intent colors) ---
+  --bn-blue-500: #{$pt-intent-primary};   // ⌁ bp:$pt-intent-primary
+  --bn-green-500: #{$pt-intent-success};  // ⌁ bp:$pt-intent-success
+  --bn-orange-500: #{$pt-intent-warning}; // ⌁ bp:$pt-intent-warning
+  --bn-red-500: #{$pt-intent-danger};     // ⌁ bp:$pt-intent-danger
+
+  // --- Type: families ---
+  --bn-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --bn-font-serif: "PT Serif", Georgia, serif;
+  --bn-font-header: "Geologica", var(--bn-font-sans);
+  --bn-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  // --- Type: size scale (rem) ---
+  --bn-font-size-xs: 0.75rem;
+  --bn-font-size-sm: 0.875rem;
+  --bn-font-size-md: 1rem;
+  --bn-font-size-lg: 1.25rem;
+  --bn-font-size-xl: 1.5rem;
+  --bn-font-size-2xl: 2rem;
+  --bn-font-size-3xl: 2.5rem;
+
+  // --- Type: weights ---
+  --bn-font-weight-normal: 400;
+  --bn-font-weight-medium: 500;
+  --bn-font-weight-semibold: 600;
+  --bn-font-weight-bold: 700;
+
+  // --- Type: line heights ---
+  --bn-line-height-tight: 1.2;   // headings
+  --bn-line-height-snug: 1.35;   // UI text
+  --bn-line-height-normal: 1.5;  // prose
+
+  // --- Spacing scale (rem, 0.25rem base) ---
+  --bn-space-0: 0;
+  --bn-space-1: 0.25rem;
+  --bn-space-2: 0.5rem;
+  --bn-space-3: 0.75rem;
+  --bn-space-4: 1rem;
+  --bn-space-5: 1.5rem;
+  --bn-space-6: 2rem;
+  --bn-space-7: 3rem;
+  --bn-space-8: 4rem;
+
+  // --- Radii ---
+  --bn-radius-sm: 2px;
+  --bn-radius-md: 4px;
+  --bn-radius-lg: 8px;
+  --bn-radius-full: 9999px;
+
+  // --- Elevation shadows ⌁ bp:$pt-elevation-shadow-* ---
+  --bn-elevation-0: #{$pt-elevation-shadow-0};
+  --bn-elevation-1: #{$pt-elevation-shadow-1};
+  --bn-elevation-2: #{$pt-elevation-shadow-2};
+}

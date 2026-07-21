@@ -1,0 +1,48 @@
+// Token test case: form field. Exercises label/help text roles, input surface +
+// border, focus ring, and the danger intent for validation state.
+
+.frame
+  display: flex
+  flex-direction: column
+  gap: var(--bn-stack-gap)
+  padding: var(--bn-space-5)
+  max-width: 24rem
+
+.field
+  display: flex
+  flex-direction: column
+  gap: var(--bn-space-1)
+
+.label
+  font-family: var(--bn-body-font)
+  font-size: var(--bn-ui-font-size)
+  font-weight: var(--bn-font-weight-semibold)
+  color: var(--bn-text-color)
+
+.input
+  font-family: var(--bn-body-font)
+  font-size: var(--bn-body-font-size)
+  color: var(--bn-text-color)
+  background-color: var(--bn-panel-background-color)
+  padding: var(--bn-space-2) var(--bn-space-3)
+  border-radius: var(--bn-radius-md)
+  border: 1px solid var(--bn-border-color)
+
+  &::placeholder
+    color: var(--bn-text-subtle-color)
+
+  &:focus-visible
+    outline: none
+    border-color: transparent
+    box-shadow: 0 0 0 2px var(--bn-focus-ring-color)
+
+.help
+  font-family: var(--bn-body-font)
+  font-size: var(--bn-font-size-xs)
+  color: var(--bn-text-subtle-color)
+
+.field.error
+  .input
+    border-color: var(--bn-intent-danger)
+  .help
+    color: var(--bn-intent-danger)

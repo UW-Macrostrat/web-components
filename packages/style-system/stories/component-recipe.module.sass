@@ -1,0 +1,48 @@
+// Demonstrates the global → component token flow.
+//
+// Rule of thumb:
+//   - Global, user-controllable tokens are `--bn-*` (strong-named contract).
+//   - A component defines its OWN weak-named tokens (here `--card-*`, no `--bn-`
+//     prefix) whose DEFAULT is a `--bn-` semantic token. That default is the
+//     "sync": change the global and every component tracks it.
+//   - A local override re-points the weak token — to another global, or (escape
+//     hatch) to a literal — WITHOUT touching the global contract.
+
+.card
+  // The component's local knobs default to the global semantic layer.
+  --card-background: var(--bn-panel-background-color)
+  --card-accent: var(--bn-accent-color)
+  --card-rule: var(--bn-panel-rule-color)
+
+  background-color: var(--card-background)
+  color: var(--bn-text-color)
+  border-left: 4px solid var(--card-accent)
+  box-shadow: var(--bn-shadow-sm)
+  border-radius: var(--bn-radius-md)
+  padding: var(--bn-space-4)
+  font-family: var(--bn-font-sans)
+  max-width: 22rem
+
+// Re-point the weak token to a DIFFERENT global — still fully themed.
+.card.secondary
+  --card-accent: var(--bn-accent-secondary-color)
+
+// Escape hatch: a one-off literal for this context only. Globals untouched.
+.card.custom
+  --card-accent: #e0651d
+
+.title
+  font-family: var(--bn-font-header)
+  font-size: var(--bn-font-size-lg)
+  margin: 0 0 var(--bn-space-2) 0
+  color: var(--bn-text-emphasized-color)
+
+.body
+  margin: 0
+  color: var(--bn-text-subtle-color)
+
+.stack
+  display: flex
+  flex-direction: column
+  gap: var(--bn-space-4)
+  padding: var(--bn-space-5)

@@ -1,0 +1,151 @@
+// Bornite — semantic tokens
+//
+// Role-based tokens that components consume. Each references a primitive (or a
+// Blueprint variable, called out with `⌁ bp:`) via var(). Light values live in
+// `:root`; dark overrides under `.bp6-dark` (Blueprint's dark-mode class).
+//
+// ── Brand-override contract ─────────────────────────────────────────────────
+// The `:root` tokens below ARE the surface a downstream brand overrides — a
+// brand ships its own `:root { --bn-*: … }` (+ a `.bp6-dark` counterpart).
+// Component-internal tokens (column-*, data-sheet-*, …) are NOT part of this
+// contract and stay owned by their packages; they *sync* to these via var()
+// fallback defaults (see stories/component-recipe).
+//
+// ── Blueprint alignment ─────────────────────────────────────────────────────
+// Text, surface, divider and intent tokens are deliberately aligned to
+// Blueprint core variables so existing bp6-* styling stays coherent as we
+// migrate. `⌁ bp:$pt-…` marks a direct alignment we may later choose to override.
+
+@use "@blueprintjs/core/lib/scss/variables" as *;
+
+:root {
+  color-scheme: light;
+
+  // --- Text ⌁ bp:$pt-text-color* ---
+  --bn-text-color: #{$pt-text-color};                    // ⌁ bp:$pt-text-color
+  --bn-text-subtle-color: #{$pt-text-color-muted};       // ⌁ bp:$pt-text-color-muted
+  --bn-text-disabled-color: #{$pt-text-color-disabled};  // ⌁ bp:$pt-text-color-disabled
+  --bn-text-emphasized-color: var(--bn-black);
+  --bn-link-color: var(--bn-blue-500);
+  --bn-link-hover-color: var(--bn-purple-700);
+
+  // --- Surfaces ⌁ bp:$pt-app-background-color ---
+  --bn-background-color: #{$pt-app-background-color};     // ⌁ bp:$pt-app-background-color
+  --bn-panel-background-color: var(--bn-white);
+  --bn-panel-secondary-background-color: var(--bn-neutral-50);
+  --bn-panel-tertiary-background-color: var(--bn-neutral-100);
+  --bn-overlay-background-color: rgba(255, 255, 255, 0.85);
+  --bn-code-background-color: var(--bn-neutral-50);
+
+  // --- Borders / rules ⌁ bp:$pt-divider-black ---
+  --bn-panel-rule-color: var(--bn-neutral-300);
+  --bn-border-color: #{$pt-divider-black};               // ⌁ bp:$pt-divider-black
+  --bn-border-muted-color: #{$pt-divider-black-muted};   // ⌁ bp:$pt-divider-black-muted
+
+  // --- Accent (brand) — purple primary ---
+  --bn-accent-color: var(--bn-purple-500);
+  --bn-accent-text-color: var(--bn-purple-700);
+  --bn-accent-secondary-color: var(--bn-mint-500);
+  --bn-accent-tertiary-color: var(--bn-pink-500);
+
+  // --- Secondary / muted ---
+  --bn-secondary-color: var(--bn-neutral-500);
+
+  // --- Intents ⌁ bp:$pt-intent-* (restated for use outside Blueprint markup) ---
+  --bn-intent-primary: var(--bn-blue-500);
+  --bn-intent-success: var(--bn-green-500);
+  --bn-intent-warning: var(--bn-orange-500);
+  --bn-intent-danger: var(--bn-red-500);
+  --bn-error-color: var(--bn-intent-danger); // legacy alias
+
+  // --- Intent surfaces (subtle tints for callouts / banners / tags) ---
+  // Derived from the intent tokens via color-mix, so brand overrides propagate
+  // and the tint stays translucent over any background (incl. dark).
+  --bn-intent-primary-surface: color-mix(in srgb, var(--bn-intent-primary) 14%, transparent);
+  --bn-intent-success-surface: color-mix(in srgb, var(--bn-intent-success) 14%, transparent);
+  --bn-intent-warning-surface: color-mix(in srgb, var(--bn-intent-warning) 14%, transparent);
+  --bn-intent-danger-surface: color-mix(in srgb, var(--bn-intent-danger) 14%, transparent);
+
+  // --- Interaction & state ---
+  // hover/active are text-toned veils that auto-adapt: --bn-text-color is dark
+  // in light mode (subtle darkening) and light in dark mode (subtle lightening),
+  // so no .bp6-dark override is needed for these.
+  --bn-hover-background-color: color-mix(in srgb, var(--bn-text-color) 6%, transparent);
+  --bn-active-background-color: color-mix(in srgb, var(--bn-text-color) 12%, transparent);
+  --bn-selected-background-color: color-mix(in srgb, var(--bn-accent-color) 15%, transparent);
+  --bn-selected-text-color: var(--bn-accent-text-color);
+  --bn-text-on-fill-color: var(--bn-white); // text/icons on a filled accent or intent
+  --bn-focus-ring-color: #{$pt-focus-indicator-color}; // ⌁ bp:$pt-focus-indicator-color
+
+  // --- Elevation ⌁ bp:$pt-elevation-shadow-* ---
+  --bn-shadow-color: #{$pt-divider-black};
+  --bn-shadow-sm: 0 0 0 1px var(--bn-shadow-color);
+  --bn-shadow-md: var(--bn-elevation-1);
+  --bn-shadow-lg: var(--bn-elevation-2);
+
+  // --- Semantic spacing (roles → primitive scale) ---
+  --bn-content-padding: var(--bn-space-4);
+  --bn-page-margin: var(--bn-space-6);
+  --bn-section-gap: var(--bn-space-6);
+  --bn-stack-gap: var(--bn-space-4);
+  --bn-inline-gap: var(--bn-space-2);
+  --bn-control-gap: var(--bn-space-2);
+
+  // --- Semantic text metrics (the "paragraph skip" family) ---
+  // Em-based ON PURPOSE. Custom-property `em` values resolve against the
+  // font-size of the element that *uses* them (not :root), so these scale with
+  // local type size — a skip below a big heading is proportionally larger, and
+  // prose in a smaller context tightens automatically. Layout spacing above
+  // stays rem (uniform); text rhythm stays em (proportional).
+  --bn-paragraph-spacing: 1em;      // gap below a <p> ≈ one line
+  --bn-heading-spacing: 0.4em;      // gap below a heading
+  --bn-heading-spacing-top: 1em;    // gap above a heading in flow
+  --bn-list-item-spacing: 0.35em;
+
+  // --- Semantic type roles ---
+  --bn-body-font: var(--bn-font-sans);
+  --bn-prose-font: var(--bn-font-serif);
+  --bn-heading-font: var(--bn-font-header);
+  --bn-body-font-size: var(--bn-font-size-md);
+  --bn-body-line-height: var(--bn-line-height-normal);
+  --bn-ui-font-size: var(--bn-font-size-sm);
+  --bn-ui-line-height: var(--bn-line-height-snug);
+}
+
+.bp6-dark {
+  color-scheme: dark;
+
+  --bn-text-color: #{$pt-dark-text-color};                    // ⌁ bp:$pt-dark-text-color
+  --bn-text-subtle-color: #{$pt-dark-text-color-muted};       // ⌁ bp:$pt-dark-text-color-muted
+  --bn-text-disabled-color: #{$pt-dark-text-color-disabled};  // ⌁ bp:$pt-dark-text-color-disabled
+  --bn-text-emphasized-color: var(--bn-white);
+  --bn-link-color: var(--bn-sky-500);
+  --bn-link-hover-color: var(--bn-pink-200);
+
+  --bn-background-color: #{$pt-dark-app-background-color};     // ⌁ bp:$pt-dark-app-background-color
+  --bn-panel-background-color: var(--bn-neutral-900);
+  --bn-panel-secondary-background-color: var(--bn-neutral-800);
+  --bn-panel-tertiary-background-color: var(--bn-neutral-700);
+  --bn-overlay-background-color: rgba(20, 26, 30, 0.85);
+  --bn-code-background-color: var(--bn-neutral-800);
+
+  --bn-panel-rule-color: #404854;
+  --bn-border-color: #{$pt-dark-divider-white};               // ⌁ bp:$pt-dark-divider-white
+  --bn-border-muted-color: #{$pt-dark-divider-white-muted};   // ⌁ bp:$pt-dark-divider-white-muted
+
+  // `accent-color` stays saturated (safe as a FILL with --bn-text-on-fill-color);
+  // `accent-text-color` is the readable-on-background variant, lifted for dark.
+  --bn-accent-color: var(--bn-purple-500);
+  --bn-accent-text-color: var(--bn-purple-200);
+  --bn-accent-secondary-color: var(--bn-mint-500);
+  --bn-accent-tertiary-color: var(--bn-pink-500);
+
+  --bn-secondary-color: var(--bn-neutral-600);
+
+  --bn-shadow-color: rgba(255, 255, 255, 0.1);
+  // Re-point the elevation primitives to Blueprint's dark elevation ramp
+  --bn-elevation-1: #{$pt-dark-elevation-shadow-1}; // ⌁ bp:$pt-dark-elevation-shadow-1
+  --bn-elevation-2: #{$pt-dark-elevation-shadow-2}; // ⌁ bp:$pt-dark-elevation-shadow-2
+
+  --bn-focus-ring-color: #{$pt-dark-focus-indicator-color}; // ⌁ bp:$pt-dark-focus-indicator-color
+}

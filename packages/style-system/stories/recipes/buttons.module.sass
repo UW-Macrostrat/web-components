@@ -1,0 +1,68 @@
+// Token test case: buttons. Exercises fills (accent/intent), text-on-fill,
+// hover/active veils, radius, focus ring, and disabled affordances — all via
+// --bn-* tokens, so light/dark and retheming come for free.
+
+.frame
+  display: flex
+  flex-direction: column
+  gap: var(--bn-space-5)
+  padding: var(--bn-space-5)
+
+.row
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  gap: var(--bn-control-gap)
+
+.button
+  font-family: var(--bn-body-font)
+  font-size: var(--bn-ui-font-size)
+  line-height: var(--bn-ui-line-height)
+  padding: var(--bn-space-2) var(--bn-space-4)
+  border: none
+  border-radius: var(--bn-radius-md)
+  cursor: pointer
+  color: var(--bn-text-on-fill-color)
+  background-color: var(--bn-fill, var(--bn-accent-color))
+
+  &:hover
+    background-image: linear-gradient(var(--bn-active-background-color), var(--bn-active-background-color))
+
+  &:focus-visible
+    outline: 2px solid var(--bn-focus-ring-color)
+    outline-offset: 2px
+
+  &:disabled
+    opacity: 0.5
+    cursor: not-allowed
+
+// Fill variants re-point the local --bn-fill token to a semantic color.
+.primary
+  --bn-fill: var(--bn-accent-color)
+.intent-primary
+  --bn-fill: var(--bn-intent-primary)
+.success
+  --bn-fill: var(--bn-intent-success)
+.warning
+  --bn-fill: var(--bn-intent-warning)
+.danger
+  --bn-fill: var(--bn-intent-danger)
+
+// Minimal / subtle button — no fill, text-toned hover veil.
+.minimal
+  background-color: transparent
+  color: var(--bn-accent-text-color)
+
+  &:hover
+    background-image: none
+    background-color: var(--bn-hover-background-color)
+
+// Outlined button
+.outline
+  background-color: transparent
+  color: var(--bn-text-color)
+  box-shadow: inset 0 0 0 1px var(--bn-border-color)
+
+  &:hover
+    background-image: none
+    background-color: var(--bn-hover-background-color)

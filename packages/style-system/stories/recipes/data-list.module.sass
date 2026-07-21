@@ -1,0 +1,50 @@
+// Token test case: selectable data list — the recurring primary/assistant list
+// pattern (columns, sections, search results). Exercises hover/selected state
+// tokens, panel surface + rules, and dense UI text metrics.
+
+.panel
+  background-color: var(--bn-panel-background-color)
+  border: 1px solid var(--bn-border-muted-color)
+  border-radius: var(--bn-radius-md)
+  box-shadow: var(--bn-shadow-sm)
+  max-width: 22rem
+  margin: var(--bn-space-5)
+  overflow: hidden
+
+.header
+  font-family: var(--bn-heading-font)
+  font-size: var(--bn-ui-font-size)
+  color: var(--bn-text-subtle-color)
+  text-transform: uppercase
+  letter-spacing: 0.04em
+  padding: var(--bn-space-2) var(--bn-space-3)
+  background-color: var(--bn-panel-secondary-background-color)
+  border-bottom: 1px solid var(--bn-border-muted-color)
+
+.item
+  display: flex
+  justify-content: space-between
+  align-items: baseline
+  gap: var(--bn-inline-gap)
+  padding: var(--bn-space-2) var(--bn-space-3)
+  font-family: var(--bn-body-font)
+  font-size: var(--bn-ui-font-size)
+  line-height: var(--bn-ui-line-height)
+  color: var(--bn-text-color)
+  cursor: pointer
+  border-left: 2px solid transparent
+
+  & + .item
+    border-top: 1px solid var(--bn-border-muted-color)
+
+  &:hover
+    background-color: var(--bn-hover-background-color)
+
+.item.selected
+  background-color: var(--bn-selected-background-color)
+  color: var(--bn-selected-text-color)
+  border-left-color: var(--bn-accent-color)
+
+.meta
+  color: var(--bn-text-subtle-color)
+  font-size: var(--bn-font-size-xs)

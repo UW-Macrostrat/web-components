@@ -1,0 +1,63 @@
+// Bornite — opt-in base overlay
+//
+// The overlay applies Bornite tokens to bare HTML elements (paragraph skips,
+// heading rhythm, links, code, lists). It is deliberately **scoped under
+// `.bn-prose`, not global** — a global bare-element reset would fight Blueprint
+// and risk regressing existing pages (see the "Map page" warning in the feature
+// doc). Opt in per content region:
+//
+//   h("div.bn-prose", [ h("h2", …), h("p", …) ])
+//
+// Component styling should prefer the `_typography.scss` mixins; this overlay is
+// for free-flowing prose/markdown-ish content where bare tags are unavoidable.
+
+@use "typography" as type;
+
+.bn-prose {
+  @include type.prose;
+
+  h1, h2, h3, h4, h5, h6 {
+    @include type.heading;
+    margin: var(--bn-heading-spacing-top) 0 var(--bn-heading-spacing) 0;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  h1 { font-size: var(--bn-font-size-3xl); }
+  h2 { font-size: var(--bn-font-size-2xl); }
+  h3 { font-size: var(--bn-font-size-xl); }
+  h4 { font-size: var(--bn-font-size-lg); }
+
+  p {
+    margin: 0 0 var(--bn-paragraph-spacing) 0;
+  }
+
+  a {
+    color: var(--bn-link-color);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--bn-link-hover-color);
+      text-decoration: underline;
+    }
+  }
+
+  code {
+    @include type.code;
+  }
+
+  ul, ol {
+    margin: 0 0 var(--bn-paragraph-spacing) 0;
+    padding-left: var(--bn-space-5);
+  }
+
+  li + li {
+    margin-top: var(--bn-list-item-spacing);
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
