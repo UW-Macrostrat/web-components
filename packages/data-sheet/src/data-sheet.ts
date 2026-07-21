@@ -286,6 +286,13 @@ export function DataSheetRenderer<T>({
   }
 
   const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
+  // Whether table-level column drag-reordering is enabled. Held in the store
+  // (set from the `enableColumnReordering` prop by the provider); it must reach
+  // the Blueprint `Table` — the `onColumnsReordered` handler alone doesn't turn
+  // on the drag affordance.
+  const enableColumnReordering = useSelector(
+    (state) => state.enableColumnReordering,
+  );
 
   // Auto-detect if any columns have sortable/filterable set.
   // If so and no explicit columnHeaderCellRenderer was provided,
@@ -447,9 +454,14 @@ export function DataSheetRenderer<T>({
       }
 
       const defaultLabel = `${dataRowIndex + 1}`;
-      let name: string = defaultLabel;
+      // A custom renderer supplies the header's *name* content (a group-key
+      // label, an omit indicator, …); a nullish return keeps the default
+      // 1-based label. Either way the node is wrapped in a `RowHeaderCell` so
+      // status styling and the row index are always applied — the renderer is
+      // not responsible for producing the whole cell.
+      let name: ReactNode = defaultLabel;
       if (rowHeaderRenderer != null) {
-        return rowHeaderRenderer({
+        const custom = rowHeaderRenderer({
           rowIndex: dataRowIndex,
           visibleIndex: rowIndex,
           row: data[dataRowIndex] ?? updatedData[dataRowIndex],
@@ -457,6 +469,7 @@ export function DataSheetRenderer<T>({
           isDeleted: statusVal === TableElementStatus.DELETED,
           defaultLabel,
         });
+        if (custom != null) name = custom;
       }
 
       return h(RowHeaderCell, {
@@ -558,6 +571,7 @@ export function DataSheetRenderer<T>({
           numRows,
           className: "data-sheet",
           enableFocusedCell,
+          enableColumnReordering,
           onColumnsReordered,
           focusedCell,
           selectedRegions,

@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- **Column reordering** — `enableColumnReordering` now reaches the Blueprint
+  `Table`. It had been stored (so `onColumnsReordered` was wired) but never
+  passed to the table, so the drag affordance never appeared and columns could
+  not be reordered even with the prop set.
+- **`rowHeaderRenderer` fallback** — the renderer's return value is now treated
+  as the header's *name* content and wrapped in a `RowHeaderCell` (with row
+  index + status styling), and a nullish return falls back to the default
+  1-based label — matching the documented contract. Previously the raw result
+  was returned as the whole cell, so a renderer that returned nullish for some
+  rows (to keep the default) dropped those row headers entirely.
+
 ## [4.2.0] - 2026-07-16
 
 Major refactor to data providers
