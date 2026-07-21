@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.2.1] - 2026-07-21 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.2.0...@macrostrat/data-sheet-v4.2.1)
+
+### Patch Changes
+
+- Fix two `DataSheet` regressions surfaced by the map-ingestion integration:
+  [18b1fe82](https://github.com/UW-Macrostrat/web-components/commit/18b1fe820f562d4ad56ebc014a24d1d2fbdf0340)
+  - `enableColumnReordering` now reaches the Blueprint `Table` (drag-reorder was
+    never actually enabled).
+  - `rowHeaderRenderer` results are wrapped in a `RowHeaderCell` and a nullish
+    return falls back to the default row label, per the documented contract
+    (previously a nullish return dropped the row header entirely).
+
 ## [4.2.0] - 2026-07-16
 
 Major refactor to data providers
