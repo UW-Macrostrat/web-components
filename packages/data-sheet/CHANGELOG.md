@@ -1,19 +1,16 @@
 # Changelog
 
-## [Unreleased]
+## [4.2.1] - 2026-07-21 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.2.0...@macrostrat/data-sheet-v4.2.1)
 
-### Fixed
+### Patch Changes
 
-- **Column reordering** — `enableColumnReordering` now reaches the Blueprint
-  `Table`. It had been stored (so `onColumnsReordered` was wired) but never
-  passed to the table, so the drag affordance never appeared and columns could
-  not be reordered even with the prop set.
-- **`rowHeaderRenderer` fallback** — the renderer's return value is now treated
-  as the header's *name* content and wrapped in a `RowHeaderCell` (with row
-  index + status styling), and a nullish return falls back to the default
-  1-based label — matching the documented contract. Previously the raw result
-  was returned as the whole cell, so a renderer that returned nullish for some
-  rows (to keep the default) dropped those row headers entirely.
+- Fix two `DataSheet` regressions surfaced by the map-ingestion integration:
+  [18b1fe82](https://github.com/UW-Macrostrat/web-components/commit/18b1fe820f562d4ad56ebc014a24d1d2fbdf0340)
+  - `enableColumnReordering` now reaches the Blueprint `Table` (drag-reorder was
+    never actually enabled).
+  - `rowHeaderRenderer` results are wrapped in a `RowHeaderCell` and a nullish
+    return falls back to the default row label, per the documented contract
+    (previously a nullish return dropped the row header entirely).
 
 ## [4.2.0] - 2026-07-16
 
