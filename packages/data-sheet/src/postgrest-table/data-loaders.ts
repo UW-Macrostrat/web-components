@@ -372,6 +372,7 @@ export interface TableFooterInfo {
   loaded: number;
   total: number | null;
   loading: boolean;
+  error: Error | null;
   page: number;
   pageSize: number;
   totalPages: number | null;
@@ -396,6 +397,7 @@ export const tableFooterAtom = atom<TableFooterInfo>((get) => {
     loaded,
     total,
     loading: core.loading,
+    error: core.error,
     page: get(chunkPageAtom),
     pageSize: core.pageSize,
     totalPages,
@@ -419,6 +421,9 @@ export interface LoadControls {
   loadMore: () => void;
   /** A fetch is in flight. */
   loading: boolean;
+  /** The most recent load error (cleared on the next successful load), else
+   * `null` — so a footer/consumer can degrade gracefully instead of hanging. */
+  error: Error | null;
   /** More rows remain to load. */
   hasMore: boolean;
   /** Rows loaded so far. */
@@ -472,6 +477,7 @@ export function useLoadControls(): LoadControls {
   return {
     loadMore,
     loading: footer.loading,
+    error: footer.error,
     hasMore,
     loaded: footer.loaded,
     total: footer.total,

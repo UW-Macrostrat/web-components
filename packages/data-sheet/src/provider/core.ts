@@ -295,9 +295,13 @@ export function DataSheetProviderInner<T>(
   useEffect(() => {
     initializeStore({
       columnSpec: postprocessColumnSpec(baseSpec),
-      // A function spec is derived from the loaded rows in `_DataSheet`; tell
-      // the loader not to auto-generate a plain spec from the first chunk.
-      deferColumnSpec: isFnSpec,
+      // Suppress the loader's first-chunk auto-generation whenever the consumer
+      // provided a spec at all — a function (derived later in `_DataSheet`) OR
+      // an explicit array, *including an empty one*. An empty array means "no
+      // facet columns" (e.g. a browse panel whose only control is a sheet-level
+      // search), not "please generate from the data". Auto-gen runs only when
+      // no `columnSpec` was passed.
+      deferColumnSpec: columnSpec != null,
       editable: interactionOptions.enableEditing,
       enableColumnReordering,
       data,

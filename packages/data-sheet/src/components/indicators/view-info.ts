@@ -9,6 +9,16 @@ import { Button, ButtonGroup, Icon, Spinner } from "@blueprintjs/core";
  * controls with "Page X of Y". */
 export function LoadProgressIndicator({ iconSize: size = 12, className }) {
   const footer = ctx.useValue(tableFooterAtom);
+
+  // A load error takes precedence over the normal progress display in every
+  // mode — a compact, non-crashing signal that the source failed.
+  if (footer.error != null) {
+    return h("div.load-progress.load-error", { className }, [
+      h(Icon, { icon: "error", size, intent: "danger" }),
+      h("span.load-progress-label", footer.error.message ?? "Failed to load"),
+    ]);
+  }
+
   if (footer.mode === "paged") return h(PageControl);
 
   const { loaded, total, loading } = footer;

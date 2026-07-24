@@ -35,7 +35,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { Icon, Spinner } from "@blueprintjs/core";
+import { Icon, NonIdealState, Spinner } from "@blueprintjs/core";
 import {
   anchorRefAtom,
   ctx,
@@ -173,6 +173,7 @@ export interface SelectModifiers {
 export function DataPanelRenderer<T>({
   itemComponent,
   actions = [],
+  filters = [],
   pageSize = 50,
   name,
   // Bottom bar
@@ -211,7 +212,7 @@ export function DataPanelRenderer<T>({
   // (also available to the caller's `footer` via the same hook). The panel's
   // `autoLoadPages` prop is the store's configuration input.
   ctx.useSync(autoLoadPagesAtom, autoLoadPages ?? null);
-  const { loading, hasMore, loaded, total, paused, canLoadMore, advance } =
+  const { loading, error, hasMore, loaded, total, paused, canLoadMore, advance } =
     useLoadControls();
 
   // Track whether the body is scrolled off the top, to gate the top fade.
@@ -270,9 +271,29 @@ export function DataPanelRenderer<T>({
     );
   });
 
+  // Body-level empty/error state: when nothing has loaded, show a clear message
+  // instead of a blank list — an errored source (e.g. a 401 on the whole route)
+  // degrades gracefully, and a genuinely empty result reads as "no results"
+  // rather than a perpetual spinner.
+  let emptyState: ReactNode = null;
+  if (cards.length === 0) {
+    if (error != null) {
+      emptyState = h(NonIdealState, {
+        icon: "error",
+        title: "Couldn't load data",
+        description: error.message ?? "The data source returned an error.",
+      });
+    } else if (!loading) {
+      emptyState = h(NonIdealState, {
+        icon: "search",
+        title: "No results",
+      });
+    }
+  }
+
   // The default spinner sentinel (below-placement): hidden while paused so the
   // pinned footer's "Load more" takes over.
-  const shouldLoadNextPage = (hasMore || loading) && !paused;
+  const shouldLoadNextPage = (hasMore || loading) && !paused && error == null;
 
   // Mount the loader only once the provider resolves (see `PanelLoader`). Built
   // as a real conditional — `h.if(...)` evaluates its arguments eagerly, so
@@ -286,7 +307,7 @@ export function DataPanelRenderer<T>({
     });
   }
 
-  const coreActions = useDataPanelControls();
+  const coreActions = useDataPanelControls(filters);
 
   // Merge consumer actions with the synthesized Filter/Sort controls, deduped
   // by id — consumer actions come first, so passing an action with id `filter`
@@ -360,6 +381,10 @@ export function DataPanelRenderer<T>({
               actions: _actions,
               tableName: name,
               className: "data-panel-toolbar-content",
+              // In the panel the title doubles as the modal-selection control,
+              // so only render it when modal selection is toggle-able (or a
+              // selection is active) — not as a bare label otherwise.
+              compact: true,
             },
             toolbar,
           ),
@@ -371,7 +396,7 @@ export function DataPanelRenderer<T>({
             className: classNames({ "is-scrolled": scrolled }),
           },
           h("div.data-panel-body-content", [
-            h(ScrollBody, cards),
+            emptyState ?? h(ScrollBody, cards),
             _contentFooter,
           ]),
         ),
