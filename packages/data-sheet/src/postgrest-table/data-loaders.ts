@@ -2,7 +2,7 @@
 
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { debounce } from "underscore";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import update, { Spec } from "immutability-helper";
 import {
   ClientServerOptions,
@@ -372,6 +372,9 @@ export interface TableFooterInfo {
   loaded: number;
   total: number | null;
   loading: boolean;
+  /** A fetch has been attempted since the last view reset — so `loaded === 0`
+   * can be told apart from "not loaded yet" (avoids an empty-state flash). */
+  initialized: boolean;
   error: Error | null;
   page: number;
   pageSize: number;
@@ -397,6 +400,7 @@ export const tableFooterAtom = atom<TableFooterInfo>((get) => {
     loaded,
     total,
     loading: core.loading,
+    initialized: core.initialized,
     error: core.error,
     page: get(chunkPageAtom),
     pageSize: core.pageSize,
@@ -421,6 +425,9 @@ export interface LoadControls {
   loadMore: () => void;
   /** A fetch is in flight. */
   loading: boolean;
+  /** A fetch has been attempted since the last view reset (so an empty result
+   * can be told apart from "not loaded yet"). */
+  initialized: boolean;
   /** The most recent load error (cleared on the next successful load), else
    * `null` — so a footer/consumer can degrade gracefully instead of hanging. */
   error: Error | null;
@@ -477,6 +484,7 @@ export function useLoadControls(): LoadControls {
   return {
     loadMore,
     loading: footer.loading,
+    initialized: footer.initialized,
     error: footer.error,
     hasMore,
     loaded: footer.loaded,
@@ -633,7 +641,7 @@ export function useDataLoader<T = any>(
   fetchChunk: FetchData<T>,
   options: FetchDataOptions = {},
 ) {
-  const { pageSize = 100, fetchMode = "scroll" } = options;
+  const { pageSize = 100, fetchMode = "scroll", filterDebounce = 0 } = options;
   const [state, dispatch] = useLazyLoaderReducer();
 
   const { isLocalProvider, provider } = ctx.useValue(dataProviderAtom);
@@ -677,10 +685,17 @@ export function useDataLoader<T = any>(
     () => JSON.stringify({ sorts: columnSorts, filters }),
     [columnSorts, filters],
   );
+  // Debounce the view-state → refetch: rapid changes (typing in a text filter)
+  // otherwise reset + refetch on every keystroke, flashing the list. The store
+  // (and so the filter input) still updates instantly; only the *fetch* waits
+  // for the view to settle. Scroll paging is unaffected — it's driven by
+  // `visibleRegion`/`data`, not this key. `filterDebounce: 0` (default) keeps
+  // the immediate behavior.
+  const debouncedViewKey = useDebouncedValue(viewKey, filterDebounce);
   useEffect(() => {
     dispatch({ type: "reset" });
     setPage(0);
-  }, [viewKey, fetchMode, refreshToken]);
+  }, [debouncedViewKey, fetchMode, refreshToken]);
 
   useAsyncEffect(async () => {
     if (state.loading) return;
@@ -765,9 +780,24 @@ export function useDataLoader<T = any>(
         dispatch({ type: "error", error: err as Error });
       }
     }
-  }, [state.data, visibleRegion, viewKey, page, fetchMode]);
+  }, [state.data, visibleRegion, debouncedViewKey, page, fetchMode]);
 
   return { data: state.data, loading: state.loading, error: state.error };
+}
+
+/** A value that trails `value` by `delay` ms of stability — the first value is
+ * returned immediately, and `delay <= 0` disables debouncing entirely. */
+function useDebouncedValue<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    if (delay <= 0) {
+      setDebounced(value);
+      return;
+    }
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
 }
 
 /**

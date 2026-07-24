@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import h from "./data-panel.stories.module.sass";
-import { useEffect, useRef, useState } from "react";
 import { AnchorButton, InputGroup, SegmentedControl, Tag } from "@blueprintjs/core";
 import {
   createPostgRESTProvider,
@@ -49,35 +48,23 @@ interface SearchState {
   value: string;
 }
 
-/** A **debounced** search box: the input is instant (local state), but the
- * filter — and therefore the refetch — only fires ~300ms after typing stops.
- * This is the consumer-side pattern; the library-level equivalent (a
- * `filterDebounce` in the loader) is workstream H. */
-function DebouncedSearchInput({
+/** A plain search box — it writes the filter state on every keystroke. The
+ * *debouncing* (one refetch once typing settles) is the **library's** job now:
+ * the panel's `filterDebounce` prop debounces the view-state → fetch in the
+ * loader, so the input stays instant while the query waits (workstream H). */
+function SearchInput({
   state,
   setState,
 }: {
   state: SearchState;
   setState: (s: SearchState) => void;
 }) {
-  const [local, setLocal] = useState(state?.value ?? "");
-  // Reflect external clears (Reset) back into the box.
-  useEffect(() => setLocal(state?.value ?? ""), [state?.value]);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const onChange = (e: any) => {
-    const v = e.target.value;
-    setLocal(v);
-    if (timer.current != null) clearTimeout(timer.current);
-    timer.current = setTimeout(() => setState({ value: v }), 300);
-  };
-
   return h(InputGroup, {
     className: "map-search",
     leftIcon: "search",
     placeholder: "Search maps by name, slug, or ID…",
-    value: local,
-    onChange,
+    value: state?.value ?? "",
+    onChange: (e: any) => setState({ value: e.target.value }),
   });
 }
 
@@ -88,7 +75,7 @@ const searchFilter: TableFilter<MapSource, SearchState> = {
   defaultState: { value: "" },
   describeState: (s) => (s?.value ? s.value : null),
   presentation: "inline",
-  filterForm: DebouncedSearchInput,
+  filterForm: SearchInput,
   predicate: (row, s) => {
     const q = (s?.value ?? "").trim().toLowerCase();
     if (q === "") return true;
@@ -209,6 +196,9 @@ function MapPanel({
       itemComponent: MapCard,
       pageSize: 20,
       autoLoadPages: 3,
+      // Debounce the view-state → refetch (workstream H): typing in the search
+      // stays instant, but the query only fires once you pause.
+      filterDebounce: 300,
       enableSelection: SelectionInteractionStyle.NEVER,
       sidebar,
     }),
@@ -223,9 +213,11 @@ export default meta;
 
 /**
  * 1. **Data loading + debouncing.** Type in the search box: the input is
- * instant, but the queue only refetches ~300ms after you stop typing, so a
- * multi-character search issues one request, not one per keystroke. Scroll to
- * watch windowed paging.
+ * instant, but the queue only refetches ~300ms after you stop typing
+ * (`filterDebounce: 300` — the loader debounces the view-state → fetch), so a
+ * multi-character search issues one request, not one per keystroke. On a view
+ * change or the next scroll page the body fills with skeleton cards where rows
+ * will land — no blank flash, no footer pinging up into the list.
  */
 export const DataLoadingAndDebouncing: StoryObj = {};
 
