@@ -5,7 +5,7 @@
   width: 100%
   height: 100%
   overflow: hidden
-  --map-panel-border-radius: 4px
+  --map-panel-border-radius: 6px
 
   &.show-panel-outlines
     .map-view-container
@@ -126,8 +126,9 @@
   & > :last-child
     margin-bottom: 0
 
-:global(.bp6-dark) .panel-card
-  background-color: var(--panel-background-color)
+:global(.bp6-dark)
+  .panel-card, .panel-card:global(.bp6-card)
+    background-color: var(--panel-background-color)
 
 .context-stack
   & > div
@@ -160,7 +161,7 @@
   position: relative
   overflow: hidden
 
-.searchbar-holder
+.navbar-holder
   margin-bottom: 0.5em
 
 .right-panel

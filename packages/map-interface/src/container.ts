@@ -1,6 +1,6 @@
-import hyper, { addClassNames } from "@macrostrat/hyper";
+import { addClassNames } from "@macrostrat/hyper";
 import { HTMLDivProps } from "@blueprintjs/core";
-import styles from "./main.module.sass";
+import h from "./main.module.sass";
 import classNames from "classnames";
 import { useTransition } from "transition-hook";
 import {
@@ -14,8 +14,6 @@ import { mapViewInfo, MapPosition } from "@macrostrat/mapbox-utils";
 import { Card } from "@blueprintjs/core";
 
 import { ReactNode } from "react";
-
-const h = hyper.styled(styles);
 
 type AnyElement = React.ReactNode | React.ReactElement | React.ReactFragment;
 

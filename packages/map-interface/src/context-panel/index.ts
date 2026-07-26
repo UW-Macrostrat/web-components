@@ -1,13 +1,10 @@
 import { Navbar, Button, Spinner, Card, Text } from "@blueprintjs/core";
-import hyper from "@macrostrat/hyper";
-import styles from "./main.module.sass";
+import h from "./index.module.sass";
 import { useMapStatus } from "@macrostrat/mapbox-react";
 import { Spacer } from "@macrostrat/ui-components";
 import type { ReactNode } from "react";
 
-const h = hyper.styled(styles);
-
-const spinnerElement = h(Spinner, { size: 16 });
+const spinnerElement = h(Spinner, { size: 16, className: "loading-spinner" });
 
 export function LoadingButton({
   isLoading = false,
@@ -29,7 +26,7 @@ export function LoadingButton({
 }
 
 export function MapLoadingButton(props: any) {
-  const isLoading = useMapStatus((s) => s.isLoading);
+  const isLoading = props.isLoading ?? useMapStatus((s) => s.isLoading);
   return h(LoadingButton, { ...props, isLoading });
 }
 
@@ -60,7 +57,7 @@ export function FloatingNavbar({
 }: FloatingNavbarProps) {
   let _rightElement: ReactNode | null = null;
   if (rightElement != null) {
-    _rightElement = h("div.right-element", rightElement);
+    _rightElement = h("div.right-element.nav-element", rightElement);
   }
 
   let _headerElement: ReactNode | null = headerElement;
@@ -76,12 +73,12 @@ export function FloatingNavbar({
     _headerElement = h([_headerElement, h(Spacer)]);
   }
 
-  return h("div.searchbar-holder", { className, style: { width } }, [
-    h("div.navbar-holder", [
+  return h("div.navbar-holder", { className, style: { width } }, [
+    h("div.navbar-row", [
       h(
         Navbar,
         {
-          className: "searchbar navbar panel",
+          className: "navbar panel",
           style: { height, ...style },
         },
         [_headerElement, children, _rightElement],

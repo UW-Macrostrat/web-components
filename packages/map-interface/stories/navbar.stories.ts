@@ -5,6 +5,7 @@ import { Breadcrumbs, Text } from "@blueprintjs/core";
 import { FloatingNavbar, MapLoadingButton, FloatingNavbarProps } from "../src";
 import { Box } from "@macrostrat/ui-components";
 import { MapboxMapProvider } from "@macrostrat/mapbox-react";
+import { useState } from "react";
 
 function BasicNavbar(props: FloatingNavbarProps) {
   return h(FloatingNavbar, {
@@ -80,7 +81,6 @@ export const WithoutTitle: Story = {
   args: {
     title: null,
     width: "fit-content",
-    style: { padding: 5 },
     rightElement: h(MapLoadingButton, {
       large: true,
     }),
@@ -121,3 +121,25 @@ export const WidthFollowsContent: Story = {
     width: "fit-content",
   },
 };
+
+export function ResizeableNavbar(props: FloatingNavbarProps) {
+  const [statusIndex, setStatusIndex] = useState(0);
+  const titles = [null, "Normal", "Expanded even more"];
+  const icons = ["chevron-right", undefined, "chevron-left"];
+  const widths = ["fit-content", "fit-content", 500];
+
+  const cycleStatus = () => {
+    setStatusIndex((statusIndex + 1) % titles.length);
+  };
+
+  let rightElement = h(MapLoadingButton, {
+    icon: icons[statusIndex],
+    onClick: cycleStatus,
+  });
+
+  return h(FloatingNavbar, {
+    rightElement,
+    title: titles[statusIndex],
+    width: widths[statusIndex],
+  });
+}

@@ -4,7 +4,7 @@ import hyper from "@macrostrat/hyper";
 import { useDarkMode, useStoredState } from "@macrostrat/ui-components";
 import mapboxgl from "mapbox-gl";
 import React from "react";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 import { buildInspectorStyle } from "./xray";
 import { MapAreaContainer, PanelCard } from "../container";
 import { FloatingNavbar, MapLoadingButton } from "../context-panel";
@@ -193,9 +193,13 @@ function MapInspector(props) {
   // React warning about this legacy usage
   console.warn("MapInspector is deprecated. Use MapInspectorV2 instead");
 
+  const _controls = useMemo(()=>{
+    return [children, controls]
+  }, [children, controls]);
+
   return h(MapInspectorV2, {
     ...rest,
-    controls: [children, controls],
+    controls: _controls,
   });
 }
 
