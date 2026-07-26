@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/scoped-store",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A scoped store utility based on Jotai",
   "repository": {
     "type": "git",

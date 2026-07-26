@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import h from "@macrostrat/hyper";
-import { StoreApi, useStore } from "zustand";
 import { Table } from "@blueprintjs/table";
 import {
   type ColumnSpec,
@@ -161,7 +160,7 @@ function DataSheetStoreWrapper<T>(props: DataSheetProviderProps<T>) {
       ctx,
       initializeStore: createZustandStore,
       atoms: [[toasterAtom, toaster]],
-      debugName: "DataSheetStore",
+      debugName: "DataSheetProvider",
     },
     h(DataSheetProviderInner, rest),
   );
@@ -380,15 +379,14 @@ export function DataSheetProviderInner<T>(
   return children;
 }
 
-export function useStoreAPI<T>(): StoreApi<DataSheetStore<T>> {
-  return useZustandStoreAPI(ctx);
+export function useStoreAPI<T>() {
+  return useZustandStoreAPI<DataSheetStore<T>>(ctx);
 }
 
 export function useSelector<T = any, A = any>(
   selector: (state: DataSheetStore<T>) => A,
 ): A {
-  const store = useStoreAPI<T>();
-  return useStore(store, selector);
+  return useZustandSelector<T, A>(ctx, selector);
 }
 /** Atoms for efficient sub-selection of state */
 
