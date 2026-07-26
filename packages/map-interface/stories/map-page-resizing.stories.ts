@@ -167,3 +167,15 @@ export const WithMacrostratOverlay: Story = {
     },
   },
 };
+
+export const Global: Story = {
+  args: {
+    mapPosition: {
+      camera: {
+        lat: 40.7128,
+        lng: -74.006,
+        altitude: 4000000,
+      },
+    },
+  },
+};

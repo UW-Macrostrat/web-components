@@ -167,6 +167,8 @@ export function MapMarker({ position, setPosition, centerMarker = true }) {
 
   useMapMarker(mapRef, markerRef, position);
 
+  useMapEaseTo({ center: position, padding: 0, zoom: 7 });
+
   useEffect(() => {
     const map = mapRef.current;
     if (map == null || setPosition == null) return;
@@ -175,7 +177,7 @@ export function MapMarker({ position, setPosition, centerMarker = true }) {
       setPosition(event.lngLat, event, mapRef.current);
       // We should integrate this with the "easeToCenter" hook
       if (centerMarker) {
-        mapRef.current?.flyTo({ center: event.lngLat, duration: 800 });
+        // Wait a tick to center the marker
       }
     };
 
