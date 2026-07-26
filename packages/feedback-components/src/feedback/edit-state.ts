@@ -435,6 +435,7 @@ function removeNodes(
 export interface EntityOutput {
   id: number;
   type: number | null;
+  type_name: string | null;
   txt_range: number[][];
   name: string;
   match: any | null;
@@ -466,6 +467,7 @@ export function treeToGraph(tree: TreeData[]): GraphData {
     const nodeData: EntityOutput = {
       id,
       type: type.id,
+      type_name: type.name,
       color: type.color,
       name,
       txt_range: [indices],
