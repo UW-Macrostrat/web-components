@@ -62,14 +62,12 @@ export function FeedbackComponent({
 }) {
   const [viewOnly, setViewOnly] = useState(view);
   const [match, setMatchLinks] = useState(matchLinks);
-  const matchMode = match !== undefined;
 
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
     entities.map((entity) => processEntity(entity, entityTypes)) as any,
     entityTypes,
     viewOnly,
-    matchMode,
     autoSelect,
   );
 
@@ -223,7 +221,6 @@ export function FeedbackComponent({
               payload: isOpen,
             }),
           viewOnly,
-          matchMode,
         }),
       ]),
     ]),
@@ -268,7 +265,6 @@ function EntityTypeSelector({
   dispatch,
   selectedNodes = [],
   viewOnly,
-  matchMode,
 }) {
   // Show all entity types when selected is null
   const _selected = selected != null ? selected : undefined;
@@ -289,7 +285,7 @@ function EntityTypeSelector({
       dispatch,
       selectedNodes,
       tree,
-      viewOnly: viewOnly || matchMode,
+      viewOnly,
     }),
     h(OmniboxSelector, {
       isOpen,
