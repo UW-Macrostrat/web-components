@@ -225,10 +225,9 @@
   & hr
     width: 100%
 
-:global
-  .mapbox-map
-    .mapbox-compass, .mapbox-3d
-      display: none
+.mapbox-map :global
+  .mapbox-compass, .mapbox-3d
+    display: none
 
   .mapboxgl-ctrl.mapbox-3d.mapbox-control
     width: unset
@@ -247,11 +246,11 @@
   .mapboxgl-ctrl.mapboxgl-ctrl-attrib a
     color: var(--text-color)
 
-  .mapboxgl-marker svg path
-    fill: var(--panel-background-color) !important
-
-  .mapboxgl-marker svg circle
-    fill: var(--secondary-color) !important
+  .mapboxgl-marker svg
+    path
+      fill: var(--panel-background-color) !important
+    circle
+      fill: var(--secondary-color) !important
 
   .mapbox-control.mapbox-zoom
     background: var(--translucent-panel-background-inner)
@@ -262,27 +261,26 @@
   .mapboxgl-ctrl-logo
     transform: scale(0.9) translate(-8px, 2px)
 
-  .bp6-dark
-    .mapboxgl-ctrl-group
-      background-color: var(--panel-background-color)
-
-    .mapboxgl-ctrl-logo
-      filter: invert(100%)
-
   .mapboxgl-ctrl-group button + button
     border-top: 1px solid var(--panel-rule-color) !important
 
-  .bp6-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon
-    filter: invert(40%)
-
-  .bp6-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon:hover
-    filter: invert(50%)
-
   .mapboxgl-ctrl-geolocate .mapboxgl-ctrl-icon
     filter: invert(40%)
+    &:hover
+      filter: invert(50%)
 
-  .mapboxgl-ctrl-geolocate .mapboxgl-ctrl-icon:hover
-    filter: invert(50%)
+// Dark mode styles
+.bp6-dark .mapbox-map :global
+  .mapboxgl-ctrl-group
+    background-color: var(--panel-background-color)
+
+  .mapboxgl-ctrl-icon
+    filter: invert(40%)
+    &:hover
+      filter: invert(50%)
+
+  .mapboxgl-ctrl-logo
+    filter: invert(100%)
 
 .detail-stack
   position: relative

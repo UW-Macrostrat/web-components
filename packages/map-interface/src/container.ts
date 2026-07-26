@@ -1,19 +1,17 @@
-import { addClassNames } from "@macrostrat/hyper";
-import { HTMLDivProps } from "@blueprintjs/core";
-import h from "./main.module.sass";
 import classNames from "classnames";
 import { useTransition } from "transition-hook";
+import { addClassNames } from "@macrostrat/hyper";
+import { HTMLDivProps, Card } from "@blueprintjs/core";
 import {
   MapboxMapProvider,
   ZoomControl,
   useMapPosition,
 } from "@macrostrat/mapbox-react";
 import { ToasterContext } from "@macrostrat/ui-components";
-import { MapBottomControls } from "./controls";
-import { mapViewInfo, MapPosition } from "@macrostrat/mapbox-utils";
-import { Card } from "@blueprintjs/core";
-
+import { mapViewInfo } from "@macrostrat/mapbox-utils";
 import { ReactNode } from "react";
+import h from "./main.module.sass";
+import { MapBottomControls } from "./controls";
 
 type AnyElement = React.ReactNode | React.ReactElement | React.ReactFragment;
 
@@ -45,8 +43,8 @@ interface MapAreaContainerProps {
   className?: string;
   detailPanelOpen?: boolean;
   contextPanelOpen?: boolean;
-  contextStackProps?: ContextStackProps;
-  detailStackProps?: HTMLDivProps;
+  contextStackProps?: ContextStackProps | null;
+  detailStackProps?: HTMLDivProps | null;
   detailPanelStyle: DetailPanelStyle;
   fitViewport?: boolean;
   showPanelOutlines?: boolean;
@@ -115,7 +113,7 @@ function _MapAreaContainer({
     ],
   );
 
-  let contextStack = null;
+  let contextStack: ReactNode | null = null;
   if (navbar != null || contextPanel != null) {
     contextStack = h(ContextStack, { navbar, ...contextStackProps }, [
       h.if(contextPanelTrans.shouldMount)([contextPanel]),
@@ -126,7 +124,6 @@ function _MapAreaContainer({
     h("div.main-row", [
       h("div.map-ui", { ...rest }, [
         contextStack,
-        //h(MapView),
         children ?? mainPanel,
         h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([detailStackExt]),
         h.if(detailPanelStyle == DetailPanelStyle.FIXED)(
