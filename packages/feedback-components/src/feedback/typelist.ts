@@ -253,13 +253,8 @@ function TypeTag({
       setSelectedType(null);
       dispatch({ type: "toggle-node-selected", payload: { ids } });
     } else if (isSelectedNodes && selectedType.id !== id) {
-      if (ids.length > 0) {
-        setSelectedType(type);
-        const oldIds = collectMatchingIds(tree, selectedType.id);
-
-        dispatch({ type: "toggle-node-selected", payload: { ids: oldIds } });
-        dispatch({ type: "toggle-node-selected", payload: { ids } });
-      }
+      setSelectedType(type);
+      dispatch({ type: "select-entity-type", payload });
     } else {
       console.warn("Unexpected state in TypeTag click handler", {
         isSelectedNodes,
