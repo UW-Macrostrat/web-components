@@ -4,7 +4,7 @@ export function CellRendererDebugOverlay({ cellRendererDependencies, names }) {
   /** Debug overlay for cell renderer dependencies */
   const lastRenderDependencies = useRef<any[]>(cellRendererDependencies);
   useEffect(() => {
-    let changeDepNames = [];
+    let changeDepNames: any[] = [];
     for (const [i, dep] of cellRendererDependencies.entries()) {
       if (dep !== lastRenderDependencies.current[i]) {
         changeDepNames.push(names[i]);

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
-import { DataSheet, scrollToRowAction } from "../src";
-import type { FetchDataParams, TableFilter } from "../src";
+import { DataSheet, FetchDataParams, scrollToRowAction } from "../src";
+import type { TableFilter } from "../src";
 import { FormGroup, NumericInput, SegmentedControl } from "@blueprintjs/core";
 import { useState } from "react";
 import "@blueprintjs/table/lib/css/table.css";

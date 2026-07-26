@@ -2,4 +2,5 @@ export * from "./editor-popup";
 export * from "./cell-detail";
 export * from "./colors";
 export * from "./text-areas";
-export { LoadProgressIndicator } from "./view-info.ts";
+export * from "./indicators";
+export * from "./toolbars";

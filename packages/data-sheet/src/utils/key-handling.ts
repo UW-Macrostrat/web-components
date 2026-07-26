@@ -1,9 +1,14 @@
 import type { KeyboardEvent } from "react";
-import { storeAPIAtom, storeAtom, tableActionsAtom } from "../provider";
-import type { DataSheetStoreMain } from "../types";
+import {
+  storeAPIAtom,
+  storeAtom,
+  tableActionsAtom,
+  type DataSheetStoreMain,
+  singleFocusedCell,
+  ctx,
+} from "../provider";
 import { atom } from "jotai";
-import { singleFocusedCell } from "../zustand-store.ts";
-import { buildActionContext, runActionWrapper } from "../actions";
+import { runActionWrapper } from "../actions";
 import { HotkeyConfig } from "@blueprintjs/core";
 import { toasterAtom } from "../notifications.ts";
 
@@ -24,180 +29,181 @@ const hasSelectionAtom = atom((get) => {
   return selection.length > 0;
 });
 
-export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
-  const store = get(storeAPIAtom);
-  const toaster = get(toasterAtom);
-  const editable = get(isEditableAtom);
+export const tableHotkeysAtom = atom<null, [], HotkeyConfig[]>(
+  null,
+  (get, set) => {
+    const store = get(storeAPIAtom);
+    const toaster = get(toasterAtom);
+    const editable = get(isEditableAtom);
 
-  /** Set up hotkeys for table actions */
-  const tableActions = get(tableActionsAtom);
+    /** Set up hotkeys for table actions */
+    const tableActions = get(tableActionsAtom);
 
-  if (store == null) return [];
-  const keyHandler = (
-    actionRunner: HotkeyActionRunner,
-  ): HotkeyConfig["onKeyDown"] => {
-    return (e) => {
-      // Kind of a ridiculous hack to get the store from the atom.
-      const state = store.getState();
-      const setState = store.setState;
-      try {
-        const res = actionRunner(e, state, setState);
-        if (res instanceof Promise) {
-          res
-            .then(() => {})
-            .catch((err) => {
-              console.error(err);
-              handleError(toaster, err);
-            });
+    if (store == null) return [];
+    const keyHandler = (
+      actionRunner: HotkeyActionRunner,
+    ): HotkeyConfig["onKeyDown"] => {
+      return (e) => {
+        // Kind of a ridiculous hack to get the store from the atom.
+        const state = store.getState();
+        const setState = store.setState;
+        try {
+          const res = actionRunner(e as any, state, setState);
+          if (res instanceof Promise) {
+            res
+              .then(() => {})
+              .catch((err) => {
+                console.error(err);
+                handleError(toaster, err);
+              });
+          }
+        } catch (err) {
+          handleError(toaster, err);
         }
-      } catch (err) {
-        handleError(toaster, err);
-      }
+      };
     };
-  };
 
-  function handleError(toaster, err) {
-    toaster.show({
-      message: `${err}`,
-      intent: "danger",
-    });
-  }
-
-  const directionCombos = ["up", "down", "left", "right"].map((dir) => {
-    return {
-      combo: dir,
-      group: "Navigation",
-      label: "Move focus " + dir,
-      preventDefault: true,
-      onKeyDown: keyHandler((e, state) => {
-        state.moveFocusedCell(dir);
-      }),
-    };
-  });
-
-  /** TODO: merge a bit more with the actions config */
-
-  const actionsCombos = tableActions
-    .map((action) => {
-      if (action.hotkey == null) return null;
-      return {
-        combo: action.hotkey,
-        label: action.name,
-        group: action.group ?? "Actions",
-        preventDefault: true,
-        disabled: action.requiresEditable !== false && !editable,
-        onKeyDown(event: KeyboardEvent<any>): any {
-          const state = store.getState();
-          const setState = store.setState;
-          runActionWrapper(action, state, setState, toaster);
-        },
-      } as any as HotkeyConfig;
-    })
-    .filter(Boolean) as HotkeyConfig[];
-
-  // Backspace/Delete: on a whole-row selection, delete the row(s); otherwise
-  // clear the selected cells.
-  const clearOrDeleteSelection = keyHandler((e, state) => {
-    const sel = state.selection ?? [];
-    const isRowSelection =
-      sel.length > 0 && sel.every((r) => r.cols == null && r.rows != null);
-    if (isRowSelection) {
-      state.deleteSelectedRows();
-    } else {
-      state.clearSelection();
+    function handleError(toaster, err) {
+      toaster.show({
+        message: `${err}`,
+        intent: "danger",
+      });
     }
-  });
 
-  return [
-    {
-      combo: "esc",
-      label: "Exit editing / clear selection",
-      group: "Selection",
-      allowInInput: true,
-      onKeyDown: keyHandler((e, state) => {
-        // First Escape closes the focused cell's open surface (editor/panel)
-        // while keeping the selection, so arrow keys keep working — in both
-        // auto and manual modes. A second Escape (nothing open) clears the
-        // selection.
-        if (state.cellSurfaceOpen) {
-          state.closeCellSurface();
+    const directionCombos = ["up", "down", "left", "right"].map((dir) => {
+      return {
+        combo: dir,
+        group: "Navigation",
+        label: "Move focus " + dir,
+        preventDefault: true,
+        onKeyDown: keyHandler((e, state) => {
+          state.moveFocusedCell(dir as any);
+        }),
+      };
+    });
+
+    /** TODO: merge a bit more with the actions config */
+
+    const actionsCombos = tableActions
+      .map((action) => {
+        if (action.hotkey == null) return null;
+        return {
+          combo: action.hotkey,
+          label: action.name,
+          group: action.group ?? "Actions",
+          preventDefault: true,
+          disabled: action.requiresEditable !== false && !editable,
+          onKeyDown(event: KeyboardEvent<any>): any {
+            runActionWrapper(action, get, set, toaster);
+          },
+        } as any as HotkeyConfig;
+      })
+      .filter(Boolean) as HotkeyConfig[];
+
+    // Backspace/Delete: on a whole-row selection, delete the row(s); otherwise
+    // clear the selected cells.
+    const clearOrDeleteSelection = keyHandler((e, state) => {
+      const sel = state.selection ?? [];
+      const isRowSelection =
+        sel.length > 0 && sel.every((r) => r.cols == null && r.rows != null);
+      if (isRowSelection) {
+        state.deleteSelectedRows();
+      } else {
+        state.clearSelection();
+      }
+    });
+
+    return [
+      {
+        combo: "esc",
+        label: "Exit editing / clear selection",
+        group: "Selection",
+        allowInInput: true,
+        onKeyDown: keyHandler((e, state) => {
+          // First Escape closes the focused cell's open surface (editor/panel)
+          // while keeping the selection, so arrow keys keep working — in both
+          // auto and manual modes. A second Escape (nothing open) clears the
+          // selection.
+          if (state.cellSurfaceOpen) {
+            state.closeCellSurface();
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+          }
+          if (state.selection.length == 0) {
+            // Focus goes back to parent
+            return;
+          }
+          state.setSelection([]);
           e.preventDefault();
           e.stopPropagation();
-          return;
-        }
-        if (state.selection.length == 0) {
-          // Focus goes back to parent
-          return;
-        }
-        state.setSelection([]);
-        e.preventDefault();
-        e.stopPropagation();
-      }),
-    },
-    {
-      combo: "backspace",
-      label: "Clear cells / delete rows",
-      group: "Selection",
-      allowInInput: true,
-      disabled: !editable,
-      onKeyDown: clearOrDeleteSelection,
-    },
-    {
-      combo: "del",
-      label: "Clear cells / delete rows",
-      group: "Selection",
-      allowInInput: true,
-      disabled: !editable,
-      onKeyDown: clearOrDeleteSelection,
-    },
-    {
-      combo: "tab",
-      label: "Move focus right (or left with shift)",
-      group: "Navigation",
-      allowInInput: true,
-      onKeyDown: keyHandler((e, state) => {
-        state.moveFocusedCell(e.shiftKey ? "left" : "right");
-      }),
-    },
-    {
-      combo: "enter",
-      label: "Edit cell / move focus down",
-      group: "Navigation",
-      allowInInput: true,
-      onKeyDown: keyHandler((e, state) => {
-        // In navigation mode (no surface open), Enter enters edit mode —
-        // opening and focusing the focused cell's surface (Google Sheets
-        // style). While a surface is open, Enter advances downward as usual
-        // (an inline editor blurs and this moves to the next row).
-        if (!state.cellSurfaceOpen) {
+        }),
+      },
+      {
+        combo: "backspace",
+        label: "Clear cells / delete rows",
+        group: "Selection",
+        allowInInput: true,
+        disabled: !editable,
+        onKeyDown: clearOrDeleteSelection,
+      },
+      {
+        combo: "del",
+        label: "Clear cells / delete rows",
+        group: "Selection",
+        allowInInput: true,
+        disabled: !editable,
+        onKeyDown: clearOrDeleteSelection,
+      },
+      {
+        combo: "tab",
+        label: "Move focus right (or left with shift)",
+        group: "Navigation",
+        allowInInput: true,
+        onKeyDown: keyHandler((e, state) => {
+          state.moveFocusedCell(e.shiftKey ? "left" : "right");
+        }),
+      },
+      {
+        combo: "enter",
+        label: "Edit cell / move focus down",
+        group: "Navigation",
+        allowInInput: true,
+        onKeyDown: keyHandler((e, state) => {
+          // In navigation mode (no surface open), Enter enters edit mode —
+          // opening and focusing the focused cell's surface (Google Sheets
+          // style). While a surface is open, Enter advances downward as usual
+          // (an inline editor blurs and this moves to the next row).
+          if (!state.cellSurfaceOpen) {
+            state.armAutoActivate();
+            state.openCellSurface();
+            e.preventDefault();
+            return;
+          }
+          state.moveFocusedCell("down");
+        }),
+      },
+      {
+        combo: "f2",
+        label: "Edit / open cell",
+        group: "Editing",
+        onKeyDown: keyHandler((e, state) => {
+          // Enter edit mode from the keyboard: re-arm auto-activation and open
+          // the focused cell's surface (which focuses the editor).
           state.armAutoActivate();
           state.openCellSurface();
           e.preventDefault();
-          return;
-        }
-        state.moveFocusedCell("down");
-      }),
-    },
-    {
-      combo: "f2",
-      label: "Edit / open cell",
-      group: "Editing",
-      onKeyDown: keyHandler((e, state) => {
-        // Enter edit mode from the keyboard: re-arm auto-activation and open
-        // the focused cell's surface (which focuses the editor).
-        state.armAutoActivate();
-        state.openCellSurface();
-        e.preventDefault();
-      }),
-    },
-    ...directionCombos,
-    ...actionsCombos,
-  ];
-});
+        }),
+      },
+      ...directionCombos,
+      ...actionsCombos,
+    ];
+  },
+);
 
 const selectionAtom = atom((get) => {
   const store = get(storeAtom);
-  return store.selection;
+  return store?.selection ?? [];
 });
 
 const isSingleCellSelectionAtom = atom((get) => {
@@ -221,7 +227,7 @@ export const editorKeyHandlerAtom = atom((get) => {
       return;
     }
     const isSingleCellSelection = get(isSingleCellSelectionAtom);
-    editorKeyHandler(e, isSingleCellSelection);
+    editorKeyHandler(e as any, isSingleCellSelection);
   };
 });
 
@@ -267,11 +273,11 @@ function editorKeyHandler(
     //console.log(tableElement);
     //tableElement.focus();
     //target.parentNode?.dispatchEvent(e);
-    target.parentNode?.dispatchEvent(new KeyboardEvent("keydown", e));
+    target.parentNode?.dispatchEvent(new KeyboardEvent("keydown", e as any));
   }
 }
 
-function shouldPropagateKeystroke(evt: KeyboardEvent): boolean {
+function shouldPropagateKeystroke(evt: any): boolean {
   if (evt.target.selectionStart == evt.target.selectionEnd) {
     // We don't have anything selected, so we can propagate the event potentially
     // Propagate copy and paste events even if there is no selection, since they might want to copy/paste an entire row/column based on the focused cell.
@@ -310,7 +316,7 @@ function shouldPropagateKeystroke(evt: KeyboardEvent): boolean {
   return false;
 }
 
-export function multiLineTextKeyHandler(evt: InputEvent) {
+export function multiLineTextKeyHandler(evt: any) {
   if (evt.key === "Enter") {
     //evt.preventDefault();
     evt.stopPropagation();

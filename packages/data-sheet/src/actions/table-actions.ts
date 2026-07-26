@@ -7,7 +7,6 @@
 import h from "@macrostrat/hyper";
 import { useState } from "react";
 import { Button, ControlGroup, InputGroup } from "@blueprintjs/core";
-import { RegionCardinality } from "@blueprintjs/table";
 import { useSelector } from "../provider";
 import type { TableAction } from "./types";
 import { ALL_CARDINALITIES } from "./edit-actions";
@@ -34,29 +33,6 @@ function ScrollToRowControl() {
     h(Button, { small: true, minimal: true, icon: "arrow-right", onClick: go }),
   ]);
 }
-
-/** Clear the current selection. Auto-included: appears (on the right, being a
- * general action) whenever something is selected — targets every cardinality
- * except `"none"`. */
-export const clearSelectionAction: TableAction = {
-  id: "clear-selection",
-  name: "Clear selection",
-  icon: "cross",
-  requiresEditable: false,
-  targets: [
-    RegionCardinality.CELLS,
-    RegionCardinality.FULL_ROWS,
-    RegionCardinality.FULL_COLUMNS,
-    RegionCardinality.FULL_TABLE,
-  ],
-  // Empty selection maps to the FULL_TABLE cardinality, so the action still
-  // shows with nothing selected — grey it out there rather than act on nothing.
-  // (`disabled` is probed with a bare state, hence the `?? []`.)
-  disabled: (s: any) => (s.selection?.length ?? 0) === 0,
-  run(ctx) {
-    ctx.setState({ selection: [], focusedCell: null, topLeftCell: null });
-  },
-};
 
 /** Scroll to a 1-based row number. Meaningful for large, addressable sources;
  * add it to `actions`. Present in the toolbar regardless of selection. */
