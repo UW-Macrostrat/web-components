@@ -1759,6 +1759,7 @@ __metadata:
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/hyper": "npm:^3.1.1"
     "@macrostrat/mapbox-utils": "workspace:^"
+    "@macrostrat/scoped-store": "workspace:^"
     "@macrostrat/stratigraphy-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
@@ -1806,6 +1807,7 @@ __metadata:
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
     "@macrostrat/hyper": "npm:^3.1.1"
+    "@macrostrat/scoped-store": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@storybook/react-vite": "npm:10.5.2"
@@ -1950,6 +1952,7 @@ __metadata:
     "@macrostrat/hyper": "npm:^3.1.1"
     "@macrostrat/map-styles": "workspace:^"
     "@macrostrat/mapbox-utils": "workspace:^"
+    "@macrostrat/scoped-store": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@turf/centroid": "npm:^7.3.2"
@@ -1972,6 +1975,21 @@ __metadata:
     "@turf/bbox": "npm:^7.3.2"
     axios: "npm:^1.13.2"
     mapbox-gl: "npm:^3.0.0"
+  languageName: unknown
+  linkType: soft
+
+"@macrostrat/scoped-store@workspace:^, @macrostrat/scoped-store@workspace:packages/scoped-store":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/scoped-store@workspace:packages/scoped-store"
+  dependencies:
+    "@macrostrat/hyper": "npm:^3.1.1"
+    "@macrostrat/web-components-bundler": "workspace:*"
+    jotai: "npm:^2.20.0"
+    jotai-scope: "npm:^0.11.0"
+    jotai-zustand: "npm:^0.6.0"
+    zustand: "npm:^5.0.2"
+  peerDependencies:
+    react: ^18.0.0||^19.0.0
   languageName: unknown
   linkType: soft
 

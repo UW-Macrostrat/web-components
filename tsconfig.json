@@ -30,6 +30,7 @@
     { "path": "./packages/map-styles" },
     { "path": "./packages/mapbox-react" },
     { "path": "./packages/mapbox-utils" },
+    { "path": "./packages/scoped-store" },
     { "path": "./packages/static-map-utils" },
     { "path": "./packages/stratigraphy-utils" },
     { "path": "./packages/style-system" },

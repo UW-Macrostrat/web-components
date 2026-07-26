@@ -1,6 +1,6 @@
-import { SetStateAction, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
-import { createStore, StoreApi, useStore } from "zustand";
+import { StoreApi, useStore } from "zustand";
 import { Table } from "@blueprintjs/table";
 import {
   type ColumnSpec,
@@ -8,7 +8,15 @@ import {
   postprocessColumnSpec,
 } from "./column-spec.ts";
 import { splitProps } from "../utils";
-import { createScopedStore } from "@macrostrat/data-components";
+import {
+  createScopedStore,
+  zustandAPIAtom,
+  zustandStoreAtom,
+  atom,
+  ZustandStoreProvider,
+  useZustandSelector,
+  useZustandStoreAPI,
+} from "@macrostrat/scoped-store";
 import {
   DataSheetProviderProps,
   DataSheetState,
@@ -17,10 +25,8 @@ import {
   TableElementStatus,
 } from "./types.ts";
 import { createZustandStore } from "./zustand-store.ts";
-import { atomWithStore } from "jotai-zustand";
 import { toasterAtom } from "../notifications.ts";
 import { TableAction } from "../actions";
-import { atom } from "jotai";
 import {
   createLocalProvider,
   dataRefreshTokenAtom,
@@ -42,33 +48,10 @@ import { DataPanelProps } from "../data-panel.ts";
 /** Create a Jotai scoped store */
 export const ctx = createScopedStore();
 
-export const storeAPIAtom = atom<StoreApi<DataSheetStore<any>>>();
-
-const storeWrapperAtom = atom((get) => {
-  const _storeAPIAtom = get(storeAPIAtom);
-  if (_storeAPIAtom == null) {
-    return undefined;
-  }
-  return atomWithStore(_storeAPIAtom);
-});
+export const storeAPIAtom = zustandAPIAtom;
 
 /** This is the basis for all other atoms that manipulate the store. */
-export const storeAtom = atom(
-  (get) => {
-    const storeWrapper = get(storeWrapperAtom);
-    if (storeWrapper == null) {
-      return undefined;
-    }
-    return get(storeWrapper);
-  },
-  (get, set, action: SetStateAction<any>) => {
-    const storeWrapper = get(storeWrapperAtom);
-    if (storeWrapper == null) {
-      throw new Error("Missing DataSheetProvider");
-    }
-    return set(storeWrapper, action);
-  },
-);
+export const storeAtom = zustandStoreAtom;
 
 /** Stable empty spec so a function `columnSpec` yields a constant init value
  * (see `DataSheetProviderInner`). */
@@ -77,7 +60,7 @@ const EMPTY_SPEC: ColumnSpec[] = [];
 const initializeStoreAtom = atom(
   null,
   (get, set, payload: Partial<DataSheetStore<any>>) => {
-    set(storeAtom, (state) => {
+    set(zustandStoreAtom, (state) => {
       return {
         ...state,
         ...payload,
@@ -172,16 +155,13 @@ export function useResolvedProvider<T>(props: {
 
 function DataSheetStoreWrapper<T>(props: DataSheetProviderProps<T>) {
   const { toaster, ...rest } = props;
-  const [store] = useState(() => {
-    return createStore<DataSheetStore<T>>(createZustandStore);
-  });
   return h(
-    ctx.Provider,
+    ZustandStoreProvider,
     {
-      atoms: [
-        [storeAPIAtom, store],
-        [toasterAtom, toaster],
-      ],
+      ctx,
+      initializeStore: createZustandStore,
+      atoms: [[toasterAtom, toaster]],
+      debugName: "DataSheetStore",
     },
     h(DataSheetProviderInner, rest),
   );
@@ -209,9 +189,7 @@ const dataProviderKeys = new Set([
 ]);
 
 type AnyDataSheetProps<T> =
-  | DataViewProps<T>
-  | DataPanelProps<T>
-  | DataSheetProps<T>;
+  DataViewProps<T> | DataPanelProps<T> | DataSheetProps<T>;
 
 export function splitDataProviderProps<T>(props: AnyDataSheetProps<T>) {
   /** Split provided props based on provider's needs */
@@ -403,11 +381,7 @@ export function DataSheetProviderInner<T>(
 }
 
 export function useStoreAPI<T>(): StoreApi<DataSheetStore<T>> {
-  const store = ctx.useValue(storeAPIAtom);
-  if (!store) {
-    throw new Error("Missing DataSheetProvider");
-  }
-  return store;
+  return useZustandStoreAPI(ctx);
 }
 
 export function useSelector<T = any, A = any>(
