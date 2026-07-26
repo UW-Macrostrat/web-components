@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.2.2] - 2026-07-26
+
+- Bug: macrostrat terms linked id
+
 ## [2.2.1] - 2026-07-14
 
 - Prioritize terms id
