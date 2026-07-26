@@ -18,7 +18,6 @@ interface TreeState {
   isSelectingEntityType: boolean;
   viewMode: ViewMode;
   viewOnly: boolean;
-  matchMode: boolean;
 }
 
 type TextRange = {
@@ -53,7 +52,6 @@ type TreeAction =
   | { type: "select-range"; payload: { ids: number[] } }
   | { type: "add-match"; payload: { id: number; payload: any } }
   | { type: "remove-match"; payload: { id: number } }
-  | { type: "toggle-match-mode" }
   | { type: "toggle-view-only" };
 
 export type TreeDispatch = Dispatch<TreeAction>;
@@ -62,7 +60,6 @@ export function useUpdatableTree(
   initialTree: TreeData[],
   entityTypes: Map<number, EntityType>,
   viewOnly: boolean,
-  matchMode: boolean,
   autoSelect: string[] = [],
 ): [TreeState, TreeDispatch] {
   // Get the first entity type
@@ -90,7 +87,6 @@ export function useUpdatableTree(
     isSelectingEntityType: false,
     viewMode: ViewMode.Tree,
     viewOnly,
-    matchMode,
   });
 }
 
@@ -105,17 +101,11 @@ export function useTreeDispatch() {
 }
 
 function treeReducer(state: TreeState, action: TreeAction) {
-  if (action.type === "toggle-match-mode") {
-    return { ...state, matchMode: !state.matchMode };
-  }
-
   if (action.type === "toggle-view-only") {
     return { ...state, viewOnly: !state.viewOnly, selectedNodes: [] };
   }
 
   if (state.viewOnly) return viewMode(state, action);
-
-  if (state.matchMode) return matchMode(state, action);
 
   switch (action.type) {
     case "add-entity-type": {
@@ -260,6 +250,46 @@ function treeReducer(state: TreeState, action: TreeAction) {
         selectedEntityType: newType,
       };
 
+    case "add-match": {
+      const { id, payload } = action.payload;
+
+      const keyPath = findNode(state.tree, id);
+      if (!keyPath) {
+        console.warn(`Node with id ${id} not found`);
+        return state;
+      }
+
+      const matchUpdateSpec = buildNestedSpec(keyPath, {
+        match: { $set: payload },
+      });
+
+      const updatedTree = update(state.tree, matchUpdateSpec);
+
+      return {
+        ...state,
+        tree: updatedTree,
+      };
+    }
+    case "remove-match": {
+      const { id } = action.payload;
+
+      const keyPath = findNode(state.tree, id);
+      if (!keyPath) {
+        console.warn(`Node with id ${id} not found`);
+        return state;
+      }
+
+      const matchUpdateSpec = buildNestedSpec(keyPath, {
+        match: { $set: null },
+      });
+
+      const updatedTree = update(state.tree, matchUpdateSpec);
+
+      return {
+        ...state,
+        tree: updatedTree,
+      };
+    }
     case "create-node":
       const newId = state.lastInternalId - 1;
       const { text, start, end } = action.payload;
@@ -511,77 +541,6 @@ function flattenAndSort(nodes) {
   return result.sort((a, b) => a.indices[0] - b.indices[0]);
 }
 
-function matchMode(state, action) {
-  if (action.type === "select-node" || action.type === "toggle-node-selected") {
-    const { ids } = action.payload;
-
-    if (ids.length != 1) return state;
-
-    if (state.selectedNodes.length === 1) {
-      if (ids[0] === state.selectedNodes[0]) {
-        // If the selected node is the same as the current selection, deselect it
-        return { ...state, selectedNodes: [] };
-      }
-    }
-
-    const type =
-      action.payload.ids.length > 0
-        ? findNodeById(state.tree, ids[0])?.type
-        : null;
-
-    return { ...state, selectedNodes: ids, selectedEntityType: type };
-  }
-
-  if (action.type === "add-match") {
-    const { id } = action.payload;
-
-    // Find the node path
-    const keyPath = findNode(state.tree, id);
-    if (!keyPath) {
-      console.warn(`Node with id ${id} not found`);
-      return state;
-    }
-
-    // Build update spec to set the `match` property
-    const matchUpdateSpec = buildNestedSpec(keyPath, {
-      match: { $set: action.payload.payload },
-    });
-
-    const updatedTree = update(state.tree, matchUpdateSpec);
-
-    return {
-      ...state,
-      tree: updatedTree,
-    };
-  }
-
-  if (action.type === "remove-match") {
-    const { id } = action.payload;
-
-    console.log("Removing match for node with id:", id);
-
-    // Find the node path
-    const keyPath = findNode(state.tree, id);
-    if (!keyPath) {
-      console.warn(`Node with id ${id} not found`);
-      return state;
-    }
-
-    // Build update spec to unset the `match` property
-    const matchUpdateSpec = buildNestedSpec(keyPath, {
-      match: { $set: null },
-    });
-
-    const updatedTree = update(state.tree, matchUpdateSpec);
-
-    return {
-      ...state,
-      tree: updatedTree,
-    };
-  }
-
-  return state;
-}
 
 function viewMode(state, action) {
   if (action.type === "set-view-mode") {

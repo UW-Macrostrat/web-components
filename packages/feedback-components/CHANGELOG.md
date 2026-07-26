@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.2.3] - 2026-07-26
+
+- Combine match and regular edit mode to one
+
 ## [2.2.2] - 2026-07-26
 
 - Bug: macrostrat terms linked id
