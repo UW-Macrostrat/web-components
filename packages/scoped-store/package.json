@@ -1,11 +1,11 @@
 {
-  "name": "@macrostrat/mapbox-react",
-  "version": "3.2.2",
-  "description": "Components to support using Mapbox maps in React",
+  "name": "@macrostrat/scoped-store",
+  "version": "0.0.1",
+  "description": "A scoped store utility based on Jotai",
   "repository": {
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
-    "directory": "packages/mapbox-react"
+    "directory": "packages/scoped-store"
   },
   "license": "MIT",
   "source": "src/index.ts",
@@ -36,25 +36,22 @@
     "build": "bundle-library ."
   },
   "peerDependencies": {
-    "react": "^18.0.0||^19.0.0",
-    "react-dom": "^18.0.0||^19.0.0"
+    "react": "^18.0.0||^19.0.0"
   },
   "dependencies": {
-    "@blueprintjs/core": "^6.14.0",
     "@macrostrat/hyper": "^3.1.1",
-    "@macrostrat/map-styles": "workspace:^",
-    "@macrostrat/mapbox-utils": "workspace:^",
-    "@macrostrat/scoped-store": "workspace:^",
-    "@macrostrat/ui-components": "workspace:^",
-    "@turf/centroid": "^7.3.2",
-    "classnames": "^2.5.1",
-    "immutability-helper": "^3.1.1",
-    "mapbox-gl": "^3.0.0",
-    "mapbox-gl-controls": "^2.3.5"
+    "jotai": "^2.20.0",
+    "jotai-scope": "^0.11.0",
+    "jotai-zustand": "^0.6.0",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"
   },
+  "authors": [
+    "Casey Idzikowski",
+    "Daven Quinn"
+  ],
   "publishConfig": {
     "access": "public"
   }

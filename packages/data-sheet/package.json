@@ -51,15 +51,14 @@
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/data-components": "workspace:^",
     "@macrostrat/hyper": "^3.1.1",
+    "@macrostrat/scoped-store": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
     "@supabase/postgrest-js": "^1.17.7",
     "@types/underscore": "^1.13.0",
     "classnames": "^2.5.1",
     "immutability-helper": "^3.1.1",
     "jotai": "^2.20.0",
-    "jotai-zustand": "^0.6.0",
-    "underscore": "^1.13.7",
-    "zustand": "^5.0.2"
+    "underscore": "^1.13.7"
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*",
