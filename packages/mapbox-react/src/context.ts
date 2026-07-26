@@ -16,6 +16,8 @@ import {
 
 const ctx = createScopedStore();
 
+export const mapState = ctx;
+
 // This may or may not be defined...
 import type { StyleSpecification as MaplibreStyleSpecification } from "maplibre-gl";
 

@@ -8,6 +8,8 @@ import type {
   PaddingOptions,
 } from "mapbox-gl";
 import type { MapEaseToState } from "@macrostrat/mapbox-utils";
+import { atom } from "@macrostrat/scoped-store";
+import { mapState } from "./context";
 
 export { MapEaseToState };
 
@@ -108,6 +110,16 @@ type MapEaseToProps = MapEaseToState & {
   trackResize?: boolean;
 };
 
+type MapEaseToMutableState = {
+  current: MapEaseToState | null;
+  queue: MapEaseToState[];
+};
+
+const mapEasingStateAtom = atom<MapEaseToMutableState>({
+  current: null,
+  queue: [],
+});
+
 export function useMapEaseTo(props: MapEaseToProps) {
   const mapRef = useMapRef();
   const {
@@ -118,32 +130,32 @@ export function useMapEaseTo(props: MapEaseToProps) {
     duration = 800,
     trackResize = false,
   } = props;
-  const prevState = useRef<MapEaseToState | null>(null);
+  const mapEasingState = mapState.useValue(mapEasingStateAtom);
+
   /** We need an update queue to batch together updates, especially during map initialization.
    * If we don't have this, early position updates are not respected unless they are
    * controlled outside of the component. */
-  const updateQueue = useRef<MapEaseToState[]>([]);
   // This forces a re-render after initialization, I guess
   const isInitialized = useMapInitialized();
 
   /** Handle changes to any map props */
   useEffect(() => {
     // Add the proposed update to the queue
-    updateQueue.current.push({ bounds, padding, center, zoom });
+    mapEasingState.queue.push({ bounds, padding, center, zoom });
 
     const map = mapRef.current;
     if (map == null) {
       return;
     }
 
-    const initialized = prevState.current != null;
+    const initialized = mapEasingState.current != null;
 
-    const state = updateQueue.current.reduce((acc, val) => {
+    const state = mapEasingState.queue.reduce((acc, val) => {
       return { ...acc, ...val };
     });
-    updateQueue.current = [];
+    mapEasingState.queue = [];
 
-    const positionChanges = filterChanges(state, prevState.current);
+    const positionChanges = filterChanges(state, mapEasingState.current);
 
     let opts: FlyToOptions = {
       padding,
@@ -152,7 +164,7 @@ export function useMapEaseTo(props: MapEaseToProps) {
 
     moveMap(map, positionChanges, opts);
     map.once("moveend", () => {
-      prevState.current = state;
+      mapEasingState.current = state;
     });
   }, [bounds, padding, center, zoom, isInitialized]);
 
@@ -161,8 +173,8 @@ export function useMapEaseTo(props: MapEaseToProps) {
     const map = mapRef?.current;
     if (map == null || !props.trackResize) return;
     const cb = () => {
-      if (prevState.current == null) return;
-      moveMap(map, prevState.current, { duration: 0 });
+      if (mapEasingState.current == null) return;
+      moveMap(map, mapEasingState.current, { duration: 0 });
     };
     map.on("resize", cb);
     return () => {
