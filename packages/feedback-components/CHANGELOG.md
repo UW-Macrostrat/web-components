@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.2.4] - 2026-07-26
+
+- Support adding new types
+
 ## [2.2.3] - 2026-07-26
 
 - Combine match and regular edit mode to one
