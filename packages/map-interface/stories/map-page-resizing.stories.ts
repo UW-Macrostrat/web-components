@@ -30,6 +30,8 @@ const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 const macrostratStyle = buildMacrostratStyle();
 
+const overlayStyles = [macrostratStyle];
+
 const paragraphs = blurbFor(10);
 
 function MapInspectorV2({
@@ -55,11 +57,6 @@ function MapInspectorV2({
 
   const [inspectPosition, setInspectPosition] =
     useState<mapboxgl.LngLat | null>(null);
-
-  const onSelectPosition = useCallback((position: mapboxgl.LngLat) => {
-    setInspectPosition(position);
-  }, []);
-
   let detailElement: React.ReactNode = null;
   if (inspectPosition != null) {
     detailElement = h(
@@ -110,12 +107,12 @@ function MapInspectorV2({
         projection: { name: "globe" },
         mapboxToken,
         bounds,
-        overlayStyles: [macrostratStyle],
+        overlayStyles,
       },
       [
         h(MapMarker, {
           position: inspectPosition,
-          setPosition: onSelectPosition,
+          setPosition: setInspectPosition,
         }),
         children,
       ],

@@ -167,7 +167,7 @@ export function MapMarker({ position, setPosition, centerMarker = true }) {
 
   useMapMarker(mapRef, markerRef, position);
 
-  useMapEaseTo({ center: position });
+  useMapEaseTo({ center: position, duration: 800 });
 
   useEffect(() => {
     const map = mapRef.current;
