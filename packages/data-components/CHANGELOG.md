@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0] - 2026-07-16 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.13...@macrostrat/data-components-v1.2.0)
+
+### Minor Changes
+
+- Add a TagEditor component
+  [5860d7dd](https://github.com/UW-Macrostrat/web-components/commit/5860d7ddba47dabca75e11ee9e064fce1bfb6af5)
+
 ## [1.1.13] - 2026-07-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.12...@macrostrat/data-components-v1.1.13)
 
 ### Patch Changes

@@ -1,41 +1,20 @@
-import { Button, ButtonGroup, PopoverNext, Tag } from "@blueprintjs/core";
-import { useCallback, useMemo, useState } from "react";
-import h from "./toolbar.module.sass";
-import { useSelector, useStoreAPI } from "../provider";
+import { Button, ButtonGroup, PopoverNext } from "@blueprintjs/core";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
+import h from "./actions-toolbar.module.sass";
+import { ctx, selectionAtom, useSelector } from "../../provider";
 import {
-  buildActionContext,
   getApplicableActions,
   getSelectionCardinality,
   mergeColumnActions,
-} from "./selection";
-import type { TableAction, TableActionContext } from "./types";
+  buildActionContext,
+  TableActionContext,
+  runActionWrapper,
+  type TableAction,
+} from "../../actions";
 import { RegionCardinality } from "@blueprintjs/table";
-import { useToaster } from "../notifications.ts";
-import { DataSheetStore } from "../types.ts";
-import { ColumnSpec } from "../utils";
-
-/** A short title describing the current selection (its shape), shown as the
- * toolbar's leading label — no icon. */
-function selectionTitle<T>(ctx: TableActionContext<T>): string | null {
-  const sh = ctx.selectionShape;
-  switch (sh.cardinality) {
-    case RegionCardinality.FULL_COLUMNS: {
-      if (ctx.columnKey != null) {
-        const col = ctx.columnSpec.find((c) => c.key === ctx.columnKey);
-        return col?.name ?? "Column";
-      }
-      return `${sh.columns} columns`;
-    }
-    case RegionCardinality.FULL_ROWS:
-      return ctx.rowIndex != null ? "1 row" : `${sh.rows} rows`;
-    case RegionCardinality.CELLS:
-      return ctx.cell != null ? "Cell" : `${sh.columns}×${sh.rows} cells`;
-    case RegionCardinality.FULL_TABLE:
-      return null;
-    default:
-      return null;
-  }
-}
+import { useToaster } from "../../notifications.ts";
+import type { ColumnSpec } from "../../provider";
+import { SelectionIndicator } from "../index.ts";
 
 /** Toolbar that renders the actions/controls applicable to the current
  * selection cardinality (modal by selection) and edit mode. Actions with a
@@ -44,16 +23,23 @@ function selectionTitle<T>(ctx: TableActionContext<T>): string | null {
  * are merged when their columns are selected. A capsule on the left shows the
  * current selection polarity. */
 export function ActionsToolbar<T>({
-  actions,
-  tableName,
+  actions: _actions,
+  children,
+  className,
+  compact = false,
 }: {
   actions: TableAction<T>[];
   tableName?: string;
+  children: ReactNode;
+  className?: string;
+  compact: boolean;
 }) {
-  const selection = useSelector((state) => state.selection);
+  const selection = ctx.useValue(selectionAtom);
   const editable = useSelector((state) => state.editable);
   const columnSpec = useSelector((state) => state.columnSpec);
-  const storeAPI = useStoreAPI();
+
+  const actionIDs = new Set(_actions.map((a) => a.id));
+  const actions = useMemo(() => _actions, [actionIDs]);
 
   const cardinality = useMemo(
     () => getSelectionCardinality(selection) ?? RegionCardinality.FULL_TABLE,
@@ -71,19 +57,21 @@ export function ActionsToolbar<T>({
     [allActions, cardinality, editable],
   );
 
+  const store = ctx.useStore();
   // Context for `render`-style controls (they subscribe to the store
   // themselves; this resolves the selected column/rows).
-  const ctx = buildActionContext(
-    storeAPI.getState(),
-    storeAPI.setState,
-  ) as TableActionContext<T>;
+  const actionContext = useMemo(() => {
+    return buildActionContext(store.get, store.set);
+  }, [allActions]);
 
   // The toolbar is for actions that AREN'T keyboard-accessible: any action
   // with a `hotkey` (copy/cut/paste, etc.) is reachable from the keyboard and
   // is omitted here (it still works via its shortcut). Then refine by selection
   // shape beyond cardinality (e.g. single column only).
   const shownActions = applicableActions.filter(
-    (action) => action.hotkey == null && (action.appliesTo?.(ctx) ?? true),
+    (action: TableAction<T, any>) =>
+      action.hotkey == null &&
+      (action.appliesTo?.(actionContext as any) ?? true),
   );
 
   const toolbarIsShown = useMemo(
@@ -95,84 +83,39 @@ export function ActionsToolbar<T>({
     return null;
   }
 
-  // The toolbar is always mounted if actions are available, so it can't flicker
-  // in/out as the selection or action set changes — the container is stable;
-  // only its contents (title + buttons) change. Avoids layout jank.
-  //
-  // The leading title doubles as the clear-selection affordance: with an active
-  // selection it renders as a dismissible tag (its ✕ clears the selection),
-  // which ties "clear" to the selection it acts on and frees toolbar space.
-  // With no selection it's a plain label (table name).
-  // Both states render as a `large` `Tag` so the title keeps a constant font
-  // and height; only the selected one has a filled background + a ✕ (which
-  // clears the selection). The unselected label is a transparent, non-removable
-  // tag — visually a plain title, but the same box.
-  const hasSelection = selection != null && selection.length > 0;
-  const titleNode = h(
-    Tag,
-    {
-      key: "title",
-      minimal: true,
-      large: true,
-      onRemove: hasSelection
-        ? () =>
-            storeAPI.setState({
-              selection: [],
-              focusedCell: null,
-              topLeftCell: null,
-            })
-        : undefined,
-      style: hasSelection ? undefined : { background: "transparent" },
-    },
-    hasSelection
-      ? (selectionTitle(ctx) ?? tableName ?? "Selection")
-      : (tableName ?? "Table"),
-  );
-
-  // Order left→right by generality: actions applicable to the whole table (or
-  // no selection) are "global" and sit after a spacer on the right (Save /
+  // Order left→right by generality: actions that require editing
+  // are "global" and sit after a spacer on the right (Save /
   // Reset); everything else is contextual and stays on the left. So the left
   // edge tracks the selection and the right edge is constant.
   const isGlobal = (a: TableAction<T>) =>
-    a.targets.includes(RegionCardinality.FULL_TABLE) ||
-    a.targets.includes("none" as any);
+    (a.targets.includes(RegionCardinality.FULL_TABLE) ||
+      a.targets.includes("none" as any)) &&
+    a.requiresEditable;
   const contextual = shownActions.filter((a) => !isGlobal(a));
   // Order the built-in global actions least→most impactful, left→right: reset
   // changes, then save. Any other global actions keep their natural order to
   // the left of these (stable sort, rank 0).
-  const globalOrder: Record<string, number> = {
-    "reset-changes": 1,
-    "save-changes": 2,
-  };
-  const globalActions = shownActions
-    .filter(isGlobal)
-    .sort((a, b) => (globalOrder[a.id] ?? 0) - (globalOrder[b.id] ?? 0));
 
-  return h("div.actions-toolbar", [
-    titleNode,
+  const globalActions = shownActions.filter(isGlobal);
+
+  return h("div.actions-toolbar", { className }, [
+    h(SelectionIndicator, { minimal: compact }),
     h(
-      ButtonGroup,
-      { key: "contextual", minimal: true },
+      "div.toolbar-group.contextual",
       contextual.map((action) =>
-        h(ActionButton, { key: action.id, action, ctx }),
+        h(ActionButton, { key: action.id, action, ctx: actionContext }),
       ),
     ),
-    h("div.toolbar-spacer", { key: "spacer", style: { flex: 1 } }),
+    children,
+    h("div.toolbar-spacer", { style: { flex: 1 } }),
     h(
       ButtonGroup,
-      { key: "global", minimal: true },
+      { minimal: true },
       globalActions.map((action) =>
-        h(ActionButton, { key: action.id, action, ctx }),
+        h(ActionButton, { key: action.id, action, ctx: actionContext }),
       ),
     ),
   ]);
-}
-
-function getMessageForError(e: any) {
-  if (e instanceof Error) return e.message;
-  if (typeof e === "string") return e;
-  if (e instanceof Object) return JSON.stringify(e);
-  return null;
 }
 
 function isActionDisabled(action: TableAction, state: any): boolean {
@@ -181,35 +124,6 @@ function isActionDisabled(action: TableAction, state: any): boolean {
     return action.disabled(state);
   }
   return false;
-}
-
-export function runActionWrapper<T>(
-  action: TableAction<T>,
-  state: DataSheetStore<any>,
-  setState: (state: Partial<DataSheetStore<any>>) => void,
-  toaster: any,
-  configState: any = undefined,
-) {
-  const ctx = buildActionContext(state, setState) as TableActionContext<T>;
-  if (action.disabled instanceof Function) {
-    if (action.disabled(ctx)) {
-      return;
-    }
-  } else if (action.disabled) {
-    return;
-  }
-  try {
-    const res = action.run?.(ctx, configState);
-    if (res instanceof Promise) {
-      res
-        .then(() => {})
-        .catch((e) => {
-          displayErrorForAction(action, e, toaster);
-        });
-    }
-  } catch (e) {
-    displayErrorForAction(action, e, toaster);
-  }
 }
 
 /** Dispatcher: a live control (`action.render`) or a run/detailsForm button.
@@ -229,7 +143,7 @@ function ActionButton<T>({
 
 /** A run/detailsForm action rendered as a button. */
 function RunActionButton<T>({ action }: { action: TableAction<T> }) {
-  const storeAPI = useStoreAPI();
+  const store = ctx.useStore();
   const toaster = useToaster();
 
   // Reactive disabled check — re-renders when relevant state changes
@@ -239,15 +153,9 @@ function RunActionButton<T>({ action }: { action: TableAction<T> }) {
 
   const runAction = useCallback(
     (configState?: any) => {
-      runActionWrapper(
-        action,
-        storeAPI.getState(),
-        storeAPI.setState,
-        toaster,
-        configState,
-      );
+      runActionWrapper(action, store.get, store.set, toaster, configState);
     },
-    [storeAPI, action, toaster],
+    [action, toaster],
   );
 
   if (action.detailsForm != null) {
@@ -266,15 +174,6 @@ function RunActionButton<T>({ action }: { action: TableAction<T> }) {
     },
     action.name,
   );
-}
-
-function displayErrorForAction(action: TableAction, error: any, toaster: any) {
-  const message =
-    getMessageForError(error) ?? action.errorMessage ?? "Action failed";
-  toaster.show({
-    message,
-    intent: "danger",
-  });
 }
 
 /** Action button that opens a popover for pre-run configuration. */
@@ -304,7 +203,7 @@ function ActionButtonWithForm<T, S>({
       onClose: () => setIsOpen(false),
       content: h("div.action-popover-content", [
         h.if(action.description != null)("p.description", action.description),
-        h(action.detailsForm, {
+        h(action.detailsForm as any, {
           state: configState,
           setState: setConfigState,
         }),

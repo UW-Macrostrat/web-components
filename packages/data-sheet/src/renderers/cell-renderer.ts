@@ -1,17 +1,18 @@
-import {
+import type {
   ColumnSpec,
   CellRenderContext,
   CellDetailContext,
-  editorKeyHandlerAtom,
-  validateCell,
-} from "./utils";
-import { DataSheetStore, TableElementStatus } from "./types.ts";
-import h from "./main.module.sass";
+  DataSheetStore,
+} from "../provider";
+import { TableElementStatus } from "../provider";
+import { editorKeyHandlerAtom, validateCell } from "../utils";
+import h from "../main.module.sass";
 import { memo, ReactNode, useEffect, useRef, useState } from "react";
-import { EditorPopup, CellDetailModal } from "./components";
-import { singleFocusedCell } from "./zustand-store.ts";
+import { EditorPopup, CellDetailModal } from "../components";
+import { singleFocusedCell } from "../provider";
 import { Cell } from "@blueprintjs/table";
-import { ctx, useSelector } from "./provider.ts";
+import { ctx, dragValueHandlerAtom, useSelector } from "../provider";
+import { Intent } from "@blueprintjs/core";
 
 /** Two validations are equivalent if they convey the same thing — so a fresh
  * `validateCell` result object doesn't force a re-render when nothing changed. */
@@ -121,7 +122,7 @@ export function basicCellRenderer<T>(
   // state overrides the edited-green so an edited-but-invalid cell reads as
   // invalid. A row's status intent (e.g. deleted → danger) outranks the
   // edited-green so status reads through even on an edited row.
-  let intent: string | undefined;
+  let intent: Intent | undefined;
   if (validation?.severity === "error") {
     intent = "danger";
   } else if (validation?.severity === "warning") {
@@ -176,10 +177,10 @@ export function basicCellRenderer<T>(
       {
         intent,
         loading,
-        value,
+        //value,
         style,
         interactive: false,
-        disabled: tableIsEditable && !editable,
+        //disabled: tableIsEditable && !editable,
       },
       h(CellContent, { cellContext }),
     );
@@ -187,7 +188,7 @@ export function basicCellRenderer<T>(
 
   const isEmpty = value == null || value === "";
 
-  const _renderedValue = isEmpty
+  const _renderedValue: any = isEmpty
     ? null
     : (col.valueRenderer?.(value, cellContext) ?? value);
 
@@ -347,10 +348,10 @@ export function basicCellRenderer<T>(
     );
   }
 
-  let cellContents: ReactNode = _renderedValue;
+  let cellContents: any = _renderedValue;
 
-  let _dataEditor = null;
-  let className = null;
+  let _dataEditor: ReactNode = null;
+  let className: string | null = null;
 
   if (dataEditorSpec != null) {
     _dataEditor = h(
@@ -413,7 +414,7 @@ export function basicCellRenderer<T>(
 
   let _inlineEditor: ReactNode = null;
   if (typeof inlineEditor == "boolean") {
-    let _value = value;
+    let _value: any = value;
     if (
       typeof _renderedValue === "string" ||
       typeof _renderedValue === "number" ||
@@ -461,7 +462,7 @@ export function basicCellRenderer<T>(
     },
     [
       cellContents,
-      h.if(editable && isSingleCellSelection)(DragHandle),
+      h.if(editable && isSingleCellSelection)(CornerDragHandle),
       //hiddenInput,
     ],
   );
@@ -499,9 +500,13 @@ function EditorInput(props) {
   });
 }
 
-function DragHandle() {
+function CornerDragHandle() {
   // TODO: we might want to drag multiple columns in some cases
   // This should be on the last cell of a selection
-  const onMouseDown = useSelector((state) => state.onDragValue);
-  return h("div.corner-drag-handle", { onMouseDown });
+  const onDragValue = ctx.useValue(dragValueHandlerAtom);
+  if (onDragValue == null) return null;
+
+  return h("div.corner-drag-handle", {
+    onMouseDown: onDragValue,
+  });
 }

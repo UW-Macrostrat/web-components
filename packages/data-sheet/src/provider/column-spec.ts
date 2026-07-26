@@ -1,4 +1,5 @@
 import React from "react";
+import { enhanceColumnFilter, TableFilter } from "../actions";
 
 const defaultRenderers = {
   string: (d) => d,
@@ -57,7 +58,7 @@ export interface CellRenderContext<T = any> {
   /** The full column spec for this cell's column. */
   column: ColumnSpec;
   /** The full row object backing this cell (may be undefined while loading). */
-  row: T | undefined;
+  row: T | null | undefined;
   /** Whether this cell has an uncommitted edit. */
   isEdited: boolean;
   /** Whether this cell's row is marked for deletion. */
@@ -118,10 +119,7 @@ export interface ColumnSpec {
    * A falsy result maps to an `error`. */
   isValid?: (d: any) => boolean;
   transformValue?: (d: any) => any;
-  valueRenderer?: (
-    d: any,
-    ctx?: CellRenderContext,
-  ) => string | React.ReactNode;
+  valueRenderer?: (d: any, ctx?: CellRenderContext) => string | React.ReactNode;
   headerRenderer?: (d: any) => string | React.ReactNode;
   dataEditor?: any;
   /**
@@ -258,9 +256,9 @@ export function generateDefaultColumnSpec<T>(
   }
 
   // Build a column spec
-  const spec = [];
+  const spec: ColumnSpec[] = [];
   for (const key of keys) {
-    let width = null;
+    let width: number | undefined = undefined;
     if (calculateWidths) {
       // If we are calculating widths, use the value lengths
       width = Math.min(
@@ -296,15 +294,10 @@ export function generateDefaultColumnSpec<T>(
 
 export function generateColumnSpec<T>(
   data: T[],
-  options: ColumnSpecOptions<T>,
+  options: Partial<ColumnSpecOptions<T>> = {},
 ): ColumnSpec[] {
   /** Generate a column spec from a dataset */
-  const {
-    overrides = {},
-    nRows = 10,
-    omitColumns,
-    includeColumns,
-  } = options ?? {};
+  const { overrides = {}, nRows = 10, omitColumns, includeColumns } = options;
 
   if (data == null) return [];
 
@@ -322,7 +315,7 @@ export function generateColumnSpec<T>(
   });
 
   // Apply overrides
-  return filteredSpec.map((col) => {
+  const improvedSpec = filteredSpec.map((col) => {
     let ovr = overrides[col.key];
     if (ovr == null) return col;
     if (typeof ovr === "string") {
@@ -330,4 +323,26 @@ export function generateColumnSpec<T>(
     }
     return { ...col, ...ovr };
   });
+  return postprocessColumnSpec(improvedSpec);
+}
+
+export function postprocessColumnSpec(columnSpec: ColumnSpec[]) {
+  /** Postprocess column spec to make sure that, e.g., column filters are
+   * properly established, etc.
+   */
+  return columnSpec.map((col) => {
+    return {
+      ...col,
+      filters: postprocessColumnFilters(col),
+      actions: col.actions ?? [],
+    };
+  });
+}
+
+function postprocessColumnFilters(col: ColumnSpec): TableFilter[] | undefined {
+  const { filterable = true, filters = [] } = col;
+  if (!filterable) {
+    return undefined;
+  }
+  return filters.map((f) => enhanceColumnFilter(col, f));
 }

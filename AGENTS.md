@@ -39,9 +39,16 @@ h("div.container", [...])            // Classes auto-scoped
 See `packages/column-components/src/hyper.ts` for pattern. Styled variant:
 `hyperStyled(styles)`.
 
+### Important functions first
+
 We follow the "headline" rule for function ordering in files: the top-level or
 most important functions in the file should be near the top, with utility
 methods at the bottom.
+
+### Other patterns to avoid
+
+- Inline styles: use CSS modules instead
+- Ternary operators: use `if`/`else` instead
 
 ### Workspace Dependencies
 
@@ -89,16 +96,6 @@ Custom builds: Add `vite.config.ts` in package root to override.
   `import "@macrostrat/<package>/style.css"`
 - Vite plugin `vite-plugin-hyperstyles` enables direct CSS module imports as
   hyperscript
-
-### Rollup Internalization
-
-Some dependencies must be bundled (not external). In `package.json`:
-
-```json
-"rollupInternal": ["labella", "ui-box"]
-```
-
-Used for packages with CJS/ESM issues.
 
 ## Publishing Workflow
 
@@ -154,6 +151,10 @@ yarn dlx madge --circular --extensions ts <path>  # Circular deps in path
   vite-plugin-hyperstyles)
 - Package builds: Use root `tsconfig.base.json`
 - Global types: `global.d.ts` in root
+- **Storybook stories are in the typecheck scope.** Package `tsconfig.json`s
+  include `stories` alongside `src` (e.g. `packages/data-sheet`), so
+  `yarn run check-types` covers `*.stories.ts` — a clean run validates story
+  files too. (This is a PnP repo: run `yarn run check-types`, not a bare `tsc`.)
 
 Please note that we use Typescript types mostly to guide new feature
 development, and to help with internal consistency. We do not enforce strict

@@ -21,7 +21,7 @@ export function ColorCell({
   const darkMode = useInDarkMode();
   const _className = classNames(className, "color-cell");
   const _style = useMemo(() => {
-    let mainColor = "var(--text-color)";
+    let mainColor: string | undefined = "var(--text-color)";
     let backgroundColor = value;
 
     if (adjustLuminance) {

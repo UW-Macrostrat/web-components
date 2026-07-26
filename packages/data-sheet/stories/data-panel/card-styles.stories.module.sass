@@ -1,0 +1,9 @@
+.masonry-panel
+  --data-panel-item-gap: 1em
+  --data-panel-content-width: 60em
+
+// Masonry children need their own vertical gap (multicol has no `gap`
+// between stacked items).
+:global(.masonry-card)
+  margin-bottom: 2em
+  gap: 0.5em
