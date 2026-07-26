@@ -1,8 +1,10 @@
 import h from "@macrostrat/hyper";
 import { ExpansionPanel } from "@macrostrat/data-components";
+import { useDeprecationWarning } from "@macrostrat/ui-components";
 
 export function Physiography(props) {
   const { mapInfo, expanded = true } = props;
+  useDeprecationWarning("Physiography");
 
   if (!mapInfo || !mapInfo.regions) {
     return null;
