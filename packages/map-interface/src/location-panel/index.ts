@@ -1,12 +1,9 @@
-import hyper from "@macrostrat/hyper";
 import { InfoDrawerHeader, InfoDrawerHeaderProps } from "./header";
 import classNames from "classnames";
-import styles from "./main.module.sass";
+import h from "./main.module.sass";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { PanelCard } from "../container";
 import { ComponentType } from "react";
-
-const h = hyper.styled(styles);
 
 export function InfoDrawerContainer(props) {
   const className = classNames("infodrawer", props.className);

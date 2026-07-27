@@ -18,6 +18,10 @@ export type FetchMode = "scroll" | "paged";
 export interface FetchDataOptions {
   pageSize?: number;
   fetchMode?: FetchMode;
+  /** Debounce (ms) applied to view-state → refetch, so rapid changes (typing a
+   * text filter) collapse into one fetch once the view settles. The input stays
+   * instant; only the fetch waits. `0` (default) keeps immediate refetching. */
+  filterDebounce?: number;
 }
 
 /** Props shared between the wrapper components and the provider */

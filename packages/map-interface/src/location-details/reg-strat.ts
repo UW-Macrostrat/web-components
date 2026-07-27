@@ -1,6 +1,7 @@
 import h from "@macrostrat/hyper";
 import { ExpansionPanel } from "@macrostrat/data-components";
 import { addCommas } from "./utils";
+import { useDeprecationWarning, useWarning } from "@macrostrat/ui-components";
 
 export function RegionalStratigraphy({
   mapInfo,
@@ -8,6 +9,8 @@ export function RegionalStratigraphy({
   columnURL,
   expanded = true,
 }) {
+  useDeprecationWarning("RegionalStratigraphy");
+
   if (!mapInfo || !mapInfo.mapData) {
     return null;
   }

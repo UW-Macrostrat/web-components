@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.8.0] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-utils-v1.7.4...@macrostrat/mapbox-utils-v1.8.0)
+
+### Minor Changes
+
+- - Improve batching of map easing updates to reduce UI jank
+    [3bb6b543](https://github.com/UW-Macrostrat/web-components/commit/3bb6b543e20db76e55fbe454116d871e096dfa3d)
+  - Streamline the calculation of padding for map context and detail panels
+  - Add a new `--map-context-stack-padding` CSS variable to control whether the
+    map's internal padding responds to the width of the map context panel. This
+    is useful for cases when the context panel is expected to take up minimum
+    vertical space and should not be considered to cover the map
+  - Added a new `near-edge` position value to allow markers to be centered only
+    when clicked near the edge
+  - New Storybook stories for map context and detail panels
+
 ## [1.7.4] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-utils-v1.7.3...@macrostrat/mapbox-utils-v1.7.4)
 
 ### Patch Changes

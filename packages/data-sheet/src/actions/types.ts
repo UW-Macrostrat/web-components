@@ -35,7 +35,18 @@ export interface TableFilter<T = any, S = any> {
   /** Row predicate: return `true` if the row should be visible.
    * Receives the merged row (updatedData overlaid on data). */
   predicate(row: T, state: S): boolean;
+  /** How this filter surfaces in the UI — progressive enhancement over the
+   * same `filterForm`:
+   *  - `"menu"` (default): a menu item whose submenu holds the form.
+   *  - `"menu-inline"`: the form renders directly in the filter menu (no
+   *    submenu) — good for a compact control like a segmented picker.
+   *  - `"inline"`: the form renders as an always-visible toolbar control (no
+   *    menu) — good for a common, always-on control like a text search.
+   * The state/wiring is identical in every case; only placement changes. */
+  presentation?: FilterPresentation;
 }
+
+export type FilterPresentation = "menu" | "menu-inline" | "inline";
 
 export interface ColumnFilter<T = any, S = any> extends Omit<
   TableFilter<T, S>,

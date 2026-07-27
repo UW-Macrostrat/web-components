@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.9] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.0.8...@macrostrat/column-components-v2.0.9)
+
+### Patch Changes
+
+- Fix issue with ColumnScroller
+  [b2a10c61](https://github.com/UW-Macrostrat/web-components/commit/b2a10c616ba533a63b25fa16a6ba5c0174aa01a8)
+- Updated dependencies
+  [155a855c](https://github.com/UW-Macrostrat/web-components/commit/155a855c2bf99d6f218735616724ab6f5a362590)
+  - @macrostrat/ui-components@5.1.0
+
 ## [2.0.8] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.0.7...@macrostrat/column-components-v2.0.8)
 
 ### Patch Changes

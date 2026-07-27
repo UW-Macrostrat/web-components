@@ -32,6 +32,7 @@ export enum PositionFocusState {
   CENTERED,
   NEAR_CENTER,
   OFF_CENTER,
+  NEAR_EDGE,
   OUT_OF_PADDING,
   OUT_OF_VIEW,
 }
@@ -93,7 +94,7 @@ export function moveMap(
     if (zoom != null) {
       props.zoom = zoom;
     }
-    map.flyTo(stripNullKeys(props));
+    map.easeTo(stripNullKeys(props));
   }
 }
 
@@ -157,13 +158,24 @@ export function getFocusState(
     return PositionFocusState.NEAR_CENTER;
   }
 
+  const edgeAdj = 50;
+
+  if (
+    markerPos.x > padding.left + edgeAdj &&
+    markerPos.x < width - padding.right - edgeAdj &&
+    markerPos.y > padding.top + edgeAdj &&
+    markerPos.y < height - padding.bottom - edgeAdj
+  ) {
+    return PositionFocusState.OFF_CENTER;
+  }
+
   if (
     markerPos.x > padding.left &&
     markerPos.x < width - padding.right &&
     markerPos.y > padding.top &&
     markerPos.y < height - padding.bottom
   ) {
-    return PositionFocusState.OFF_CENTER;
+    return PositionFocusState.NEAR_EDGE;
   }
 
   if (

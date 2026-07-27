@@ -1,5 +1,88 @@
 # Changelog
 
+## [4.3.0] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.2.1...@macrostrat/data-sheet-v4.3.0)
+
+### Minor Changes
+
+- Create a `@macrostrat/scoped-store` library:
+  [f1bb8214](https://github.com/UW-Macrostrat/web-components/commit/f1bb8214b97668a4c4107d1d6faceb648f91f2b4)
+  - Move Jotai scope and enhancements to a separate package (formerly part of
+    `@macrostrat/data-components`).
+  - Add extensions for Zustand coordination (`ZustandStoreProvider`,
+    `useZustandSelector`, `useZustandStoreAPI`).
+
+### Patch Changes
+
+- Graceful degradation on load errors. A failed `fetchData` (e.g. the whole
+  PostgREST route returning 401) was caught but never surfaced — the panel sat
+  blank. Now the load error flows through `tableFooterAtom` /
+  `useLoadControls().error`; `LoadProgressIndicator` shows a compact error chip,
+  and `DataPanel` shows a "Couldn't load data" `NonIdealState` (and a "No
+  results" state for a genuinely empty result) instead of a perpetual spinner or
+  an empty list.
+  [20a49359](https://github.com/UW-Macrostrat/web-components/commit/20a493594c3813c14462dd997f5f58c7ed89f102)
+- Smoother windowed loading (workstream H):
+  [83dbc89f](https://github.com/UW-Macrostrat/web-components/commit/83dbc89f269ee462ffd3419268844cc76a1f2653)
+
+  - **`filterDebounce`** (ms) on `DataSheet` / `DataPanel` — debounces the
+    view-state → refetch, so typing in a text filter no longer resets and
+    refetches on every keystroke. The input (and store) stay instant; only the
+    fetch waits for the view to settle. Scroll paging is unaffected. Default `0`
+    keeps immediate refetching.
+  - **`DataPanel` skeleton rows** — the panel used to _skip_ the loader's `null`
+    placeholder rows, so a view change flashed the list blank while the sheet
+    showed skeletons. It now renders bounded shimmer cards where the loading
+    page's rows will land (on a view change and on the next scroll page), so the
+    body height stays stable — no blank flash, no footer pinging up into the
+    scroll flow. The end region also holds a constant min-height.
+  - **No empty-state flash** — `useLoadControls()` now exposes `initialized`;
+    the "No results" state shows only after a fetch settles empty, not during
+    the reset→fetch gap.
+
+- Toolbar + filter presentation:
+  [20a49359](https://github.com/UW-Macrostrat/web-components/commit/20a493594c3813c14462dd997f5f58c7ed89f102)
+
+  - **`TableFilter.presentation`** (`"menu"` | `"menu-inline"` | `"inline"`) —
+    progressive enhancement over the same `filterForm`, choosing where a filter
+    surfaces without changing its state/wiring:
+    - `"menu"` (default): a menu item whose submenu holds the form (today's
+      behavior).
+    - `"menu-inline"`: the form renders directly in the Filter menu (no submenu)
+      — for compact controls like a segmented picker.
+    - `"inline"`: the form renders as an always-visible toolbar control (no
+      menu) — for a common always-on control like a text search.
+  - **`DataPanel` now surfaces the table-level `filters` prop** (previously
+    dropped), splitting them by `presentation` — inline filters become
+    always-visible toolbar controls, the rest join the "Filter" menu.
+    Column-declared filters are unchanged (default `"menu"`).
+  - New exports: **`InlineFilterControl`** (renders any filter's `filterForm`
+    inline, wired to the shared filter state) and **`MenuInlineFilterItem`**
+    (renders a filter's form directly in a menu).
+  - Action buttons (`RunActionButton` + the details-form trigger) render
+    `minimal` + `small`, matching the toolbar's other controls; and
+    `ActionsToolbar` renders when given custom `children` even with no
+    displayable actions.
+  - **`DataPanel` title** is now `compact`: it renders only when modal selection
+    is toggle-able (or a selection is active), since the title doubles as the
+    modal-selection control — no bare label when selection is off.
+  - **Flat sort menu** — `ColumnSortMenu` is a single item (no
+    Ascending/Descending submenu): direction shows as an icon, an active sort
+    reads through the `primary` intent, clicking toggles the direction, and a
+    right-aligned ✕ clears it.
+  - **Explicit empty `columnSpec` is respected** — an explicitly-passed spec
+    (function or array, _including `[]`_) now suppresses the loader's
+    first-chunk auto-generation. `columnSpec: []` means "no facet columns" (e.g.
+    a browse panel whose only control is a sheet-level filter), not "generate
+    from the data". Auto-gen still runs when no `columnSpec` is passed.
+
+- Updated dependencies
+  [f1bb8214](https://github.com/UW-Macrostrat/web-components/commit/f1bb8214b97668a4c4107d1d6faceb648f91f2b4)
+- Updated dependencies
+  [155a855c](https://github.com/UW-Macrostrat/web-components/commit/155a855c2bf99d6f218735616724ab6f5a362590)
+  - @macrostrat/scoped-store@1.0.0
+  - @macrostrat/data-components@1.3.0
+  - @macrostrat/ui-components@5.1.0
+
 ## [4.2.1] - 2026-07-21 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.2.0...@macrostrat/data-sheet-v4.2.1)
 
 ### Patch Changes

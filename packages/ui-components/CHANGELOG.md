@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.0] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.0.11...@macrostrat/ui-components-v5.1.0)
+
+### Minor Changes
+
+- Add useWarning component and a deprecation notice
+  [155a855c](https://github.com/UW-Macrostrat/web-components/commit/155a855c2bf99d6f218735616724ab6f5a362590)
+
 ## [5.0.11] - 2026-06-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.0.10...@macrostrat/ui-components-v5.0.11)
 
 ### Patch Changes

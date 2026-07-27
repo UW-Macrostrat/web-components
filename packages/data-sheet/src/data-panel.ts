@@ -35,7 +35,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { Icon, Spinner } from "@blueprintjs/core";
+import { Classes, Icon, NonIdealState, Spinner } from "@blueprintjs/core";
 import {
   anchorRefAtom,
   ctx,
@@ -173,7 +173,9 @@ export interface SelectModifiers {
 export function DataPanelRenderer<T>({
   itemComponent,
   actions = [],
+  filters = [],
   pageSize = 50,
+  filterDebounce,
   name,
   // Bottom bar
   statusBar,
@@ -211,8 +213,17 @@ export function DataPanelRenderer<T>({
   // (also available to the caller's `footer` via the same hook). The panel's
   // `autoLoadPages` prop is the store's configuration input.
   ctx.useSync(autoLoadPagesAtom, autoLoadPages ?? null);
-  const { loading, hasMore, loaded, total, paused, canLoadMore, advance } =
-    useLoadControls();
+  const {
+    loading,
+    initialized,
+    error,
+    hasMore,
+    loaded,
+    total,
+    paused,
+    canLoadMore,
+    advance,
+  } = useLoadControls();
 
   // Track whether the body is scrolled off the top, to gate the top fade.
   // `setState` with an unchanged value is a no-op, so this only re-renders on
@@ -270,9 +281,52 @@ export function DataPanelRenderer<T>({
     );
   });
 
+  // Body-level empty/error state: when nothing has loaded, show a clear message
+  // instead of a blank list — an errored source (e.g. a 401 on the whole route)
+  // degrades gracefully, and a genuinely empty result reads as "no results"
+  // rather than a perpetual spinner.
+  // A load is pending whenever a fetch is in flight OR the view was just reset
+  // and hasn't fetched yet (`!initialized`) — the window that would otherwise
+  // flash "No results" before the request starts.
+  const loadPending = (loading || !initialized) && error == null;
+
+  let emptyState: ReactNode = null;
+  if (cards.length === 0) {
+    if (error != null) {
+      emptyState = h(NonIdealState, {
+        icon: "error",
+        title: "Couldn't load data",
+        description: error.message ?? "The data source returned an error.",
+      });
+    } else if (initialized && !loading) {
+      // Only after a fetch settled with no rows — not during the reset gap.
+      emptyState = h(NonIdealState, {
+        icon: "search",
+        title: "No results",
+      });
+    }
+  }
+
+  // Skeleton placeholders for the page being fetched — on a view change (the
+  // reset pre-sizes to a page of `null` slots) or the next scroll page — so the
+  // body shows shimmer where rows will land instead of a blank flash or a
+  // footer pinging up into the gap. Bounded to a viewport's worth of cards.
+  if (loadPending) {
+    const pending = Math.min(Math.max(data.length - loadedCount, 0), 24);
+    for (let i = 0; i < pending; i++) {
+      cards.push(
+        h(
+          "div.data-panel-item-container.is-skeleton",
+          { key: `skeleton-${i}`, "aria-hidden": true },
+          h("div.data-panel-skeleton", { className: Classes.SKELETON }),
+        ),
+      );
+    }
+  }
+
   // The default spinner sentinel (below-placement): hidden while paused so the
   // pinned footer's "Load more" takes over.
-  const shouldLoadNextPage = (hasMore || loading) && !paused;
+  const shouldLoadNextPage = (hasMore || loading) && !paused && error == null;
 
   // Mount the loader only once the provider resolves (see `PanelLoader`). Built
   // as a real conditional — `h.if(...)` evaluates its arguments eagerly, so
@@ -283,10 +337,11 @@ export function DataPanelRenderer<T>({
       fetchData: activeProvider.fetchData,
       pageSize: loaderPageSize,
       fetchMode: isLocalProvider ? undefined : "scroll",
+      filterDebounce,
     });
   }
 
-  const coreActions = useDataPanelControls();
+  const coreActions = useDataPanelControls(filters);
 
   // Merge consumer actions with the synthesized Filter/Sort controls, deduped
   // by id — consumer actions come first, so passing an action with id `filter`
@@ -360,6 +415,10 @@ export function DataPanelRenderer<T>({
               actions: _actions,
               tableName: name,
               className: "data-panel-toolbar-content",
+              // In the panel the title doubles as the modal-selection control,
+              // so only render it when modal selection is toggle-able (or a
+              // selection is active) — not as a bare label otherwise.
+              compact: true,
             },
             toolbar,
           ),
@@ -371,7 +430,7 @@ export function DataPanelRenderer<T>({
             className: classNames({ "is-scrolled": scrolled }),
           },
           h("div.data-panel-body-content", [
-            h(ScrollBody, cards),
+            emptyState ?? h(ScrollBody, cards),
             _contentFooter,
           ]),
         ),

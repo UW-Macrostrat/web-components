@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/mapbox-utils",
-  "version": "1.7.4",
+  "version": "1.8.0",
   "description": "Utilities for working with Mapbox maps",
   "repository": {
     "type": "git",

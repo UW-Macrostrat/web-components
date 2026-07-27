@@ -5,7 +5,7 @@
   width: 100%
   height: 100%
   overflow: hidden
-  --map-panel-border-radius: 4px
+  --map-panel-border-radius: 6px
 
   &.show-panel-outlines
     .map-view-container
@@ -36,7 +36,6 @@
 
   .globe-control
     display: none
-
     svg
       color: var(--secondary-color)
 
@@ -61,6 +60,11 @@
   & > *
     flex: 1
 
+.detail-stack
+  position: relative
+
+.detail-panel-container, .map-right-controls
+  flex: 1
 
 .map-control-stack
   display: flex
@@ -126,8 +130,9 @@
   & > :last-child
     margin-bottom: 0
 
-:global(.bp6-dark) .panel-card
-  background-color: var(--panel-background-color)
+:global(.bp6-dark)
+  .panel-card, .panel-card:global(.bp6-card)
+    background-color: var(--panel-background-color)
 
 .context-stack
   & > div
@@ -160,7 +165,7 @@
   position: relative
   overflow: hidden
 
-.searchbar-holder
+.navbar-holder
   margin-bottom: 0.5em
 
 .right-panel
@@ -187,9 +192,6 @@
     opacity: 0
     margin-left: -7px
 
-  .context-panel-leave .menu-card .panel-header & :global(.bp6-button-text)
-    opacity: 0
-    width: 0
 
 .narrow-card.narrow-enter .panel-header .buttons
   margin-right: -500px
@@ -224,10 +226,9 @@
   & hr
     width: 100%
 
-:global
-  .mapbox-map
-    .mapbox-compass, .mapbox-3d
-      display: none
+.mapbox-map :global
+  .mapbox-compass, .mapbox-3d
+    display: none
 
   .mapboxgl-ctrl.mapbox-3d.mapbox-control
     width: unset
@@ -246,11 +247,11 @@
   .mapboxgl-ctrl.mapboxgl-ctrl-attrib a
     color: var(--text-color)
 
-  .mapboxgl-marker svg path
-    fill: var(--panel-background-color) !important
-
-  .mapboxgl-marker svg circle
-    fill: var(--secondary-color) !important
+  .mapboxgl-marker svg
+    path
+      fill: var(--panel-background-color) !important
+    circle
+      fill: var(--secondary-color) !important
 
   .mapbox-control.mapbox-zoom
     background: var(--translucent-panel-background-inner)
@@ -261,33 +262,26 @@
   .mapboxgl-ctrl-logo
     transform: scale(0.9) translate(-8px, 2px)
 
-  .bp6-dark
-    .mapboxgl-ctrl-group
-      background-color: var(--panel-background-color)
-
-    .mapboxgl-ctrl-logo
-      filter: invert(100%)
-
   .mapboxgl-ctrl-group button + button
     border-top: 1px solid var(--panel-rule-color) !important
 
-  .bp6-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon
-    filter: invert(40%)
-
-  .bp6-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon:hover
-    filter: invert(50%)
-
   .mapboxgl-ctrl-geolocate .mapboxgl-ctrl-icon
     filter: invert(40%)
+    &:hover
+      filter: invert(50%)
 
-  .mapboxgl-ctrl-geolocate .mapboxgl-ctrl-icon:hover
-    filter: invert(50%)
+// Dark mode styles
+:global(.bp6-dark) .mapbox-map :global
+  .mapboxgl-ctrl-group
+    background-color: var(--panel-background-color)
 
-.detail-stack
-  position: relative
+  .mapboxgl-ctrl-icon
+    filter: invert(40%)
+    &:hover
+      filter: invert(50%)
 
-.detail-panel-container, .map-right-controls
-  flex: 1
+  .mapboxgl-ctrl-logo
+    filter: invert(100%)
 
 
 .zoom-control
@@ -320,15 +314,13 @@
   background-color: var(--panel-background-color)
   box-shadow: 0 0 0 1px var(--card-shadow-color)
 
-.map-controls :global(.mapbox-control) button,
-.map-controls :global(.map-control-wrapper) button,
-.map-controls :global(.map-control) button
-  max-height: 22px
-  height: 22px
-  width: 22px
-  max-width: 22px
-  background-position: center center
-  padding: 0
+  button
+    max-height: 22px
+    height: 22px
+    width: 22px
+    max-width: 22px
+    background-position: center center
+    padding: 0
 //background-color: var(--panel-background-color)
 //color: var(--text-color)
 
@@ -337,7 +329,7 @@
 //.map-controls .map-control button:hover
 //  background-color: var(--panel-background-color) !important
 
-.map-controls .map-scale-control
+.map-controls :global(.map-scale-control)
   background: none
   box-shadow: none
   padding-top: 8px
@@ -389,28 +381,24 @@
   // We should move this to another file.
 
   .map-view-container:not(.standalone)
-    position: unset
-
+      position: unset
 
   .map-ui
     flex-direction: row
     padding: 1em 1em 2em
     min-height: 80px
-    gap: 0.5em
+    gap: 1em
 
   .context-stack
     max-width: var(--map-context-stack-max-width, 34em)
-    min-width: 14em
+    min-width: var(--map-context-min-width, 14em)
     transition: width 300ms ease
     padding-bottom: 0.5em
-    width: var(--map-context-stack-width, 16em)
-    margin-right: 0.5em
+    width: var(--map-context-stack-width, fit-content)
     display: flex
     flex-direction: column
 
-
     &.adaptive-width
-      width: var(--map-context-stack-width, none)
       max-width: var(--map-context-stack-max-width, none)
       transition: width 300ms ease
 
@@ -427,6 +415,11 @@
     min-height: 0
     position: relative
 
+    &:not(:empty)
+      // Ensure that the context stack doesn't shrink to nothing
+      // until the context panel is actually unmounted
+      min-width: var(--map-context-min-width, var(--map-context-stack-width, 14em))
+
     & > div
       max-height: 100%
 
@@ -434,6 +427,11 @@
     width: var(--map-detail-stack-width, 30em)
     display: flex
     flex-direction: column
+
+  .context-stack-holder
+    pointer-events: none
+    z-index: 10
+    width: var(--map-context-stack-padding)
 
   .context-stack, .detail-stack
     pointer-events: none
@@ -452,7 +450,24 @@
     .context-stack .spacer
       min-height: 1em
 
-/** CSS Transitions **/
+  .context-panel-leave .navbar-holder
+    width: 0
+    &>*
+      width: var(--map-context-stack-width, 14em)
+
+  /** CSS Transitions **/
+  .context-panel-leave
+    // If the context panel isn't shown, bias the computed position of overlays to the left
+    // Note: if you want a wide toolbar to not take up vertical space for map center calculations,
+    // you can use a negative margin on the navbar.
+    .context-stack
+      min-width: 0
+      width: min-content
+
+  .map-container:not(.detail-panel-open).map-is-global
+    // If the detail panel isn't shown, bias the computed position of overlays to the right
+    .map-view-container
+      margin-right: calc(-1 * var(--map-detail-stack-width, 30em) + 3em)
 
 .map-container
   // Context panel
@@ -462,7 +477,9 @@
 
     & > div
       pointer-events: all
-      transition: opacity 0.8s ease
+      transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
+
+      //transition: opacity 0.8s ease
   //, height 0.8s ease, max-height 0.8s ease, padding 0.8s ease
 
   &.context-panel-from .context-panel-holder > div
@@ -517,7 +534,7 @@
   .map-container .detail-stack
     transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
 
-  .map-container.detail-panel-from .detail-stack
+  .map-container.detail-panel-from.detail-stack
     max-height: 0
     height: 0
 
@@ -538,12 +555,10 @@
 
 
 // Shift UI around to center elements if we're in the global view
-@media only screen and (min-width: 768px)
-  .map-container.detail-panel-leave .map-view-container
-    margin-right: -14em
-
-  .map-container.map-is-global.detail-panel-leave .map-view-container
-    margin-right: -30em
-
-  .map-container.map-is-global.context-panel-leave .map-view-container
-    margin-left: -16em
+// In desktop mode
+//@media only screen and (min-width: 768px)
+//  .map-container.map-is-global.detail-panel-leave .map-view-container
+//    margin-right: -30em
+//
+//  .map-container.map-is-global.context-panel-leave .map-view-container
+//    margin-left: -16em

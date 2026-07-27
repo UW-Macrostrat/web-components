@@ -1,0 +1,66 @@
+.navbar-main
+  transition: margin 300ms ease-in-out, width 300ms ease-in-out
+  display: flex
+  flex-direction: column
+  margin: 0
+
+  .navbar-row
+    display: flex
+    flex-direction: row
+
+:global
+  :root
+    // Note: only chrome for now
+    interpolate-size: allow-keywords
+
+.navbar:global(.bp6-navbar)
+  width: 100%
+  background-color: var(--panel-background-color)
+  border-radius: var(--map-panel-border-radius, 5px)
+  padding: var(--navbar-padding, 0.5em 10px)
+  display: flex
+  flex-direction: row
+  align-items: center
+  gap: 5px
+
+  :global(.bp6-active)
+    background-color: color-mix(in srgb, var(--bp-intent-default-rest) 29%, transparent)
+
+  &:global(.bp6-navbar)
+    bacgkround-color: var(--panel-background-color)
+
+  :global(.bp6-input-group)
+    flex-grow: 1
+    cursor: text
+
+  .nav-element:last-child
+    margin-right: -5px
+  .nav-element:first-child
+    margin-left: -5px
+
+.loading-button
+  width: 40px
+  height: 40px
+
+:global(.bp6-dark) :global(.bp6-navbar).navbar
+  background-color: var(--panel-background-color)
+
+.loading-spinner:global(.bp6-spinner)
+  display: inline-flex
+  padding: calc(var(--bp-surface-spacing))
+
+.status-tongue:global(.bp6-card)
+  background-color: var(--panel-background-color)
+  margin: 5px
+  margin-bottom: 0
+  margin-top: -12px
+  padding: 0
+  padding-top: 12px
+  overflow: hidden
+
+@media screen and (max-width: 768px)
+  .status-tongue
+    max-width: 100vw
+    margin: 0
+    border-radius: 0
+    margin-top: -3px

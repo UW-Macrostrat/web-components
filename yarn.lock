@@ -1759,6 +1759,7 @@ __metadata:
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/hyper": "npm:^3.1.1"
     "@macrostrat/mapbox-utils": "workspace:^"
+    "@macrostrat/scoped-store": "workspace:^"
     "@macrostrat/stratigraphy-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
@@ -1806,6 +1807,7 @@ __metadata:
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
     "@macrostrat/hyper": "npm:^3.1.1"
+    "@macrostrat/scoped-store": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@storybook/react-vite": "npm:10.5.2"
@@ -1814,9 +1816,7 @@ __metadata:
     classnames: "npm:^2.5.1"
     immutability-helper: "npm:^3.1.1"
     jotai: "npm:^2.20.0"
-    jotai-zustand: "npm:^0.6.0"
     underscore: "npm:^1.13.7"
-    zustand: "npm:^5.0.2"
   peerDependencies:
     react: ^18.0.0||^19.0.0
   languageName: unknown
@@ -1950,6 +1950,7 @@ __metadata:
     "@macrostrat/hyper": "npm:^3.1.1"
     "@macrostrat/map-styles": "workspace:^"
     "@macrostrat/mapbox-utils": "workspace:^"
+    "@macrostrat/scoped-store": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@turf/centroid": "npm:^7.3.2"
@@ -1957,7 +1958,6 @@ __metadata:
     immutability-helper: "npm:^3.1.1"
     mapbox-gl: "npm:^3.0.0"
     mapbox-gl-controls: "npm:^2.3.5"
-    zustand: "npm:^5.0.1"
   peerDependencies:
     react: ^18.0.0||^19.0.0
     react-dom: ^18.0.0||^19.0.0
@@ -1972,6 +1972,21 @@ __metadata:
     "@turf/bbox": "npm:^7.3.2"
     axios: "npm:^1.13.2"
     mapbox-gl: "npm:^3.0.0"
+  languageName: unknown
+  linkType: soft
+
+"@macrostrat/scoped-store@workspace:^, @macrostrat/scoped-store@workspace:packages/scoped-store":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/scoped-store@workspace:packages/scoped-store"
+  dependencies:
+    "@macrostrat/hyper": "npm:^3.1.1"
+    "@macrostrat/web-components-bundler": "workspace:*"
+    jotai: "npm:^2.20.0"
+    jotai-scope: "npm:^0.11.0"
+    jotai-zustand: "npm:^0.6.0"
+    zustand: "npm:^5.0.2"
+  peerDependencies:
+    react: ^18.0.0||^19.0.0
   languageName: unknown
   linkType: soft
 
@@ -2155,7 +2170,7 @@ __metadata:
     marked: "npm:^11.0"
     marked-terminal: "npm:^7.1.0"
     node-fetch: "npm:^3.2.9"
-    prettier: "npm:^3.7.4"
+    prettier: "npm:^3.9.6"
     react: "npm:^18||^19"
     react-dom: "npm:^18||^19"
     storybook: "npm:10.5.2"
@@ -10928,12 +10943,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.7.4":
-  version: 3.7.4
-  resolution: "prettier@npm:3.7.4"
+"prettier@npm:^3.9.6":
+  version: 3.9.6
+  resolution: "prettier@npm:3.9.6"
   bin:
     prettier: bin/prettier.cjs
-  checksum: 10c0/9675d2cd08eacb1faf1d1a2dbfe24bfab6a912b059fc9defdb380a408893d88213e794a40a2700bd29b140eb3172e0b07c852853f6e22f16f3374659a1a13389
+  checksum: 10c0/9f7ddae234035868f3daab3dc34e6de7e54622185afb017378029f0c09a9c023248ccf6f34def0b17a0538e18c47aa1b3188bab72965d1bf735919baa0747e99
   languageName: node
   linkType: hard
 
@@ -13655,7 +13670,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zustand@npm:^5.0.1, zustand@npm:^5.0.2, zustand@npm:^5.0.3":
+"zustand@npm:^5.0.2, zustand@npm:^5.0.3":
   version: 5.0.6
   resolution: "zustand@npm:5.0.6"
   peerDependencies:

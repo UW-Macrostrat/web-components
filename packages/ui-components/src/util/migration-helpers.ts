@@ -28,3 +28,22 @@ export function useComponentDidUpdate<
     componentUpdater(prevProps, prevState ?? ({} as State));
   }, [...Object.values(props ?? {}), ...Object.values(state ?? {})]);
 }
+
+export function useWarning(message: string, isEnabled: boolean = true) {
+  /** This hook is used to warn developers for migration purposes */
+  useEffect(() => {
+    if (isEnabled) console.warn(message);
+  }, [message, isEnabled]);
+}
+
+export function useDeprecationWarning(
+  name: string = "This component",
+  replacedBy?: string,
+) {
+  /** This hook is used to warn developers for migration purposes */
+  let msg = `${name} is deprecated and will be removed in a future release`;
+  if (replacedBy) {
+    msg += `. Please use ${replacedBy} instead`;
+  }
+  useWarning(msg);
+}

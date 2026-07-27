@@ -1,7 +1,7 @@
 import hyper from "@macrostrat/hyper";
 import { hexToRgb } from "./utils";
 import styles from "./info-blocks.module.sass";
-import { useDarkMode } from "@macrostrat/ui-components";
+import { useDarkMode, useDeprecationWarning } from "@macrostrat/ui-components";
 import chroma from "chroma-js";
 
 const h = hyper.styled(styles);
@@ -15,6 +15,8 @@ function getColor(color, darkenAmount) {
 }
 
 function IntervalChip(props) {
+  useDeprecationWarning("IntervalChip");
+
   const { interval, className, intervalURL } = props;
   const darkMode = useDarkMode();
   const darkenAmount = darkMode.isEnabled ? 2 : 0;

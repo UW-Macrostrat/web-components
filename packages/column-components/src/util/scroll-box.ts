@@ -71,9 +71,8 @@ export function ColumnScroller(props: ColumnScrollerProps) {
     return onScrolled(scrollToHeight);
   }, [scrollTo, scrollToHeight]);
 
-  const { pixelHeight } = this.context;
   return h(Box, {
-    height: pixelHeight,
+    height: ctx?.pixelHeight,
     position: "absolute",
     ref,
     ...rest,

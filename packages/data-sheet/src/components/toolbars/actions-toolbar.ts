@@ -79,7 +79,10 @@ export function ActionsToolbar<T>({
     [actions, columnSpec],
   );
 
-  if (!toolbarIsShown) {
+  // Render whenever there are displayable actions OR the consumer supplied
+  // custom toolbar chrome (`children`) — a facet-less panel (e.g. a card list
+  // with only a search box) still needs its toolbar slot to appear.
+  if (!toolbarIsShown && children == null) {
     return null;
   }
 
@@ -165,6 +168,10 @@ function RunActionButton<T>({ action }: { action: TableAction<T> }) {
   return h(
     Button,
     {
+      // Minimal + small to match the toolbar's other controls (scroll-to-row,
+      // sort/filter tags) — the compact, minimal house style.
+      minimal: true,
+      small: true,
       icon: action.icon,
       intent: action.intent,
       disabled: isDisabled,
@@ -230,6 +237,8 @@ function ActionButtonWithForm<T, S>({
     h(
       Button,
       {
+        minimal: true,
+        small: true,
         icon: action.icon,
         intent: action.intent,
         disabled: isDisabled,

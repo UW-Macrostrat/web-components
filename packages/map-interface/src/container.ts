@@ -1,21 +1,17 @@
-import hyper, { addClassNames } from "@macrostrat/hyper";
-import { HTMLDivProps } from "@blueprintjs/core";
-import styles from "./main.module.sass";
 import classNames from "classnames";
 import { useTransition } from "transition-hook";
+import { addClassNames } from "@macrostrat/hyper";
+import { HTMLDivProps, Card } from "@blueprintjs/core";
 import {
   MapboxMapProvider,
   ZoomControl,
   useMapPosition,
 } from "@macrostrat/mapbox-react";
 import { ToasterContext } from "@macrostrat/ui-components";
-import { MapBottomControls } from "./controls";
-import { mapViewInfo, MapPosition } from "@macrostrat/mapbox-utils";
-import { Card } from "@blueprintjs/core";
-
+import { mapViewInfo } from "@macrostrat/mapbox-utils";
 import { ReactNode } from "react";
-
-const h = hyper.styled(styles);
+import h from "./main.module.sass";
+import { MapBottomControls } from "./controls";
 
 type AnyElement = React.ReactNode | React.ReactElement | React.ReactFragment;
 
@@ -47,12 +43,13 @@ interface MapAreaContainerProps {
   className?: string;
   detailPanelOpen?: boolean;
   contextPanelOpen?: boolean;
-  contextStackProps?: ContextStackProps;
-  detailStackProps?: HTMLDivProps;
+  contextStackProps?: ContextStackProps | null;
+  detailStackProps?: HTMLDivProps | null;
   detailPanelStyle: DetailPanelStyle;
   fitViewport?: boolean;
   showPanelOutlines?: boolean;
   preventMapInteraction?: boolean;
+  style?: React.CSSProperties;
 }
 
 function _MapAreaContainer({
@@ -72,6 +69,7 @@ function _MapAreaContainer({
   fitViewport = true,
   showPanelOutlines = false,
   preventMapInteraction = false,
+  style,
   ...rest
 }: MapAreaContainerProps) {
   const _detailPanelOpen = detailPanelOpen ?? detailPanel != null;
@@ -117,18 +115,17 @@ function _MapAreaContainer({
     ],
   );
 
-  let contextStack = null;
+  let contextStack: ReactNode | null = null;
   if (navbar != null || contextPanel != null) {
     contextStack = h(ContextStack, { navbar, ...contextStackProps }, [
       h.if(contextPanelTrans.shouldMount)([contextPanel]),
     ]);
   }
 
-  return h(MapStyledContainer, { className: mainUIClassNames }, [
+  return h(MapStyledContainer, { style, className: mainUIClassNames }, [
     h("div.main-row", [
-      h("div.map-ui", { ...rest }, [
-        contextStack,
-        //h(MapView),
+      h("div.map-ui", rest, [
+        h("div.context-stack-holder", contextStack),
         children ?? mainPanel,
         h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([detailStackExt]),
         h.if(detailPanelStyle == DetailPanelStyle.FIXED)(
@@ -146,7 +143,7 @@ function ContextStack(props: ContextStackProps) {
   const { adaptiveWidth, navbar, children, ...rest } = props;
   const props1 = addClassNames(rest, { "adaptive-width": adaptiveWidth });
   return h("div.context-stack", props1, [
-    navbar,
+    h("div.navbar-holder", navbar),
     h("div.context-panel-holder", null, children),
     h("div.spacer"),
   ]);
@@ -158,9 +155,14 @@ const MapProviders = ({ children }) =>
 interface MapContainerProps {
   className?: string;
   children?: ReactNode;
+  style?: React.CSSProperties;
 }
 
-export function MapStyledContainer({ className, children }: MapContainerProps) {
+export function MapStyledContainer({
+  className,
+  style,
+  children,
+}: MapContainerProps) {
   const mapPosition = useMapPosition();
   if (mapPosition != null) {
     const { mapIsRotated, mapUse3D, mapIsGlobal } = mapViewInfo(mapPosition);
@@ -171,7 +173,7 @@ export function MapStyledContainer({ className, children }: MapContainerProps) {
     });
   }
 
-  return h("div", { className }, children);
+  return h("div", { className, style }, children);
 }
 
 //const _MapPage = compose(HotkeysProvider, MapPage);

@@ -2,6 +2,7 @@ import {
   ALL_CARDINALITIES,
   isColumnFilterable,
   TableAction,
+  TableFilter,
 } from "../../actions";
 import { ctx, storeAtom, useSelector } from "../../provider";
 import { useMemo } from "react";
@@ -10,31 +11,72 @@ import { Menu, Tag } from "@blueprintjs/core";
 import {
   ColumnFilterMenuItem,
   ColumnSortMenu,
+  InlineFilterControl,
   MenuDropdown,
+  MenuInlineFilterItem,
   resolveColumnFilter,
 } from "./filter-and-sort.ts";
 import { atom } from "jotai";
 
+/** A filter to surface, plus the label to show for it. */
+interface FilterEntry {
+  filter: TableFilter;
+  label: string;
+}
+
 /**
- * Stand-in for the column-header dropdown the card list lacks: "Filter" and
- * "Sort" menus listing the column-declared `filterable` / `sortable` fields.
- * Each field reuses the *exact* data-sheet controls — `ColumnSortMenu`
- * (Ascending/Descending submenu) and `ColumnFilterMenuItem` (the operator form
- * in a submenu) — so sort/filter behave identically to the sheet and flow
- * through the same store + provider seam (the server applies them).
+ * Stand-in for the column-header dropdown the card list lacks. Surfaces every
+ * available filter (column-declared `filterable` + any table-level `filters`)
+ * and sort, honoring each filter's `presentation`:
+ *  - `"inline"` → an always-visible toolbar control (its `filterForm` directly),
+ *  - `"menu"` (default) → a "Filter" menu item that opens the form in a submenu,
+ *  - `"menu-inline"` → the form rendered directly in the "Filter" menu.
+ * Every case reuses the *same* controls and store/provider seam — only
+ * placement changes. Sort still comes from the column-declared `sortable` set.
  */
-export function useDataPanelControls(): TableAction[] {
-  const filterAction = useUnifiedFilterAction();
+export function useDataPanelControls(
+  tableFilters: TableFilter[] = [],
+): TableAction[] {
+  const columnSpec = useSelector((s) => s.columnSpec);
+
+  // All filters, table-level first, then column-derived (each with a label).
+  const entries = useMemo<FilterEntry[]>(() => {
+    const fromColumns = columnSpec
+      .filter((c) => isColumnFilterable(c))
+      .map((c) => ({ filter: resolveColumnFilter(c), label: c.name }));
+    const fromTable = tableFilters.map((f) => ({ filter: f, label: f.name }));
+    return [...fromTable, ...fromColumns];
+  }, [columnSpec, tableFilters]);
+
+  const inlineEntries = entries.filter(
+    (e) => presentationOf(e.filter) === "inline",
+  );
+  const menuEntries = entries.filter(
+    (e) => presentationOf(e.filter) !== "inline",
+  );
+
+  // Hooks first (stable order), then assemble.
+  const filterMenuAction = useFilterMenuAction(menuEntries);
+  const sortAction = useSortAction();
 
   const actions: TableAction[] = [];
-  if (filterAction != null) {
-    actions.push(filterAction);
+  // Inline filters: one always-visible toolbar control each.
+  for (const { filter } of inlineEntries) {
+    actions.push({
+      id: `filter:${filter.id}`,
+      name: filter.name,
+      icon: filter.icon,
+      targets: ALL_CARDINALITIES,
+      render: () => h(InlineFilterControl, { filter }),
+    });
   }
-  const sortAction = useSortAction();
-  if (sortAction != null) {
-    actions.push(sortAction);
-  }
+  if (filterMenuAction != null) actions.push(filterMenuAction);
+  if (sortAction != null) actions.push(sortAction);
   return actions;
+}
+
+function presentationOf(filter: TableFilter): string {
+  return filter.presentation ?? "menu";
 }
 
 function useDisplayIntent(atom) {
@@ -54,26 +96,21 @@ function useDisplayIntent(atom) {
   return { intent, rightIcon, onRemove, hasActive };
 }
 
-function useUnifiedFilterAction(): TableAction | null {
-  const columnSpec = useSelector((s) => s.columnSpec);
-  const filterableCols = useMemo(
-    () => columnSpec.filter((c) => isColumnFilterable(c)),
-    [columnSpec],
-  );
-
+function useFilterMenuAction(entries: FilterEntry[]): TableAction | null {
   const rest = useDisplayIntent(hasActiveFiltersAtom);
 
-  if (filterableCols.length === 0) return null;
+  if (entries.length === 0) return null;
 
   const filterMenu = h(
     Menu,
-    filterableCols.map((col) =>
-      h(ColumnFilterMenuItem, {
-        key: col.key,
-        filter: resolveColumnFilter(col),
-        label: col.name,
-      }),
-    ),
+    entries.map(({ filter, label }) => {
+      // A `menu-inline` filter renders its form directly in the menu (no
+      // submenu); the default `menu` presentation uses the submenu item.
+      if (presentationOf(filter) === "menu-inline") {
+        return h(MenuInlineFilterItem, { key: filter.id, filter, label });
+      }
+      return h(ColumnFilterMenuItem, { key: filter.id, filter, label });
+    }),
   );
 
   const filterIndicator = h(

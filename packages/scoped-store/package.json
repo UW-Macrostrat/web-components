@@ -1,11 +1,11 @@
 {
-  "name": "@macrostrat/map-styles",
-  "version": "2.2.6",
-  "description": "Utilities for working with Mapbox map styles",
+  "name": "@macrostrat/scoped-store",
+  "version": "1.0.0",
+  "description": "A scoped store utility based on Jotai",
   "repository": {
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
-    "directory": "packages/map-styles"
+    "directory": "packages/scoped-store"
   },
   "license": "MIT",
   "source": "src/index.ts",
@@ -35,20 +35,23 @@
   "scripts": {
     "build": "bundle-library ."
   },
+  "peerDependencies": {
+    "react": "^18.0.0||^19.0.0"
+  },
   "dependencies": {
-    "@macrostrat/color-utils": "workspace:*",
-    "@macrostrat/ui-components": "workspace:*",
-    "@types/d3-selection": "^3.0.11",
-    "axios": "^1.13.2",
-    "d3-selection": "^3.0.0",
-    "mapbox-gl": "^3.0.0",
-    "maplibre-gl": "^5.17.0",
-    "textures": "^1.2.3"
+    "@macrostrat/hyper": "^3.1.1",
+    "jotai": "^2.20.0",
+    "jotai-scope": "^0.11.0",
+    "jotai-zustand": "^0.6.0",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:*",
-    "ts-node": "^10.7.0"
+    "@macrostrat/web-components-bundler": "workspace:*"
   },
+  "authors": [
+    "Casey Idzikowski",
+    "Daven Quinn"
+  ],
   "publishConfig": {
     "access": "public"
   }

@@ -4,8 +4,7 @@ import type {
   Lithology,
   Interval,
 } from "@macrostrat/api-types";
-import { createScopedStore } from "./utils";
-import { atom } from "jotai";
+import { createScopedStore, atom } from "@macrostrat/scoped-store";
 import { ReactNode, useMemo } from "react";
 import h from "@macrostrat/hyper";
 
@@ -130,9 +129,7 @@ export function MacrostratInteractionProvider({
 }
 
 export function useInteractionManager():
-  | MacrostratInteractionManager
-  | null
-  | undefined {
+  MacrostratInteractionManager | null | undefined {
   /** Hook to access the MacrostratInteractionManager from context */
   return scope.useAtomValueIfExists(interactionManagerAtom);
 }
@@ -169,8 +166,7 @@ export class MacrostratInteractionManager implements MacrostratInteractionCtx {
   readonly #hrefForItem: HrefBuilder | undefined;
   readonly #clickHandlerForItem: ClickHandlerBuilder | undefined;
   readonly #interactionPropsForItem:
-    | MacrostratItemInteractionBuilder
-    | undefined;
+    MacrostratItemInteractionBuilder | undefined;
   readonly #parent: MacrostratInteractionManager | null;
   readonly #targetForItem:
     | ((item: MacrostratItemIdentifier, href: string) => string | undefined)

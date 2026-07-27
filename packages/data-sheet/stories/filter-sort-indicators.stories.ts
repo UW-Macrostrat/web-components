@@ -1,7 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import { ReactNode, useEffect } from "react";
-import { FormGroup, Menu, SegmentedControl } from "@blueprintjs/core";
+import {
+  FormGroup,
+  Menu,
+  NumericInput,
+  SegmentedControl,
+} from "@blueprintjs/core";
 import {
   ActiveFiltersList,
   buildMultiOperatorColumnFilter,
@@ -11,6 +16,8 @@ import {
   ColumnSpec,
   DataSheetProvider,
   FilterIndicator,
+  InlineFilterControl,
+  MenuInlineFilterItem,
   TableFilter,
   useStoreAPI,
 } from "../src";
@@ -80,6 +87,8 @@ const SPEC: ColumnSpec[] = [
 ];
 
 // A rich (custom) filter, to contrast with the generated operator filter.
+// `presentation: "menu-inline"` renders its segmented form directly in the
+// Filter menu (no submenu) — a compact control that doesn't warrant a hop.
 const categoryFilter: TableFilter<Sample, { category: string }> = {
   id: "category-filter",
   name: "Category",
@@ -87,6 +96,7 @@ const categoryFilter: TableFilter<Sample, { category: string }> = {
   icon: "tag",
   columnKey: "category",
   defaultState: { category: CATEGORIES[0] },
+  presentation: "menu-inline",
   describeState: (s) => s?.category ?? null,
   filterForm: ({ state, setState }) =>
     h(
@@ -100,6 +110,31 @@ const categoryFilter: TableFilter<Sample, { category: string }> = {
       }),
     ),
   predicate: (row, s) => s?.category == null || row.category === s.category,
+};
+
+// A numeric "minimum value" filter with `presentation: "inline"` — an
+// always-visible stepper (Blueprint `NumericInput`) rather than a menu.
+const valueFilter: TableFilter<Sample, { value: number | null }> = {
+  id: "value-filter",
+  name: "Value ≥",
+  subject: "Value",
+  icon: "greater-than-or-equal-to",
+  columnKey: "value",
+  defaultState: { value: null },
+  presentation: "inline",
+  describeState: (s) => (s?.value != null ? `≥ ${s.value}` : null),
+  filterForm: ({ state, setState }) =>
+    h(NumericInput, {
+      small: true,
+      min: 0,
+      placeholder: "Value ≥",
+      buttonPosition: "right",
+      value: state?.value ?? "",
+      style: { width: "110px" },
+      onValueChange: (v: number) =>
+        setState({ value: Number.isFinite(v) ? v : null }),
+    }),
+  predicate: (row, s) => s?.value == null || row.value >= s.value,
 };
 
 const nameFilter = buildMultiOperatorColumnFilter(SPEC[0]);
@@ -371,5 +406,68 @@ export const UnifiedBar: StoryObj = {
         sorts: [["value", false]],
       },
       h(ActiveFiltersList),
+    ),
+};
+
+// ---- 5. Filter presentation ----
+
+/**
+ * The three `TableFilter.presentation` modes over the *same* `filterForm` — only
+ * placement changes, and every mode writes the same store state (edit one, the
+ * unified bar / others reflect it):
+ *  - **`menu`** (Name) — a submenu item, the default (`ColumnFilterMenuItem`).
+ *  - **`menu-inline`** (Category) — the form rendered directly in the Filter
+ *    menu, no submenu (`MenuInlineFilterItem`).
+ *  - **`inline`** (Value) — an always-visible toolbar control, here a numeric
+ *    stepper (`InlineFilterControl`).
+ * A `DataPanel` picks the right renderer per `presentation` automatically; here
+ * we mount the primitives directly to show them side by side.
+ */
+export const Presentations: StoryObj = {
+  render: () =>
+    h(
+      Harness,
+      {},
+      h(
+        "div",
+        {
+          style: { display: "flex", gap: "32px", alignItems: "flex-start" },
+        },
+        [
+          h("div", { key: "menu" }, [
+            h(
+              "code",
+              { style: { fontSize: 11, opacity: 0.7 } },
+              "Filter menu — submenu (Name) + menu-inline (Category)",
+            ),
+            h("div", { style: { marginTop: 6 } }, [
+              h(Menu, [
+                h(ColumnFilterMenuItem, {
+                  key: "name",
+                  filter: nameFilter,
+                  label: "Name",
+                }),
+                h(MenuInlineFilterItem, {
+                  key: "cat",
+                  filter: categoryFilter,
+                  label: "Category",
+                }),
+              ]),
+            ]),
+          ]),
+          h("div", { key: "inline" }, [
+            h(
+              "code",
+              { style: { fontSize: 11, opacity: 0.7 } },
+              "inline — Value stepper",
+            ),
+            h(
+              "div",
+              { style: { marginTop: 6 } },
+              h(InlineFilterControl, { filter: valueFilter }),
+            ),
+          ]),
+        ],
+      ),
     ),
 };

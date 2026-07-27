@@ -1,5 +1,8 @@
 /** A scoped state that wraps several Jotai atoms together, creating an isolated state
  * context.
+ *
+ * This approach to state management combines some of the advantages of
+ * Context-based state management with a more traditional useState approach.
  */
 import { Atom, WritableAtom } from "jotai";
 import { ReactNode, useEffect, useRef } from "react";
