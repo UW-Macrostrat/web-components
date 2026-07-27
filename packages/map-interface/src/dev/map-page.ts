@@ -156,6 +156,9 @@ export function MapInspectorV2({
       detailPanel: detailElement,
       contextPanelOpen: isOpen,
       fitViewport,
+      style: {
+        "--map-context-stack-padding": "0px",
+      },
     },
     h(
       MapView,

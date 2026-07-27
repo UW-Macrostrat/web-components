@@ -1,15 +1,20 @@
 import {
-  useMapRef,
-  useMapEaseTo,
+  mapState,
   useMapDispatch,
+  useMapEaseTo,
+  useMapEaseToDispatch,
   useMapInitialized,
+  useMapRef,
 } from "@macrostrat/mapbox-react";
-import { useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { debounce } from "underscore";
 import useResizeObserver from "use-resize-observer";
 
-import { getMapPosition } from "@macrostrat/mapbox-utils";
-import { useCallback, useEffect, useState } from "react";
+import {
+  getFocusState,
+  getMapPosition,
+  PositionFocusState,
+} from "@macrostrat/mapbox-utils";
 import { getMapPadding, useMapMarker } from "./utils";
 import { useInDarkMode } from "@macrostrat/ui-components";
 
@@ -160,25 +165,43 @@ export function MapLoadingReporter({
   return null;
 }
 
-export function MapMarker({ position, setPosition, centerMarker = true }) {
+interface MapMarkerProps {
+  position: mapboxgl.LngLatLike;
+  setPosition(
+    position: mapboxgl.LngLatLike,
+    evt: mapboxgl.MapEvent,
+    map: mapboxgl.Map,
+  ): void;
+  centerMarker?: PositionFocusState | boolean | null;
+}
+
+export function MapMarker({
+  position,
+  setPosition,
+  centerMarker,
+}: MapMarkerProps) {
   const mapRef = useMapRef();
   const markerRef = useRef(null);
   const isInitialized = useMapInitialized();
 
   useMapMarker(mapRef, markerRef, position);
-
-  useMapEaseTo({ center: position, duration: 800 });
+  const dispatch = useMapEaseToDispatch();
 
   useEffect(() => {
     const map = mapRef.current;
     if (map == null || setPosition == null) return;
 
     const handleMapClick = (event: mapboxgl.MapMouseEvent) => {
-      setPosition(event.lngLat, event, mapRef.current);
+      const map = mapRef.current;
+      if (!map) return;
+      const center = event.lngLat;
+      setPosition(center, event, map);
       // We should integrate this with the "easeToCenter" hook
-      if (centerMarker) {
-        // Wait a tick to center the marker
-      }
+      const focusState =
+        getFocusState(map, event.lngLat) ?? PositionFocusState.OUT_OF_VIEW;
+      const shouldCenter = shouldCenterMarker(focusState, centerMarker);
+      if (!shouldCenter) return;
+      dispatch({ center, duration: 800 });
     };
 
     map.on("click", handleMapClick);
@@ -186,9 +209,22 @@ export function MapMarker({ position, setPosition, centerMarker = true }) {
     return () => {
       map?.off("click", handleMapClick);
     };
-  }, [setPosition, isInitialized]);
+  }, [setPosition, centerMarker, isInitialized]);
 
   return null;
+}
+
+function shouldCenterMarker(
+  focusState: PositionFocusState,
+  cutoff: PositionFocusState | boolean | null | undefined,
+): boolean {
+  let _cutoff: any = cutoff ?? PositionFocusState.NEAR_EDGE;
+  if (typeof cutoff === "boolean") {
+    _cutoff = cutoff
+      ? PositionFocusState.NEAR_CENTER
+      : PositionFocusState.OUT_OF_VIEW;
+  }
+  return focusState >= _cutoff;
 }
 
 export function useBasicMapStyle(

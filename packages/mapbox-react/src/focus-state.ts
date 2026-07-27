@@ -33,6 +33,8 @@ export function classNameForFocusState(
       return "near-center";
     case PositionFocusState.OFF_CENTER:
       return "off-center";
+    case PositionFocusState.NEAR_EDGE:
+      return "near-edge";
     case PositionFocusState.OUT_OF_PADDING:
       return "out-of-padding";
     case PositionFocusState.OUT_OF_VIEW:
@@ -49,6 +51,7 @@ export function intentForFocusState(
     case PositionFocusState.NEAR_CENTER:
       return Intent.NONE;
     case PositionFocusState.OFF_CENTER:
+    case PositionFocusState.NEAR_EDGE:
       return Intent.PRIMARY;
     case PositionFocusState.OUT_OF_PADDING:
       return Intent.SUCCESS;

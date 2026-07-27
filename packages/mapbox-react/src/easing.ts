@@ -139,10 +139,13 @@ const settledEasingRequestAtom = atom<MapEaseToOptions | null>(
   },
 );
 
+export function useMapEaseToDispatch() {
+  return mapState.useSet(mapEasingRequestAtom);
+}
+
 export function useMapEaseTo(props: MapEaseToProps) {
   const { bounds, padding, center, zoom, duration = 800, trackResize } = props;
-  const addRequest = mapState.useSet(mapEasingRequestAtom);
-
+  const addRequest = useMapEaseToDispatch();
   useMapEaseToListener();
 
   useWarning(
