@@ -14,7 +14,6 @@ import {
   useBasicMapStyle,
   LocationPanel,
   MapView,
-  FeaturePanel,
 } from "../src";
 import { LoremIpsum } from "lorem-ipsum";
 
@@ -27,18 +26,16 @@ function blurbFor(id: number): ReactNode[] {
 }
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
-
 const macrostratStyle = buildMacrostratStyle();
-
-const overlayStyles = [macrostratStyle];
+const macrostratOverlayStyles = [macrostratStyle];
 
 const paragraphs = blurbFor(10);
 
-function MapInspectorV2({
+function MapInspectorTestPage({
   mapPosition = null,
   children = null,
   bounds = null,
-  ...rest
+  overlayStyles = null,
 }) {
   /* We apply a custom style to the panel container when we are interacting
     with the search bar, so that we can block map interactions until search
@@ -53,7 +50,9 @@ function MapInspectorV2({
 
   const [isOpen, setOpen] = useState(false);
 
-  const style = useBasicMapStyle();
+  const style = useBasicMapStyle({
+    styleType: "standard",
+  });
 
   const [inspectPosition, setInspectPosition] =
     useState<mapboxgl.LngLat | null>(null);
@@ -79,6 +78,7 @@ function MapInspectorV2({
       style: {
         "--map-context-stack-width": "300px",
       },
+      showPanelOutlines: true,
       navbar: h(FloatingNavbar, {
         rightElement: h(MapLoadingButton, {
           large: true,
@@ -120,16 +120,10 @@ function MapInspectorV2({
   );
 }
 
-function DevMapPage(props) {
-  const [isExpanded, setExpanded] = useState(false);
-
-  return h(MapInspectorV2, { ...props, title: null, mapboxToken });
-}
-
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<any> = {
   title: "Map interface/Resizing",
-  component: DevMapPage,
+  component: MapInspectorTestPage,
   parameters: {
     layout: "fullscreen",
     docs: {
@@ -162,10 +156,24 @@ export const WithMacrostratOverlay: Story = {
         altitude: 300000,
       },
     },
+    overlayStyles: macrostratOverlayStyles,
   },
 };
 
 export const Global: Story = {
+  args: {
+    mapPosition: {
+      camera: {
+        lat: 40.7128,
+        lng: -74.006,
+        altitude: 4000000,
+      },
+    },
+    overlayStyles: macrostratOverlayStyles,
+  },
+};
+
+export const GlobalWithBasicStyle: Story = {
   args: {
     mapPosition: {
       camera: {

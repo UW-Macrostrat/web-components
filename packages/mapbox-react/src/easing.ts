@@ -1,4 +1,3 @@
-import { useMapInitialized, useMapRef } from "./context.ts";
 import { useEffect } from "react";
 import type { MapEaseToState } from "@macrostrat/mapbox-utils";
 import { filterChanges, moveMap } from "@macrostrat/mapbox-utils";
@@ -6,6 +5,7 @@ import type { AnimationOptions, CameraOptions } from "mapbox-gl";
 import { atom, zustandStoreAtom } from "@macrostrat/scoped-store";
 import { mapState } from "./context";
 import { useWarning } from "@macrostrat/ui-components";
+import { debounce } from "underscore";
 
 export { MapEaseToState };
 
@@ -30,19 +30,32 @@ type MapEaseToProps = MapEaseToOptions & {
   trackResize?: boolean;
 };
 
-type MapEaseToMutableState = {
-  current: MapEaseToState | null;
-  queue: MapEaseToState[];
-  onFinished?: () => void;
-};
+const hasActiveSubscriptionAtom = atom<boolean>(false);
 
-const mapEasingStateAtom = atom<MapEaseToMutableState>({
-  current: null,
-  queue: [],
-  onFinished: undefined,
+const mapRefAtom = atom<mapboxgl.Map | null>((get) => {
+  const store = get(zustandStoreAtom);
+  return store.ref.current;
 });
 
-const hasActiveSubscriptionAtom = atom<boolean>(false);
+function _settleEasingRequest(get: any, set: any) {
+  const request = get(mapEasingRequestAtom);
+  const settledRequest = get(settledEasingRequestAtom);
+  const map = get(mapRefAtom);
+  if (map == null || request == null || settledRequest == request) return;
+  const { duration = 800, ...rest } = request;
+  if (Object.keys(rest).length === 0) return;
+
+  const initialized = settledRequest != null;
+
+  const opts: FlyToOptions = {
+    // Todo: if map isn't yet initialized, go with zero
+    duration: initialized ? duration : 0,
+  };
+  moveMap(map, request, opts);
+  set(settledEasingRequestAtom, request);
+}
+
+const settleEasingRequest = debounce(_settleEasingRequest, 400);
 
 function useMapEaseToListener() {
   /** An easing requests listener that manages the queue of easing requests
@@ -50,7 +63,6 @@ function useMapEaseToListener() {
    * but duplicates will no-op. */
   const store = mapState.useStore();
   const [hasActive, setHasActive] = mapState.use(hasActiveSubscriptionAtom);
-  const mapEasingRequest = mapState.useValue(mapEasingRequestAtom);
   useEffect(() => {
     if (hasActive) return;
     if (store.get(hasActiveSubscriptionAtom)) return;
@@ -76,25 +88,51 @@ const mapEasingRequestAtom = atom<Partial<MapEaseToOptions>>(
   (get) => {
     const unsettledRequests = get(unsettledMapEasingRequestsAtom);
     const settled = get(lastSettledEasingRequestAtom);
-
     // rely on map being initialized
     get(mapInitializedAtom);
-
     if (unsettledRequests.length === 0) return null;
 
     const state = unsettledRequests.reduce((acc, val) => {
-      return { ...acc, ...val };
-    });
+      const val1 = pruneUndefinedKeys(val);
+      return { ...acc, ...val1 };
+    }, {});
+
     return filterChanges(state, settled);
   },
   (get, set, request: Partial<MapEaseToOptions>) => {
+    // We bundle the duration with the request but keep it out here.
+    const { duration, ...rest } = request;
     const prev = get(unsettledMapEasingRequestsAtom);
-    set(unsettledMapEasingRequestsAtom, [...prev, request]);
+    set(unsettledMapEasingRequestsAtom, [...prev, rest]);
   },
 );
 
+/** Handle map resize events */
+// useEffect(() => {
+//   const map = mapRef?.current;
+//   if (map == null || !props.trackResize) return;
+//   const cb = () => {
+//     if (mapEasingState.current == null) return;
+//     moveMap(map, mapEasingState.current, { duration: 0 });
+//   };
+//   map.on("resize", cb);
+//   return () => {
+//     map.off("resize", cb);
+//   };
+// }, [trackResize, mapRef?.current]);
+
+function pruneUndefinedKeys<T extends object>(obj: T): Partial<T> {
+  const newObj = { ...obj };
+  for (const [key, val] of Object.entries(newObj)) {
+    if (val === undefined) {
+      delete newObj[key as keyof T];
+    }
+  }
+  return newObj;
+}
+
 const settledEasingRequestAtom = atom<MapEaseToOptions | null>(
-  (get) => lastSettledEasingRequestAtom,
+  (get) => get(lastSettledEasingRequestAtom),
   (get, set, request) => {
     set(unsettledMapEasingRequestsAtom, []);
     set(lastSettledEasingRequestAtom, request);
@@ -123,29 +161,4 @@ export function useMapEaseTo(props: MapEaseToProps) {
     // Add the proposed update to the queue
     addRequest({ bounds, padding, center, zoom, duration });
   }, [bounds, padding, center, zoom, duration]);
-}
-
-const mapRefAtom = atom<mapboxgl.Map | null>((get) => {
-  const store = get(zustandStoreAtom);
-  return store.ref.current;
-});
-
-function settleEasingRequest(get: any, set: any) {
-  const request = get(mapEasingRequestAtom);
-  const settledRequest = get(settledEasingRequestAtom);
-  const map = get(mapRefAtom);
-  if (map == null || request == null || settledRequest == request) return;
-  console.log("settling easingRequest", request);
-
-  const initialized = settledRequest != null;
-  const { duration = 800, padding, ...rest } = request;
-
-  const opts: FlyToOptions = {
-    padding,
-    // Todo: if map isn't yet initialized, go with zero
-    duration: initialized ? duration : 0,
-  };
-  moveMap(map, rest, opts);
-
-  set(settledEasingRequestAtom, request);
 }

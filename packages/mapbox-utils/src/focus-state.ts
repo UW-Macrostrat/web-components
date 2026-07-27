@@ -93,7 +93,7 @@ export function moveMap(
     if (zoom != null) {
       props.zoom = zoom;
     }
-    map.flyTo(stripNullKeys(props));
+    map.easeTo(stripNullKeys(props));
   }
 }
 
