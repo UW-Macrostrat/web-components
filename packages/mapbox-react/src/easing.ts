@@ -10,6 +10,7 @@ import type {
 import type { MapEaseToState } from "@macrostrat/mapbox-utils";
 import { atom } from "@macrostrat/scoped-store";
 import { mapState } from "./context";
+import { useWarning } from "@macrostrat/ui-components";
 
 export { MapEaseToState };
 
@@ -47,15 +48,13 @@ const mapEasingStateAtom = atom<MapEaseToMutableState>({
 
 export function useMapEaseTo(props: MapEaseToProps) {
   const mapRef = useMapRef();
-  const {
-    bounds,
-    padding,
-    center,
-    zoom,
-    duration = 800,
-    trackResize = false,
-  } = props;
+  const { bounds, padding, center, zoom, duration = 800, trackResize } = props;
   const mapEasingState = mapState.useValue(mapEasingStateAtom);
+
+  useWarning(
+    "trackResize is deprecated and no longer works",
+    trackResize ?? false,
+  );
 
   /** We need an update queue to batch together updates, especially during map initialization.
    * If we don't have this, early position updates are not respected unless they are
@@ -73,20 +72,6 @@ export function useMapEaseTo(props: MapEaseToProps) {
     }
     settleMapEasingState(map, mapEasingState, duration);
   }, [bounds, padding, center, zoom, isInitialized]);
-
-  /** Handle map resize events */
-  useEffect(() => {
-    const map = mapRef?.current;
-    if (map == null || !props.trackResize) return;
-    const cb = () => {
-      if (mapEasingState.current == null) return;
-      moveMap(map, mapEasingState.current, { duration: 0 });
-    };
-    map.on("resize", cb);
-    return () => {
-      map.off("resize", cb);
-    };
-  }, [trackResize, mapRef?.current]);
 }
 
 function settleMapEasingState(
