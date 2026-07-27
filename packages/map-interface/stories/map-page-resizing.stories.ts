@@ -36,6 +36,7 @@ function MapInspectorTestPage({
   children = null,
   bounds = null,
   overlayStyles = null,
+  style = {},
   ...rest
 }) {
   /* We apply a custom style to the panel container when we are interacting
@@ -51,7 +52,7 @@ function MapInspectorTestPage({
 
   const [isOpen, setOpen] = useState(false);
 
-  const style = useBasicMapStyle({
+  const mapStyle = useBasicMapStyle({
     styleType: "standard",
   });
 
@@ -78,6 +79,7 @@ function MapInspectorTestPage({
     {
       style: {
         "--map-context-stack-width": "300px",
+        ...style,
       },
       showPanelOutlines: true,
       navbar: h(FloatingNavbar, {
@@ -104,7 +106,7 @@ function MapInspectorTestPage({
     h(
       MapView,
       {
-        style,
+        style: mapStyle,
         mapPosition,
         projection: { name: "globe" },
         mapboxToken,
@@ -196,6 +198,8 @@ export const ContextStackDoesntAdjustPadding: Story = {
         altitude: 4000000,
       },
     },
-    adjustMapPaddingForContextPanel: false,
+    style: {
+      "--map-context-stack-padding": "0px",
+    },
   },
 };

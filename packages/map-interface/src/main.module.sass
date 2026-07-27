@@ -411,12 +411,6 @@
     & > .spacer
       flex-grow: 0
 
-  .map-container:not(.context-panel-reserves-space)
-    .context-stack
-      width: 0
-      min-width: 0
-
-
   .context-panel-holder
     min-height: 0
     position: relative
@@ -433,6 +427,11 @@
     width: var(--map-detail-stack-width, 30em)
     display: flex
     flex-direction: column
+
+  .context-stack-holder
+    pointer-events: none
+    z-index: 10
+    width: var(--map-context-stack-padding)
 
   .context-stack, .detail-stack
     pointer-events: none

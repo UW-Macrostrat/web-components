@@ -49,7 +49,6 @@ interface MapAreaContainerProps {
   fitViewport?: boolean;
   showPanelOutlines?: boolean;
   preventMapInteraction?: boolean;
-  adjustMapPaddingForContextPanel?: boolean;
   style?: React.CSSProperties;
 }
 
@@ -70,7 +69,6 @@ function _MapAreaContainer({
   fitViewport = true,
   showPanelOutlines = false,
   preventMapInteraction = false,
-  adjustMapPaddingForContextPanel = true,
   style,
   ...rest
 }: MapAreaContainerProps) {
@@ -99,7 +97,6 @@ function _MapAreaContainer({
       "map-context-open": contextPanelOpen,
       "show-panel-outlines": showPanelOutlines,
       "fit-viewport": fitViewport,
-      "context-panel-reserves-space": adjustMapPaddingForContextPanel,
     },
   );
 
@@ -128,7 +125,7 @@ function _MapAreaContainer({
   return h(MapStyledContainer, { style, className: mainUIClassNames }, [
     h("div.main-row", [
       h("div.map-ui", rest, [
-        contextStack,
+        h("div.context-stack-holder", contextStack),
         children ?? mainPanel,
         h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([detailStackExt]),
         h.if(detailPanelStyle == DetailPanelStyle.FIXED)(
