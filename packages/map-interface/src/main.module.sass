@@ -381,7 +381,7 @@
   // We should move this to another file.
 
   .map-view-container:not(.standalone)
-    position: unset
+      position: unset
 
   .map-ui
     flex-direction: row
@@ -410,6 +410,12 @@
 
     & > .spacer
       flex-grow: 0
+
+  .map-container:not(.context-panel-reserves-space)
+    .context-stack
+      width: 0
+      min-width: 0
+
 
   .context-panel-holder
     min-height: 0

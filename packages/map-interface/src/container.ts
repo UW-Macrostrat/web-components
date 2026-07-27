@@ -49,6 +49,7 @@ interface MapAreaContainerProps {
   fitViewport?: boolean;
   showPanelOutlines?: boolean;
   preventMapInteraction?: boolean;
+  adjustMapPaddingForContextPanel?: boolean;
 }
 
 function _MapAreaContainer({
@@ -68,6 +69,7 @@ function _MapAreaContainer({
   fitViewport = true,
   showPanelOutlines = false,
   preventMapInteraction = false,
+  adjustMapPaddingForContextPanel = true,
   ...rest
 }: MapAreaContainerProps) {
   const _detailPanelOpen = detailPanelOpen ?? detailPanel != null;
@@ -95,6 +97,7 @@ function _MapAreaContainer({
       "map-context-open": contextPanelOpen,
       "show-panel-outlines": showPanelOutlines,
       "fit-viewport": fitViewport,
+      "context-panel-reserves-space": adjustMapPaddingForContextPanel,
     },
   );
 

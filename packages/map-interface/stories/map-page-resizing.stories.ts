@@ -36,6 +36,7 @@ function MapInspectorTestPage({
   children = null,
   bounds = null,
   overlayStyles = null,
+  ...rest
 }) {
   /* We apply a custom style to the panel container when we are interacting
     with the search bar, so that we can block map interactions until search
@@ -98,6 +99,7 @@ function MapInspectorTestPage({
       ]),
       detailPanel: detailElement,
       contextPanelOpen: isOpen,
+      ...rest,
     },
     h(
       MapView,
@@ -182,5 +184,18 @@ export const GlobalWithBasicStyle: Story = {
         altitude: 4000000,
       },
     },
+  },
+};
+
+export const ContextStackDoesntAdjustPadding: Story = {
+  args: {
+    mapPosition: {
+      camera: {
+        lat: 40.7128,
+        lng: -74.006,
+        altitude: 4000000,
+      },
+    },
+    adjustMapPaddingForContextPanel: false,
   },
 };
