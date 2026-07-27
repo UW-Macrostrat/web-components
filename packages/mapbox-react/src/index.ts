@@ -6,3 +6,4 @@ export * from "./debugger";
 export * from "./focus-state";
 export * from "./layer-managers";
 export * from "./easing";
+export * from "./easing-legacy.ts";

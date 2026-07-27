@@ -1,14 +1,9 @@
 import { useMapInitialized, useMapRef } from "./context.ts";
-import { useEffect, useRef } from "react";
-import { filterChanges, moveMap } from "@macrostrat/mapbox-utils";
-import type {
-  AnimationOptions,
-  CameraOptions,
-  LngLatBoundsLike,
-  PaddingOptions,
-} from "mapbox-gl";
+import { useEffect } from "react";
 import type { MapEaseToState } from "@macrostrat/mapbox-utils";
-import { atom } from "@macrostrat/scoped-store";
+import { filterChanges, moveMap } from "@macrostrat/mapbox-utils";
+import type { AnimationOptions, CameraOptions } from "mapbox-gl";
+import { atom, zustandStoreAtom } from "@macrostrat/scoped-store";
 import { mapState } from "./context";
 import { useWarning } from "@macrostrat/ui-components";
 
@@ -27,11 +22,12 @@ export interface FlyToOptions extends AnimationOptions, CameraOptions {
 }
 
 type MapEaseToOptions = MapEaseToState & {
-  trackResize?: boolean;
+  duration?: number;
 };
 
 type MapEaseToProps = MapEaseToOptions & {
-  duration?: number;
+  // @deprecated
+  trackResize?: boolean;
 };
 
 type MapEaseToMutableState = {
@@ -46,10 +42,70 @@ const mapEasingStateAtom = atom<MapEaseToMutableState>({
   onFinished: undefined,
 });
 
+const hasActiveSubscriptionAtom = atom<boolean>(false);
+
+function useMapEaseToListener() {
+  /** An easing requests listener that manages the queue of easing requests
+   * and settles them in order. There should only be one of these per map,
+   * but duplicates will no-op. */
+  const store = mapState.useStore();
+  const [hasActive, setHasActive] = mapState.use(hasActiveSubscriptionAtom);
+  const mapEasingRequest = mapState.useValue(mapEasingRequestAtom);
+  useEffect(() => {
+    if (hasActive) return;
+    if (store.get(hasActiveSubscriptionAtom)) return;
+    store.set(hasActiveSubscriptionAtom);
+    const unsub = store.sub(mapEasingRequestAtom, () => {
+      settleEasingRequest(store.get, store.set);
+    });
+    return () => {
+      unsub();
+      setHasActive(false);
+    };
+  }, [store]);
+}
+
+const mapInitializedAtom = atom<boolean>((get) => {
+  const store = get(zustandStoreAtom);
+  return store.status.isInitialized;
+});
+
+const unsettledMapEasingRequestsAtom = atom<MapEaseToOptions[]>([]);
+const lastSettledEasingRequestAtom = atom<MapEaseToOptions | null>(null);
+const mapEasingRequestAtom = atom<Partial<MapEaseToOptions>>(
+  (get) => {
+    const unsettledRequests = get(unsettledMapEasingRequestsAtom);
+    const settled = get(lastSettledEasingRequestAtom);
+
+    // rely on map being initialized
+    get(mapInitializedAtom);
+
+    if (unsettledRequests.length === 0) return null;
+
+    const state = unsettledRequests.reduce((acc, val) => {
+      return { ...acc, ...val };
+    });
+    return filterChanges(state, settled);
+  },
+  (get, set, request: Partial<MapEaseToOptions>) => {
+    const prev = get(unsettledMapEasingRequestsAtom);
+    set(unsettledMapEasingRequestsAtom, [...prev, request]);
+  },
+);
+
+const settledEasingRequestAtom = atom<MapEaseToOptions | null>(
+  (get) => lastSettledEasingRequestAtom,
+  (get, set, request) => {
+    set(unsettledMapEasingRequestsAtom, []);
+    set(lastSettledEasingRequestAtom, request);
+  },
+);
+
 export function useMapEaseTo(props: MapEaseToProps) {
-  const mapRef = useMapRef();
   const { bounds, padding, center, zoom, duration = 800, trackResize } = props;
-  const mapEasingState = mapState.useValue(mapEasingStateAtom);
+  const addRequest = mapState.useSet(mapEasingRequestAtom);
+
+  useMapEaseToListener();
 
   useWarning(
     "trackResize is deprecated and no longer works",
@@ -60,127 +116,36 @@ export function useMapEaseTo(props: MapEaseToProps) {
    * If we don't have this, early position updates are not respected unless they are
    * controlled outside of the component. */
   // This forces a re-render after initialization, I guess
-  const isInitialized = useMapInitialized();
+  //const isInitialized = useMapInitialized();
 
   /** Handle changes to any map props */
   useEffect(() => {
     // Add the proposed update to the queue
-    mapEasingState.queue.push({ bounds, padding, center, zoom });
-    const map = mapRef.current;
-    if (map == null) {
-      return;
-    }
-    settleMapEasingState(map, mapEasingState, duration);
-  }, [bounds, padding, center, zoom, isInitialized]);
+    addRequest({ bounds, padding, center, zoom, duration });
+  }, [bounds, padding, center, zoom, duration]);
 }
 
-function settleMapEasingState(
-  map: mapboxgl.Map,
-  easingState: MapEaseToMutableState,
-  duration: number,
-) {
-  const initialized = easingState.current != null;
+const mapRefAtom = atom<mapboxgl.Map | null>((get) => {
+  const store = get(zustandStoreAtom);
+  return store.ref.current;
+});
 
-  const state = easingState.queue.reduce((acc, val) => {
-    return { ...acc, ...val };
-  });
-  easingState.queue = [];
+function settleEasingRequest(get: any, set: any) {
+  const request = get(mapEasingRequestAtom);
+  const settledRequest = get(settledEasingRequestAtom);
+  const map = get(mapRefAtom);
+  if (map == null || request == null || settledRequest == request) return;
+  console.log("settling easingRequest", request);
 
-  const positionChanges = filterChanges(state, easingState.current);
+  const initialized = settledRequest != null;
+  const { duration = 800, padding, ...rest } = request;
 
-  let opts: FlyToOptions = {
-    padding: positionChanges.padding,
+  const opts: FlyToOptions = {
+    padding,
+    // Todo: if map isn't yet initialized, go with zero
     duration: initialized ? duration : 0,
   };
+  moveMap(map, rest, opts);
 
-  moveMap(map, positionChanges, opts);
-  // Remove previous moveend  listener
-  if (easingState.onFinished) {
-    map.off("moveend", easingState.onFinished);
-  }
-  easingState.onFinished = () => {
-    easingState.current = state;
-  };
-  // Replace with current moveend listener
-  map.once("moveend", easingState.onFinished);
-}
-
-/**
- * Ease the map to a center position with optional padding.
- * @deprecated Use useMapEaseTo instead
- */
-export function useMapEaseToCenter(position, padding) {
-  const mapRef = useMapRef();
-
-  const prevPosition = useRef<any>(null);
-  const prevPadding = useRef<any>(null);
-  // Handle map position easing (for both map padding and markers)
-  useEffect(() => {
-    console.warn(
-      "Using deprecated function useMapEaseToCenter, consider using useMapEaseTo instead",
-    );
-    const map = mapRef.current;
-    if (map == null) return;
-    let opts: FlyToOptions = null;
-    if (position != prevPosition.current) {
-      opts ??= {};
-      opts.center = position;
-    }
-    if (padding != prevPadding.current) {
-      opts ??= {};
-      opts.padding = padding;
-    }
-    if (opts == null) return;
-    if (prevPadding.current == null) {
-      opts.duration = 0;
-    } else {
-      opts.duration = 800;
-    }
-    map.flyTo(opts);
-    map.once("moveend", () => {
-      /* Waiting until moveend to update the refs allows us to
-      batch overlapping movements together, which increases UI
-      smoothness when, e.g., flying to new panels */
-      prevPosition.current = position;
-      prevPadding.current = padding;
-    });
-  }, [position, padding, mapRef.current]);
-}
-
-/**
- * Ease the map to a set of bounds, with optional padding.
- * @deprecated Use useMapEaseTo instead
- */
-export function useMapEaseToBounds(
-  bounds: LngLatBoundsLike,
-  padding: PaddingOptions | number = 0,
-) {
-  const mapRef = useMapRef();
-
-  const prevPosition = useRef<any>(null);
-  const prevPadding = useRef<any>(null);
-  // Handle map position easing (for both map padding and markers)
-  useEffect(() => {
-    console.warn(
-      "Using deprecated function useMapEaseToBounds, consider using useMapEaseTo instead",
-    );
-    const map = mapRef.current;
-    if (map == null) return;
-    if (bounds == prevPosition.current || padding == prevPadding.current) {
-      return;
-    }
-    let opts: FlyToOptions = {
-      padding,
-      duration: prevPadding.current == null ? 0 : 800,
-    };
-
-    map.fitBounds(bounds, opts);
-    map.once("moveend", () => {
-      /* Waiting until moveend to update the refs allows us to
-      batch overlapping movements together, which increases UI
-      smoothness when, e.g., flying to new panels */
-      prevPosition.current = bounds;
-      prevPadding.current = padding;
-    });
-  }, [bounds, padding, mapRef.current]);
+  set(settledEasingRequestAtom, request);
 }
