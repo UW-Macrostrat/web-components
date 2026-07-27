@@ -1,4 +1,3 @@
-import { Switch } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import styles from "./feedback.module.sass";
 import hyper from "@macrostrat/hyper";
@@ -25,26 +24,18 @@ export function Matches({
     nodeMatch = findMatchingNode(tree, selectedNodes[0]);
   }
 
-  return h.if(matchLinks)("div", [
+  return h("div", [
     h(Divider),
-    h(Switch, {
-      label: "Match mode",
-      checked: match !== undefined,
-      onChange: (e) => {
-        setMatchLinks(match === undefined ? matchLinks || {} : undefined);
-        dispatch({ type: "toggle-match-mode" });
-      },
-    }),
-    h.if(nodeMatch && match)(Match, {
+    h.if(nodeMatch?.match)(Match, {
       data: nodeMatch?.match,
       matchLinks: matchLinks,
       dispatch,
       nodeId: nodeMatch?.id,
     }),
-    h.if(selectedNodes.length == 1 && !nodeMatch?.match && match)(
+    h.if(selectedNodes.length != 1 || !nodeMatch?.match)(
       "div.add-match-container",
       [
-        h(
+        h.if(selectedNodes.length == 1 && !nodeMatch?.match)(
           "div.add-type",
           {
             onClick: () => {
@@ -52,6 +43,10 @@ export function Matches({
             },
           },
           [h("p.add-match-text", "Add match"), h(Icon, { icon: "plus" })],
+        ),
+        h.if(selectedNodes.length != 1)(
+          "div.add-type",
+          [h("p.add-match-text", "No entity selected")],
         ),
         h(MatchOverlay, {
           isOpen: overlayOpen,
@@ -116,7 +111,7 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
       "div.overlay-container",
       h("div.add-type-overlay", [
         h("h2.title", [
-          "Add match with " + nodeMatch.name,
+          "Add match ",
           h(Icon, {
             icon: "cross",
             className: "close-icon",
@@ -209,7 +204,11 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
         className: "match-item",
         label: entity_type?.replace(/^./, (c) => c.toUpperCase()),
         value: h(LithologyTag, {
-          data: { name: data.name, id: data.macrostrat_terms_id, lith_id: data.macrostrat_terms_id },
+          data: {
+            name: data.name,
+            id: data.entity_id ?? data.macrostrat_terms_id,
+            lith_id: data.entity_id ?? data.macrostrat_terms_id,
+          },
           onClick: () => {
             const matchUrl = getMatchUrl(data, matchLinks);
             if (matchUrl != null) window.open(matchUrl, "_blank");

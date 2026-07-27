@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { FeedbackComponent } from "../src";
+import { FeedbackComponent, treeToGraph } from "../src";
 import { matchData, data, entityTypes, data2, data3, entityTypes2 } from "./test-data";
 import h from "@macrostrat/hyper";
 
@@ -11,7 +11,8 @@ function FeedbackInterface({
   matchLinks,
   view,
   autoSelect,
-  matchComponent
+  matchComponent,
+  onSave,
 }) {
   const { entities = [], paragraph_text, model, model_run, source_text } = data;
 
@@ -26,7 +27,8 @@ function FeedbackInterface({
     view,
     matchLinks,
     autoSelect,
-    matchComponent
+    matchComponent,
+    onSave,
   });
 }
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -59,6 +61,10 @@ export const MatchLinks: StoryObj<{}> = {
       lith_att: `${lexURL}/lith-atts`,
       concept: `${lexURL}/strat-name-concepts`,
       interval: `${lexURL}/intervals`,
+    },
+    onSave: async (tree) => {
+      const { nodes, edges } = treeToGraph(tree);
+      console.log("NODEs: ", nodes);
     },
   },
 };
