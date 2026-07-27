@@ -50,6 +50,7 @@ interface MapAreaContainerProps {
   showPanelOutlines?: boolean;
   preventMapInteraction?: boolean;
   adjustMapPaddingForContextPanel?: boolean;
+  style?: React.CSSProperties;
 }
 
 function _MapAreaContainer({
@@ -70,6 +71,7 @@ function _MapAreaContainer({
   showPanelOutlines = false,
   preventMapInteraction = false,
   adjustMapPaddingForContextPanel = true,
+  style,
   ...rest
 }: MapAreaContainerProps) {
   const _detailPanelOpen = detailPanelOpen ?? detailPanel != null;
@@ -123,9 +125,9 @@ function _MapAreaContainer({
     ]);
   }
 
-  return h(MapStyledContainer, { className: mainUIClassNames }, [
+  return h(MapStyledContainer, { style, className: mainUIClassNames }, [
     h("div.main-row", [
-      h("div.map-ui", { ...rest }, [
+      h("div.map-ui", rest, [
         contextStack,
         children ?? mainPanel,
         h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([detailStackExt]),
@@ -156,9 +158,14 @@ const MapProviders = ({ children }) =>
 interface MapContainerProps {
   className?: string;
   children?: ReactNode;
+  style?: React.CSSProperties;
 }
 
-export function MapStyledContainer({ className, children }: MapContainerProps) {
+export function MapStyledContainer({
+  className,
+  style,
+  children,
+}: MapContainerProps) {
   const mapPosition = useMapPosition();
   if (mapPosition != null) {
     const { mapIsRotated, mapUse3D, mapIsGlobal } = mapViewInfo(mapPosition);
@@ -169,7 +176,7 @@ export function MapStyledContainer({ className, children }: MapContainerProps) {
     });
   }
 
-  return h("div", { className }, children);
+  return h("div", { className, style }, children);
 }
 
 //const _MapPage = compose(HotkeysProvider, MapPage);

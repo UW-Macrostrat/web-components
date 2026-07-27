@@ -87,7 +87,7 @@ function MapInspectorTestPage({
           onClick: () => setOpen(!isOpen),
           icon: isOpen ? "chevron-left" : "chevron-right",
         }),
-        width: isOpen ? 300 : "fit-content",
+        width: isOpen ? null : "fit-content",
         title,
       }),
       contextPanel: h(PanelCard, [
