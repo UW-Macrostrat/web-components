@@ -73,7 +73,7 @@ export function FloatingNavbar({
     _headerElement = h([_headerElement, h(Spacer)]);
   }
 
-  return h("div.navbar-holder", { className, style: { width } }, [
+  return h("div.navbar-main", { className, style: { width } }, [
     h("div.navbar-row", [
       h(
         Navbar,

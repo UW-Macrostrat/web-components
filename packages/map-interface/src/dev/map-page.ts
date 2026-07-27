@@ -139,9 +139,6 @@ export function MapInspectorV2({
           large: true,
           active: isOpen,
           onClick: () => setOpen(!isOpen),
-          style: {
-            marginRight: "-5px",
-          },
         }),
         headerElement,
         title,
@@ -193,8 +190,8 @@ function MapInspector(props) {
   // React warning about this legacy usage
   console.warn("MapInspector is deprecated. Use MapInspectorV2 instead");
 
-  const _controls = useMemo(()=>{
-    return [children, controls]
+  const _controls = useMemo(() => {
+    return [children, controls];
   }, [children, controls]);
 
   return h(MapInspectorV2, {

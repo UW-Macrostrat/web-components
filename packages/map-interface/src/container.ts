@@ -141,7 +141,7 @@ function ContextStack(props: ContextStackProps) {
   const { adaptiveWidth, navbar, children, ...rest } = props;
   const props1 = addClassNames(rest, { "adaptive-width": adaptiveWidth });
   return h("div.context-stack", props1, [
-    navbar,
+    h("div.navbar-holder", navbar),
     h("div.context-panel-holder", null, children),
     h("div.spacer"),
   ]);
