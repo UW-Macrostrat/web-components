@@ -73,6 +73,17 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
     return selectedUnit != null || onUnitSelected != null;
   }, []);
 
+  // Check if we're already in a columnStateProvider, and render a no-op if so
+  const existingUnits = scope.useAtomValueIfExists(columnUnitsAtom);
+  if (existingUnits != null) {
+    if (allowUnitSelection || onUnitSelected || selectedUnit != null) {
+      console.warn(
+        "MacrostratColumnStateProvider: unit selection props are ignored because a provider already exists in the tree",
+      );
+    }
+    return children;
+  }
+
   const atomMap: AtomMap = [
     [columnUnitsAtom, units],
     [allowUnitSelectionAtom, _allowSelection],
@@ -89,7 +100,6 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
     {
       atoms: atomMap,
       keepUpdated: true,
-      inherit: true,
     },
     [selectionHandlers, children],
   );

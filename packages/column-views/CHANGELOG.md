@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.6.1] - 2026-07-28 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.6.0...@macrostrat/column-views-v3.6.1)
+
+### Patch Changes
+
+- Fix regression in unit selection
+
 ## [3.6.0] - 2026-07-28 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.5.1...@macrostrat/column-views-v3.6.0)
 
 ### Minor Changes

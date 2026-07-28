@@ -118,8 +118,6 @@ function assignColumnsToUnitsWithinOverlappingGroup<T extends BaseUnit>(
     }
   }
 
-  console.log(columns);
-
   const units: UnitWithLayoutParameters<T>[] = columns.flatMap(
     (column, columnIndex) =>
       column.map((unit) => {
@@ -267,7 +265,10 @@ export function groupUnitsIntoSectionsByOverlap<T extends BaseUnit>(
         const lastSection = nextSections[nextSections.length - 1];
         if (isOverlapping(section, lastSection)) {
           // Merge with the last section
-          nextSections[nextSections.length - 1] = mergeSections(lastSection, section);
+          nextSections[nextSections.length - 1] = mergeSections(
+            lastSection,
+            section,
+          );
           merged = true;
         } else {
           nextSections.push(section);
