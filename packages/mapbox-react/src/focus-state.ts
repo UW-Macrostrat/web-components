@@ -16,6 +16,10 @@ import type GeoJSON from "geojson";
 import type { LngLatLike } from "mapbox-gl";
 import { FlyToOptions } from "./easing.ts";
 
+// Re-export values from mapbox utils
+export { PositionFocusState };
+export type { MapEaseToState } from "@macrostrat/mapbox-utils";
+
 export { isCentered };
 
 const h = hyper.styled(styles);

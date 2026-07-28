@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.3.1] - 2026-07-28
+
+Re-export values from `@macrostrat/utils` (fixes regression in 3.3.0)
+
 ## [3.3.0] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.2.2...@macrostrat/mapbox-react-v3.3.0)
 
 ### Minor Changes
