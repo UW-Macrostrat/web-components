@@ -24,7 +24,7 @@ import {
   type AtomMap,
   createScopedStore,
   StateIsolation,
-} from "@macrostrat/data-components";
+} from "@macrostrat/scoped-store";
 import { atom } from "jotai";
 import { useEffect } from "react";
 

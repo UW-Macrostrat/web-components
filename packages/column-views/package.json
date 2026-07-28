@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-views",
-  "version": "3.5.1",
+  "version": "3.6.0",
   "description": "Data views for Macrostrat stratigraphic columns",
   "repository": {
     "type": "git",
@@ -56,6 +56,7 @@
     "@macrostrat/map-styles": "workspace:^",
     "@macrostrat/mapbox-react": "workspace:^",
     "@macrostrat/mapbox-utils": "workspace:^",
+    "@macrostrat/scoped-store": "workspace:^",
     "@macrostrat/stratigraphy-utils": "workspace:^",
     "@macrostrat/svg-map-components": "workspace:^",
     "@macrostrat/timescale": "workspace:^",

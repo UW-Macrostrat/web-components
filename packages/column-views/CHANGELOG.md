@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.6.0] - 2026-07-28 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.5.1...@macrostrat/column-views-v3.6.0)
+
+### Minor Changes
+
+- Remove createStateIsolation and associated exports from
+  `@macrostrat/data-components`; move them to `@macrostrat/scoped-store`.
+
+### Patch Changes
+
+- Updated dependencies
+  - @macrostrat/data-components@1.4.0
+  - @macrostrat/scoped-store@1.0.1
+
 ## [3.5.1] - 2026-05-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.5.0...@macrostrat/column-views-v3.5.1)
 
 ### Patch Changes

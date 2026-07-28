@@ -4,13 +4,13 @@
  * This approach to state management combines some of the advantages of
  * Context-based state management with a more traditional useState approach.
  */
-import { Atom, WritableAtom } from "jotai";
+import type { Atom, WritableAtom } from "jotai";
+import type { Store } from "jotai/vanilla/store";
+import { createStore } from "jotai";
 import { ReactNode, useEffect, useRef } from "react";
 import h from "@macrostrat/hyper";
 
 import { createIsolation } from "jotai-scope";
-import { createStore } from "jotai/vanilla";
-import type { Store } from "jotai/vanilla/store";
 
 export function createScopedStore(): StateIsolation {
   /** A typed wrapper around Jotai-Scope's createIsolation function */

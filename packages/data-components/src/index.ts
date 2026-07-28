@@ -6,12 +6,3 @@ export * from "./data-links";
 export * from "./expansion-panel";
 export * from "./xdd-articles";
 export * from "./tag-editor";
-
-/* Scoped store integration (now an independent module) */
-import {
-  createScopedStore,
-  type AtomMap,
-  type StateIsolation,
-} from "@macrostrat/scoped-store";
-
-export { createScopedStore, AtomMap, StateIsolation };

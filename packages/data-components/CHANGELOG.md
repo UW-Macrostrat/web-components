@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0] - 2026-07-28 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.3.0...@macrostrat/data-components-v1.4.0)
+
+### Minor Changes
+
+- Remove createStateIsolation and associated exports from
+  `@macrostrat/data-components`; move them to `@macrostrat/scoped-store`.
+
+### Patch Changes
+
+- Updated dependencies
+  - @macrostrat/scoped-store@1.0.1
+
 ## [1.3.0] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.2.0...@macrostrat/data-components-v1.3.0)
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-components",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A library of React components tailored for Macrostrat data and endpoints",
   "repository": {
     "type": "git",
