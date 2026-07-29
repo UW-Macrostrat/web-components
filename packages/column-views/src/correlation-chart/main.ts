@@ -53,8 +53,6 @@ export interface ColumnHeaderProps {
   width: number;
   /** The column's name, resolved from column metadata when available */
   columnName?: string | null;
-  /** Provided when column removal is enabled; renders e.g. a close button */
-  onRemove?: () => void;
 }
 
 export interface CorrelationChartProps extends CorrelationChartSettings {
@@ -68,6 +66,9 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   unitComponent?: any;
   /** Arbitrary content (e.g. column title and/or ID) rendered above each column */
   columnHeaderComponent?: React.ComponentType<ColumnHeaderProps>;
+  /** Content rendered above the timescale axis (top-left), beside the column
+   * headers — e.g. a zoom/filter indicator. */
+  axisTopContent?: React.ReactNode;
   onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
   /** Called when a timescale interval is clicked (e.g. to zoom the age range) */
   onClickTimescaleInterval?: TimescaleClickHandler;
@@ -76,8 +77,6 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   onColumnMouseOver?: (columnID: number | null) => void;
   /** Called when a column header is clicked (e.g. to frame it on a map) */
   onColumnClick?: (columnID: number) => void;
-  /** When provided, column headers expose a remove control wired to this */
-  onRemoveColumn?: (columnID: number) => void;
 }
 
 /** Horizontal padding of the main chart SVG. Column headers are aligned to
@@ -106,10 +105,10 @@ export function CorrelationChart({
   onUnitSelected,
   unitComponent,
   columnHeaderComponent,
+  axisTopContent,
   onClickTimescaleInterval,
   onColumnMouseOver,
   onColumnClick,
-  onRemoveColumn,
   ...scaleProps
 }: CorrelationChartProps) {
   const defaultScaleProps = {
@@ -197,9 +196,9 @@ export function CorrelationChart({
           columnWidth,
           columnSpacing,
           columnHeaderComponent,
+          axisTopContent,
           onColumnMouseOver,
           onColumnClick,
-          onRemoveColumn,
         }),
       ]),
     ),
@@ -302,7 +301,6 @@ function Column(props: ColumnProps) {
       h(UnitBoxes, {
         unitComponent,
         unitComponentProps: {
-          nColumns: 2,
           width: columnWidth,
           showLabel: true,
         },
@@ -394,9 +392,9 @@ interface ColumnHeaderRowProps {
   columnWidth: number;
   columnSpacing: number;
   columnHeaderComponent?: React.ComponentType<ColumnHeaderProps>;
+  axisTopContent?: React.ReactNode;
   onColumnMouseOver?: (columnID: number | null) => void;
   onColumnClick?: (columnID: number) => void;
-  onRemoveColumn?: (columnID: number) => void;
 }
 
 function ColumnHeaderRow({
@@ -404,21 +402,21 @@ function ColumnHeaderRow({
   columnWidth,
   columnSpacing,
   columnHeaderComponent,
+  axisTopContent,
   onColumnMouseOver,
   onColumnClick,
-  onRemoveColumn,
 }: ColumnHeaderRowProps) {
-  /** A row of arbitrary content rendered above each column, aligned with the
-   * columns in the main chart area. Renders nothing (collapsing the grid row)
-   * when no header component is provided. */
-  if (columnHeaderComponent == null) {
+  /** The top grid row: arbitrary content above the timescale axis (top-left)
+   * and, when a header component is provided, per-column headers aligned with
+   * the columns. Collapses to nothing when neither is present. */
+  const Component = columnHeaderComponent;
+  if (Component == null && axisTopContent == null) {
     return null;
   }
-  const Component = columnHeaderComponent;
 
   return h([
-    h("div.column-header-spacer"),
-    h(
+    h("div.column-header-spacer", axisTopContent),
+    h.if(Component != null)(
       "div.column-header-row",
       {
         style: {
@@ -433,10 +431,9 @@ function ColumnHeaderRow({
           column,
           columnIndex: i,
           columnWidth,
-          Component,
+          Component: Component!,
           onColumnMouseOver,
           onColumnClick,
-          onRemoveColumn,
         });
       }),
     ),
@@ -450,7 +447,6 @@ function ColumnHeaderCell({
   Component,
   onColumnMouseOver,
   onColumnClick,
-  onRemoveColumn,
 }: {
   column: ColumnData;
   columnIndex: number;
@@ -458,7 +454,6 @@ function ColumnHeaderCell({
   Component: React.ComponentType<ColumnHeaderProps>;
   onColumnMouseOver?: (columnID: number | null) => void;
   onColumnClick?: (columnID: number) => void;
-  onRemoveColumn?: (columnID: number) => void;
 }) {
   /** Resolves the column name and wires column-level hover/click so the header
    * component itself can stay a pure function of props. */
@@ -489,7 +484,6 @@ function ColumnHeaderCell({
       units: column.units as ExtUnit[],
       width: columnWidth,
       columnName: info?.col_name ?? null,
-      onRemove: onRemoveColumn ? () => onRemoveColumn(columnID) : undefined,
     }),
   );
 }

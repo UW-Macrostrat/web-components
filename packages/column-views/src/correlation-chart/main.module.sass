@@ -132,6 +132,9 @@ $map-size-inset: 12em
 .column-header-spacer
   grid-column: 1
   grid-row: 1
+  // Anchor for absolutely-positioned content (e.g. a zoom pill) so it can sit
+  // above the timescale without widening the axis column / shifting the chart
+  position: relative
 
 .column-header-row
   grid-column: 2

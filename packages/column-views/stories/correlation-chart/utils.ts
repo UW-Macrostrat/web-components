@@ -2,7 +2,6 @@ import { useArgs } from "storybook/preview-api";
 import { useCallback } from "react";
 import { parseLineFromString, stringifyLine, Identifier } from "../../src";
 import type { ColumnHeaderProps } from "../../src";
-import classNames from "classnames";
 import h from "./stories.module.sass";
 
 export function useCorrelationLine() {
@@ -33,26 +32,10 @@ export function useCorrelationLine() {
 export function CorrelationColumnHeader({
   columnID,
   columnName,
-  onRemove,
 }: ColumnHeaderProps) {
-  return h(
-    "div.column-header",
-    { className: classNames({ removable: onRemove != null }) },
-    [
-      h.if(onRemove != null)(
-        "button.remove-column",
-        {
-          title: "Remove column",
-          onClick(e) {
-            e.stopPropagation();
-            onRemove?.();
-          },
-        },
-        "×",
-      ),
-      h("span.column-name", columnName ?? `Column ${columnID}`),
-      " ",
-      h(Identifier, { id: columnID, className: "column-id" }),
-    ],
-  );
+  return h("div.column-header", [
+    h("span.column-name", columnName ?? `Column ${columnID}`),
+    " ",
+    h(Identifier, { id: columnID, className: "column-id" }),
+  ]);
 }

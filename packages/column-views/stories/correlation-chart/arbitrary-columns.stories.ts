@@ -8,7 +8,7 @@ import {
   useMacrostratColumnInfo,
 } from "@macrostrat/data-provider";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
-import { OverlaysProvider } from "@blueprintjs/core";
+import { Button, Intent, OverlaysProvider } from "@blueprintjs/core";
 import {
   MacrostratInteractionProvider,
   SortableItems,
@@ -62,7 +62,6 @@ function ArbitraryColumnsLayout(props) {
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns,
   );
-  const removeColumn = useCorrelationMapStore((state) => state.removeColumn);
   const columnMapLink = useColumnMapLink();
   const colIDs = focusedColumns.map((col) => col.properties.col_id);
 
@@ -80,7 +79,6 @@ function ArbitraryColumnsLayout(props) {
           h(CorrelationChart, {
             data: columnUnits,
             columnHeaderComponent: CorrelationColumnHeader,
-            onRemoveColumn: removeColumn,
             ...columnMapLink,
             ...props,
           }),
@@ -135,17 +133,17 @@ function ColumnReorderList() {
       h([
         h(SortableDragHandle),
         h(ColumnReorderLabel, { colID: id as number }),
-        h(
-          "button.remove-column",
-          {
-            title: "Remove column",
-            onClick(e) {
-              e.stopPropagation();
-              removeColumn(id as number);
-            },
+        h(Button, {
+          icon: "cross",
+          intent: Intent.DANGER,
+          minimal: true,
+          small: true,
+          title: "Remove column",
+          onClick(e) {
+            e.stopPropagation();
+            removeColumn(id as number);
           },
-          "×",
-        ),
+        }),
       ]),
   });
 }

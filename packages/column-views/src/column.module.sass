@@ -57,6 +57,12 @@ body:global(.dark-mode) .column-container
     fill: var(--selection-overlay-color, red)
     fill-opacity: var(--selection-overlay-opacity, 0.5)
 
+  // Units sharing a stratigraphic name with the selection: a subtler highlight
+  .linked-overlay
+    fill: var(--linked-overlay-color, var(--selection-overlay-color, red))
+    fill-opacity: var(--linked-overlay-opacity, 0.18)
+    pointer-events: none
+
   g.lithology-column use.frame
     stroke: var(--column-stroke-color)
     stroke-width: 1.5px !important

@@ -1,7 +1,7 @@
 import { Meta } from "@storybook/react-vite";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useState } from "react";
-import { OverlaysProvider } from "@blueprintjs/core";
+import { Button, Intent, OverlaysProvider } from "@blueprintjs/core";
 import {
   MacrostratDataProvider,
   fetchUnits,
@@ -91,14 +91,19 @@ function TimescaleZoomLayout(props) {
   };
 
   return h("div.side-panel-ui", [
-    h("div.chart-scroll", [
-      h(ZoomPill, { zoom, onClear: () => setZoom(null) }),
+    h(
+      "div.chart-scroll",
       h(
         ErrorBoundary,
         h(OverlaysProvider, [
           h(CorrelationChart, {
             data: columnUnits,
             columnHeaderComponent: CorrelationColumnHeader,
+            // Show the current zoom as a pill above the timescale axis
+            axisTopContent: h(ZoomPill, {
+              zoom,
+              onClear: () => setZoom(null),
+            }),
             onClickTimescaleInterval,
             t_age: zoom?.t_age,
             b_age: zoom?.b_age,
@@ -107,7 +112,7 @@ function TimescaleZoomLayout(props) {
           }),
         ]),
       ),
-    ]),
+    ),
     h("div.side-panel", [
       h(
         "div.map-panel",
@@ -124,7 +129,9 @@ function TimescaleZoomLayout(props) {
   ]);
 }
 
-/** A clearable pill showing the currently zoomed interval. */
+/** A clearable pill showing the currently zoomed interval. The interval tag
+ * itself links to the interval page; the separate danger button clears the
+ * zoom, keeping the two interactions distinct. */
 function ZoomPill({
   zoom,
   onClear,
@@ -133,24 +140,17 @@ function ZoomPill({
   onClear: () => void;
 }) {
   if (zoom == null) return null;
-  return h(
-    "div.zoom-pill",
-    h(IntervalTag, {
-      interval: zoom.interval,
-      prefix: h(
-        "button.clear-zoom",
-        {
-          title: "Clear zoom",
-          onClick(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            onClear();
-          },
-        },
-        "×",
-      ),
+  return h("div.zoom-pill", [
+    h(IntervalTag, { interval: zoom.interval, showAgeRange: true }),
+    h(Button, {
+      icon: "cross",
+      intent: Intent.DANGER,
+      minimal: true,
+      small: true,
+      title: "Clear zoom",
+      onClick: onClear,
     }),
-  );
+  ]);
 }
 
 export default {

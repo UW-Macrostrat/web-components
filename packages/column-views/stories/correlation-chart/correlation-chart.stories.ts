@@ -73,10 +73,7 @@ function CorrelationStoryUI({
   );
 }
 
-function CorrelationDiagramWrapper({
-  enableColumnRemoval,
-  ...props
-}: Omit<CorrelationChartProps, "data"> & { enableColumnRemoval?: boolean }) {
+function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
   /** This state management is a bit too complicated, but it does kinda sorta work */
 
   const fetch = useMacrostratFetch();
@@ -85,7 +82,6 @@ function CorrelationDiagramWrapper({
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns,
   );
-  const removeColumn = useCorrelationMapStore((state) => state.removeColumn);
   // Link column hover/click to the map (highlight on hover, frame on click)
   const columnMapLink = useColumnMapLink();
 
@@ -102,7 +98,6 @@ function CorrelationDiagramWrapper({
           data: columnUnits,
           ...props,
           ...columnMapLink,
-          onRemoveColumn: enableColumnRemoval ? removeColumn : undefined,
         }),
       ]),
     ),
@@ -282,19 +277,3 @@ WideColumnSpacing.parameters = {
   },
 };
 
-export const ColumnRemoval = Template.bind({});
-ColumnRemoval.args = {
-  columnHeaderComponent: CorrelationColumnHeader,
-  enableColumnRemoval: true,
-};
-ColumnRemoval.parameters = {
-  docs: {
-    description: {
-      story:
-        "Each column header has a close button. Removing a column from a " +
-        "line-of-section selection converts it to a manual selection (a line " +
-        "can no longer represent the arbitrary subset), so the map switches to " +
-        "click-to-select mode.",
-    },
-  },
-};

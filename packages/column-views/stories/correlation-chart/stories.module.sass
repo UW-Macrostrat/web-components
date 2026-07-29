@@ -26,25 +26,6 @@
   text-align: left
   overflow-wrap: break-word
 
-  &.removable
-    position: relative
-    padding-right: 1.3em
-
-  .remove-column
-    position: absolute
-    top: -0.1em
-    right: 0
-    border: none
-    background: none
-    cursor: pointer
-    font-size: 1.15em
-    line-height: 1
-    padding: 0 0.2em
-    color: var(--text-subtle-color)
-
-    &:hover
-      color: var(--text-color)
-
   .column-name
     font-weight: 600
 
@@ -137,38 +118,18 @@
       color: var(--text-subtle-color)
       font-size: 0.85em
 
-  .reorder-item .remove-column
-    border: none
-    background: none
-    cursor: pointer
-    color: var(--text-subtle-color)
-    font-size: 1.1em
-    line-height: 1
-    padding: 0 0.2em
-
-    &:hover
-      color: var(--text-color)
-
   .reorder-empty
     color: var(--text-subtle-color)
     font-size: 0.9em
 
-// Clearable "zoom" pill, pinned to the top-left above the timescale
+// Clearable "zoom" pill shown in the header spacer, above the timescale axis.
+// Absolutely positioned so it never widens the axis column / shifts the chart.
 .zoom-pill
-  position: sticky
-  top: 0.5em
-  left: 0.5em
-  // Above the sticky age axis (z-index 100) and column headers
-  z-index: 200
-  width: fit-content
-  margin: 0.5em
-
-  .clear-zoom
-    border: none
-    background: none
-    cursor: pointer
-    color: inherit
-    font-size: 1.05em
-    line-height: 1
-    padding: 0 0.15em 0 0
-    margin-right: 0.1em
+  position: absolute
+  left: 1em
+  bottom: 0.25em
+  z-index: 3
+  display: flex
+  align-items: center
+  gap: 0.15em
+  white-space: nowrap

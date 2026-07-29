@@ -156,11 +156,22 @@ if (props.onClickedColumn) {
 
 export function useUnitSelectionTarget(
   unit: IUnit,
-): [React.RefObject<HTMLElement>, boolean, (evt: Event) => void] {
+): [React.RefObject<HTMLElement>, boolean, (evt: Event) => void, boolean] {
   const ref = useRef<HTMLElement>(null);
   const [selectedUnit, selectUnit] = useUnitSelection();
   const selected = selectedUnit?.unit_id == unit.unit_id;
   const selectedUnitElement = scope.useAtomValue(selectedUnitElementAtom);
+
+  // "Linked" units share a stratigraphic name with the selected unit (e.g.
+  // the same formation correlated across columns), but are not the selection
+  // itself. They receive a subtler highlight.
+  const selectedStratName = (selectedUnit as any)?.strat_name_id;
+  const unitStratName = (unit as any)?.strat_name_id;
+  const linked =
+    !selected &&
+    selectedStratName != null &&
+    unitStratName != null &&
+    unitStratName === selectedStratName;
 
   const onClick = useCallback(
     (evt: Event) => {
@@ -185,7 +196,7 @@ export function useUnitSelectionTarget(
     });
   }, [selectedUnitElement]);
 
-  return [ref, selected, onClick];
+  return [ref, selected, onClick, linked];
 }
 
 export function UnitKeyboardNavigation({
