@@ -1,15 +1,12 @@
 import { Meta } from "@storybook/react-vite";
 import "@macrostrat/style-system";
-import {
-  useCorrelationLine,
-  CorrelationColumnHeader,
-  RemovableColumnHeader,
-} from "./utils.ts";
+import { useCorrelationLine, CorrelationColumnHeader } from "./utils.ts";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
   MergeSectionsMode,
   useCorrelationMapStore,
+  useColumnMapLink,
 } from "../../src";
 import { hyperStyled } from "@macrostrat/hyper";
 import {
@@ -76,7 +73,10 @@ function CorrelationStoryUI({
   );
 }
 
-function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
+function CorrelationDiagramWrapper({
+  enableColumnRemoval,
+  ...props
+}: Omit<CorrelationChartProps, "data"> & { enableColumnRemoval?: boolean }) {
   /** This state management is a bit too complicated, but it does kinda sorta work */
 
   const fetch = useMacrostratFetch();
@@ -85,6 +85,9 @@ function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns,
   );
+  const removeColumn = useCorrelationMapStore((state) => state.removeColumn);
+  // Link column hover/click to the map (highlight on hover, frame on click)
+  const columnMapLink = useColumnMapLink();
 
   const columnUnits = useAsyncMemo(async () => {
     const col_ids = focusedColumns.map((col) => col.properties.col_id);
@@ -95,7 +98,12 @@ function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
     h(
       ErrorBoundary,
       h(OverlaysProvider, [
-        h(CorrelationChart, { data: columnUnits, ...props }),
+        h(CorrelationChart, {
+          data: columnUnits,
+          ...props,
+          ...columnMapLink,
+          onRemoveColumn: enableColumnRemoval ? removeColumn : undefined,
+        }),
       ]),
     ),
   ]);
@@ -164,6 +172,11 @@ export default {
       },
     },
     minSectionHeight: {
+      control: {
+        type: "number",
+      },
+    },
+    minPixelScale: {
       control: {
         type: "number",
       },
@@ -271,7 +284,8 @@ WideColumnSpacing.parameters = {
 
 export const ColumnRemoval = Template.bind({});
 ColumnRemoval.args = {
-  columnHeaderComponent: RemovableColumnHeader,
+  columnHeaderComponent: CorrelationColumnHeader,
+  enableColumnRemoval: true,
 };
 ColumnRemoval.parameters = {
   docs: {

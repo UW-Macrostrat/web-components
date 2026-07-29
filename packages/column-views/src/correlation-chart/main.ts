@@ -30,12 +30,16 @@ import {
 import { ColoredUnitComponent } from "../units";
 import { UnitBoxes } from "../units/boxes";
 import { ColumnContainer } from "../column";
-import { ColumnData } from "../data-provider";
+import type { ColumnData } from "@macrostrat/data-provider";
 import { BaseUnit } from "@macrostrat/api-types";
 import { ScaleContinuousNumeric } from "d3-scale";
 import { ExtUnit } from "../prepare-units/types";
 import type { TimescaleClickHandler } from "@macrostrat/timescale";
+import { useMacrostratColumnInfo } from "@macrostrat/data-provider";
 
+/** Standard props passed to a `columnHeaderComponent`. Everything a header
+ * needs is provided here, so the component can be a pure function of its props
+ * (no hooks required). Column-level hover/click are handled by the chart. */
 export interface ColumnHeaderProps {
   /** The column data (units + identifier) for this column */
   column: ColumnData;
@@ -47,6 +51,10 @@ export interface ColumnHeaderProps {
   units: ExtUnit[];
   /** The rendered width of the column, in pixels */
   width: number;
+  /** The column's name, resolved from column metadata when available */
+  columnName?: string | null;
+  /** Provided when column removal is enabled; renders e.g. a close button */
+  onRemove?: () => void;
 }
 
 export interface CorrelationChartProps extends CorrelationChartSettings {
@@ -63,6 +71,13 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
   /** Called when a timescale interval is clicked (e.g. to zoom the age range) */
   onClickTimescaleInterval?: TimescaleClickHandler;
+  /** Called when the pointer enters/leaves a column (header or body). Passes
+   * the column ID, or null on leave. */
+  onColumnMouseOver?: (columnID: number | null) => void;
+  /** Called when a column header is clicked (e.g. to frame it on a map) */
+  onColumnClick?: (columnID: number) => void;
+  /** When provided, column headers expose a remove control wired to this */
+  onRemoveColumn?: (columnID: number) => void;
 }
 
 /** Horizontal padding of the main chart SVG. Column headers are aligned to
@@ -92,6 +107,9 @@ export function CorrelationChart({
   unitComponent,
   columnHeaderComponent,
   onClickTimescaleInterval,
+  onColumnMouseOver,
+  onColumnClick,
+  onRemoveColumn,
   ...scaleProps
 }: CorrelationChartProps) {
   const defaultScaleProps = {
@@ -162,6 +180,7 @@ export function CorrelationChart({
                 pixelScale,
                 scale,
                 unitComponent,
+                onColumnMouseOver,
               });
             }),
           ),
@@ -178,6 +197,9 @@ export function CorrelationChart({
           columnWidth,
           columnSpacing,
           columnHeaderComponent,
+          onColumnMouseOver,
+          onColumnClick,
+          onRemoveColumn,
         }),
       ]),
     ),
@@ -193,6 +215,7 @@ function Package({
   domain,
   pixelScale,
   scale,
+  onColumnMouseOver,
 }) {
   return h("g.package", { transform: `translate(0 ${offset})` }, [
     // Disable the SVG overlay for now
@@ -201,6 +224,7 @@ function Package({
       columnData.map((data, i) => {
         return h(Column, {
           units: data.units,
+          columnID: data.columnID,
           unitComponent,
           width: columnWidth,
           key: i,
@@ -208,6 +232,7 @@ function Package({
           pixelScale,
           scale,
           offsetLeft: i * (columnWidth + columnSpacing),
+          onColumnMouseOver,
         });
       }),
     ]),
@@ -216,6 +241,7 @@ function Package({
 
 interface ColumnProps {
   units: ExtUnit[];
+  columnID?: number;
   unitComponent?: React.FunctionComponent<any>;
   unitComponentProps?: any;
   showLabels?: boolean;
@@ -227,17 +253,20 @@ interface ColumnProps {
   domain: [number, number];
   pixelScale: number;
   scale?: ScaleContinuousNumeric<number, number>;
+  onColumnMouseOver?: (columnID: number | null) => void;
 }
 
 function Column(props: ColumnProps) {
   const {
     units,
+    columnID,
     width = 150,
     offsetLeft,
     domain,
     pixelScale,
     scale,
     unitComponent = ColoredUnitComponent,
+    onColumnMouseOver,
   } = props;
 
   const columnWidth = width;
@@ -246,10 +275,19 @@ function Column(props: ColumnProps) {
     return null;
   }
 
+  const hoverHandlers =
+    onColumnMouseOver != null && columnID != null
+      ? {
+          onMouseEnter: () => onColumnMouseOver(columnID),
+          onMouseLeave: () => onColumnMouseOver(null),
+        }
+      : {};
+
   return h(
     "g.section",
     {
       transform: `translate(${offsetLeft} 0)`,
+      ...hoverHandlers,
     },
     h(
       ColumnProvider,
@@ -356,6 +394,9 @@ interface ColumnHeaderRowProps {
   columnWidth: number;
   columnSpacing: number;
   columnHeaderComponent?: React.ComponentType<ColumnHeaderProps>;
+  onColumnMouseOver?: (columnID: number | null) => void;
+  onColumnClick?: (columnID: number) => void;
+  onRemoveColumn?: (columnID: number) => void;
 }
 
 function ColumnHeaderRow({
@@ -363,6 +404,9 @@ function ColumnHeaderRow({
   columnWidth,
   columnSpacing,
   columnHeaderComponent,
+  onColumnMouseOver,
+  onColumnClick,
+  onRemoveColumn,
 }: ColumnHeaderRowProps) {
   /** A row of arbitrary content rendered above each column, aligned with the
    * columns in the main chart area. Renders nothing (collapsing the grid row)
@@ -384,27 +428,70 @@ function ColumnHeaderRow({
         },
       },
       data.map((column, i) => {
-        return h(
-          "div.column-header-cell",
-          {
-            key: column.columnID ?? i,
-            style: {
-              width: columnWidth,
-              minWidth: columnWidth,
-              maxWidth: columnWidth,
-            },
-          },
-          h(Component, {
-            column,
-            columnID: column.columnID,
-            columnIndex: i,
-            units: column.units as ExtUnit[],
-            width: columnWidth,
-          }),
-        );
+        return h(ColumnHeaderCell, {
+          key: column.columnID ?? i,
+          column,
+          columnIndex: i,
+          columnWidth,
+          Component,
+          onColumnMouseOver,
+          onColumnClick,
+          onRemoveColumn,
+        });
       }),
     ),
   ]);
+}
+
+function ColumnHeaderCell({
+  column,
+  columnIndex,
+  columnWidth,
+  Component,
+  onColumnMouseOver,
+  onColumnClick,
+  onRemoveColumn,
+}: {
+  column: ColumnData;
+  columnIndex: number;
+  columnWidth: number;
+  Component: React.ComponentType<ColumnHeaderProps>;
+  onColumnMouseOver?: (columnID: number | null) => void;
+  onColumnClick?: (columnID: number) => void;
+  onRemoveColumn?: (columnID: number) => void;
+}) {
+  /** Resolves the column name and wires column-level hover/click so the header
+   * component itself can stay a pure function of props. */
+  const columnID = column.columnID;
+  const info = useMacrostratColumnInfo(columnID);
+
+  return h(
+    "div.column-header-cell",
+    {
+      style: {
+        width: columnWidth,
+        minWidth: columnWidth,
+        maxWidth: columnWidth,
+      },
+      onMouseEnter: () => onColumnMouseOver?.(columnID),
+      onMouseLeave: () => onColumnMouseOver?.(null),
+      onClick: onColumnClick
+        ? (e: React.MouseEvent) => {
+            e.stopPropagation();
+            onColumnClick(columnID);
+          }
+        : undefined,
+    },
+    h(Component, {
+      column,
+      columnID,
+      columnIndex,
+      units: column.units as ExtUnit[],
+      width: columnWidth,
+      columnName: info?.col_name ?? null,
+      onRemove: onRemoveColumn ? () => onRemoveColumn(columnID) : undefined,
+    }),
+  );
 }
 
 interface TimescaleColumnProps {

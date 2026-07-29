@@ -4,6 +4,7 @@ import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
   useCorrelationMapStore,
+  useColumnMapLink,
   UnitDetailsPanel,
   UnitDetailsFeature,
   CorrelationChart,
@@ -60,6 +61,7 @@ function FixedPanelLayout(props) {
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns,
   );
+  const columnMapLink = useColumnMapLink();
 
   const columnUnits = useAsyncMemo(async () => {
     const col_ids = focusedColumns.map((col) => col.properties.col_id);
@@ -84,6 +86,7 @@ function FixedPanelLayout(props) {
             // Selection stays internal to the chart; mirror it into the panel
             onUnitSelected: (_id, unit) => setSelectedUnit(unit),
             columnHeaderComponent: CorrelationColumnHeader,
+            ...columnMapLink,
             ...props,
           }),
         ]),

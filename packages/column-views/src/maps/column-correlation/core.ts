@@ -38,10 +38,42 @@ export function ColumnCorrelationMap(props: CorrelationMapProps) {
       h(MapClickHandler),
       h(ColumnInteractionHandler),
       h(HoveredColumnHighlight),
+      h(ColumnZoomer, { padding }),
       h(SectionLine, { padding }),
       children,
     ],
   );
+}
+
+function ColumnZoomer({ padding }: { padding: number }) {
+  /** Frame a single column when `zoomColumn` is set (e.g. header click). */
+  const zoomColumn = useCorrelationMapStore((state) => state.zoomColumn);
+  const zoomNonce = useCorrelationMapStore((state) => state.zoomNonce);
+  const columns = useCorrelationMapStore((state) => state.columns);
+
+  const bounds = useMemo(() => {
+    if (zoomColumn == null || columns == null) return null;
+    const col = columns.find((c) => c.properties?.col_id === zoomColumn);
+    if (col?.geometry == null) return null;
+    const b = new LngLatBounds();
+    forEachCoordinate(col.geometry, (coord) => b.extend(coord as [number, number]));
+    return b.isEmpty() ? null : b;
+    // zoomNonce forces a fresh bounds object so repeat clicks re-frame
+  }, [zoomColumn, zoomNonce, columns]);
+
+  useMapEaseTo({ bounds, padding: padding * 2 });
+  return null;
+}
+
+function forEachCoordinate(geometry: any, fn: (coord: number[]) => void) {
+  const walk = (coords: any) => {
+    if (typeof coords[0] === "number") {
+      fn(coords);
+    } else {
+      for (const c of coords) walk(c);
+    }
+  };
+  if (geometry?.coordinates != null) walk(geometry.coordinates);
 }
 
 const columnLayers = ["columns-fill", "columns-points"];

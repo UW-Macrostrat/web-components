@@ -1,10 +1,12 @@
 import { Meta } from "@storybook/react-vite";
 import "@macrostrat/style-system";
 import { hyperStyled } from "@macrostrat/hyper";
+import { useState } from "react";
 import {
   MacrostratDataProvider,
   fetchUnits,
   useMacrostratFetch,
+  useMacrostratColumnInfo,
 } from "@macrostrat/data-provider";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
@@ -14,9 +16,10 @@ import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
   useCorrelationMapStore,
+  useColumnMapLink,
+  CorrelationChart,
 } from "../../src";
-import { CorrelationChart } from "../../src";
-import { RemovableColumnHeader } from "./utils.ts";
+import { CorrelationColumnHeader } from "./utils.ts";
 import styles from "./stories.module.sass";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
@@ -49,12 +52,15 @@ function ArbitraryColumnsStoryUI({ projectID, manualColumns, ...rest }: any) {
 
 function ArbitraryColumnsLayout(props) {
   /** Select an arbitrary set of (possibly non-adjacent) columns directly, with
-   * no line-of-section. Click columns on the map to add/remove them. */
+   * no line-of-section. Click columns on the map to add/remove them, and use
+   * the sidebar list to reorder or remove them. */
   const fetch = useMacrostratFetch();
 
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns,
   );
+  const removeColumn = useCorrelationMapStore((state) => state.removeColumn);
+  const columnMapLink = useColumnMapLink();
   const colIDs = focusedColumns.map((col) => col.properties.col_id);
 
   const columnUnits = useAsyncMemo(async () => {
@@ -70,7 +76,9 @@ function ArbitraryColumnsLayout(props) {
         h(OverlaysProvider, [
           h(CorrelationChart, {
             data: columnUnits,
-            columnHeaderComponent: RemovableColumnHeader,
+            columnHeaderComponent: CorrelationColumnHeader,
+            onRemoveColumn: removeColumn,
+            ...columnMapLink,
             ...props,
           }),
         ]),
@@ -86,12 +94,85 @@ function ArbitraryColumnsLayout(props) {
       ),
       h("div.picker-help", [
         h("p", "Click columns on the map to add or remove them."),
-        h("p.column-list", [
-          "Selected: ",
-          colIDs.length > 0 ? h("code", colIDs.join(", ")) : h("em", "none"),
-        ]),
+        h("p", "Drag the list below to reorder; × removes a column."),
       ]),
+      h(ColumnReorderList),
     ]),
+  ]);
+}
+
+/** A sidebar list of the selected columns, in order, supporting drag-and-drop
+ * reordering and removal. */
+function ColumnReorderList() {
+  const focusedColumns = useCorrelationMapStore(
+    (state) => state.focusedColumns,
+  );
+  const setManualColumns = useCorrelationMapStore((s) => s.setManualColumns);
+  const removeColumn = useCorrelationMapStore((s) => s.removeColumn);
+  const setHoveredColumn = useCorrelationMapStore((s) => s.setHoveredColumn);
+  const zoomToColumn = useCorrelationMapStore((s) => s.zoomToColumn);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+
+  const ids = focusedColumns.map((c) => c.properties.col_id);
+
+  const move = (from: number | null, to: number) => {
+    if (from == null || from === to) return;
+    const next = [...ids];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setManualColumns(next);
+  };
+
+  if (focusedColumns.length === 0) {
+    return h("p.reorder-empty", h("em", "No columns selected"));
+  }
+
+  return h(
+    "ul.column-reorder-list",
+    focusedColumns.map((col, i) => {
+      const colID = col.properties.col_id;
+      return h(
+        "li.reorder-item",
+        {
+          key: colID,
+          draggable: true,
+          className: dragIndex === i ? "dragging" : undefined,
+          onDragStart: () => setDragIndex(i),
+          onDragEnd: () => setDragIndex(null),
+          onDragOver: (e: React.DragEvent) => e.preventDefault(),
+          onDrop: () => {
+            move(dragIndex, i);
+            setDragIndex(null);
+          },
+          onMouseEnter: () => setHoveredColumn(colID),
+          onMouseLeave: () => setHoveredColumn(null),
+          onClick: () => zoomToColumn(colID),
+        },
+        [
+          h("span.drag-handle", { title: "Drag to reorder" }, "⠿"),
+          h(ColumnReorderLabel, { colID }),
+          h(
+            "button.remove-column",
+            {
+              title: "Remove column",
+              onClick(e) {
+                e.stopPropagation();
+                removeColumn(colID);
+              },
+            },
+            "×",
+          ),
+        ],
+      );
+    }),
+  );
+}
+
+function ColumnReorderLabel({ colID }: { colID: number }) {
+  const info = useMacrostratColumnInfo(colID);
+  return h("span.reorder-label", [
+    h("span.reorder-name", info?.col_name ?? `Column ${colID}`),
+    h("code.reorder-id", colID),
   ]);
 }
 
@@ -106,7 +187,8 @@ export default {
           "Build a correlation chart from an arbitrary set of columns, selected " +
           "directly on the map rather than via a line-of-section. The selected " +
           "columns may be non-adjacent and in any order. The dashed line on the " +
-          "map shows the correlation order.",
+          "map shows the correlation order, and the sidebar list can reorder or " +
+          "remove columns.",
       },
       story: {
         inline: false,

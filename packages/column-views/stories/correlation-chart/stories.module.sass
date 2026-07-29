@@ -104,3 +104,87 @@
 
     .column-list code
       color: var(--text-color)
+
+  // Drag-and-drop reorder list of selected columns
+  .column-reorder-list
+    list-style: none
+    margin: 0
+    padding: 0
+    flex: 1 1 auto
+    min-height: 0
+    overflow: auto
+    display: flex
+    flex-direction: column
+    gap: 2px
+
+  .reorder-item
+    display: flex
+    align-items: center
+    gap: 0.4em
+    padding: 0.3em 0.4em
+    border-radius: 4px
+    cursor: grab
+    user-select: none
+
+    &:hover
+      background-color: var(--panel-secondary-background-color)
+
+    &.dragging
+      opacity: 0.5
+
+  .drag-handle
+    color: var(--text-subtle-color)
+    cursor: grab
+
+  .reorder-label
+    flex: 1 1 auto
+    min-width: 0
+    display: flex
+    gap: 0.35em
+    align-items: baseline
+    overflow: hidden
+
+    .reorder-name
+      overflow: hidden
+      text-overflow: ellipsis
+      white-space: nowrap
+
+    .reorder-id
+      color: var(--text-subtle-color)
+      font-size: 0.85em
+
+  .reorder-item .remove-column
+    border: none
+    background: none
+    cursor: pointer
+    color: var(--text-subtle-color)
+    font-size: 1.1em
+    line-height: 1
+    padding: 0 0.2em
+
+    &:hover
+      color: var(--text-color)
+
+  .reorder-empty
+    color: var(--text-subtle-color)
+    font-size: 0.9em
+
+// Clearable "zoom" pill, pinned to the top-left above the timescale
+.zoom-pill
+  position: sticky
+  top: 0.5em
+  left: 0.5em
+  // Above the sticky age axis (z-index 100) and column headers
+  z-index: 200
+  width: fit-content
+  margin: 0.5em
+
+  .clear-zoom
+    border: none
+    background: none
+    cursor: pointer
+    color: inherit
+    font-size: 1.05em
+    line-height: 1
+    padding: 0 0.15em 0 0
+    margin-right: 0.1em

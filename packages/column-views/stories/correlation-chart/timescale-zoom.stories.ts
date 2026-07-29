@@ -1,20 +1,25 @@
 import { Meta } from "@storybook/react-vite";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useState } from "react";
-import { Button, OverlaysProvider } from "@blueprintjs/core";
+import { OverlaysProvider } from "@blueprintjs/core";
 import {
   MacrostratDataProvider,
   fetchUnits,
   useMacrostratFetch,
 } from "@macrostrat/data-provider";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
-import { MacrostratInteractionProvider } from "@macrostrat/data-components";
+import {
+  MacrostratInteractionProvider,
+  IntervalTag,
+  type IntervalShort,
+} from "@macrostrat/data-components";
 
 import {
   CorrelationChart,
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
   useCorrelationMapStore,
+  useColumnMapLink,
 } from "../../src";
 import { CorrelationColumnHeader } from "./utils.ts";
 import styles from "./stories.module.sass";
@@ -50,6 +55,7 @@ function TimescaleZoomLayout(props) {
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns,
   );
+  const columnMapLink = useColumnMapLink();
   const colIDs = focusedColumns.map((col) => col.properties.col_id);
 
   const columnUnits = useAsyncMemo(async () => {
@@ -57,8 +63,12 @@ function TimescaleZoomLayout(props) {
     return await fetchUnits(colIDs, fetch);
   }, [colIDs.join(",")]);
 
-  // Age range [t_age, b_age] to zoom to; null = full range
-  const [ageRange, setAgeRange] = useState<[number, number] | null>(null);
+  // The interval we've zoomed to (null = full range)
+  const [zoom, setZoom] = useState<{
+    interval: IntervalShort;
+    t_age: number;
+    b_age: number;
+  } | null>(null);
 
   const onClickTimescaleInterval = (_event, data) => {
     const interval = data?.interval;
@@ -66,12 +76,42 @@ function TimescaleZoomLayout(props) {
     const { eag, lag } = interval; // early (older) and late (younger) ages
     // Buffer around the interval so neighboring time can still be traversed
     const buffer = Math.max((eag - lag) * 0.25, 5);
-    setAgeRange([Math.max(lag - buffer, 0), eag + buffer]);
+    setZoom({
+      interval: {
+        id: interval.int_id ?? interval.oid,
+        name: interval.nam,
+        color: interval.col,
+        b_age: eag,
+        t_age: lag,
+        rank: interval.lvl,
+      },
+      t_age: Math.max(lag - buffer, 0),
+      b_age: eag + buffer,
+    });
   };
 
   return h("div.side-panel-ui", [
-    h(
-      "div.chart-scroll",
+    h("div.chart-scroll", [
+      zoom != null
+        ? h(
+            "div.zoom-pill",
+            h(IntervalTag, {
+              interval: zoom.interval,
+              prefix: h(
+                "button.clear-zoom",
+                {
+                  title: "Clear zoom",
+                  onClick(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setZoom(null);
+                  },
+                },
+                "×",
+              ),
+            }),
+          )
+        : null,
       h(
         ErrorBoundary,
         h(OverlaysProvider, [
@@ -79,13 +119,14 @@ function TimescaleZoomLayout(props) {
             data: columnUnits,
             columnHeaderComponent: CorrelationColumnHeader,
             onClickTimescaleInterval,
-            t_age: ageRange?.[0],
-            b_age: ageRange?.[1],
+            t_age: zoom?.t_age,
+            b_age: zoom?.b_age,
+            ...columnMapLink,
             ...props,
           }),
         ]),
       ),
-    ),
+    ]),
     h("div.side-panel", [
       h(
         "div.map-panel",
@@ -96,13 +137,7 @@ function TimescaleZoomLayout(props) {
       ),
       h("div.picker-help", [
         h("p", "Click a timescale interval (left axis) to zoom to that span."),
-        h(Button, {
-          small: true,
-          icon: "zoom-to-fit",
-          disabled: ageRange == null,
-          onClick: () => setAgeRange(null),
-          text: "Reset zoom",
-        }),
+        h("p", "Clear the pill at the top-left to return to the full range."),
       ]),
     ]),
   ]);
@@ -118,7 +153,10 @@ export default {
         component:
           "Click an interval on the timescale axis to zoom the chart to that " +
           "time span (plus a buffer so adjacent intervals remain reachable). " +
-          "Use “Reset zoom” to return to the full range.",
+          "A clearable pill at the top-left shows the current zoom. " +
+          "`minPixelScale` sets the px/myr floor at which the column stops " +
+          "shrinking and starts expanding, so a wide age range never collapses " +
+          "into a sliver.",
       },
       story: {
         inline: false,
@@ -138,6 +176,14 @@ export default {
     columnWidth: 100,
     collapseSmallUnconformities: true,
     targetUnitHeight: 20,
+    // Floor on px/myr so a wide range doesn't render as a thin column
+    minPixelScale: 1,
+    minSectionHeight: 60,
+  },
+  argTypes: {
+    minPixelScale: { control: { type: "number" } },
+    minSectionHeight: { control: { type: "number" } },
+    targetUnitHeight: { control: { type: "number" } },
   },
 } as Meta<typeof TimescaleZoomStoryUI>;
 

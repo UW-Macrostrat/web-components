@@ -37,8 +37,16 @@ export interface CorrelationMapStore extends CorrelationMapInput {
    * current selection to a manual one (a line can't represent an arbitrary
    * subset), so removing a column switches modes. */
   removeColumn: (colID: number) => void;
+  /** Replace the manual column selection with an explicit ordered list (used
+   * e.g. for drag-and-drop reordering). Switches to manual mode. */
+  setManualColumns: (colIDs: number[]) => void;
   setHoveredColumn: (colID: number | null) => void;
   hoveredColumn: number | null;
+  /** Request the map to frame a particular column (e.g. on header click). */
+  zoomToColumn: (colID: number | null) => void;
+  zoomColumn: number | null;
+  /** Incremented on each zoom request so repeat clicks re-frame the column. */
+  zoomNonce: number;
   projectID?: number;
 }
 
@@ -90,6 +98,8 @@ export function ColumnCorrelationProvider({
           focusedLine,
           manualColumns,
           hoveredColumn: null,
+          zoomColumn: null,
+          zoomNonce: 0,
           projectID,
           columns: null,
           onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
@@ -132,8 +142,14 @@ export function ColumnCorrelationProvider({
               focusedLine: null,
             });
           },
+          setManualColumns(colIDs: number[]) {
+            set({ manualColumns: colIDs, focusedLine: null });
+          },
           setHoveredColumn(colID: number | null) {
             set({ hoveredColumn: colID });
+          },
+          zoomToColumn(colID: number | null) {
+            set({ zoomColumn: colID, zoomNonce: get().zoomNonce + 1 });
           },
         };
       }),
@@ -168,6 +184,24 @@ export function useCorrelationMapStore(
     throw new Error("Missing CorrelationMapProvider");
   }
   return useStore(storeApi, selector);
+}
+
+export interface ColumnMapLink {
+  onColumnMouseOver: (colID: number | null) => void;
+  onColumnClick: (colID: number) => void;
+}
+
+/** Wire a correlation chart's column-level events to the correlation map:
+ * hovering a column highlights it on the map, and clicking a column header
+ * frames it. Spread the result into `CorrelationChart`. Must be used within a
+ * `ColumnCorrelationProvider`. */
+export function useColumnMapLink(): ColumnMapLink {
+  const setHoveredColumn = useCorrelationMapStore((s) => s.setHoveredColumn);
+  const zoomToColumn = useCorrelationMapStore((s) => s.zoomToColumn);
+  return {
+    onColumnMouseOver: setHoveredColumn,
+    onColumnClick: zoomToColumn,
+  };
 }
 
 function buildCorrelationColumns(
