@@ -35,6 +35,7 @@ import { ColumnData } from "../data-provider";
 import { BaseUnit } from "@macrostrat/api-types";
 import { ScaleContinuousNumeric } from "d3-scale";
 import { ExtUnit } from "../prepare-units/types";
+import type { TimescaleClickHandler } from "@macrostrat/timescale";
 
 const h = hyper.styled(styles);
 
@@ -63,6 +64,8 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   /** Arbitrary content (e.g. column title and/or ID) rendered above each column */
   columnHeaderComponent?: React.ComponentType<ColumnHeaderProps>;
   onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
+  /** Called when a timescale interval is clicked (e.g. to zoom the age range) */
+  onClickTimescaleInterval?: TimescaleClickHandler;
 }
 
 /** Horizontal padding of the main chart SVG. Column headers are aligned to
@@ -91,6 +94,7 @@ export function CorrelationChart({
   onUnitSelected,
   unitComponent,
   columnHeaderComponent,
+  onClickTimescaleInterval,
   ...scaleProps
 }: CorrelationChartProps) {
   const defaultScaleProps = {
@@ -134,17 +138,11 @@ export function CorrelationChart({
       UnitSelectionProvider,
       { selectedUnit, onUnitSelected, units },
       h(ChartArea, [
-        h(ColumnHeaderRow, {
-          key: "column-headers",
-          data,
-          columnWidth,
-          columnSpacing,
-          columnHeaderComponent,
-        }),
         h(TimescaleColumn, {
           key: "timescale",
           scaleInfo,
           unconformityLabels,
+          onClickInterval: onClickTimescaleInterval,
         }),
         h(MainChartArea, [
           h(
@@ -177,6 +175,15 @@ export function CorrelationChart({
           // Navigation only works within a column for now...
           h(UnitKeyboardNavigation, { columnData: data }),
         ]),
+        // Rendered last so the sticky header paints above the unit boxes
+        // (positioned siblings paint in document order at the same z-index)
+        h(ColumnHeaderRow, {
+          key: "column-headers",
+          data,
+          columnWidth,
+          columnSpacing,
+          columnHeaderComponent,
+        }),
       ]),
     ),
   );
@@ -410,12 +417,17 @@ interface TimescaleColumnProps {
   scaleInfo: CompositeStratigraphicScaleInfo;
   showLabels?: boolean;
   unconformityLabels?: boolean;
+  onClickInterval?: TimescaleClickHandler;
 }
 
 function TimescaleColumn(props: TimescaleColumnProps) {
-  const { scaleInfo, unconformityLabels = true } = props;
+  const { scaleInfo, unconformityLabels = true, onClickInterval } = props;
   return h("div.column-container.age-axis-container", [
     h(CompositeAgeAxisCore, { ...scaleInfo }),
-    h(CompositeTimescaleCore, { ...scaleInfo, unconformityLabels }),
+    h(CompositeTimescaleCore, {
+      ...scaleInfo,
+      unconformityLabels,
+      onClickInterval,
+    }),
   ]);
 }

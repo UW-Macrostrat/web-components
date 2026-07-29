@@ -26,6 +26,25 @@
   text-align: left
   overflow-wrap: break-word
 
+  &.removable
+    position: relative
+    padding-right: 1.3em
+
+  .remove-column
+    position: absolute
+    top: -0.1em
+    right: 0
+    border: none
+    background: none
+    cursor: pointer
+    font-size: 1.15em
+    line-height: 1
+    padding: 0 0.2em
+    color: var(--text-subtle-color)
+
+    &:hover
+      color: var(--text-color)
+
   .column-name
     font-weight: 600
 
@@ -34,13 +53,28 @@
     margin-left: 0.25em
     white-space: nowrap
 
-// Docked right column: map + unit-details panel stacked and fixed in place
-.right-column.docked
+// Side-by-side layout: scrollable chart on the left, docked panels on the right
+.side-panel-ui
   display: flex
-  flex-direction: column
-  gap: 1em
+  flex-direction: row
   height: 100vh
-  box-sizing: border-box
+  width: 100%
+  min-height: 0
+
+  .chart-scroll
+    flex: 1 1 auto
+    min-width: 0
+    overflow: auto
+
+  .side-panel
+    flex: 0 0 380px
+    display: flex
+    flex-direction: column
+    gap: 1em
+    padding: 1em
+    box-sizing: border-box
+    border-left: 1px solid var(--panel-rule-color, rgba(0, 0, 0, 0.1))
+    min-height: 0
 
   .map-panel
     flex: 0 0 auto

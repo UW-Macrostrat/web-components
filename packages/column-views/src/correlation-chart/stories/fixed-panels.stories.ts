@@ -28,6 +28,7 @@ const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 const h = hyperStyled(styles);
 
 const detailsPanelFeatures = new Set([
+  UnitDetailsFeature.AdjacentUnits,
   UnitDetailsFeature.OutcropType,
   UnitDetailsFeature.DepthRange,
   UnitDetailsFeature.ColumnName,
@@ -71,15 +72,16 @@ function FixedPanelLayout(props) {
   // right column, outside of the chart's own layout.
   const [selectedUnit, setSelectedUnit] = useState<BaseUnit | null>(null);
 
-  return h("div.correlation-ui", [
+  // Side-by-side layout: chart on the left, docked panels on the right
+  return h("div.side-panel-ui", [
     h(
-      "div.correlation-container",
+      "div.chart-scroll",
       h(
         ErrorBoundary,
         h(OverlaysProvider, [
           h(CorrelationChart, {
             data: columnUnits,
-            // Disable the floating popover — details render in the right column
+            // Disable the floating popover — details render in the side column
             showUnitPopover: false,
             // Selection stays internal to the chart; mirror it into the panel
             onUnitSelected: (_id, unit) => setSelectedUnit(unit),
@@ -89,7 +91,7 @@ function FixedPanelLayout(props) {
         ]),
       ),
     ),
-    h("div.right-column.docked", [
+    h("div.side-panel", [
       h(
         "div.map-panel",
         h(ColumnCorrelationMap, {

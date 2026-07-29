@@ -1,6 +1,10 @@
 import { Meta } from "@storybook/react-vite";
 import "@macrostrat/style-system";
-import { useCorrelationLine, CorrelationColumnHeader } from "./utils";
+import {
+  useCorrelationLine,
+  CorrelationColumnHeader,
+  RemovableColumnHeader,
+} from "./utils";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
@@ -258,6 +262,22 @@ WideColumnSpacing.parameters = {
       story:
         "The `columnSpacing` prop controls the horizontal gap between columns. " +
         "Column headers remain aligned with their columns regardless of spacing.",
+    },
+  },
+};
+
+export const ColumnRemoval = Template.bind({});
+ColumnRemoval.args = {
+  columnHeaderComponent: RemovableColumnHeader,
+};
+ColumnRemoval.parameters = {
+  docs: {
+    description: {
+      story:
+        "Each column header has a close button. Removing a column from a " +
+        "line-of-section selection converts it to a manual selection (a line " +
+        "can no longer represent the arbitrary subset), so the map switches to " +
+        "click-to-select mode.",
     },
   },
 };
