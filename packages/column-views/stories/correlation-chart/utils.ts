@@ -1,13 +1,10 @@
 import { useArgs } from "storybook/preview-api";
 import { useCallback } from "react";
-import { parseLineFromString, stringifyLine } from "../hash-string";
+import { parseLineFromString, stringifyLine } from "../../src";
 import { useMacrostratColumnInfo } from "@macrostrat/data-provider";
-import hyper from "@macrostrat/hyper";
-import { Identifier, useCorrelationMapStore } from "../..";
-import type { ColumnHeaderProps } from "../main";
-import styles from "./stories.module.sass";
-
-const h = hyper.styled(styles);
+import { Identifier, useCorrelationMapStore } from "../../src";
+import type { ColumnHeaderProps } from "../../src";
+import h from "./stories.module.sass";
 
 export function useCorrelationLine() {
   const [{ focusedLine, selectedUnit }, updateArgs] = useArgs();

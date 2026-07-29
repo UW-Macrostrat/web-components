@@ -1,30 +1,29 @@
 import { Meta } from "@storybook/react-vite";
 import "@macrostrat/style-system";
 import { hyperStyled } from "@macrostrat/hyper";
-import { useState } from "react";
-import { Button, OverlaysProvider } from "@blueprintjs/core";
 import {
   MacrostratDataProvider,
   fetchUnits,
   useMacrostratFetch,
 } from "@macrostrat/data-provider";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
+import { OverlaysProvider } from "@blueprintjs/core";
 import { MacrostratInteractionProvider } from "@macrostrat/data-components";
 
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
   useCorrelationMapStore,
-} from "../..";
-import { CorrelationChart } from "../main";
-import { CorrelationColumnHeader } from "./utils";
+} from "../../src";
+import { CorrelationChart } from "../../src";
+import { RemovableColumnHeader } from "./utils.ts";
 import styles from "./stories.module.sass";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 const h = hyperStyled(styles);
 
-function TimescaleZoomStoryUI({ focusedLine, projectID, ...rest }: any) {
+function ArbitraryColumnsStoryUI({ projectID, manualColumns, ...rest }: any) {
   const domain = "https://dev.macrostrat.org";
   return h(
     MacrostratDataProvider,
@@ -35,38 +34,33 @@ function TimescaleZoomStoryUI({ focusedLine, projectID, ...rest }: any) {
       h(
         ColumnCorrelationProvider,
         {
-          focusedLine,
+          // No line of section — columns are chosen directly (manual mode)
+          focusedLine: null,
+          manualColumns: manualColumns ?? [],
           columns: null,
           projectID,
           onSelectColumns() {},
         },
-        h(TimescaleZoomLayout, rest),
+        h(ArbitraryColumnsLayout, rest),
       ),
     ),
   );
 }
 
-function TimescaleZoomLayout(props) {
+function ArbitraryColumnsLayout(props) {
+  /** Select an arbitrary set of (possibly non-adjacent) columns directly, with
+   * no line-of-section. Click columns on the map to add/remove them. */
   const fetch = useMacrostratFetch();
-  const focusedColumns = useCorrelationMapStore((state) => state.focusedColumns);
+
+  const focusedColumns = useCorrelationMapStore(
+    (state) => state.focusedColumns,
+  );
   const colIDs = focusedColumns.map((col) => col.properties.col_id);
 
   const columnUnits = useAsyncMemo(async () => {
     if (colIDs.length === 0) return [];
     return await fetchUnits(colIDs, fetch);
   }, [colIDs.join(",")]);
-
-  // Age range [t_age, b_age] to zoom to; null = full range
-  const [ageRange, setAgeRange] = useState<[number, number] | null>(null);
-
-  const onClickTimescaleInterval = (_event, data) => {
-    const interval = data?.interval;
-    if (interval == null) return;
-    const { eag, lag } = interval; // early (older) and late (younger) ages
-    // Buffer around the interval so neighboring time can still be traversed
-    const buffer = Math.max((eag - lag) * 0.25, 5);
-    setAgeRange([Math.max(lag - buffer, 0), eag + buffer]);
-  };
 
   return h("div.side-panel-ui", [
     h(
@@ -76,10 +70,7 @@ function TimescaleZoomLayout(props) {
         h(OverlaysProvider, [
           h(CorrelationChart, {
             data: columnUnits,
-            columnHeaderComponent: CorrelationColumnHeader,
-            onClickTimescaleInterval,
-            t_age: ageRange?.[0],
-            b_age: ageRange?.[1],
+            columnHeaderComponent: RemovableColumnHeader,
             ...props,
           }),
         ]),
@@ -94,14 +85,11 @@ function TimescaleZoomLayout(props) {
         }),
       ),
       h("div.picker-help", [
-        h("p", "Click a timescale interval (left axis) to zoom to that span."),
-        h(Button, {
-          small: true,
-          icon: "zoom-to-fit",
-          disabled: ageRange == null,
-          onClick: () => setAgeRange(null),
-          text: "Reset zoom",
-        }),
+        h("p", "Click columns on the map to add or remove them."),
+        h("p.column-list", [
+          "Selected: ",
+          colIDs.length > 0 ? h("code", colIDs.join(", ")) : h("em", "none"),
+        ]),
       ]),
     ]),
   ]);
@@ -109,15 +97,16 @@ function TimescaleZoomLayout(props) {
 
 export default {
   title: "Column views/Correlation chart",
-  component: TimescaleZoomStoryUI,
+  component: ArbitraryColumnsStoryUI,
   parameters: {
     layout: "fullscreen",
     docs: {
       description: {
         component:
-          "Click an interval on the timescale axis to zoom the chart to that " +
-          "time span (plus a buffer so adjacent intervals remain reachable). " +
-          "Use “Reset zoom” to return to the full range.",
+          "Build a correlation chart from an arbitrary set of columns, selected " +
+          "directly on the map rather than via a line-of-section. The selected " +
+          "columns may be non-adjacent and in any order. The dashed line on the " +
+          "map shows the correlation order.",
       },
       story: {
         inline: false,
@@ -126,18 +115,16 @@ export default {
     },
   },
   args: {
-    focusedLine: {
-      type: "LineString",
-      coordinates: [
-        [-114.29, 42.74],
-        [-104.59, 39.21],
-      ],
-    },
-    columnSpacing: 10,
+    // A couple of far-apart, non-adjacent columns to start with
+    manualColumns: [432, 490],
+    columnSpacing: 20,
     columnWidth: 100,
     collapseSmallUnconformities: true,
     targetUnitHeight: 20,
   },
-} as Meta<typeof TimescaleZoomStoryUI>;
+  argTypes: {
+    projectID: { control: { type: "number" } },
+  },
+} as Meta<typeof ArbitraryColumnsStoryUI>;
 
-export const TimescaleZoom = {};
+export const ArbitraryColumnSelection = {};

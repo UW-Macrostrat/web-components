@@ -4,13 +4,13 @@ import {
   useCorrelationLine,
   CorrelationColumnHeader,
   RemovableColumnHeader,
-} from "./utils";
+} from "./utils.ts";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
   MergeSectionsMode,
   useCorrelationMapStore,
-} from "../..";
+} from "../../src";
 import { hyperStyled } from "@macrostrat/hyper";
 import {
   MacrostratDataProvider,
@@ -19,10 +19,13 @@ import {
 } from "@macrostrat/data-provider";
 
 import styles from "./stories.module.sass";
-import { CorrelationChart, CorrelationChartProps } from "../main";
+import {
+  CorrelationChart,
+  CorrelationChartProps,
+} from "../../src/correlation-chart/main.ts";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
-import { EnvironmentColoredUnitComponent } from "../../units";
+import { EnvironmentColoredUnitComponent } from "../../src/units";
 import { scaleLinear, scalePow } from "d3-scale";
 import { MacrostratInteractionProvider } from "@macrostrat/data-components";
 

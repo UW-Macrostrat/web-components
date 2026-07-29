@@ -6,8 +6,8 @@ import {
   useCorrelationMapStore,
   UnitDetailsPanel,
   UnitDetailsFeature,
-} from "../..";
-import { hyperStyled } from "@macrostrat/hyper";
+  CorrelationChart,
+} from "../../src";
 import {
   MacrostratDataProvider,
   fetchUnits,
@@ -15,17 +15,13 @@ import {
 } from "@macrostrat/data-provider";
 import { useState } from "react";
 import type { BaseUnit } from "@macrostrat/api-types";
-
-import styles from "./stories.module.sass";
-import { CorrelationChart } from "../main";
-import { CorrelationColumnHeader } from "./utils";
+import { CorrelationColumnHeader } from "./utils.ts";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
 import { MacrostratInteractionProvider } from "@macrostrat/data-components";
+import h from "./stories.module.sass";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
-
-const h = hyperStyled(styles);
 
 const detailsPanelFeatures = new Set([
   UnitDetailsFeature.AdjacentUnits,
@@ -61,7 +57,9 @@ function FixedPanelLayout(props) {
    * fixed right column, rather than floating in a popover over the chart. */
   const fetch = useMacrostratFetch();
 
-  const focusedColumns = useCorrelationMapStore((state) => state.focusedColumns);
+  const focusedColumns = useCorrelationMapStore(
+    (state) => state.focusedColumns,
+  );
 
   const columnUnits = useAsyncMemo(async () => {
     const col_ids = focusedColumns.map((col) => col.properties.col_id);

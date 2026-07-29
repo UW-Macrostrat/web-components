@@ -1,11 +1,11 @@
 import "@macrostrat/style-system";
-import { MergeSectionsMode, UnitComponent } from "../..";
+import { MergeSectionsMode, UnitComponent } from "../../src";
 import { Meta } from "@storybook/react-vite";
 
-import h from "./stories.module.sass";
-import { CorrelationChart } from "../main";
+import { CorrelationChart } from "../../src/correlation-chart/main.ts";
 import { BaseUnit } from "@macrostrat/api-types";
 import { useGeologicPattern } from "@macrostrat/column-components";
+import h from "./stories.module.sass";
 
 export default {
   title: "Column views/Correlation chart",
