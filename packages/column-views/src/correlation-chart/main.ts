@@ -38,6 +38,19 @@ import { ExtUnit } from "../prepare-units/types";
 
 const h = hyper.styled(styles);
 
+export interface ColumnHeaderProps {
+  /** The column data (units + identifier) for this column */
+  column: ColumnData;
+  /** The column's ID (col_id) */
+  columnID: number;
+  /** The column's index (left-to-right) within the chart */
+  columnIndex: number;
+  /** The units within the column */
+  units: ExtUnit[];
+  /** The rendered width of the column, in pixels */
+  width: number;
+}
+
 export interface CorrelationChartProps extends CorrelationChartSettings {
   data: ColumnData[];
   columnWidth?: number;
@@ -47,8 +60,14 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   selectedUnit?: number | null;
   showUnitPopover?: boolean;
   unitComponent?: any;
+  /** Arbitrary content (e.g. column title and/or ID) rendered above each column */
+  columnHeaderComponent?: React.ComponentType<ColumnHeaderProps>;
   onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
 }
+
+/** Horizontal padding of the main chart SVG. Column headers are aligned to
+ * this so that they line up with the columns beneath them. */
+const chartPaddingH = 4;
 
 function MainChartArea({ children }) {
   const columnRef = useColumnRef();
@@ -71,6 +90,7 @@ export function CorrelationChart({
   selectedUnit,
   onUnitSelected,
   unitComponent,
+  columnHeaderComponent,
   ...scaleProps
 }: CorrelationChartProps) {
   const defaultScaleProps = {
@@ -114,6 +134,13 @@ export function CorrelationChart({
       UnitSelectionProvider,
       { selectedUnit, onUnitSelected, units },
       h(ChartArea, [
+        h(ColumnHeaderRow, {
+          key: "column-headers",
+          data,
+          columnWidth,
+          columnSpacing,
+          columnHeaderComponent,
+        }),
         h(TimescaleColumn, {
           key: "timescale",
           scaleInfo,
@@ -126,7 +153,7 @@ export function CorrelationChart({
               className,
               innerWidth: mainWidth,
               height: scaleInfo.totalHeight,
-              paddingH: 4,
+              paddingH: chartPaddingH,
             },
             packages.map((pkg, i) => {
               const { offset, domain, pixelScale, scale, key } =
@@ -320,6 +347,63 @@ function ChartArea({ children }) {
     },
     children,
   );
+}
+
+interface ColumnHeaderRowProps {
+  data: ColumnData[];
+  columnWidth: number;
+  columnSpacing: number;
+  columnHeaderComponent?: React.ComponentType<ColumnHeaderProps>;
+}
+
+function ColumnHeaderRow({
+  data,
+  columnWidth,
+  columnSpacing,
+  columnHeaderComponent,
+}: ColumnHeaderRowProps) {
+  /** A row of arbitrary content rendered above each column, aligned with the
+   * columns in the main chart area. Renders nothing (collapsing the grid row)
+   * when no header component is provided. */
+  if (columnHeaderComponent == null) {
+    return null;
+  }
+  const Component = columnHeaderComponent;
+
+  return h([
+    h("div.column-header-spacer", { key: "spacer" }),
+    h(
+      "div.column-header-row",
+      {
+        key: "headers",
+        style: {
+          paddingLeft: chartPaddingH,
+          paddingRight: chartPaddingH,
+          gap: columnSpacing,
+        },
+      },
+      data.map((column, i) => {
+        return h(
+          "div.column-header-cell",
+          {
+            key: column.columnID ?? i,
+            style: {
+              width: columnWidth,
+              minWidth: columnWidth,
+              maxWidth: columnWidth,
+            },
+          },
+          h(Component, {
+            column,
+            columnID: column.columnID,
+            columnIndex: i,
+            units: column.units as ExtUnit[],
+            width: columnWidth,
+          }),
+        );
+      }),
+    ),
+  ]);
 }
 
 interface TimescaleColumnProps {

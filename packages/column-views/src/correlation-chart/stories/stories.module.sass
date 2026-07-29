@@ -16,3 +16,57 @@
 
 .column-selector-map, .correlation-map
   height: 350px
+
+// Example column-header content (see CorrelationColumnHeader)
+.column-header
+  // Normal horizontal text, wrapped within the column width
+  padding: 0.35em 0.4em
+  font-size: 0.85em
+  line-height: 1.25
+  text-align: left
+  overflow-wrap: break-word
+
+  .column-name
+    font-weight: 600
+
+  .column-id
+    // Identifier follows inline at the end of the name
+    margin-left: 0.25em
+    white-space: nowrap
+
+// Docked right column: map + unit-details panel stacked and fixed in place
+.right-column.docked
+  display: flex
+  flex-direction: column
+  gap: 1em
+  height: 100vh
+  box-sizing: border-box
+
+  .map-panel
+    flex: 0 0 auto
+    height: 300px
+    border-radius: 6px
+    overflow: hidden
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3)
+
+  .correlation-map
+    height: 100%
+
+  .details-panel
+    flex: 1 1 auto
+    min-height: 0
+    overflow: auto
+    border-radius: 6px
+    background-color: var(--panel-secondary-background-color)
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3)
+
+  .details-placeholder
+    padding: 1em
+    color: var(--text-subtle-color)
+
+  .picker-help
+    font-size: 0.9em
+    color: var(--text-subtle-color)
+
+    .column-list code
+      color: var(--text-color)

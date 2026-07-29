@@ -44,7 +44,6 @@ export function buildCorrelationChartData(
   columns: ColumnData[],
   settings: CorrelationChartSettings,
 ): CorrelationChartData {
-  console.log(settings);
   const {
     mergeSections = MergeSectionsMode.OVERLAPPING,
     targetUnitHeight,

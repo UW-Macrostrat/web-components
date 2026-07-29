@@ -1,6 +1,6 @@
 import { Meta } from "@storybook/react-vite";
 import "@macrostrat/style-system";
-import { useCorrelationLine } from "./utils";
+import { useCorrelationLine, CorrelationColumnHeader } from "./utils";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
@@ -181,6 +181,10 @@ export default {
         type: "number",
       },
     },
+    columnHeaderComponent: {
+      control: false,
+      table: { category: "Content" },
+    },
   },
 } as Meta<typeof CorrelationStoryUI>;
 
@@ -225,4 +229,35 @@ export const eODPCorrelationChart = Template.bind({});
 eODPCorrelationChart.args = {
   focusedLine: "-125,38 -120,32",
   projectID: 3,
+};
+
+export const WithColumnHeaders = Template.bind({});
+WithColumnHeaders.args = {
+  columnHeaderComponent: CorrelationColumnHeader,
+};
+WithColumnHeaders.parameters = {
+  docs: {
+    description: {
+      story:
+        "Arbitrary content (here, the column name and ID) can be placed above " +
+        "each column using the `columnHeaderComponent` prop. Headers stay " +
+        "pinned to the top of the chart while scrolling.",
+    },
+  },
+};
+
+export const WideColumnSpacing = Template.bind({});
+WideColumnSpacing.args = {
+  columnSpacing: 30,
+  columnWidth: 90,
+  columnHeaderComponent: CorrelationColumnHeader,
+};
+WideColumnSpacing.parameters = {
+  docs: {
+    description: {
+      story:
+        "The `columnSpacing` prop controls the horizontal gap between columns. " +
+        "Column headers remain aligned with their columns regardless of spacing.",
+    },
+  },
 };
