@@ -92,26 +92,7 @@ function TimescaleZoomLayout(props) {
 
   return h("div.side-panel-ui", [
     h("div.chart-scroll", [
-      zoom != null
-        ? h(
-            "div.zoom-pill",
-            h(IntervalTag, {
-              interval: zoom.interval,
-              prefix: h(
-                "button.clear-zoom",
-                {
-                  title: "Clear zoom",
-                  onClick(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setZoom(null);
-                  },
-                },
-                "×",
-              ),
-            }),
-          )
-        : null,
+      h(ZoomPill, { zoom, onClear: () => setZoom(null) }),
       h(
         ErrorBoundary,
         h(OverlaysProvider, [
@@ -141,6 +122,35 @@ function TimescaleZoomLayout(props) {
       ]),
     ]),
   ]);
+}
+
+/** A clearable pill showing the currently zoomed interval. */
+function ZoomPill({
+  zoom,
+  onClear,
+}: {
+  zoom: { interval: IntervalShort } | null;
+  onClear: () => void;
+}) {
+  if (zoom == null) return null;
+  return h(
+    "div.zoom-pill",
+    h(IntervalTag, {
+      interval: zoom.interval,
+      prefix: h(
+        "button.clear-zoom",
+        {
+          title: "Clear zoom",
+          onClick(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            onClear();
+          },
+        },
+        "×",
+      ),
+    }),
+  );
 }
 
 export default {

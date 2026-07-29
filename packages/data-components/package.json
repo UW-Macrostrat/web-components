@@ -46,6 +46,8 @@
   },
   "dependencies": {
     "@blueprintjs/core": "^6.14.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.1.1",
     "@macrostrat/mapbox-utils": "workspace:^",

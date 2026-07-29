@@ -1,7 +1,6 @@
 import { Meta } from "@storybook/react-vite";
 import "@macrostrat/style-system";
 import { hyperStyled } from "@macrostrat/hyper";
-import { useState } from "react";
 import {
   MacrostratDataProvider,
   fetchUnits,
@@ -10,7 +9,11 @@ import {
 } from "@macrostrat/data-provider";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
-import { MacrostratInteractionProvider } from "@macrostrat/data-components";
+import {
+  MacrostratInteractionProvider,
+  SortableItems,
+  SortableDragHandle,
+} from "@macrostrat/data-components";
 
 import {
   ColumnCorrelationMap,
@@ -102,7 +105,7 @@ function ArbitraryColumnsLayout(props) {
 }
 
 /** A sidebar list of the selected columns, in order, supporting drag-and-drop
- * reordering and removal. */
+ * reordering (via `SortableItems`) and removal. */
 function ColumnReorderList() {
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns,
@@ -111,61 +114,40 @@ function ColumnReorderList() {
   const removeColumn = useCorrelationMapStore((s) => s.removeColumn);
   const setHoveredColumn = useCorrelationMapStore((s) => s.setHoveredColumn);
   const zoomToColumn = useCorrelationMapStore((s) => s.zoomToColumn);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-
-  const ids = focusedColumns.map((c) => c.properties.col_id);
-
-  const move = (from: number | null, to: number) => {
-    if (from == null || from === to) return;
-    const next = [...ids];
-    const [moved] = next.splice(from, 1);
-    next.splice(to, 0, moved);
-    setManualColumns(next);
-  };
 
   if (focusedColumns.length === 0) {
     return h("p.reorder-empty", h("em", "No columns selected"));
   }
 
-  return h(
-    "ul.column-reorder-list",
-    focusedColumns.map((col, i) => {
-      const colID = col.properties.col_id;
-      return h(
-        "li.reorder-item",
-        {
-          key: colID,
-          draggable: true,
-          className: dragIndex === i ? "dragging" : undefined,
-          onDragStart: () => setDragIndex(i),
-          onDragEnd: () => setDragIndex(null),
-          onDragOver: (e: React.DragEvent) => e.preventDefault(),
-          onDrop: () => {
-            move(dragIndex, i);
-            setDragIndex(null);
-          },
-          onMouseEnter: () => setHoveredColumn(colID),
-          onMouseLeave: () => setHoveredColumn(null),
-          onClick: () => zoomToColumn(colID),
-        },
-        [
-          h("span.drag-handle", { title: "Drag to reorder" }, "⠿"),
-          h(ColumnReorderLabel, { colID }),
-          h(
-            "button.remove-column",
-            {
-              title: "Remove column",
-              onClick(e) {
-                e.stopPropagation();
-                removeColumn(colID);
-              },
-            },
-            "×",
-          ),
-        ],
-      );
+  const ids = focusedColumns.map((c) => c.properties.col_id);
+
+  return h(SortableItems, {
+    ids,
+    className: "column-reorder-list",
+    onReorder: (next) => setManualColumns(next as number[]),
+    itemProps: (id) => ({
+      className: "reorder-item",
+      onMouseEnter: () => setHoveredColumn(id as number),
+      onMouseLeave: () => setHoveredColumn(null),
+      onClick: () => zoomToColumn(id as number),
     }),
-  );
+    renderItem: (id) =>
+      h([
+        h(SortableDragHandle),
+        h(ColumnReorderLabel, { colID: id as number }),
+        h(
+          "button.remove-column",
+          {
+            title: "Remove column",
+            onClick(e) {
+              e.stopPropagation();
+              removeColumn(id as number);
+            },
+          },
+          "×",
+        ),
+      ]),
+  });
 }
 
 function ColumnReorderLabel({ colID }: { colID: number }) {

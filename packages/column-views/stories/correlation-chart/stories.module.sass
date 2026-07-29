@@ -105,36 +105,20 @@
     .column-list code
       color: var(--text-color)
 
-  // Drag-and-drop reorder list of selected columns
+  // Selected-column list (layout + drag handled by SortableItems / .sortable-*)
   .column-reorder-list
-    list-style: none
-    margin: 0
-    padding: 0
     flex: 1 1 auto
     min-height: 0
     overflow: auto
-    display: flex
-    flex-direction: column
-    gap: 2px
 
   .reorder-item
-    display: flex
-    align-items: center
-    gap: 0.4em
     padding: 0.3em 0.4em
     border-radius: 4px
-    cursor: grab
+    cursor: pointer
     user-select: none
 
     &:hover
       background-color: var(--panel-secondary-background-color)
-
-    &.dragging
-      opacity: 0.5
-
-  .drag-handle
-    color: var(--text-subtle-color)
-    cursor: grab
 
   .reorder-label
     flex: 1 1 auto
