@@ -48,6 +48,7 @@ export function CorrelationColumnHeader({ columnID }: ColumnHeaderProps) {
   const hoverProps = useColumnHoverProps(columnID);
   return h("div.column-header", hoverProps, [
     h("span.column-name", info?.col_name ?? `Column ${columnID}`),
+    " ",
     h(Identifier, { id: columnID, className: "column-id" }),
   ]);
 }

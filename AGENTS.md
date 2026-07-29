@@ -39,6 +39,11 @@ h("div.container", [...])            // Classes auto-scoped
 See `packages/column-components/src/hyper.ts` for pattern. Styled variant:
 `hyperStyled(styles)`.
 
+Do **not** add `key` props to elements in static child arrays — `@macrostrat/hyper`
+assigns keys for static arrays automatically. Only add an explicit `key` when it's
+genuinely necessary (e.g. keeping identity stable across reorders of a dynamic
+list).
+
 ### Important functions first
 
 We follow the "headline" rule for function ordering in files: the top-level or
@@ -130,6 +135,10 @@ export const Default = { args: { prop: "value" } };
 
 Storybook config: `.storybook/main.ts` uses `vite-plugin-hyperstyles` and
 `resolve.conditions: ["source"]` to prioritize source over dist.
+
+Do **not** open a browser or preview to inspect stories unless explicitly asked
+to. Validate changes with `yarn run check-types` and leave visual evaluation to
+the maintainer.
 
 ## Common Commands
 

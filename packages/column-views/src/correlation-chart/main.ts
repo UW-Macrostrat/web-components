@@ -6,8 +6,7 @@ import {
   useColumnRef,
 } from "../data-provider";
 import { UnitDetailsFeature, UnitSelectionPopover } from "../unit-details";
-import hyper from "@macrostrat/hyper";
-import styles from "./main.module.sass";
+import h from "./main.module.sass";
 import { useMemo } from "react";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { CompositeTimescaleCore } from "../section";
@@ -36,8 +35,6 @@ import { BaseUnit } from "@macrostrat/api-types";
 import { ScaleContinuousNumeric } from "d3-scale";
 import { ExtUnit } from "../prepare-units/types";
 import type { TimescaleClickHandler } from "@macrostrat/timescale";
-
-const h = hyper.styled(styles);
 
 export interface ColumnHeaderProps {
   /** The column data (units + identifier) for this column */
@@ -139,7 +136,6 @@ export function CorrelationChart({
       { selectedUnit, onUnitSelected, units },
       h(ChartArea, [
         h(TimescaleColumn, {
-          key: "timescale",
           scaleInfo,
           unconformityLabels,
           onClickInterval: onClickTimescaleInterval,
@@ -178,7 +174,6 @@ export function CorrelationChart({
         // Rendered last so the sticky header paints above the unit boxes
         // (positioned siblings paint in document order at the same z-index)
         h(ColumnHeaderRow, {
-          key: "column-headers",
           data,
           columnWidth,
           columnSpacing,
@@ -378,11 +373,10 @@ function ColumnHeaderRow({
   const Component = columnHeaderComponent;
 
   return h([
-    h("div.column-header-spacer", { key: "spacer" }),
+    h("div.column-header-spacer"),
     h(
       "div.column-header-row",
       {
-        key: "headers",
         style: {
           paddingLeft: chartPaddingH,
           paddingRight: chartPaddingH,
