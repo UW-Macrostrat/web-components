@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.1.6] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/timescale-v3.1.5...@macrostrat/timescale-v3.1.6)
+
+### Patch Changes
+
+- Improve export types
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+- Updated dependencies
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+  - @macrostrat/data-provider@1.2.0
+
 ## [3.1.5] - 2026-05-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/timescale-v3.1.4...@macrostrat/timescale-v3.1.5)
 
 ### Patch Changes

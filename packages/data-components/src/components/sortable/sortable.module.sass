@@ -1,0 +1,32 @@
+.sortable-list
+  list-style: none
+  margin: 0
+  padding: 0
+  display: flex
+  flex-direction: column
+  gap: 2px
+
+.sortable-item
+  display: flex
+  align-items: center
+  gap: 0.4em
+
+  &.dragging
+    opacity: 0.6
+    // Keep the dragged row above its neighbors
+    position: relative
+    z-index: 1
+
+.drag-handle
+  border: none
+  background: none
+  cursor: grab
+  color: var(--text-subtle-color, #888)
+  padding: 0 0.2em
+  font-size: 1em
+  line-height: 1
+  // Recommended by dnd-kit so touch drags don't scroll the page
+  touch-action: none
+
+  &:active
+    cursor: grabbing

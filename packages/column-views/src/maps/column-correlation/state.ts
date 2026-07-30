@@ -19,13 +19,34 @@ import { useMacrostratColumns } from "@macrostrat/data-provider";
 import { buffer } from "@turf/buffer";
 import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
 
+export type CorrelationSelectionMode = "line" | "manual";
+
 export interface CorrelationMapInput {
   columns: ColumnGeoJSONRecord[];
   focusedLine: LineString | null;
+  /** When set, columns are selected manually (by clicking) in this order,
+   * rather than derived from a line of section. */
+  manualColumns?: number[] | null;
 }
 
 export interface CorrelationMapStore extends CorrelationMapInput {
   onClickMap: (event: mapboxgl.MapMouseEvent, point: Point) => void;
+  /** Toggle a column in/out of the manual selection (used in "manual" mode) */
+  toggleColumn: (colID: number) => void;
+  /** Remove a column from the selection. In "line" mode this converts the
+   * current selection to a manual one (a line can't represent an arbitrary
+   * subset), so removing a column switches modes. */
+  removeColumn: (colID: number) => void;
+  /** Replace the manual column selection with an explicit ordered list (used
+   * e.g. for drag-and-drop reordering). Switches to manual mode. */
+  setManualColumns: (colIDs: number[]) => void;
+  setHoveredColumn: (colID: number | null) => void;
+  hoveredColumn: number | null;
+  /** Request the map to frame a particular column (e.g. on header click). */
+  zoomToColumn: (colID: number | null) => void;
+  zoomColumn: number | null;
+  /** Incremented on each zoom request so repeat clicks re-frame the column. */
+  zoomNonce: number;
   projectID?: number;
 }
 
@@ -45,13 +66,19 @@ const CorrelationStoreContext =
 
 type ComputedStore = {
   focusedColumns: FocusedColumnGeoJSONRecord[];
+  selectionMode: CorrelationSelectionMode;
 };
 
 /** A computed store that will automatically update when the state changes */
 const computed = createComputed((state: CorrelationMapStore): ComputedStore => {
+  const manual = state.manualColumns != null;
   return {
-    // We compute the focused columns based on columns and focusedLine
-    focusedColumns: buildCorrelationColumns(state.columns, state.focusedLine),
+    selectionMode: manual ? "manual" : "line",
+    // Focused columns are derived either from an explicit manual selection or
+    // from the columns intersecting the line of section.
+    focusedColumns: manual
+      ? buildManualColumns(state.columns, state.manualColumns)
+      : buildCorrelationColumns(state.columns, state.focusedLine),
   };
 }) as any;
 
@@ -61,6 +88,7 @@ export function ColumnCorrelationProvider({
   projectID,
   inProcess,
   focusedLine,
+  manualColumns = null,
   onSelectColumns,
 }: CorrelationProviderProps) {
   const [store] = useState(() => {
@@ -68,10 +96,16 @@ export function ColumnCorrelationProvider({
       computed((set, get): CorrelationMapStore => {
         return {
           focusedLine,
+          manualColumns,
+          hoveredColumn: null,
+          zoomColumn: null,
+          zoomNonce: 0,
           projectID,
           columns: null,
           onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
             const state = get();
+            // In manual-selection mode the map click is handled per-column
+            if (state.manualColumns != null) return;
             // Check if shift key is pressed
             const shiftKeyPressed = event.originalEvent.shiftKey;
             let existingCoords = state.focusedLine?.coordinates ?? [];
@@ -86,6 +120,36 @@ export function ColumnCorrelationProvider({
                 coordinates: [...existingCoords, point.coordinates],
               },
             });
+          },
+          toggleColumn(colID: number) {
+            const state = get();
+            const current =
+              state.manualColumns ??
+              state.focusedColumns.map((d) => d.properties.col_id);
+            const next = current.includes(colID)
+              ? current.filter((d) => d !== colID)
+              : [...current, colID];
+            set({ manualColumns: next, focusedLine: null });
+          },
+          removeColumn(colID: number) {
+            const state = get();
+            // Seed from the current selection (line-derived or manual)
+            const current =
+              state.manualColumns ??
+              state.focusedColumns.map((d) => d.properties.col_id);
+            set({
+              manualColumns: current.filter((d) => d !== colID),
+              focusedLine: null,
+            });
+          },
+          setManualColumns(colIDs: number[]) {
+            set({ manualColumns: colIDs, focusedLine: null });
+          },
+          setHoveredColumn(colID: number | null) {
+            set({ hoveredColumn: colID });
+          },
+          zoomToColumn(colID: number | null) {
+            set({ zoomColumn: colID, zoomNonce: get().zoomNonce + 1 });
           },
         };
       }),
@@ -122,6 +186,24 @@ export function useCorrelationMapStore(
   return useStore(storeApi, selector);
 }
 
+export interface ColumnMapLink {
+  onColumnMouseOver: (colID: number | null) => void;
+  onColumnClick: (colID: number) => void;
+}
+
+/** Wire a correlation chart's column-level events to the correlation map:
+ * hovering a column highlights it on the map, and clicking a column header
+ * frames it. Spread the result into `CorrelationChart`. Must be used within a
+ * `ColumnCorrelationProvider`. */
+export function useColumnMapLink(): ColumnMapLink {
+  const setHoveredColumn = useCorrelationMapStore((s) => s.setHoveredColumn);
+  const zoomToColumn = useCorrelationMapStore((s) => s.zoomToColumn);
+  return {
+    onColumnMouseOver: setHoveredColumn,
+    onColumnClick: zoomToColumn,
+  };
+}
+
 function buildCorrelationColumns(
   columns: ColumnGeoJSONRecord[],
   line: LineString,
@@ -133,6 +215,32 @@ function buildCorrelationColumns(
     computeIntersectingColumns(columns, line),
     line,
   );
+}
+
+function buildManualColumns(
+  columns: ColumnGeoJSONRecord[],
+  ids: number[],
+): FocusedColumnGeoJSONRecord[] {
+  /** Build focused columns from an explicit, ordered list of column IDs. The
+   * ordering line simply connects them in the order they were selected. */
+  if (columns == null || ids == null) return [];
+  const byID = new Map(columns.map((c) => [c.properties.col_id, c]));
+  const result: FocusedColumnGeoJSONRecord[] = [];
+  ids.forEach((id, i) => {
+    const col = byID.get(id);
+    if (col == null) return;
+    const c = centroid(col.geometry);
+    result.push({
+      ...col,
+      properties: {
+        ...col.properties,
+        centroid: c,
+        nearestPointOnLine: c,
+        distanceAlongLine: i,
+      },
+    });
+  });
+  return result;
 }
 
 function computeIntersectingColumns(

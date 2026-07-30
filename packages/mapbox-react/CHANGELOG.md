@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.2] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.3.1...@macrostrat/mapbox-react-v3.3.2)
+
+### Patch Changes
+
+- Update position focus styles
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+
 ## [3.3.1] - 2026-07-28
 
 Re-export values from `@macrostrat/utils` (fixes regression in 3.3.0)

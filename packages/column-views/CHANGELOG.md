@@ -1,5 +1,28 @@
 # Changelog
 
+## [3.7.0] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.6.1...@macrostrat/column-views-v3.7.0)
+
+### Minor Changes
+
+- - Improve column correlation chart to support more options
+    [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+  - Create a new column reorganization draggable control
+  - Update data provider for intervals fetching
+
+### Patch Changes
+
+- Updated dependencies
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+- Updated dependencies
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+- Updated dependencies
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+  - @macrostrat/map-interface@2.3.1
+  - @macrostrat/mapbox-react@3.3.2
+  - @macrostrat/data-components@1.4.1
+  - @macrostrat/data-provider@1.2.0
+  - @macrostrat/timescale@3.1.6
+
 ## [3.6.1] - 2026-07-28 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.6.0...@macrostrat/column-views-v3.6.1)
 
 ### Patch Changes

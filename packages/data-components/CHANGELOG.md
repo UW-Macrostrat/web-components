@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.1] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.4.0...@macrostrat/data-components-v1.4.1)
+
+### Patch Changes
+
+- - Improve column correlation chart to support more options
+    [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+  - Create a new column reorganization draggable control
+  - Update data provider for intervals fetching
+
 ## [1.4.0] - 2026-07-28 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.3.0...@macrostrat/data-components-v1.4.0)
 
 ### Minor Changes

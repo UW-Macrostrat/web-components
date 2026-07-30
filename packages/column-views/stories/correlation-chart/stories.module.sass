@@ -1,0 +1,135 @@
+.column-ui
+  height: 100%
+  width: 100%
+  overflow: scroll
+
+.correlation-container
+  padding: 2em calc(350px + 2em) 2em 2em
+  width: fit-content
+
+.right-column
+  width: 350px
+  position: fixed
+  top: 0
+  right: 0
+  padding: 1em
+
+.column-selector-map, .correlation-map
+  height: 350px
+
+// Example column-header content (see CorrelationColumnHeader)
+.column-header
+  // Normal horizontal text, wrapped within the column width
+  padding: 0.35em 0.4em
+  font-size: 0.85em
+  line-height: 1.25
+  text-align: left
+  overflow-wrap: break-word
+
+  .column-name
+    font-weight: 600
+
+  .column-id
+    // Identifier follows inline at the end of the name
+    margin-left: 0.25em
+    white-space: nowrap
+
+// Side-by-side layout: scrollable chart on the left, docked panels on the right
+.side-panel-ui
+  display: flex
+  flex-direction: row
+  height: 100vh
+  width: 100%
+  min-height: 0
+
+  .chart-scroll
+    flex: 1 1 auto
+    min-width: 0
+    overflow: auto
+
+  .side-panel
+    flex: 0 0 380px
+    display: flex
+    flex-direction: column
+    gap: 1em
+    padding: 1em
+    box-sizing: border-box
+    border-left: 1px solid var(--panel-rule-color, rgba(0, 0, 0, 0.1))
+    min-height: 0
+
+  .map-panel
+    flex: 0 0 auto
+    height: 300px
+    border-radius: 6px
+    overflow: hidden
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3)
+
+  .correlation-map
+    height: 100%
+
+  .details-panel
+    flex: 1 1 auto
+    min-height: 0
+    overflow: auto
+    border-radius: 6px
+    background-color: var(--panel-secondary-background-color)
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3)
+
+  .details-placeholder
+    padding: 1em
+    color: var(--text-subtle-color)
+
+  .picker-help
+    font-size: 0.9em
+    color: var(--text-subtle-color)
+
+    .column-list code
+      color: var(--text-color)
+
+  // Selected-column list (layout + drag handled by SortableItems / .sortable-*)
+  .column-reorder-list
+    flex: 1 1 auto
+    min-height: 0
+    overflow: auto
+
+  .reorder-item
+    padding: 0.3em 0.4em
+    border-radius: 4px
+    cursor: pointer
+    user-select: none
+
+    &:hover
+      background-color: var(--panel-secondary-background-color)
+
+  .reorder-label
+    flex: 1 1 auto
+    min-width: 0
+    display: flex
+    gap: 0.35em
+    align-items: baseline
+    overflow: hidden
+
+    .reorder-name
+      overflow: hidden
+      text-overflow: ellipsis
+      white-space: nowrap
+
+    .reorder-id
+      color: var(--text-subtle-color)
+      font-size: 0.85em
+
+  .reorder-empty
+    color: var(--text-subtle-color)
+    font-size: 0.9em
+
+// Clearable "zoom" pill shown in the header spacer, above the timescale axis.
+// Absolutely positioned so it never widens the axis column / shifts the chart.
+.zoom-pill
+  position: absolute
+  left: 1em
+  bottom: 0.25em
+  z-index: 3
+  display: flex
+  align-items: center
+  gap: 0.15em
+  white-space: nowrap

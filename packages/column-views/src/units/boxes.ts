@@ -100,7 +100,7 @@ export function MinimalUnit(props) {
 
   const backgroundColor = getMixedUnitColor(d, lithMap, null, false);
 
-  const [ref, selected, onClick] = useUnitSelectionTarget(d);
+  const [ref, selected, onClick, linked] = useUnitSelectionTarget(d);
 
   return h(
     "g.unit",
@@ -120,6 +120,7 @@ export function MinimalUnit(props) {
         stroke: backgroundColor,
         onClick,
       }),
+      h.if(linked)("rect.linked-overlay", bounds),
       h.if(selected)("rect.selection-overlay", bounds),
     ],
   );
@@ -158,7 +159,7 @@ function Unit(props: UnitProps) {
 
   const _className = classNames(className, { colored: hasBackgroundColor });
 
-  const [ref, selected, onClick] = useUnitSelectionTarget(d);
+  const [ref, selected, onClick, linked] = useUnitSelectionTarget(d);
 
   return h(
     "g.unit",
@@ -183,6 +184,7 @@ function Unit(props: UnitProps) {
         onClick,
         className: "unit",
       }),
+      h.if(linked)(UnitRect, { ...bounds, className: "linked-overlay" }),
       h.if(selected)(UnitRect, { ...bounds, className: "selection-overlay" }),
       //defs,
       children,

@@ -7,6 +7,7 @@ import { ReactNode, FunctionComponent, useMemo } from "react";
 import {
   Timescale,
   TimescaleOrientation,
+  TimescaleClickHandler,
   useMacrostratIntervals,
 } from "@macrostrat/timescale";
 import { ColumnAxisType, SVG } from "@macrostrat/column-components";
@@ -218,10 +219,16 @@ export function CompositeTimescale(props: CompositeTimescaleProps) {
 
 type CompositeTimescaleCoreProps = CompositeTimescaleProps & {
   packages: PackageScaleLayoutData[];
+  onClickInterval?: TimescaleClickHandler;
 };
 
 export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
-  const { levels = 3, packages, unconformityLabels = false } = props;
+  const {
+    levels = 3,
+    packages,
+    unconformityLabels = false,
+    onClickInterval,
+  } = props;
 
   // Use intervals from Macrostrat API
   const baseURL = useMacrostratBaseURL();
@@ -254,6 +261,7 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
               showAgeAxis: false,
               scale,
               intervals,
+              onClick: onClickInterval,
             }),
           ],
         );

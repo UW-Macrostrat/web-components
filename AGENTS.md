@@ -39,6 +39,17 @@ h("div.container", [...])            // Classes auto-scoped
 See `packages/column-components/src/hyper.ts` for pattern. Styled variant:
 `hyperStyled(styles)`.
 
+Do **not** add `key` props to elements in static child arrays — `@macrostrat/hyper`
+assigns keys for static arrays automatically. Only add an explicit `key` when it's
+genuinely necessary (e.g. keeping identity stable across reorders of a dynamic
+list).
+
+Avoid CSS-module class names that collide with read-only `Function` properties —
+`name`, `length`, `arguments`, `caller`, `prototype`. `vite-plugin-hyperstyles`
+attaches each class as a property of the styled `h` function, so a class named
+`.name` makes it assign `h.name` and throws `"name" is read-only` at runtime.
+Prefix such classes (e.g. `.col-name` instead of `.name`).
+
 ### Important functions first
 
 We follow the "headline" rule for function ordering in files: the top-level or
@@ -48,7 +59,12 @@ methods at the bottom.
 ### Other patterns to avoid
 
 - Inline styles: use CSS modules instead
-- Ternary operators: use `if`/`else` instead
+- Ternary operators for control flow: prefer `if`/`else`, early returns, or
+  hyperscript's `h.if(cond)(...)` for conditional rendering. Avoid inline
+  ternaries in element children.
+- Building class names by concatenating onto the tag string (e.g.
+  `"div.foo" + (active ? ".bar" : "")`): use the `classnames` library and pass a
+  `className` prop instead — `h("div.foo", { className: classNames({ bar: active }) })`.
 
 ### Workspace Dependencies
 
@@ -130,6 +146,10 @@ export const Default = { args: { prop: "value" } };
 
 Storybook config: `.storybook/main.ts` uses `vite-plugin-hyperstyles` and
 `resolve.conditions: ["source"]` to prioritize source over dist.
+
+Do **not** open a browser or preview to inspect stories unless explicitly asked
+to. Validate changes with `yarn run check-types` and leave visual evaluation to
+the maintainer.
 
 ## Common Commands
 

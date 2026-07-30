@@ -75,7 +75,13 @@ export function buildColumnsStyle(
     opts.selectedColor ?? getCSSVariable("--selection-color", "purple");
 
   const lineColor = opts.lineColor ?? columnBaseColor;
-  const isHovered = ["boolean", ["feature-state", "hover"], false];
+  // Highlight on either direct map hover or an externally-driven highlight
+  // (e.g. hovering the corresponding column header elsewhere in the UI).
+  const isHovered = [
+    "any",
+    ["boolean", ["feature-state", "hover"], false],
+    ["boolean", ["feature-state", "highlighted"], false],
+  ];
   // If color is in the feature state or geojson properties, use that as second choice
   if (typeof columnColor === "string") {
     columnColor = [
