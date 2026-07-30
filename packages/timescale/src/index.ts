@@ -20,6 +20,7 @@ import { ReactNode, useCallback, useMemo, useRef } from "react";
 import h from "./main.module.sass";
 
 export * from "./intervals-api";
+export * from "./zoom";
 export type {
   Interval,
   TimescaleClickHandler,
