@@ -1,6 +1,13 @@
 /** Data provider for information that needs to be loaded in bulk for frontend views */
 import baseFetch from "cross-fetch";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import h from "@macrostrat/hyper";
 import { StoreApi, useStore } from "zustand";
 import { createStore } from "zustand/vanilla";
@@ -67,14 +74,22 @@ interface MacrostratStore extends RefsSlice {
   getStratNames(ids: number[] | null): Promise<StratName[]>;
 }
 
+const globalStoreMap = new Map<string, StoreApi<MacrostratStore>>();
+
 export function createMacrostratStore(
   baseURL: string = "https://macrostrat.org/api/v2",
 ) {
+  /* Check if there's already a store for this baseURL */
+  if (globalStoreMap.has(baseURL)) {
+    return globalStoreMap.get(baseURL);
+  }
+
   return createStore<MacrostratStore>((set, get): MacrostratStore => {
     return {
       baseURL,
       inFlightRequests: new Set(),
       async fetch(url: string, options?: RequestInit) {
+        /** Fetch function that tracks in-flight requests */
         let url1 = url;
         if (!(url.startsWith("http://") || url.startsWith("https://"))) {
           url1 = baseURL + url;
@@ -85,10 +100,9 @@ export function createMacrostratStore(
           return null; // Return null if already in flight
         }
         inFlightRequests.add(url1);
-        //set({ inFlightRequests });
         const res = await baseFetch(url1, options);
+        // Removing request
         inFlightRequests.delete(url1);
-        //set({in})
         return res;
       },
       ...createLithologiesSlice(set, get),
@@ -203,27 +217,57 @@ function createIntervalsSlice(set, get) {
   return {
     intervals: null,
     fetchedTimescales: new Set(),
+    fetchedAll: false,
     async getIntervals(ids: number[] | null, timescaleID: number | null) {
-      const { intervals, fetch, fetchedTimescales } = get();
-      let _intervals = intervals;
-      if (timescaleID != null && !fetchedTimescales.has(timescaleID)) {
+      /** We can either fetch by timescale (if requesting a specific timescale)
+       * or request all
+       * */
+      const { intervals, fetch, fetchedTimescales, fetchedAll } = get();
+      let _intervals = intervals ?? new Map();
+
+      let mustFetch = !fetchedAll;
+      let newFetchedAll = fetchedAll;
+
+      if (timescaleID != null) {
+        mustFetch = !(fetchedAll || fetchedTimescales.has(timescaleID));
+      }
+      if (ids != null) {
+        mustFetch = !(fetchedAll || ids.every((d) => _intervals.has(d)));
+        // If any ids are not found, we automatically fetch all
+        newFetchedAll = fetchedAll;
+      }
+      if (ids == null && timescaleID == null) {
+        mustFetch = !fetchedAll;
+      }
+
+      /** Fetch intervals: we can either fetch by timescale or fetch all together */
+      if (mustFetch) {
         // Fetch the intervals
         const data = await fetchIntervals(timescaleID, { fetch });
         if (data == null) {
           return [];
         }
-        const intervalMap = intervals ?? new Map();
+        _intervals = new Map(_intervals); // Copy the original map
         for (const d of data) {
-          intervalMap.set(d.int_id, d);
+          _intervals.set(d.int_id, d);
         }
-        _intervals = intervalMap;
+
+        let newFetchedTimescales = fetchedTimescales;
+        if (timescaleID != null) {
+          newFetchedTimescales = new Set(fetchedTimescales);
+          newFetchedTimescales.add(timescaleID);
+        }
+
         set({
           intervals: _intervals,
-          fetchedTimescales: new Set([...fetchedTimescales, timescaleID]),
+          fetchedAll: newFetchedAll,
+          fetchedTimescales: newFetchedTimescales,
         });
       }
+
+      // Now, get the intervals
       if (ids != null) {
-        return ids.map((id) => intervals.get(id));
+        return ids.map((id) => _intervals.get(id));
       } else if (timescaleID != null) {
         return Array.from(_intervals.values() as any[]).filter((d) =>
           intervalIsInTimescale(d, timescaleID),
@@ -278,18 +322,6 @@ export function useStratNames(ids: number[] | null) {
   return useMacrostratData("strat_names", stratNames);
 }
 
-function includesTimescale(
-  intervals: Map<number, any>,
-  timescaleID: number | null,
-) {
-  /** TODO: we should keep records of which timescales we have fetched */
-  if (intervals == null) return false;
-  if (timescaleID == null) return true;
-  return Array.from(intervals.values()).some((d) =>
-    intervalIsInTimescale(d, timescaleID),
-  );
-}
-
 type MacrostratSelector = (store: MacrostratStore) => any;
 
 export function useMacrostratStore(selector: MacrostratSelector | "api") {
@@ -340,15 +372,20 @@ const dataTypeMapping = {
   strat_names: (store) => store.getStratNames,
 };
 
-export function useMacrostratDefs(dataType: string): Map<number, any> | null {
+export function useMacrostratDefs(
+  dataType: string,
+  ...args: any[]
+): Map<number, any> | null {
   if (dataType == "columns") {
     throw new Error("Columns are not provided as a map");
   }
+  const result = useMacrostratStore((state) => state[dataType]);
   const operator = useMacrostratStore(dataTypeMapping[dataType]);
   useEffect(() => {
-    operator();
-  }, []);
-  return useMacrostratStore((state) => state[dataType]);
+    if (result != null) return;
+    operator(...args);
+  }, [result, operator, ...args]);
+  return result;
 }
 
 export function useMacrostratColumns(
@@ -421,9 +458,9 @@ export function MacrostratDataProvider(props: MacrostratDataProviderProps) {
     children,
   } = props;
 
-  const store = _initStore ?? useState(() => createMacrostratStore(baseURL))[0];
+  const store = useRef(_initStore ?? createMacrostratStore(baseURL));
 
-  return h(MacrostratDataProviderContext.Provider, { value: store }, [
+  return h(MacrostratDataProviderContext.Provider, { value: store.current }, [
     h(_StoreAPIProvider, { children }),
   ]);
 }
@@ -476,4 +513,13 @@ export function useEnvironments() {
     if (environments == null) getEnvironments();
   }, [environments, getEnvironments]);
   return environments;
+}
+
+export function useIntervals() {
+  const getIntervals = useMacrostratStore((s) => s.getIntervals);
+  const intervals = useMacrostratStore((s) => s.intervals);
+  useEffect(() => {
+    if (intervals == null) getIntervals();
+  }, [getIntervals]);
+  return intervals;
 }

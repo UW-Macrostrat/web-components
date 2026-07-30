@@ -201,7 +201,7 @@ export function MapMarker({
         getFocusState(map, event.lngLat) ?? PositionFocusState.OUT_OF_VIEW;
       const shouldCenter = shouldCenterMarker(focusState, centerMarker);
       if (!shouldCenter) return;
-      dispatch({ center, duration: 800 });
+      dispatch({ center, duration: 1000 });
     };
 
     map.on("click", handleMapClick);
@@ -218,7 +218,7 @@ function shouldCenterMarker(
   focusState: PositionFocusState,
   cutoff: PositionFocusState | boolean | null | undefined,
 ): boolean {
-  let _cutoff: any = cutoff ?? PositionFocusState.NEAR_EDGE;
+  let _cutoff: any = cutoff ?? PositionFocusState.OFF_CENTER;
   if (typeof cutoff === "boolean") {
     _cutoff = cutoff
       ? PositionFocusState.NEAR_CENTER

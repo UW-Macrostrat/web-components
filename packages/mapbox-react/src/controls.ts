@@ -15,8 +15,8 @@ import {
 export function MapControlWrapper({ className, control, options = {} }) {
   /** A wrapper for using Mapbox GL controls with a Mapbox GL map */
   const mapRef = useMapRef();
-  const controlContainer = useRef<HTMLDivElement>();
-  const controlRef = useRef<Base>();
+  const controlContainer = useRef<HTMLDivElement>(null);
+  const controlRef = useRef<Base>(null);
 
   // Memoize the options object so that we don't continually recreate the control.
   // const _options = useRef(options);
@@ -25,12 +25,13 @@ export function MapControlWrapper({ className, control, options = {} }) {
   // }, Object.values(options));
 
   useEffect(() => {
-    if (mapRef.current == null) return;
+    if (mapRef.current == null || controlContainer.current == null) return;
+
     const ctrl = new control(options);
 
     controlRef.current = ctrl;
     const controlElement = ctrl.onAdd(mapRef.current);
-    controlContainer.current.appendChild(controlElement);
+    controlContainer.current?.appendChild(controlElement);
     return () => {
       controlRef.current?.onRemove();
     };

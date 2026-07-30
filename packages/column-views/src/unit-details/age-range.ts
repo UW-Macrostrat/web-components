@@ -132,8 +132,10 @@ export function IntervalProportions({
   const i0 = unit.b_int_id;
   const i1 = unit.t_int_id;
 
+  const ints = new Set([i0, i1]);
+
   /** Get interval information */
-  const intervalMap = useMacrostratDefs("intervals");
+  const intervalMap = useMacrostratDefs("intervals", Array.from(ints), null);
   const [int0, int1] = useMemo(() => {
     const int0 = intervalMap?.get(i0) ?? {};
     if (i0 === i1) {
