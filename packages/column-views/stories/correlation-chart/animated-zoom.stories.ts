@@ -91,6 +91,8 @@ function AnimatedZoomLayout(props) {
             // Animated age window drives the standard clipping props.
             t_age: zoom.window?.t_age,
             b_age: zoom.window?.b_age,
+            // Skip per-frame label/pattern work while the window animates.
+            isTransitioning: zoom.isAnimating,
             axisTopContent: h(Button, {
               icon: "zoom-to-fit",
               minimal: true,
@@ -172,3 +174,14 @@ export default {
 } as Meta<typeof AnimatedZoomStoryUI>;
 
 export const AnimatedTimescaleZoom = {};
+
+/** Same animation, but with an explicit `pixelScale` (px/Myr) pinned so density
+ * is strictly constant throughout the pan-and-contract — the column height is
+ * exactly proportional to the visible age span. Contrast with the default,
+ * where per-section density is derived from unit heights and drifts slightly as
+ * the window narrows. */
+export const FixedPixelScale = {
+  args: {
+    pixelScale: 3,
+  },
+};

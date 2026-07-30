@@ -69,6 +69,10 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   /** Content rendered above the timescale axis (top-left), beside the column
    * headers — e.g. a zoom/filter indicator. */
   axisTopContent?: React.ReactNode;
+  /** True while the age window is animating (e.g. from `useAnimatedAgeWindow`).
+   * Propagated to each column's context so per-frame label/pattern work can be
+   * skipped during the transition. */
+  isTransitioning?: boolean;
   onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
   /** Called when a timescale interval is clicked (e.g. to zoom the age range) */
   onClickTimescaleInterval?: TimescaleClickHandler;
@@ -117,6 +121,7 @@ export function CorrelationChart({
   onClickTimescaleInterval,
   onColumnMouseOver,
   onColumnClick,
+  isTransitioning = false,
   ...scaleProps
 }: CorrelationChartProps) {
   const chartData = useMemo(() => {
@@ -181,6 +186,7 @@ export function CorrelationChart({
                 scale,
                 unitComponent,
                 onColumnMouseOver,
+                isTransitioning,
               });
             }),
           ),
@@ -216,6 +222,7 @@ function Package({
   pixelScale,
   scale,
   onColumnMouseOver,
+  isTransitioning,
 }) {
   return h("g.package", { transform: `translate(0 ${offset})` }, [
     // Disable the SVG overlay for now
@@ -233,6 +240,7 @@ function Package({
           scale,
           offsetLeft: i * (columnWidth + columnSpacing),
           onColumnMouseOver,
+          isTransitioning,
         });
       }),
     ]),
@@ -254,6 +262,7 @@ interface ColumnProps {
   pixelScale: number;
   scale?: ScaleContinuousNumeric<number, number>;
   onColumnMouseOver?: (columnID: number | null) => void;
+  isTransitioning?: boolean;
 }
 
 function Column(props: ColumnProps) {
@@ -267,6 +276,7 @@ function Column(props: ColumnProps) {
     scale,
     unitComponent = ColoredUnitComponent,
     onColumnMouseOver,
+    isTransitioning,
   } = props;
 
   const columnWidth = width;
@@ -298,6 +308,7 @@ function Column(props: ColumnProps) {
         scale,
         pixelsPerMeter: pixelScale, // Actually pixels per myr
         axisType: ColumnAxisType.AGE,
+        isTransitioning,
       },
       h(UnitBoxes, {
         unitComponent,

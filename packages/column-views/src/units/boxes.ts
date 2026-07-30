@@ -247,12 +247,15 @@ function LabeledUnit(props: LabeledUnitProps) {
     ...baseBounds
   } = props;
 
-  const { axisType } = useColumn();
+  const { axisType, isTransitioning } = useColumn();
   const bounds = {
     ...useUnitRect(division, { widthFraction, axisType }),
     ...baseBounds,
   };
   const { width, height } = bounds;
+  // Skip the `foreignObject` label while the age window is animating — its HTML
+  // layout reflows on every size change and dominates transition cost. Labels
+  // reappear (and re-measure) once the transition settles.
   return h(
     Unit,
     {
@@ -263,7 +266,7 @@ function LabeledUnit(props: LabeledUnitProps) {
       ...bounds,
     },
     [
-      h.if(showLabel)(
+      h.if(showLabel && !isTransitioning)(
         ForeignObject,
         { ...bounds, className: "unit-label-container" },
         h(SizeAwareLabel, {

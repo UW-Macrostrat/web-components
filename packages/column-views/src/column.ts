@@ -87,6 +87,9 @@ export interface ColumnProps
   // Unconformity height in pixels
   unconformityHeight?: number;
   scale?: ScaleContinuousNumeric<number, number>;
+  /** True while the age window is animating (e.g. from `useAnimatedAgeWindow`),
+   * so per-frame label/pattern recalculation can be skipped. */
+  isTransitioning?: boolean;
   ref?: RefObject<ColumnRef>;
 }
 
@@ -113,6 +116,7 @@ export function Column(props: ColumnProps) {
     hybridScale,
     scale,
     axisType,
+    isTransitioning,
     ref,
     ...rest
   } = props;
@@ -179,6 +183,7 @@ export function Column(props: ColumnProps) {
       allowUnitSelection: showUnitPopover || allowUnitSelection,
       onUnitSelected,
       selectedUnit,
+      isTransitioning,
       ref,
     },
     h(ColumnInner, { ageAxisComponent, ...rest }, [
