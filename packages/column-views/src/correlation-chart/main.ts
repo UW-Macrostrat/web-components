@@ -33,7 +33,9 @@ import { ColumnContainer } from "../column";
 import type { ColumnData } from "@macrostrat/data-provider";
 import { BaseUnit } from "@macrostrat/api-types";
 import { ScaleContinuousNumeric } from "d3-scale";
+import { zoomIdentity, ZoomTransform } from "d3-zoom";
 import { ExtUnit } from "../prepare-units/types";
+import { transformCompositeScaleInfo } from "../prepare-units/composite-scale";
 import type { TimescaleClickHandler } from "@macrostrat/timescale";
 import { useMacrostratColumnInfo } from "@macrostrat/data-provider";
 
@@ -69,6 +71,10 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   /** Content rendered above the timescale axis (top-left), beside the column
    * headers — e.g. a zoom/filter indicator. */
   axisTopContent?: React.ReactNode;
+  /** A vertical zoom transform applied to the whole age scale (pixel-space,
+   * pan-model A: density `k`). Defaults to identity, which is the committed
+   * layout. Drive it with `useAgeScaleZoom` for animated zoom/pan. */
+  transform?: ZoomTransform;
   onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
   /** Called when a timescale interval is clicked (e.g. to zoom the age range) */
   onClickTimescaleInterval?: TimescaleClickHandler;
@@ -82,6 +88,15 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
 /** Horizontal padding of the main chart SVG. Column headers are aligned to
  * this so that they line up with the columns beneath them. */
 const chartPaddingH = 4;
+
+/** Default scale settings for the correlation chart. Exported so a caller can
+ * reproduce the exact committed layout (e.g. to drive `useAgeScaleZoom`). */
+export const defaultCorrelationChartScaleProps = {
+  targetUnitHeight: 10,
+  unconformityHeight: 60,
+  minSectionHeight: 60,
+  collapseSmallUnconformities: true,
+};
 
 function MainChartArea({ children }) {
   const columnRef = useColumnRef();
@@ -109,19 +124,13 @@ export function CorrelationChart({
   onClickTimescaleInterval,
   onColumnMouseOver,
   onColumnClick,
+  transform = zoomIdentity,
   ...scaleProps
 }: CorrelationChartProps) {
-  const defaultScaleProps = {
-    targetUnitHeight: 10,
-    unconformityHeight: 60,
-    minSectionHeight: 60,
-    collapseSmallUnconformities: true,
-  };
-
   const chartData = useMemo(() => {
     if (!data) return null;
     return buildCorrelationChartData(data, {
-      ...defaultScaleProps,
+      ...defaultCorrelationChartScaleProps,
       ...scaleProps,
     });
   }, [data, ...Object.values(scaleProps)]);
@@ -141,7 +150,10 @@ export function CorrelationChart({
     return null;
   }
 
-  const { packages, scaleInfo, nColumns } = chartData;
+  const { packages, scaleInfo: baseScaleInfo, nColumns } = chartData;
+
+  // Pixel-space zoom (pan-model A). Identity → the committed layout unchanged.
+  const scaleInfo = transformCompositeScaleInfo(baseScaleInfo, transform);
 
   const mainWidth = (columnWidth + columnSpacing) * nColumns;
 

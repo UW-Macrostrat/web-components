@@ -1,6 +1,7 @@
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray, getUnitHeightRange } from "./utils";
 import { ScaleContinuousNumeric, scaleLinear } from "d3-scale";
+import { zoomIdentity, ZoomTransform } from "d3-zoom";
 import { UnitLong } from "@macrostrat/api-types";
 import { buildHybridScale } from "./dynamic-scales";
 import { ExtUnit, HybridScaleType, SectionInfo } from "./types";
@@ -361,6 +362,147 @@ export function createCompositeScale(
   };
 
   return scale;
+}
+
+/**
+ * A composite column scale that can be re-derived under a shared `d3` vertical
+ * zoom transform, so changing the visible span animates instead of snapping.
+ *
+ * The transform operates in **composite pixel space** (`applyY` on every pixel
+ * coordinate: section offsets, ranges, `totalHeight`). Section *domains* are
+ * untouched — only their pixel output moves/scales — so units, axis ticks, and
+ * the correlation timescale all reflow because they read the section scale's
+ * range. At `zoomIdentity` this is byte-for-byte today's layout.
+ *
+ * The pan model (whether `ty` comes from the transform or from a DOM scroll
+ * container) is a *driver* concern; this primitive just applies whatever
+ * transform it is handed, so it supports both.
+ */
+export interface TransformableCompositeScale extends CompositeColumnScale {
+  /** The transform currently applied (identity for the baked layout). */
+  transform: ZoomTransform;
+  /** Section layout data under the current transform (rescaled ranges/offsets). */
+  sections: PackageLayoutData[];
+  /** Total pixel height under the current transform. */
+  totalHeight: number;
+  /** Re-derive the whole scale under a new transform. */
+  rescale(transform: ZoomTransform): TransformableCompositeScale;
+  /**
+   * Compute the transform that fits an age span to a pixel viewport, using the
+   * *base* (untransformed) pixel positions so repeated zooms compose correctly.
+   * Returns null for a degenerate span.
+   */
+  transformForAgeRange(
+    ageRange: [number, number],
+    viewportHeight: number,
+  ): ZoomTransform | null;
+}
+
+export function createTransformableCompositeScale(
+  baseSections: PackageLayoutData[],
+  baseTotalHeight: number,
+  transform: ZoomTransform = zoomIdentity,
+  interpolateUnconformities: boolean = true,
+): TransformableCompositeScale {
+  const k = transform.k;
+
+  // Apply the transform to every pixel coordinate of each section. Domains are
+  // preserved; only the pixel range moves/scales.
+  const sections: PackageLayoutData[] = baseSections.map((section) => ({
+    ...section,
+    scaleInfo: transformPackageScale(section.scaleInfo, transform),
+  }));
+
+  // Stitch the transformed section scales into one piecewise composite scale,
+  // reusing the existing (age→pixel / invert / domain) machinery.
+  const composite = createCompositeScale(sections, interpolateUnconformities);
+
+  const scale = composite as TransformableCompositeScale;
+  scale.transform = transform;
+  scale.sections = sections;
+  scale.totalHeight = baseTotalHeight * k;
+
+  scale.rescale = (nextTransform: ZoomTransform) =>
+    createTransformableCompositeScale(
+      baseSections,
+      baseTotalHeight,
+      nextTransform,
+      interpolateUnconformities,
+    );
+
+  scale.transformForAgeRange = (ageRange, viewportHeight) => {
+    // Base (identity) composite for stable pixel positions across repeated zooms.
+    const base = createCompositeScale(baseSections, interpolateUnconformities);
+    const p0 = base(ageRange[0]);
+    const p1 = base(ageRange[1]);
+    if (p0 == null || p1 == null || p0 === p1) return null;
+    const top = Math.min(p0, p1);
+    const bottom = Math.max(p0, p1);
+    const nextK = viewportHeight / (bottom - top);
+    if (!isFinite(nextK) || nextK <= 0) return null;
+    return zoomIdentity.translate(0, -top * nextK).scale(nextK);
+  };
+
+  // Preserve the base copy() semantics but keep the transformable surface.
+  scale.copy = () =>
+    createTransformableCompositeScale(
+      baseSections,
+      baseTotalHeight,
+      transform,
+      interpolateUnconformities,
+    );
+
+  return scale;
+}
+
+/**
+ * Apply a vertical zoom transform to a single package's scale info, in pixel
+ * space. The domain is preserved; the pixel range, offset, and derived pixel
+ * metrics scale by `k` and shift by `ty`.
+ */
+export function transformPackageScale(
+  info: PackageScaleLayoutData,
+  transform: ZoomTransform,
+): PackageScaleLayoutData {
+  const { k, y: ty } = transform;
+  if (k === 1 && ty === 0) return info;
+
+  const applyY = (p: number) => p * k + ty;
+  const newScale = info.scale.copy().range(info.scale.range().map(applyY));
+
+  let newHeightScale = info.heightScale;
+  if (newHeightScale != null) {
+    newHeightScale = newHeightScale
+      .copy()
+      .range(newHeightScale.range().map(applyY));
+  }
+
+  return {
+    ...info,
+    scale: newScale,
+    heightScale: newHeightScale,
+    offset: info.offset * k + ty,
+    pixelHeight: info.pixelHeight * k,
+    pixelScale: info.pixelScale == null ? info.pixelScale : info.pixelScale * k,
+    paddingTop: info.paddingTop * k,
+  };
+}
+
+/**
+ * Apply a vertical zoom transform to a composite scale-info bundle
+ * (`{ totalHeight, packages }`), leaving the rest of the object untouched.
+ * At `zoomIdentity` it returns the input unchanged (same references), so
+ * threading a transform through a consumer is a no-op until it zooms.
+ */
+export function transformCompositeScaleInfo<
+  T extends { totalHeight: number; packages: PackageScaleLayoutData[] },
+>(scaleInfo: T, transform: ZoomTransform): T {
+  if (transform.k === 1 && transform.y === 0) return scaleInfo;
+  return {
+    ...scaleInfo,
+    totalHeight: scaleInfo.totalHeight * transform.k,
+    packages: scaleInfo.packages.map((p) => transformPackageScale(p, transform)),
+  };
 }
 
 /** Collapse sections separated by unconformities that are smaller than a given pixel height. */

@@ -17,6 +17,11 @@ import {
   finalizeSectionHeights,
   type CompositeColumnScale,
 } from "./composite-scale";
+export {
+  createCompositeScale,
+  createTransformableCompositeScale,
+  type TransformableCompositeScale,
+} from "./composite-scale";
 import {
   agesOverlap,
   MergeSectionsMode,
