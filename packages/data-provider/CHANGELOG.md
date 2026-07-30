@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.0] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.1.0...@macrostrat/data-provider-v1.2.0)
+
+### Minor Changes
+
+- - Improve column correlation chart to support more options
+    [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+  - Create a new column reorganization draggable control
+  - Update data provider for intervals fetching
+
 ## [1.1.0] - 2026-05-24 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.0.5...@macrostrat/data-provider-v1.1.0)
 
 ### Minor Changes
