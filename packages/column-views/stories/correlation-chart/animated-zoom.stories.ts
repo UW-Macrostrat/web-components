@@ -1,7 +1,6 @@
 import { Meta } from "@storybook/react-vite";
 import { hyperStyled } from "@macrostrat/hyper";
-import { useMemo, useRef, useState } from "react";
-import { zoomIdentity, ZoomTransform } from "d3-zoom";
+import { useMemo } from "react";
 import { Button, Intent, OverlaysProvider } from "@blueprintjs/core";
 import {
   MacrostratDataProvider,
@@ -17,9 +16,8 @@ import {
   ColumnCorrelationProvider,
   useCorrelationMapStore,
   useColumnMapLink,
-  buildCorrelationChartData,
-  defaultCorrelationChartScaleProps,
-  useAgeScaleZoom,
+  useAnimatedAgeWindow,
+  type AgeWindow,
 } from "../../src";
 import { CorrelationColumnHeader } from "./utils.ts";
 import styles from "./stories.module.sass";
@@ -63,54 +61,45 @@ function AnimatedZoomLayout(props) {
     return await fetchUnits(colIDs, fetch);
   }, [colIDs.join(",")]);
 
-  // The chart's committed (identity) layout — used to derive base pixel
-  // positions for the zoom driver. Built with the same settings the chart uses
-  // internally so the pixels match exactly.
-  const chartData = useMemo(() => {
-    if (columnUnits == null || columnUnits.length === 0) return null;
-    return buildCorrelationChartData(columnUnits, {
-      ...defaultCorrelationChartScaleProps,
-      ...props,
-    });
-  }, [columnUnits, ...Object.values(props)]);
+  // The full data extent — the window we reset to and animate away from.
+  const fullExtent = useMemo<AgeWindow | null>(() => {
+    const units = columnUnits?.flatMap((d) => d.units) ?? [];
+    if (units.length === 0) return null;
+    return {
+      t_age: Math.min(...units.map((u) => u.t_age)),
+      b_age: Math.max(...units.map((u) => u.b_age)),
+    };
+  }, [columnUnits]);
 
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const [transform, setTransform] = useState<ZoomTransform>(zoomIdentity);
-
-  const zoom = useAgeScaleZoom({
-    baseScaleInfo: chartData?.scaleInfo ?? null,
-    transform,
-    onTransformChange: setTransform,
-    scrollContainerRef: scrollRef,
-  });
+  const zoom = useAnimatedAgeWindow({ fullExtent });
 
   const onClickTimescaleInterval = (_event, data) => {
     if (data?.interval == null) return;
+    // Pan-and-contract to the clicked interval (density unchanged).
     zoom.zoomToInterval(data.interval);
   };
-
-  const isFullExtent = transform.k === 1 && transform.y === 0;
 
   return h("div.side-panel-ui", [
     h(
       "div.chart-scroll",
-      { ref: scrollRef },
       h(
         ErrorBoundary,
         h(OverlaysProvider, [
           h(CorrelationChart, {
             data: columnUnits,
             columnHeaderComponent: CorrelationColumnHeader,
-            transform,
+            // Animated age window drives the standard clipping props.
+            t_age: zoom.window?.t_age,
+            b_age: zoom.window?.b_age,
             axisTopContent: h(Button, {
               icon: "zoom-to-fit",
               minimal: true,
               small: true,
-              disabled: isFullExtent,
+              disabled: zoom.isFullExtent,
               intent: Intent.PRIMARY,
-              title: "Reset zoom",
-              onClick: () => zoom.reset(),
               text: "Reset",
+              title: "Reset to full extent",
+              onClick: () => zoom.reset(),
             }),
             onClickTimescaleInterval,
             ...columnMapLink,
@@ -128,8 +117,11 @@ function AnimatedZoomLayout(props) {
         }),
       ),
       h("div.picker-help", [
-        h("p", "Click a timescale interval (left axis) to animate a zoom to that span."),
-        h("p", "Use Reset (top-left) to ease back to the full column."),
+        h(
+          "p",
+          "Click a timescale interval (left axis) to pan-and-contract the chart to that span.",
+        ),
+        h("p", "Density (px/Myr) is unchanged; use Reset to ease back to the full column."),
       ]),
     ]),
   ]);
@@ -143,12 +135,13 @@ export default {
     docs: {
       description: {
         component:
-          "Animated age-scale zoom (feature area: *Age scale transition " +
-          "animations*, Scope B). Clicking a timescale interval eases a " +
-          "`d3`-transform-driven zoom of the whole correlation chart (columns " +
-          "+ axis + timescale) via `useAgeScaleZoom` — pan-model A, which " +
-          "animates zoom density and the scroll position while keeping the " +
-          "existing scroll layout. Identity transform is the committed layout.",
+          "Animated age-window navigation (feature area: *Age scale " +
+          "transition animations*). Clicking a timescale interval animates the " +
+          "rendered `t_age`/`b_age` — a **pan-and-contract** at constant " +
+          "`pixelScale`: units past the bounds get a zig-zag edge, " +
+          "unconformities keep their fixed pixel height, and the column simply " +
+          "narrows. Changing `pixelScale` (density) is the separate, " +
+          "user-controlled zoom axis.",
       },
       story: {
         inline: false,

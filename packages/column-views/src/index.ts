@@ -2,7 +2,7 @@ export * from "./units";
 export * from "./data-provider";
 export * from "./age-axis";
 export * from "./prepare-units";
-export * from "./age-scale-zoom";
+export * from "./animated-age-window";
 export * from "./column";
 export * from "./unit-details";
 export * from "./maps";
