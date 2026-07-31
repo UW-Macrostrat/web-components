@@ -28,10 +28,15 @@ export function buildCompositeScaleInfo(
   let lastSectionTopHeight = 0;
 
   const packages2: PackageScaleLayoutData[] = [];
-  for (const group of inputScales) {
+  for (let i = 0; i < inputScales.length; i++) {
+    const group = inputScales[i];
     const { domain, scale } = group;
     const [b_age, t_age] = domain;
-    const key = `package-${b_age}-${t_age}`;
+    // Positionally stable key: packages are always emitted in age order, so the
+    // index is a stable identity. An age-based key (`package-${b_age}-${t_age}`)
+    // changes every frame while the age window animates, forcing every package,
+    // column, and timescale slice in the correlation chart to remount each frame.
+    const key = `package-${i}`;
 
     packages2.push({
       ...createPackageScale(group, totalHeight),

@@ -90,6 +90,9 @@ export interface ColumnProps
   /** True while the age window is animating (e.g. from `useAnimatedAgeWindow`),
    * so per-frame label/pattern recalculation can be skipped. */
   isTransitioning?: boolean;
+  /** Hide unit labels while transitioning (perf escape hatch; default false —
+   * labels stay visible through the animation). */
+  hideLabelsWhileTransitioning?: boolean;
   ref?: RefObject<ColumnRef>;
 }
 
@@ -117,6 +120,7 @@ export function Column(props: ColumnProps) {
     scale,
     axisType,
     isTransitioning,
+    hideLabelsWhileTransitioning,
     ref,
     ...rest
   } = props;
@@ -184,6 +188,7 @@ export function Column(props: ColumnProps) {
       onUnitSelected,
       selectedUnit,
       isTransitioning,
+      hideLabelsWhileTransitioning,
       ref,
     },
     h(ColumnInner, { ageAxisComponent, ...rest }, [

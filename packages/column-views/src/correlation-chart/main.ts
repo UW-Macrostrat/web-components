@@ -73,6 +73,9 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
    * Propagated to each column's context so per-frame label/pattern work can be
    * skipped during the transition. */
   isTransitioning?: boolean;
+  /** Hide unit labels while transitioning (perf escape hatch; default false —
+   * labels stay visible through the animation). */
+  hideLabelsWhileTransitioning?: boolean;
   onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
   /** Called when a timescale interval is clicked (e.g. to zoom the age range) */
   onClickTimescaleInterval?: TimescaleClickHandler;
@@ -122,6 +125,7 @@ export function CorrelationChart({
   onColumnMouseOver,
   onColumnClick,
   isTransitioning = false,
+  hideLabelsWhileTransitioning = false,
   ...scaleProps
 }: CorrelationChartProps) {
   const chartData = useMemo(() => {
@@ -187,6 +191,7 @@ export function CorrelationChart({
                 unitComponent,
                 onColumnMouseOver,
                 isTransitioning,
+                hideLabelsWhileTransitioning,
               });
             }),
           ),
@@ -223,6 +228,7 @@ function Package({
   scale,
   onColumnMouseOver,
   isTransitioning,
+  hideLabelsWhileTransitioning,
 }) {
   return h("g.package", { transform: `translate(0 ${offset})` }, [
     // Disable the SVG overlay for now
@@ -241,6 +247,7 @@ function Package({
           offsetLeft: i * (columnWidth + columnSpacing),
           onColumnMouseOver,
           isTransitioning,
+          hideLabelsWhileTransitioning,
         });
       }),
     ]),
@@ -263,6 +270,7 @@ interface ColumnProps {
   scale?: ScaleContinuousNumeric<number, number>;
   onColumnMouseOver?: (columnID: number | null) => void;
   isTransitioning?: boolean;
+  hideLabelsWhileTransitioning?: boolean;
 }
 
 function Column(props: ColumnProps) {
@@ -277,6 +285,7 @@ function Column(props: ColumnProps) {
     unitComponent = ColoredUnitComponent,
     onColumnMouseOver,
     isTransitioning,
+    hideLabelsWhileTransitioning,
   } = props;
 
   const columnWidth = width;
@@ -309,6 +318,7 @@ function Column(props: ColumnProps) {
         pixelsPerMeter: pixelScale, // Actually pixels per myr
         axisType: ColumnAxisType.AGE,
         isTransitioning,
+        hideLabelsWhileTransitioning,
       },
       h(UnitBoxes, {
         unitComponent,

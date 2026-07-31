@@ -84,6 +84,10 @@ export default {
     id: 432,
     showLabelColumn: true,
     unconformityLabels: true,
+    hideLabelsWhileTransitioning: false,
+  },
+  argTypes: {
+    hideLabelsWhileTransitioning: { control: { type: "boolean" } },
   },
   parameters: {
     docs: {

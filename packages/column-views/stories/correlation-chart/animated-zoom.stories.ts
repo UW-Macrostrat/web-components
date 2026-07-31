@@ -165,11 +165,13 @@ export default {
     targetUnitHeight: 20,
     minPixelScale: 1,
     minSectionHeight: 60,
+    hideLabelsWhileTransitioning: false,
   },
   argTypes: {
     minPixelScale: { control: { type: "number" } },
     minSectionHeight: { control: { type: "number" } },
     targetUnitHeight: { control: { type: "number" } },
+    hideLabelsWhileTransitioning: { control: { type: "boolean" } },
   },
 } as Meta<typeof AnimatedZoomStoryUI>;
 
