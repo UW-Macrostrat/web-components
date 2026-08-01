@@ -105,7 +105,7 @@ class NoteLayoutProvider extends StatefulComponent<
     },
   };
   declare context: ColumnCtx<ColumnDivision>;
-  _previousContext: ColumnCtx<ColumnDivision>;
+  _previousScale: any;
   _rendererIndex: object;
 
   constructor(props) {
@@ -215,27 +215,23 @@ class NoteLayoutProvider extends StatefulComponent<
     return new Node(noteHeight, pixelHeight);
   }
 
-  computeForceLayout(prevProps, prevState) {
-    let { notes, nodes, elementHeights } = this.state;
+  computeForceLayout(force = false) {
+    let { notes, nodes } = this.state;
     const { pixelHeight } = this.context;
-    const { width, paddingLeft, forceOptions } = this.props;
+    const { forceOptions } = this.props;
 
     if (notes.length === 0) {
       return;
     }
-    // Something is wrong...
-    //return if elementHeights.length < notes.length
-    // Return if we've already computed nodes
-    const v1 = Object.keys(nodes).length === notes.length;
-    if (prevState == null) {
-      prevState = {};
-    }
-    const v2 = elementHeights === prevState.elementHeights || [];
-    if (v1 && v2) {
+    // Skip if node positions are already computed for this note set — unless
+    // `force` is set (e.g. the scale changed on zoom and positions, which
+    // derive from `scale(note.height)`, must be recomputed).
+    const alreadyComputed = Object.keys(nodes).length === notes.length;
+    if (!force && alreadyComputed) {
       return;
     }
 
-    const force = new Force({
+    const force_ = new Force({
       minPos: 0,
       maxPos: pixelHeight,
       nodeSpacing: 0,
@@ -244,8 +240,8 @@ class NoteLayoutProvider extends StatefulComponent<
 
     const dataNodes = notes.map(this.createNodeForNote);
 
-    force.nodes(dataNodes).compute();
-    const _nodes = force.nodes() ?? [];
+    force_.nodes(dataNodes).compute();
+    const _nodes = force_.nodes() ?? [];
     const nodesObj = {};
     for (let i = 0; i < _nodes.length; i++) {
       const node = _nodes[i];
@@ -279,30 +275,38 @@ class NoteLayoutProvider extends StatefulComponent<
    * Lifecycle methods
    */
   componentDidMount() {
-    this._previousContext = null;
+    this._previousScale = null;
     this.updateNotes();
     return this.computeContextValue();
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.notes !== prevProps.notes) {
+    const notesChanged = this.props.notes !== prevProps.notes;
+    // The column scale gets a new identity when the column zooms. Note positions
+    // derive from `scale(note.height)`, so a scale change must re-filter the
+    // notes to the visible domain and force a re-layout.
+    const scale = this.context?.scaleClamped;
+    const scaleChanged = scale !== this._previousScale;
+
+    if (notesChanged || scaleChanged) {
       this.updateNotes();
     }
 
-    // Update note component
     const { noteComponent } = this.props;
     if (noteComponent !== prevProps.noteComponent) {
       this.setState({ noteComponent });
     }
-    this.computeForceLayout.call(prevProps, prevState);
-    if (this.props.notes === prevProps.notes) {
-      return;
+
+    // As before, compute node positions once per note set (the guard inside
+    // skips when already computed); additionally force a recompute when the
+    // scale changed — the old code skipped that, leaving a "forest" of
+    // overlapping notes when zoomed out.
+    this.computeForceLayout(scaleChanged);
+
+    if (scaleChanged) {
+      this.computeContextValue();
+      this._previousScale = scale;
     }
-    if (this.context === this._previousContext) {
-      return;
-    }
-    this.computeContextValue();
-    return (this._previousContext = this.context);
   }
 }
 

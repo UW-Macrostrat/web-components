@@ -26,6 +26,7 @@ export type {
   TimescaleClickHandler,
   TimescaleClickData,
 } from "./types";
+export type { IntervalStyleBuilder } from "./components";
 export {
   IncreaseDirection,
   TimescaleOrientation,

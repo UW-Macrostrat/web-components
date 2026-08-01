@@ -45,6 +45,10 @@ import {
   ColumnHeightScaleOptions,
 } from "./prepare-units";
 import { UnitLong } from "@macrostrat/api-types";
+import type {
+  TimescaleClickHandler,
+  IntervalStyleBuilder,
+} from "@macrostrat/timescale";
 import { NonIdealState } from "@blueprintjs/core";
 import { DataField } from "@macrostrat/data-components";
 import { ScaleContinuousNumeric } from "d3-scale";
@@ -61,6 +65,10 @@ interface BaseColumnProps extends Omit<
   // Timescale properties
   showTimescale?: boolean;
   timescaleLevels?: number | [number, number];
+  /** Called when a timescale interval is clicked (e.g. to zoom the age range). */
+  onClickTimescaleInterval?: TimescaleClickHandler;
+  /** Per-interval style for the timescale (e.g. to bold the selected interval). */
+  timescaleIntervalStyle?: IntervalStyleBuilder;
   unconformityLabels?: boolean | UnconformityLabelPlacement;
   onMouseOver?: (
     unit: UnitLong | null,
@@ -228,6 +236,8 @@ function ColumnInner(props: ColumnInnerProps) {
     timescaleLevels,
     maxInternalColumns,
     onMouseOver,
+    onClickTimescaleInterval,
+    timescaleIntervalStyle,
     ageAxisComponent = CompositeAgeAxis,
   } = props;
 
@@ -272,6 +282,8 @@ function ColumnInner(props: ColumnInnerProps) {
       h.if(_showTimescale)(CompositeTimescale, {
         levels: timescaleLevels,
         unconformityLabels: _timescaleUnconformityLabels,
+        onClickInterval: onClickTimescaleInterval,
+        intervalStyle: timescaleIntervalStyle,
       }),
       h(SectionsColumn, {
         unitComponent,

@@ -6,4 +6,6 @@ Add `useAnimatedAgeWindow`: animates a column/correlation-chart's rendered `t_ag
 
 Stabilize composite-scale package keys (positional index instead of `package-${b_age}-${t_age}`) so the correlation chart's packages, columns, and timescale reconcile instead of remounting on every animation frame. Unit labels re-fit when a transition settles (via `SizeAwareLabel`'s `remeasureKey`), not on intermediate frames.
 
-Add a bounded-density story demonstrating `pixelScale` derived from the visible age span, keeping the rendered column height within a floor/cap as the window ranges from a narrow interval to all of geologic time.
+`Column` now forwards `onClickTimescaleInterval` and `timescaleIntervalStyle` to its composite timescale (via `CompositeTimescale`'s new `onClickInterval`/`intervalStyle` props), so a standalone column supports click-to-zoom interval navigation and per-interval styling (e.g. bolding the selected interval).
+
+Add a semantic-zoom story: narrowing the window raises `targetUnitHeight` by a smooth function of the zoom factor, so the existing content-aware layout draws things bigger as you zoom in (with `minPixelScale`/`minSectionHeight` still guarding small sections). Navigation is via timescale-interval click, and the timescale shows a fixed 3-level window that slides with the selected interval's rank (always one coarser level to navigate up, one finer to drill down) — independent of the layout.
