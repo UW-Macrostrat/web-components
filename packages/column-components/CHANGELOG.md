@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.10] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.0.9...@macrostrat/column-components-v2.0.10)
+
+### Patch Changes
+
+- Remove some unnecessarily bundled packages
+  [930edeae](https://github.com/UW-Macrostrat/web-components/commit/930edeaef23d42d62ee3f533d2e20c75dbf9ea42)
+
 ## [2.0.9] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.0.8...@macrostrat/column-components-v2.0.9)
 
 ### Patch Changes

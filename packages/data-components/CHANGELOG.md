@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.0] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.4.1...@macrostrat/data-components-v1.5.0)
+
+### Minor Changes
+
+- Move Identifier and UnitIdentifier to `@macrostrat/data-components`
+  [91fcea53](https://github.com/UW-Macrostrat/web-components/commit/91fcea536dd55e387b6f5bce1da0c07395da4635)
+
+### Patch Changes
+
+- Add new units to macrostratIdentifierFields resolution
+  [1961f84a](https://github.com/UW-Macrostrat/web-components/commit/1961f84a397a341ce92eb032dcdc77c79f957707)
+- Remove some unnecessarily bundled packages
+  [930edeae](https://github.com/UW-Macrostrat/web-components/commit/930edeaef23d42d62ee3f533d2e20c75dbf9ea42)
+
 ## [1.4.1] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.4.0...@macrostrat/data-components-v1.4.1)
 
 ### Patch Changes

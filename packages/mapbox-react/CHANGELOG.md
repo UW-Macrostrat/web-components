@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.3] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.3.2...@macrostrat/mapbox-react-v3.3.3)
+
+### Patch Changes
+
+- Remove some unnecessarily bundled packages
+  [930edeae](https://github.com/UW-Macrostrat/web-components/commit/930edeaef23d42d62ee3f533d2e20c75dbf9ea42)
+
 ## [3.3.2] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.3.1...@macrostrat/mapbox-react-v3.3.2)
 
 ### Patch Changes
