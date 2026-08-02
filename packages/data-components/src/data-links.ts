@@ -17,29 +17,45 @@ export type MacrostratItemIdentifier =
       strat_name_id: number;
     }
   | { lith_id: number }
+  | { lith_att_id: number }
   | { environ_id: number }
   | { unit_id: number }
   | { int_id: number }
   | { project_id: number }
-  | { col_id: number; unit_id?: number; project_id?: number };
+  | { concept_id: number }
+  | { timescale_id: number }
+  | { col_id: number; unit_id?: number; project_id?: number }
+  | { econ_id: number }
+  | { structure_id: number };
 
 export type MacrostratItemType =
   | "lithology"
+  | "lithology_attribute"
   | "environment"
+  | "structure"
   | "unit"
   | "interval"
+  | "timescale"
   | "strat_name"
+  | "concept"
   | "column"
-  | "project";
+  | "project"
+  | "econ";
 
-function identifierFields(
+export function macrostratIdentifierFields(
   item: MacrostratItemIdentifier,
 ): [MacrostratItemType, ...any[]] {
   /** Return a tuple of the item type and its identifier fields for useMemo dependencies */
   if ("strat_name_id" in item) {
     return ["strat_name", item.strat_name_id];
+  } else if ("concept_id" in item) {
+    return ["concept", item.concept_id];
+  } else if ("timescale_id" in item) {
+    return ["timescale", item.timescale_id];
   } else if ("lith_id" in item) {
     return ["lithology", item.lith_id];
+  } else if ("lith_att_id" in item) {
+    return ["lithology_attribute", item.lith_att_id];
   } else if ("environ_id" in item) {
     return ["environment", item.environ_id];
   } else if ("col_id" in item) {
@@ -53,8 +69,12 @@ function identifierFields(
     return ["unit", item.unit_id];
   } else if ("int_id" in item) {
     return ["interval", item.int_id];
+  } else if ("structure_id" in item) {
+    return ["structure", item.structure_id];
   } else if ("project_id" in item) {
     return ["project", item.project_id];
+  } else if ("econ_id" in item) {
+    return ["econ", item.econ_id];
   }
   throw new Error("Invalid MacrostratItemIdentifier");
 }
@@ -66,7 +86,7 @@ export function itemTypeHandlers<T extends InteractionBuilder>(
 ): any {
   /** Helper to build either hrefs or click handlers based on item type */
   return (item: MacrostratItemIdentifier): any => {
-    const [itemType] = identifierFields(item);
+    const [itemType] = macrostratIdentifierFields(item);
     const builder = builders[itemType];
 
     return builder?.(item);
@@ -144,7 +164,7 @@ export function useInteractionProps(
       return {};
     }
     return manager?.interactionPropsForItem(item) ?? {};
-  }, [interactive, manager, ...identifierFields(item)]);
+  }, [interactive, manager, ...macrostratIdentifierFields(item)]);
 }
 
 export interface InteractionManagerOptions {
