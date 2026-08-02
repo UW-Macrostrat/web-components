@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.5.0...@macrostrat/data-components-v1.5.1)
+
+### Patch Changes
+
+- Don't be as rigid about identifiers
+  [e2c2fd73](https://github.com/UW-Macrostrat/web-components/commit/e2c2fd731a24e3ae60d4bbab5f04dc56b9a7b3e8)
+
 ## [1.5.0] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.4.1...@macrostrat/data-components-v1.5.0)
 
 ### Minor Changes
