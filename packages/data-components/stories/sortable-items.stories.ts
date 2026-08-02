@@ -1,7 +1,11 @@
 import { Meta } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
 import { useState } from "react";
-import { SortableItems, SortableDragHandle, type SortableID } from ".";
+import {
+  SortableItems,
+  SortableDragHandle,
+  type SortableID,
+} from "../src/components/sortable";
 
 const h = hyper;
 

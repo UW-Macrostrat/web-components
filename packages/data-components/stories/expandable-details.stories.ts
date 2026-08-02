@@ -1,7 +1,7 @@
 import type { Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { ExpandableDetailsPanel } from ".";
-import { LithologyList, Tag, TagField } from "../components/unit-details";
+import { ExpandableDetailsPanel } from "../src/expansion-panel";
+import { LithologyList, Tag, TagField } from "../src/components/unit-details";
 import { useAPIResult } from "@macrostrat/ui-components";
 
 function useMapInfo(lng, lat, z) {

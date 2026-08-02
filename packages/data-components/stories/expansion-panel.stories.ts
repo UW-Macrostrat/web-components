@@ -1,7 +1,7 @@
 import type { Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { ExpansionPanel, SubExpansionPanel } from ".";
-import { LithologyList, Tag, TagField } from "../components/unit-details";
+import { ExpansionPanel, SubExpansionPanel } from "../src/expansion-panel";
+import { LithologyList, Tag, TagField } from "../src/components/unit-details";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { LoremIpsum } from "lorem-ipsum";
 import { Button } from "@blueprintjs/core";

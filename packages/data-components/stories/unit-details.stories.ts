@@ -4,12 +4,12 @@ import {
   LithologyList as _LithologyList,
   LithologyTag as _LithologyTag,
   LithologyTagFeature,
-} from "./lithology-tag";
-import { TagSize } from "./tag";
+} from "../src/components/unit-details/lithology-tag";
+import { TagSize } from "../src/components/unit-details/tag";
 import {
   DataField as _DataField,
   IntervalField as _IntervalField,
-} from "./base";
+} from "../src/components/unit-details/base";
 import {
   ToasterContext,
   useAPIResult,
@@ -18,7 +18,7 @@ import {
 import {
   itemTypeHandlers,
   MacrostratInteractionProvider,
-} from "../../data-links";
+} from "../src/data-links";
 
 export default {
   title: "Data components/Unit details",

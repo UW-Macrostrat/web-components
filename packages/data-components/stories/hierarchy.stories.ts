@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { Hierarchy, IHierarchy } from ".";
-import { fetchStratNames } from "./fetch";
+import { Hierarchy, IHierarchy } from "../src/components/hierarchy";
+import { fetchStratNames } from "../src/components/hierarchy/fetch";
 import { Spinner } from "@blueprintjs/core";
 
 const exampleData: IHierarchy = {

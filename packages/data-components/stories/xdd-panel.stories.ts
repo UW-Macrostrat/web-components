@@ -1,6 +1,6 @@
 import type { Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { xDDExpansionPanel } from ".";
+import { xDDExpansionPanel } from "../src/xdd-articles";
 import { useAPIResult } from "@macrostrat/ui-components";
 
 function useMapInfo(lng, lat, z) {

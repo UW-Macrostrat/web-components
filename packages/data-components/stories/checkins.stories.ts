@@ -1,6 +1,9 @@
 import h from "@macrostrat/hyper";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { CheckinListingProps, CheckinListing } from "./checkins";
+import {
+  CheckinListingProps,
+  CheckinListing,
+} from "../src/field-locations/checkins";
 
 const checkinExamples = {
   "New York City": {

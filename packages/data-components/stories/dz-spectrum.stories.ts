@@ -1,4 +1,4 @@
-import { DetritalSeries, DetritalSpectrumPlot } from ".";
+import { DetritalSeries, DetritalSpectrumPlot } from "../src/dz-spectrum";
 import h from "@macrostrat/hyper";
 
 function BasicPlot({ data, bandwidth, ...rest }) {

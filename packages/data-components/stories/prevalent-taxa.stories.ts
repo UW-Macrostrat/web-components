@@ -1,6 +1,6 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { PrevalentTaxa } from "./prevalent-taxa";
+import { PrevalentTaxa } from "../src/components/prevalent-taxa/prevalent-taxa";
 
 export default {
   title: "Data components/PBDB integration/Prevalent taxa",

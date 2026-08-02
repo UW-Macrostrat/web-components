@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { SpotListingProps, SpotListing } from "./spots";
+import { SpotListingProps, SpotListing } from "../src/field-locations/spots";
 
 const spotExamples = {
   "Stillwater, OK": {

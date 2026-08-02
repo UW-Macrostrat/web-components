@@ -1,6 +1,6 @@
 import { StoryFn, Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { RockdWebsiteCheckinList } from "./index";
+import { RockdWebsiteCheckinList } from "../src/field-locations/rockd-checkins";
 
 const meta: Meta<typeof RockdWebsiteCheckinList> = {
   title: "Data components/Rockd website checkins list",
