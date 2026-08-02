@@ -19,6 +19,7 @@ import {
   itemTypeHandlers,
   MacrostratInteractionProvider,
 } from "../src/data-links";
+import { Identifier } from "../src";
 
 export default {
   title: "Data components/Unit details",
@@ -99,6 +100,18 @@ LithologyTag.args = {
 };
 
 export { LithologyTag };
+
+export const ColoredTagWithID = {
+  args: {
+    data: {
+      name: "A purple rock",
+      color: "violet",
+      lith_id: 1,
+    },
+    size: TagSize.Large,
+    details: h(Identifier, { id: 55 }),
+  },
+};
 
 export const LithologyTagWithProportion = {
   args: {

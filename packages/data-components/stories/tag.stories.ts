@@ -1,6 +1,5 @@
 import { Meta } from "@storybook/react-vite";
-import { TagSize } from "./tag";
-import { IntervalTag } from "./base";
+import { TagSize, IntervalTag } from "../src";
 
 export default {
   title: "Data components/Unit details/Interval tag",
