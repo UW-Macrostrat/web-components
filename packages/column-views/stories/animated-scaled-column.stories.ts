@@ -70,21 +70,51 @@ function realizedWindow(units: any[], nominal: AgeWindow): AgeWindow {
   };
 }
 
-/** Extend a window to peek `peekMyr` into the *units* of the neighboring
- * sections (Enhancement 2). Reaching into the next section's units — not just
- * its empty age range — is what makes that section (and its timescale) render,
- * so up/down navigation across unconformities works. */
-function withNeighborPeek(units: any[], w: AgeWindow, peekMyr: number): AgeWindow {
-  if (peekMyr <= 0) return w;
+/** The total age actually covered by units within a window (clipped to it),
+ * *excluding* unconformity gaps. This is the right basis for density: with
+ * collapsed unconformities the raw age span is not proportional to rendered
+ * content, so drilling to a recent interval whose window reaches across a big
+ * unconformity would otherwise read as "barely zoomed" and never shrink the
+ * older sections. */
+function realizedContentSpan(units: any[], w: AgeWindow): number {
+  let sum = 0;
+  for (const u of units) {
+    const top = Math.max(u.t_age, w.t_age);
+    const bottom = Math.min(u.b_age, w.b_age);
+    if (bottom > top) sum += bottom - top;
+  }
+  return sum;
+}
+
+/** Extend a window across its bounding unconformities to reveal `peekPx` pixels
+ * of the neighboring sections' units above and below (Enhancement 2). This is a
+ * *layout* consideration, so it's specified in pixels, not Myr: a fixed Myr
+ * padding sweeps in a whole section of short-lived young units (e.g. a Myr of
+ * Pleistocene) while barely nudging a long Mesozoic unit. Since the layout
+ * targets ~`targetUnitHeight` px per unit, `peekPx` px of a neighbor unit is
+ * `(peekPx / targetUnitHeight)` of its age span. Reaching into the neighbor's
+ * *units* (not its empty age range) is what makes that section — and its
+ * clickable timescale — render. */
+function extendAcrossBoundingUnconformities(
+  units: any[],
+  w: AgeWindow,
+  peekPx: number,
+  targetUnitHeight: number,
+): AgeWindow {
+  if (peekPx <= 0 || targetUnitHeight <= 0) return w;
+  const peekOfUnit = (u: any) => {
+    const ageSpan = u.b_age - u.t_age;
+    return Math.min((peekPx / targetUnitHeight) * ageSpan, ageSpan);
+  };
   let { t_age, b_age } = w;
   const below = units
     .filter((u) => u.t_age >= b_age)
     .sort((a, b) => a.t_age - b.t_age)[0];
-  if (below != null) b_age = Math.min(below.t_age + peekMyr, below.b_age);
+  if (below != null) b_age = below.t_age + peekOfUnit(below);
   const above = units
     .filter((u) => u.b_age <= t_age)
     .sort((a, b) => b.b_age - a.b_age)[0];
-  if (above != null) t_age = Math.max(above.b_age - peekMyr, above.t_age);
+  if (above != null) t_age = above.b_age - peekOfUnit(above);
   return { t_age, b_age };
 }
 
@@ -102,7 +132,7 @@ function SemanticZoomColumn({
   exponent,
   maxUnitHeight,
   realizedSpan,
-  peekMyr,
+  extendBoundingUnconformities,
   ...rest
 }: any) {
   const units = useColumnUnits(id);
@@ -127,8 +157,16 @@ function SemanticZoomColumn({
   }
 
   const window = zoom.window ?? fullExtent;
-  const fullSpan = fullExtent.b_age - fullExtent.t_age;
-  const span = window.b_age - window.t_age;
+  // Density is driven by the *realized content* (unit durations, gaps excluded)
+  // in realized mode, so a window that reaches across a collapsed unconformity
+  // still reads as zoomed-in and shrinks the older sections. Otherwise it's the
+  // raw age span.
+  const fullSpan = realizedSpan
+    ? realizedContentSpan(units, fullExtent)
+    : fullExtent.b_age - fullExtent.t_age;
+  const span = realizedSpan
+    ? realizedContentSpan(units, window)
+    : window.b_age - window.t_age;
   const targetUnitHeight = targetUnitHeightForSpan(span, fullSpan, {
     base,
     exponent,
@@ -143,7 +181,24 @@ function SemanticZoomColumn({
     const buffer = Math.max((interval.eag - interval.lag) * 0.25, 5);
     let w: AgeWindow = { t_age: interval.lag - buffer, b_age: interval.eag + buffer };
     if (realizedSpan) w = realizedWindow(units, w);
-    if (peekMyr > 0) w = withNeighborPeek(units, w, peekMyr);
+    if (extendBoundingUnconformities > 0) {
+      // Convert the px extent to age using the density this window will render
+      // at (targetUnitHeight for the content span, before the peek is added).
+      const contentSpan = realizedSpan
+        ? realizedContentSpan(units, w)
+        : w.b_age - w.t_age;
+      const tuh = targetUnitHeightForSpan(contentSpan, fullSpan, {
+        base,
+        exponent,
+        max: maxUnitHeight,
+      });
+      w = extendAcrossBoundingUnconformities(
+        units,
+        w,
+        extendBoundingUnconformities,
+        tuh,
+      );
+    }
     return w;
   };
 
@@ -201,7 +256,7 @@ function SemanticZoomColumn({
       ),
       h(
         "code",
-        `span ${span.toFixed(1)} Myr · zoom ${(fullSpan / span).toFixed(1)}× → target unit height ${targetUnitHeight.toFixed(0)} px · levels ${timescaleLevels[0]}–${timescaleLevels[1]}`,
+        `${realizedSpan ? "content" : "span"} ${span.toFixed(1)} Myr · zoom ${(fullSpan / span).toFixed(1)}× → target unit height ${targetUnitHeight.toFixed(0)} px · levels ${timescaleLevels[0]}–${timescaleLevels[1]}`,
       ),
     ]),
     h(Column, {
@@ -234,7 +289,7 @@ export default {
     exponent: 0.5,
     maxUnitHeight: 120,
     realizedSpan: false,
-    peekMyr: 0,
+    extendBoundingUnconformities: 0,
   },
   argTypes: {
     base: {
@@ -254,10 +309,10 @@ export default {
       description:
         "Snap the zoom to the stratigraphy the interval actually contains, so intervals clipping to the same units are a no-op",
     },
-    peekMyr: {
+    extendBoundingUnconformities: {
       control: { type: "number" },
       description:
-        "Extend the window this many Myr into neighboring sections' units, so adjacent timescale intervals stay navigable",
+        "Reveal this many px of the neighboring sections past the bounding unconformities, so adjacent timescale intervals stay navigable (pixel-based so young, short-lived intervals don't sweep in a whole section)",
     },
   },
   parameters: {
@@ -301,14 +356,16 @@ export const RealizedZoom = {
   },
 };
 
-/** Realized-span zoom plus a peek into neighboring sections (Enhancement 2).
- * Zooming to a section reaches a few Myr into the next section's units above and
- * below, so those sections (and their timescale intervals) render and stay
- * clickable — otherwise unconformity bounds strand the next unit outside the
- * window and up/down timescale navigation dead-ends. */
+/** Realized-span zoom that also extends across its bounding unconformities
+ * (Enhancement 2). Zooming to a section reveals ~30 px of the next section's
+ * units above and below, so those sections (and their timescale intervals)
+ * render and stay clickable — otherwise unconformity bounds strand the next unit
+ * outside the window and up/down timescale navigation dead-ends. The extent is
+ * in pixels, so a young, short-lived interval (e.g. Pleistocene) reveals ~30 px,
+ * not a whole section's worth of Myr. */
 export const NavigableRealizedZoom = {
   args: {
     realizedSpan: true,
-    peekMyr: 3,
+    extendBoundingUnconformities: 30,
   },
 };
