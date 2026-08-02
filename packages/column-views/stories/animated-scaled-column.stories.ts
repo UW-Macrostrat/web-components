@@ -55,6 +55,39 @@ function targetUnitHeightForSpan(
   return Math.min(base * Math.pow(zoomFactor, exponent), max);
 }
 
+/** Snap a nominal age window to the extent of the *units* it actually contains,
+ * clipped to the window. Two intervals that clip to the same stratigraphy yield
+ * the same realized window — so zooming between them is a no-op (Enhancement 1).
+ * Returns the nominal window unchanged when it contains no units. */
+function realizedWindow(units: any[], nominal: AgeWindow): AgeWindow {
+  const inWindow = units.filter(
+    (u) => u.t_age < nominal.b_age && u.b_age > nominal.t_age,
+  );
+  if (inWindow.length === 0) return nominal;
+  return {
+    t_age: Math.max(nominal.t_age, Math.min(...inWindow.map((u) => u.t_age))),
+    b_age: Math.min(nominal.b_age, Math.max(...inWindow.map((u) => u.b_age))),
+  };
+}
+
+/** Extend a window to peek `peekMyr` into the *units* of the neighboring
+ * sections (Enhancement 2). Reaching into the next section's units — not just
+ * its empty age range — is what makes that section (and its timescale) render,
+ * so up/down navigation across unconformities works. */
+function withNeighborPeek(units: any[], w: AgeWindow, peekMyr: number): AgeWindow {
+  if (peekMyr <= 0) return w;
+  let { t_age, b_age } = w;
+  const below = units
+    .filter((u) => u.t_age >= b_age)
+    .sort((a, b) => a.t_age - b.t_age)[0];
+  if (below != null) b_age = Math.min(below.t_age + peekMyr, below.b_age);
+  const above = units
+    .filter((u) => u.b_age <= t_age)
+    .sort((a, b) => b.b_age - a.b_age)[0];
+  if (above != null) t_age = Math.max(above.b_age - peekMyr, above.t_age);
+  return { t_age, b_age };
+}
+
 function useColumnUnits(col_id: number) {
   return useAPIResult(
     "https://dev.macrostrat.org/api/v2/units",
@@ -63,7 +96,15 @@ function useColumnUnits(col_id: number) {
   );
 }
 
-function SemanticZoomColumn({ id, base, exponent, maxUnitHeight, ...rest }: any) {
+function SemanticZoomColumn({
+  id,
+  base,
+  exponent,
+  maxUnitHeight,
+  realizedSpan,
+  peekMyr,
+  ...rest
+}: any) {
   const units = useColumnUnits(id);
 
   const fullExtent = useMemo<AgeWindow | null>(() => {
@@ -95,13 +136,24 @@ function SemanticZoomColumn({ id, base, exponent, maxUnitHeight, ...rest }: any)
   });
   const timescaleLevels = levelsForSelected(selectedLevel);
 
+  // Target window for an interval: nominal (interval ± buffer) by default, or —
+  // in realized mode — snapped to the stratigraphy it actually contains, with an
+  // optional peek into neighboring sections for navigation.
+  const windowForInterval = (interval: Interval): AgeWindow => {
+    const buffer = Math.max((interval.eag - interval.lag) * 0.25, 5);
+    let w: AgeWindow = { t_age: interval.lag - buffer, b_age: interval.eag + buffer };
+    if (realizedSpan) w = realizedWindow(units, w);
+    if (peekMyr > 0) w = withNeighborPeek(units, w, peekMyr);
+    return w;
+  };
+
   const onClickTimescaleInterval = (_evt: Event, data: TimescaleClickData) => {
     const interval = data?.interval;
     if (interval == null || interval.lvl == null) return;
     if (stack.length === 0 || interval.lvl > selectedLevel) {
       // Nothing selected yet, or a finer interval was clicked → drill in.
       setStack([...stack, interval]);
-      zoom.zoomToInterval(interval);
+      zoom.zoomToWindow(windowForInterval(interval));
     } else {
       // A click at the selected level or coarser → zoom out a level. Level-based
       // (not identity-based) so it's robust to the zoom buffer: clicking the
@@ -110,7 +162,7 @@ function SemanticZoomColumn({ id, base, exponent, maxUnitHeight, ...rest }: any)
       const next = stack.slice(0, -1);
       setStack(next);
       const parent = next[next.length - 1] ?? null;
-      if (parent != null) zoom.zoomToInterval(parent);
+      if (parent != null) zoom.zoomToWindow(windowForInterval(parent));
       else zoom.reset();
     }
   };
@@ -181,6 +233,8 @@ export default {
     base: 12,
     exponent: 0.5,
     maxUnitHeight: 120,
+    realizedSpan: false,
+    peekMyr: 0,
   },
   argTypes: {
     base: {
@@ -194,6 +248,16 @@ export default {
     maxUnitHeight: {
       control: { type: "number" },
       description: "Cap on target unit height (px) when deeply zoomed in",
+    },
+    realizedSpan: {
+      control: { type: "boolean" },
+      description:
+        "Snap the zoom to the stratigraphy the interval actually contains, so intervals clipping to the same units are a no-op",
+    },
+    peekMyr: {
+      control: { type: "number" },
+      description:
+        "Extend the window this many Myr into neighboring sections' units, so adjacent timescale intervals stay navigable",
     },
   },
   parameters: {
@@ -223,5 +287,28 @@ export const SemanticZoom = {};
 export const SingleScale = {
   args: {
     mergeSections: MergeSectionsMode.ALL,
+  },
+};
+
+/** Realized-span zoom (Enhancement 1): the zoom snaps to the stratigraphy the
+ * clicked interval actually contains, rather than the nominal interval span. So
+ * if a single 10 Myr unit is all that's present, drilling into finer intervals
+ * that still contain it is a no-op (the interval just highlights in the
+ * timescale) — you only zoom further once you start clipping the unit. */
+export const RealizedZoom = {
+  args: {
+    realizedSpan: true,
+  },
+};
+
+/** Realized-span zoom plus a peek into neighboring sections (Enhancement 2).
+ * Zooming to a section reaches a few Myr into the next section's units above and
+ * below, so those sections (and their timescale intervals) render and stay
+ * clickable — otherwise unconformity bounds strand the next unit outside the
+ * window and up/down timescale navigation dead-ends. */
+export const NavigableRealizedZoom = {
+  args: {
+    realizedSpan: true,
+    peekMyr: 3,
   },
 };
