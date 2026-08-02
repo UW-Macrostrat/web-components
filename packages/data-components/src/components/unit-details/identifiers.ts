@@ -1,5 +1,5 @@
-import { isClickable, ItemInteractionProps } from "@macrostrat/data-components";
-import h from "./panel.module.sass";
+import { isClickable, ItemInteractionProps } from "../../data-links";
+import h from "./main.module.sass";
 import { ReactNode } from "react";
 import classNames from "classnames";
 

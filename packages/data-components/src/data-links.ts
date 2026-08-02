@@ -24,6 +24,7 @@ export type MacrostratItemIdentifier =
   | { project_id: number }
   | { concept_id: number }
   | { timescale_id: number }
+  | { legend_id: number }
   | { col_id: number; unit_id?: number; project_id?: number }
   | { econ_id: number }
   | { structure_id: number };
@@ -38,6 +39,7 @@ export type MacrostratItemType =
   | "timescale"
   | "strat_name"
   | "concept"
+  | "legend"
   | "column"
   | "project"
   | "econ";
@@ -75,6 +77,8 @@ export function macrostratIdentifierFields(
     return ["project", item.project_id];
   } else if ("econ_id" in item) {
     return ["econ", item.econ_id];
+  } else if ("legend_id" in item) {
+    return ["legend", item.legend_id];
   }
   throw new Error("Invalid MacrostratItemIdentifier");
 }

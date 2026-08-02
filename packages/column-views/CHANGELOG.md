@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.8.0] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.7.0...@macrostrat/column-views-v3.8.0)
+
+### Minor Changes
+
+- Move Identifier and UnitIdentifier to `@macrostrat/data-components`
+  [91fcea53](https://github.com/UW-Macrostrat/web-components/commit/91fcea536dd55e387b6f5bce1da0c07395da4635)
+
+### Patch Changes
+
+- Remove some unnecessarily bundled packages
+  [930edeae](https://github.com/UW-Macrostrat/web-components/commit/930edeaef23d42d62ee3f533d2e20c75dbf9ea42)
+- Updated dependencies
+  [1961f84a](https://github.com/UW-Macrostrat/web-components/commit/1961f84a397a341ce92eb032dcdc77c79f957707)
+- Updated dependencies
+  [930edeae](https://github.com/UW-Macrostrat/web-components/commit/930edeaef23d42d62ee3f533d2e20c75dbf9ea42)
+- Updated dependencies
+  [91fcea53](https://github.com/UW-Macrostrat/web-components/commit/91fcea536dd55e387b6f5bce1da0c07395da4635)
+  - @macrostrat/data-components@1.5.0
+  - @macrostrat/column-components@2.0.10
+  - @macrostrat/mapbox-react@3.3.3
+
 ## [3.7.0] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.6.1...@macrostrat/column-views-v3.7.0)
 
 ### Minor Changes
