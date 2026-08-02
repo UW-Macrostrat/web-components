@@ -50,10 +50,12 @@
     "classnames": "^2.5.1",
     "immutability-helper": "^3.1.1",
     "mapbox-gl": "^3.0.0",
-    "mapbox-gl-controls": "^2.3.5"
+    "mapbox-gl-controls": "^2.3.5",
+    "underscore": "^1.13.8"
   },
   "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:*"
+    "@macrostrat/web-components-bundler": "workspace:*",
+    "@types/underscore": "^1"
   },
   "publishConfig": {
     "access": "public"
