@@ -13,19 +13,18 @@ export interface UseZoomableScaleOptions {
   duration?: number;
   /** Easing applied to the animated domain. Defaults to cubic in-out. */
   ease?: (t: number) => number;
+  /** Default padding, in **pixels**, held around every zoom target so
+   * neighboring time stays reachable. See {@link padDomain}. */
+  padding?: number;
 }
 
 export interface ZoomToDomainOptions {
   duration?: number;
+  /** Padding in pixels around the target span (overrides the hook default). */
+  padding?: number;
 }
 
-export interface ZoomToIntervalOptions extends ZoomToDomainOptions {
-  /** Padding around the interval as a fraction of its span (default 0.25),
-   * so neighboring time stays reachable. */
-  bufferFraction?: number;
-  /** Floor on the padding in Myr (default 5). */
-  minBuffer?: number;
-}
+export type ZoomToIntervalOptions = ZoomToDomainOptions;
 
 export interface ZoomableScale {
   /** The rescaled scale to hand to `<Timescale scale=... />`. */
@@ -38,9 +37,9 @@ export interface ZoomableScale {
   isFullExtent: boolean;
   /** True while an animation is in flight. */
   isAnimating: boolean;
-  /** Animate to an explicit [older, younger] span. */
+  /** Animate to an explicit [older, younger] span, plus padding. */
   zoomToDomain(domain: AgeDomain, opts?: ZoomToDomainOptions): void;
-  /** Animate to a timescale interval (with buffer), using its eag/lag. */
+  /** Animate to a timescale interval, using its eag/lag. */
   zoomToInterval(
     interval: { eag: number; lag: number },
     opts?: ZoomToIntervalOptions,
@@ -63,7 +62,11 @@ export function useZoomableScale(
   baseScale: ScaleContinuousNumeric<number, number>,
   options: UseZoomableScaleOptions = {},
 ): ZoomableScale {
-  const { duration = 750, ease = easeCubicInOut } = options;
+  const {
+    duration = 750,
+    ease = easeCubicInOut,
+    padding: defaultPadding = 0,
+  } = options;
 
   // Keep a private copy so we never mutate the caller's scale, and reset the
   // transform if the base extent itself changes.
@@ -100,8 +103,9 @@ export function useZoomableScale(
   );
 
   const animateToDomain = useCallback(
-    (target: AgeDomain, animDuration: number) => {
+    (rawTarget: AgeDomain, animDuration: number, padding: number) => {
       cancelAnimation();
+      const target = padDomain(base, rawTarget, padding);
       const targetTransform = transformForDomain(base, target);
       if (targetTransform == null) return;
 
@@ -137,9 +141,13 @@ export function useZoomableScale(
 
   const zoomToDomain = useCallback(
     (domain: AgeDomain, opts: ZoomToDomainOptions = {}) => {
-      animateToDomain(domain, opts.duration ?? duration);
+      animateToDomain(
+        domain,
+        opts.duration ?? duration,
+        opts.padding ?? defaultPadding,
+      );
     },
-    [animateToDomain, duration],
+    [animateToDomain, duration, defaultPadding],
   );
 
   const zoomToInterval = useCallback(
@@ -147,22 +155,22 @@ export function useZoomableScale(
       interval: { eag: number; lag: number },
       opts: ZoomToIntervalOptions = {},
     ) => {
-      const { bufferFraction = 0.25, minBuffer = 5 } = opts;
-      const { eag, lag } = interval;
-      const buffer = Math.max((eag - lag) * bufferFraction, minBuffer);
-      const [fullOld, fullYoung] = extentDomain(base);
-      const older = Math.min(eag + buffer, fullOld);
-      const younger = Math.max(lag - buffer, fullYoung);
-      animateToDomain([older, younger], opts.duration ?? duration);
+      zoomToDomain([interval.eag, interval.lag], opts);
     },
-    [animateToDomain, base, duration],
+    [zoomToDomain],
   );
 
   const reset = useCallback(
     (opts: ZoomToDomainOptions = {}) => {
-      animateToDomain(extentDomain(base), opts.duration ?? duration);
+      // Padding collapses at both ends of the full extent, so this lands
+      // exactly on the identity transform.
+      animateToDomain(
+        extentDomain(base),
+        opts.duration ?? duration,
+        opts.padding ?? defaultPadding,
+      );
     },
-    [animateToDomain, base, duration],
+    [animateToDomain, base, duration, defaultPadding],
   );
 
   const scale = useMemo(
@@ -182,6 +190,63 @@ export function useZoomableScale(
     reset,
     setTransform,
   };
+}
+
+/**
+ * Expand `[older, younger]` so that, once zoomed to, the span sits `padding`
+ * **pixels** inside each end of the base scale's range.
+ *
+ * Padding is a layout quantity, so it's specified in pixels rather than Myr:
+ * the visual gutter around a target is then identical at every zoom level,
+ * whereas a fixed Myr padding is invisible when zoomed out and dominant when
+ * zoomed in.
+ *
+ * Padding **collapses** against the ends of the base extent: a span that
+ * reaches the oldest (or youngest) representable age gets no padding on that
+ * side, and the full pixel padding is still honored on the free side. A span
+ * pinned at both ends is exactly the full extent.
+ */
+export function padDomain(
+  base: ScaleContinuousNumeric<number, number>,
+  domain: AgeDomain,
+  padding: number,
+): AgeDomain {
+  const [fullOld, fullYoung] = extentDomain(base);
+  const clamp = (v: number) => Math.min(Math.max(v, fullYoung), fullOld);
+  const older = clamp(domain[0]);
+  const younger = clamp(domain[1]);
+
+  const width = rangeWidth(base);
+  const f = padding / width;
+  // Nothing to do for a non-positive padding, or one too large to fit.
+  if (!(f > 0) || 2 * f >= 1) return [older, younger];
+
+  // Unconstrained: the span fills the range minus a gutter at each end.
+  const unit = (older - younger) / (width - 2 * padding);
+  let paddedOld = older + padding * unit;
+  let paddedYoung = younger - padding * unit;
+
+  const oldPinned = paddedOld > fullOld;
+  const youngPinned = paddedYoung < fullYoung;
+
+  if (oldPinned && youngPinned) return [fullOld, fullYoung];
+  if (oldPinned) {
+    // Collapse the old-side gutter and re-solve the young side against the
+    // pinned end, so it still measures `padding` pixels.
+    paddedOld = fullOld;
+    paddedYoung = Math.max((younger - f * paddedOld) / (1 - f), fullYoung);
+  } else if (youngPinned) {
+    paddedYoung = fullYoung;
+    paddedOld = Math.min((older - f * paddedYoung) / (1 - f), fullOld);
+  }
+
+  return [paddedOld, paddedYoung];
+}
+
+/** Pixel length of the base scale's range. */
+function rangeWidth(base: ScaleContinuousNumeric<number, number>): number {
+  const r = base.range() as number[];
+  return Math.abs(r[r.length - 1] - r[0]);
 }
 
 /** The base scale's full domain, ordered [older, younger]. */

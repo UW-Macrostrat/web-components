@@ -22,6 +22,7 @@ function AnimatedTimescale(props: {
   levels?: [number, number];
   orientation?: TimescaleOrientation;
   duration?: number;
+  padding?: number;
 }) {
   const {
     ageRange = [1000, 0],
@@ -29,6 +30,7 @@ function AnimatedTimescale(props: {
     levels = [1, 4],
     orientation = TimescaleOrientation.VERTICAL,
     duration = 750,
+    padding = 24,
   } = props;
 
   // The full extent we can zoom back out to. Range is pixels along the axis;
@@ -39,7 +41,9 @@ function AnimatedTimescale(props: {
     [ageRange.join(","), length],
   );
 
-  const zoom = useZoomableScale(baseScale, { duration });
+  // `padding` is in pixels, so the gutter around a zoom target looks the same
+  // at every zoom level; it collapses at the ends of the full extent.
+  const zoom = useZoomableScale(baseScale, { duration, padding });
 
   const onClick = (_evt: Event, data: TimescaleClickData) => {
     if (data.interval == null) return;
@@ -75,7 +79,9 @@ function AnimatedTimescale(props: {
     h(
       "p",
       { style: { maxWidth: 640, color: "var(--secondary-color, #666)" } },
-      "Click any interval to zoom to it (with a buffer so neighbors stay reachable). Use Reset to ease back out.",
+      "Click any interval to zoom to it. A fixed pixel padding keeps neighbors " +
+        "reachable at either end, collapsing where the span meets the oldest or " +
+        "youngest age. Use Reset to ease back out.",
     ),
   ]);
 }
@@ -97,6 +103,7 @@ export default {
   argTypes: {
     length: { control: { type: "number" } },
     duration: { control: { type: "number", min: 0, max: 3000, step: 50 } },
+    padding: { control: { type: "number", min: 0, max: 200, step: 4 } },
     orientation: {
       control: { type: "radio" },
       options: [TimescaleOrientation.VERTICAL, TimescaleOrientation.HORIZONTAL],
@@ -111,6 +118,7 @@ export const Vertical = {
     levels: [1, 4],
     orientation: TimescaleOrientation.VERTICAL,
     duration: 750,
+    padding: 24,
   },
 };
 
@@ -121,5 +129,6 @@ export const Horizontal = {
     levels: [1, 5],
     orientation: TimescaleOrientation.HORIZONTAL,
     duration: 750,
+    padding: 32,
   },
 };
