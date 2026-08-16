@@ -122,6 +122,7 @@ export function Column(props: ColumnProps) {
     pixelScale,
     minPixelScale = 0.2,
     minSectionHeight = 50,
+    windowPadding = 0,
     collapseSmallUnconformities = true,
     allowUnitSelection = false,
     hybridScale,
@@ -168,6 +169,7 @@ export function Column(props: ColumnProps) {
     pixelScale,
     minPixelScale: _minPixelScale,
     minSectionHeight: _minSectionHeight,
+    windowPadding,
     collapseSmallUnconformities,
     // TODO: consider unifying scale and hybridScale options
     scale,

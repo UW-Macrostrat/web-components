@@ -1,5 +1,5 @@
 import { ColumnAxisType } from "@macrostrat/column-components";
-import { ensureArray, getUnitHeightRange } from "./utils";
+import { agesOverlap, ensureArray, getUnitHeightRange } from "./utils";
 import { ScaleContinuousNumeric, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
 import { buildHybridScale } from "./dynamic-scales";
@@ -176,7 +176,11 @@ function buildSectionScale<T extends UnitLong>(
     }
 
     let height = dAge * _pixelScale;
-    // If height is less than minSectionHeight, set it to minSectionHeight
+    // If height is less than minSectionHeight, set it to minSectionHeight.
+    // Sections reach here at their *full* extent (the rendered window is applied
+    // afterwards, by `trimSectionsToWindow`), so this floor only ever inflates a
+    // genuinely small section — which is what it's for — and never a sliver that
+    // the window happens to cut.
     const _minSectionHeight = minSectionHeight ?? targetUnitHeight ?? 0;
     pixelHeight = Math.max(height, _minSectionHeight);
     _pixelScale = pixelHeight / dAge;
@@ -189,6 +193,168 @@ function buildSectionScale<T extends UnitLong>(
     { scale, domain, pixelHeight, pixelScale: _pixelScale },
     0,
   );
+}
+
+/**
+ * The density each section will actually render at once the window is applied.
+ *
+ * A section the window cuts short is still being *looked at*, so
+ * `minSectionHeight` applies to what remains — it's honored by expanding the
+ * section's scale, not by showing more of it. Resolving this **before** padding
+ * matters: padding is a pixel margin measured at the density it will render at,
+ * and a section stretched to the floor afterwards would multiply the margin
+ * along with everything else (a 20 px margin in a band stretched 4× renders at
+ * 80 px, and asymmetrically so whenever one side is truncated).
+ *
+ * Sections the window leaves whole keep their laid-out density — they already
+ * met the floor when they were sized.
+ */
+export function resolveWindowScales<T extends UnitLong>(
+  sections: SectionInfoWithScale<T>[],
+  focalWindow: [number, number],
+  floor: number,
+): Map<SectionInfoWithScale<T>, number> {
+  const [b_focal, t_focal] = focalWindow;
+  const scales = new Map<SectionInfoWithScale<T>, number>();
+
+  for (const section of sections) {
+    const t_age = Math.max(section.t_age, t_focal);
+    const b_age = Math.min(section.b_age, b_focal);
+    // Sections outside the focal window are visible only as padding; they keep
+    // their own density and render exactly the pixels asked for.
+    if (b_age <= t_age) continue;
+
+    const natural = section.scaleInfo.pixelScale;
+    if (!(natural > 0)) continue;
+
+    const isClipped = b_age < section.b_age || t_age > section.t_age;
+    const needed = isClipped && floor > 0 ? floor / (b_age - t_age) : 0;
+    scales.set(section, Math.max(natural, needed));
+  }
+  return scales;
+}
+
+/**
+ * Expand an age window outward by `padding` **pixels** of column, spending the
+ * budget against sections that are already laid out at full extent, at the
+ * densities they will finally render at (`scaleFor`).
+ *
+ * Because the layout is done, this is exact rather than predicted: each section
+ * contributes its own real pixel height. Padding collapses when the column runs
+ * out on that side.
+ *
+ * Unconformities between sections cost nothing. They render at a fixed height
+ * that's typically larger than the padding itself (30–60 px), so charging them
+ * would mean padding could never reach across a gap — which is the case it
+ * exists for: revealing the neighboring section keeps its timescale intervals
+ * navigable. The padding is a budget of neighboring *content*.
+ */
+export function padWindowByPixels<T extends UnitLong>(
+  sections: SectionInfoWithScale<T>[],
+  window: [number, number],
+  padding: number,
+  scaleFor: (section: SectionInfoWithScale<T>) => number,
+): [number, number] {
+  if (!(padding > 0) || sections.length === 0) return window;
+  const [b_age, t_age] = window;
+  return [
+    spendOutward(sections, b_age, 1, padding, scaleFor),
+    spendOutward(sections, t_age, -1, padding, scaleFor),
+  ];
+}
+
+/** Walk out from one edge of the window through laid-out sections, spending a
+ * pixel budget, and return the age it lands on. `direction` is +1 toward older
+ * ages, -1 toward younger. */
+function spendOutward<T extends UnitLong>(
+  sections: SectionInfoWithScale<T>[],
+  edge: number,
+  direction: 1 | -1,
+  padding: number,
+  scaleFor: (section: SectionInfoWithScale<T>) => number,
+): number {
+  // Sections ordered outward from the edge, keeping only what lies beyond it.
+  const beyond = sections
+    .filter(
+      (s) => direction * (s.b_age - edge) > 0 || direction * (s.t_age - edge) > 0,
+    )
+    .sort((a, b) => direction * (nearEdge(a, direction) - nearEdge(b, direction)));
+
+  let bound = edge;
+  let budget = padding;
+
+  for (const section of beyond) {
+    const pixelScale = scaleFor(section);
+    if (!(pixelScale > 0)) continue;
+
+    const from =
+      direction > 0
+        ? Math.max(section.t_age, bound)
+        : Math.min(section.b_age, bound);
+    const available = direction > 0 ? section.b_age - from : from - section.t_age;
+    if (available <= 0) continue;
+
+    const cost = available * pixelScale;
+    if (budget <= cost) return from + direction * (budget / pixelScale);
+
+    bound = direction > 0 ? section.b_age : section.t_age;
+    budget -= cost;
+  }
+  return bound;
+}
+
+/** The age at which a section starts, measured from the window edge outward. */
+function nearEdge<T extends UnitLong>(
+  section: SectionInfoWithScale<T>,
+  direction: 1 | -1,
+): number {
+  return direction > 0 ? section.t_age : section.b_age;
+}
+
+/**
+ * Clip laid-out sections to the rendered window — the last step of layout, so
+ * that every section has already been sized (and floored) at its full extent.
+ * Each section renders at the density `scaleFor` resolved for it, which is what
+ * keeps a padding margin the same number of pixels as the band it borders is
+ * stretched to meet `minSectionHeight`.
+ */
+export function trimSectionsToWindow<T extends UnitLong>(
+  sections: SectionInfoWithScale<T>[],
+  window: [number, number],
+  scaleFor: (section: SectionInfoWithScale<T>) => number,
+): SectionInfoWithScale<T>[] {
+  const [b_win, t_win] = window;
+  const out: SectionInfoWithScale<T>[] = [];
+
+  for (const section of sections) {
+    const t_age = Math.max(section.t_age, t_win);
+    const b_age = Math.min(section.b_age, b_win);
+    if (b_age <= t_age) continue;
+
+    const pixelScale = scaleFor(section);
+    if (
+      b_age === section.b_age &&
+      t_age === section.t_age &&
+      pixelScale === section.scaleInfo.pixelScale
+    ) {
+      out.push(section);
+      continue;
+    }
+
+    out.push({
+      ...section,
+      t_age,
+      b_age,
+      units: section.units.filter((u) => agesOverlap(u, { t_age, b_age })),
+      scaleInfo: createPackageScale({
+        domain: [b_age, t_age],
+        pixelScale,
+        pixelHeight: (b_age - t_age) * pixelScale,
+        scale: null,
+      }),
+    });
+  }
+  return out;
 }
 
 export function createPackageScale(

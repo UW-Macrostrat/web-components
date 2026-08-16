@@ -2,15 +2,15 @@ import h from "@macrostrat/hyper";
 import { Meta } from "@storybook/react-vite";
 import { useMemo, useState } from "react";
 import { Button, Spinner } from "@blueprintjs/core";
-import { useAPIResult } from "@macrostrat/ui-components";
 import "@macrostrat/style-system";
 import {
   Column,
   useAnimatedAgeWindow,
   MergeSectionsMode,
   type AgeWindow,
-} from "../src";
+} from "../../src";
 import type { Interval, TimescaleClickData } from "@macrostrat/timescale";
+import { useColumnUnits } from "./utils";
 
 /** Deepest timescale level to ever show (age/stage). */
 const MAX_TIMESCALE_LEVEL = 5;
@@ -86,53 +86,13 @@ function realizedContentSpan(units: any[], w: AgeWindow): number {
   return sum;
 }
 
-/** Extend a window across its bounding unconformities to reveal `peekPx` pixels
- * of the neighboring sections' units above and below (Enhancement 2). This is a
- * *layout* consideration, so it's specified in pixels, not Myr: a fixed Myr
- * padding sweeps in a whole section of short-lived young units (e.g. a Myr of
- * Pleistocene) while barely nudging a long Mesozoic unit. Since the layout
- * targets ~`targetUnitHeight` px per unit, `peekPx` px of a neighbor unit is
- * `(peekPx / targetUnitHeight)` of its age span. Reaching into the neighbor's
- * *units* (not its empty age range) is what makes that section — and its
- * clickable timescale — render. */
-function extendAcrossBoundingUnconformities(
-  units: any[],
-  w: AgeWindow,
-  peekPx: number,
-  targetUnitHeight: number,
-): AgeWindow {
-  if (peekPx <= 0 || targetUnitHeight <= 0) return w;
-  const peekOfUnit = (u: any) => {
-    const ageSpan = u.b_age - u.t_age;
-    return Math.min((peekPx / targetUnitHeight) * ageSpan, ageSpan);
-  };
-  let { t_age, b_age } = w;
-  const below = units
-    .filter((u) => u.t_age >= b_age)
-    .sort((a, b) => a.t_age - b.t_age)[0];
-  if (below != null) b_age = below.t_age + peekOfUnit(below);
-  const above = units
-    .filter((u) => u.b_age <= t_age)
-    .sort((a, b) => b.b_age - a.b_age)[0];
-  if (above != null) t_age = above.b_age - peekOfUnit(above);
-  return { t_age, b_age };
-}
-
-function useColumnUnits(col_id: number) {
-  return useAPIResult(
-    "https://dev.macrostrat.org/api/v2/units",
-    { col_id, response: "long", status_code: "active", show_position: true },
-    (res) => res.success.data,
-  );
-}
-
 function SemanticZoomColumn({
   id,
   base,
   exponent,
   maxUnitHeight,
   realizedSpan,
-  extendBoundingUnconformities,
+  padding,
   ...rest
 }: any) {
   const units = useColumnUnits(id);
@@ -174,52 +134,46 @@ function SemanticZoomColumn({
   });
   const timescaleLevels = levelsForSelected(selectedLevel);
 
-  // Target window for an interval: nominal (interval ± buffer) by default, or —
-  // in realized mode — snapped to the stratigraphy it actually contains, with an
-  // optional peek into neighboring sections for navigation.
+  // Target window for an interval: the nominal interval span, or — in realized
+  // mode — snapped to the stratigraphy it actually contains. Revealing a margin
+  // of the neighboring sections is the column's job (`windowPadding`, below),
+  // resolved against the real laid-out section heights.
   const windowForInterval = (interval: Interval): AgeWindow => {
-    const buffer = Math.max((interval.eag - interval.lag) * 0.25, 5);
-    let w: AgeWindow = { t_age: interval.lag - buffer, b_age: interval.eag + buffer };
-    if (realizedSpan) w = realizedWindow(units, w);
-    if (extendBoundingUnconformities > 0) {
-      // Convert the px extent to age using the density this window will render
-      // at (targetUnitHeight for the content span, before the peek is added).
-      const contentSpan = realizedSpan
-        ? realizedContentSpan(units, w)
-        : w.b_age - w.t_age;
-      const tuh = targetUnitHeightForSpan(contentSpan, fullSpan, {
-        base,
-        exponent,
-        max: maxUnitHeight,
-      });
-      w = extendAcrossBoundingUnconformities(
-        units,
-        w,
-        extendBoundingUnconformities,
-        tuh,
-      );
-    }
+    const w: AgeWindow = { t_age: interval.lag, b_age: interval.eag };
+    if (realizedSpan) return realizedWindow(units, w);
     return w;
+  };
+
+  const zoomTo = (interval: Interval) => {
+    zoom.zoomToWindow(windowForInterval(interval));
   };
 
   const onClickTimescaleInterval = (_evt: Event, data: TimescaleClickData) => {
     const interval = data?.interval;
     if (interval == null || interval.lvl == null) return;
-    if (stack.length === 0 || interval.lvl > selectedLevel) {
-      // Nothing selected yet, or a finer interval was clicked → drill in.
-      setStack([...stack, interval]);
-      zoom.zoomToWindow(windowForInterval(interval));
-    } else {
-      // A click at the selected level or coarser → zoom out a level. Level-based
-      // (not identity-based) so it's robust to the zoom buffer: clicking the
-      // selected interval, an adjacent same-level one, or a coarser one all zoom
-      // out. Popping past the root returns to the full extent.
+
+    // Clicking the interval you're already in is the only "zoom out": pop a
+    // level, or return to the full extent past the root.
+    if (selectedInterval != null && interval.oid === selectedInterval.oid) {
       const next = stack.slice(0, -1);
       setStack(next);
       const parent = next[next.length - 1] ?? null;
-      if (parent != null) zoom.zoomToWindow(windowForInterval(parent));
+      if (parent != null) zoomTo(parent);
       else zoom.reset();
+      return;
     }
+
+    // Every other click navigates *to* the interval clicked, whatever its rank:
+    // a finer one drills in, a preceding/postdating one at the same rank moves
+    // along the timescale, a coarser one zooms out to it. The drill path keeps
+    // only the coarser intervals that actually contain the new selection, so
+    // stepping sideways into a different parent (say the last stage of the
+    // Cambrian → the first of the Ordovician) doesn't strand the old one.
+    const containing = stack.filter(
+      (d) => d.lvl < interval.lvl && d.eag >= interval.eag && d.lag <= interval.lag,
+    );
+    setStack([...containing, interval]);
+    zoomTo(interval);
   };
 
   const onReset = () => {
@@ -227,8 +181,8 @@ function SemanticZoomColumn({
     zoom.reset();
   };
 
-  // Bold the currently selected interval's text to make the click-to-zoom-out
-  // affordance clear.
+  // Bold the selected interval: it's the one whose click zooms out, whereas
+  // every other interval navigates to itself.
   const intervalStyle = (interval: Interval) => {
     if (selectedInterval != null && interval.oid === selectedInterval.oid) {
       return { fontWeight: "bold" };
@@ -236,49 +190,67 @@ function SemanticZoomColumn({
     return {};
   };
 
-  return h("div", { style: { display: "flex", flexDirection: "column", gap: 12 } }, [
-    h("div", { style: { display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" } }, [
+  return h(
+    "div",
+    { style: { display: "flex", flexDirection: "column", gap: 12 } },
+    [
       h(
-        Button,
+        "div",
         {
-          small: true,
-          intent: "primary",
-          disabled: zoom.isFullExtent,
-          onClick: onReset,
+          style: {
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+          },
         },
-        "Reset to full extent",
+        [
+          h(
+            Button,
+            {
+              small: true,
+              intent: "primary",
+              disabled: zoom.isFullExtent,
+              onClick: onReset,
+            },
+            "Reset to full extent",
+          ),
+          h(
+            "span",
+            selectedInterval != null
+              ? `${selectedInterval.nam} — click a finer interval to drill in, a neighboring one to move along the timescale, or ${selectedInterval.nam} itself to zoom out`
+              : "Click a timescale interval to zoom in.",
+          ),
+          h(
+            "code",
+            `${realizedSpan ? "content" : "span"} ${span.toFixed(1)} Myr · zoom ${(fullSpan / span).toFixed(1)}× → target unit height ${targetUnitHeight.toFixed(0)} px · levels ${timescaleLevels[0]}–${timescaleLevels[1]}`,
+          ),
+        ],
       ),
-      h(
-        "span",
-        selectedInterval != null
-          ? `${selectedInterval.nam} — click a finer interval to drill in, or this level (or coarser) to zoom out`
-          : "Click a timescale interval to zoom in.",
-      ),
-      h(
-        "code",
-        `${realizedSpan ? "content" : "span"} ${span.toFixed(1)} Myr · zoom ${(fullSpan / span).toFixed(1)}× → target unit height ${targetUnitHeight.toFixed(0)} px · levels ${timescaleLevels[0]}–${timescaleLevels[1]}`,
-      ),
-    ]),
-    h(Column, {
-      units,
-      t_age: window.t_age,
-      b_age: window.b_age,
-      // Feed the zoom-dependent target to the existing content-aware layout; the
-      // per-section pixelScale (and its floors) are derived from this.
-      targetUnitHeight,
-      // Timescale detail follows the selected level; layout is unaffected.
-      timescaleLevels,
-      // Bold the selected interval (click it to zoom out).
-      timescaleIntervalStyle: intervalStyle,
-      isTransitioning: zoom.isAnimating,
-      onClickTimescaleInterval,
-      ...rest,
-    }),
-  ]);
+      h(Column, {
+        units,
+        t_age: window.t_age,
+        b_age: window.b_age,
+        // Feed the zoom-dependent target to the existing content-aware layout; the
+        // per-section pixelScale (and its floors) are derived from this.
+        targetUnitHeight,
+        // Reveal this many px of the abutting sections past the window, so
+        // neighboring stratigraphy and its intervals stay navigable.
+        windowPadding: padding,
+        // Timescale detail follows the selected level; layout is unaffected.
+        timescaleLevels,
+        // Bold the selected interval (click it to zoom out).
+        timescaleIntervalStyle: intervalStyle,
+        isTransitioning: zoom.isAnimating,
+        onClickTimescaleInterval,
+        ...rest,
+      }),
+    ],
+  );
 }
 
 export default {
-  title: "Column views/Stratigraphic column rendering",
+  title: "Column views/Column animations/Semantic zoom",
   component: SemanticZoomColumn,
   args: {
     id: 432,
@@ -288,8 +260,9 @@ export default {
     base: 12,
     exponent: 0.5,
     maxUnitHeight: 120,
+    minSectionHeight: 200,
     realizedSpan: false,
-    extendBoundingUnconformities: 0,
+    padding: 20,
   },
   argTypes: {
     base: {
@@ -298,7 +271,8 @@ export default {
     },
     exponent: {
       control: { type: "range", min: 0, max: 1, step: 0.05 },
-      description: "How aggressively density ramps as you zoom in (0 = none, 1 = linear)",
+      description:
+        "How aggressively density ramps as you zoom in (0 = none, 1 = linear)",
     },
     maxUnitHeight: {
       control: { type: "number" },
@@ -309,10 +283,10 @@ export default {
       description:
         "Snap the zoom to the stratigraphy the interval actually contains, so intervals clipping to the same units are a no-op",
     },
-    extendBoundingUnconformities: {
+    padding: {
       control: { type: "number" },
       description:
-        "Reveal this many px of the neighboring sections past the bounding unconformities, so adjacent timescale intervals stay navigable (pixel-based so young, short-lived intervals don't sweep in a whole section)",
+        "Padding around the zoom target, in px of neighboring units — so adjacent sections and their timescale intervals stay navigable across a bounding unconformity (pixel-based so young, short-lived intervals don't sweep in a whole section)",
     },
   },
   parameters: {
@@ -324,8 +298,9 @@ export default {
           "existing content-aware layout draws things bigger (with " +
           "`minPixelScale`/`minSectionHeight` still guarding small sections) — " +
           "rather than overriding `pixelScale` and bounding total height. Click a " +
-          "timescale interval to drill in; click the bold (selected) interval to " +
-          "zoom out a level; Reset returns to the full column.",
+          "timescale interval to drill in, a preceding/postdating one to move " +
+          "along the timescale; click the bold (selected) interval to zoom out a " +
+          "level; Reset returns to the full column.",
       },
       story: { inline: false, iframeHeight: 700 },
     },
@@ -333,6 +308,32 @@ export default {
 } as Meta<typeof SemanticZoomColumn>;
 
 export const SemanticZoom = {};
+
+/** No padding: the zoom target is clipped exactly at the interval, so the
+ * abutting sections disappear entirely and there's nothing adjacent to click. */
+export const NoPadding = {
+  args: {
+    padding: 0,
+  },
+};
+
+/** 20 px of the abutting sections revealed past the window. Compare against
+ * `NoPadding` and `WidePadding` — the revealed band should measure the stated
+ * number of pixels regardless of zoom level, unit durations, or which side of
+ * the window it's on. */
+export const Padding = {
+  args: {
+    padding: 20,
+  },
+};
+
+/** Twice the padding, as a check that the revealed band scales with the number
+ * rather than snapping to whole units or section heights. */
+export const WidePadding = {
+  args: {
+    padding: 40,
+  },
+};
 
 /** Same interaction, but with all units merged into a single continuous scale
  * (`mergeSections: ALL`) — no unconformity breaks. Unconformities otherwise
@@ -356,16 +357,16 @@ export const RealizedZoom = {
   },
 };
 
-/** Realized-span zoom that also extends across its bounding unconformities
+/** Realized-span zoom with padding across its bounding unconformities
  * (Enhancement 2). Zooming to a section reveals ~30 px of the next section's
  * units above and below, so those sections (and their timescale intervals)
  * render and stay clickable — otherwise unconformity bounds strand the next unit
- * outside the window and up/down timescale navigation dead-ends. The extent is
+ * outside the window and up/down timescale navigation dead-ends. The padding is
  * in pixels, so a young, short-lived interval (e.g. Pleistocene) reveals ~30 px,
  * not a whole section's worth of Myr. */
 export const NavigableRealizedZoom = {
   args: {
     realizedSpan: true,
-    extendBoundingUnconformities: 30,
+    padding: 30,
   },
 };

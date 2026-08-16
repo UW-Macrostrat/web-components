@@ -19,8 +19,8 @@ import {
   useAnimatedAgeWindow,
   type AgeWindow,
 } from "../../src";
-import { CorrelationColumnHeader } from "./utils.ts";
-import styles from "./stories.module.sass";
+import { CorrelationColumnHeader } from "../correlation-chart/utils.ts";
+import styles from "../correlation-chart/stories.module.sass";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -61,15 +61,19 @@ function AnimatedZoomLayout(props) {
     return await fetchUnits(colIDs, fetch);
   }, [colIDs.join(",")]);
 
+  const units = useMemo(
+    () => columnUnits?.flatMap((d) => d.units) ?? [],
+    [columnUnits],
+  );
+
   // The full data extent — the window we reset to and animate away from.
   const fullExtent = useMemo<AgeWindow | null>(() => {
-    const units = columnUnits?.flatMap((d) => d.units) ?? [];
     if (units.length === 0) return null;
     return {
       t_age: Math.min(...units.map((u) => u.t_age)),
       b_age: Math.max(...units.map((u) => u.b_age)),
     };
-  }, [columnUnits]);
+  }, [units]);
 
   const zoom = useAnimatedAgeWindow({ fullExtent });
 
@@ -91,6 +95,9 @@ function AnimatedZoomLayout(props) {
             // Animated age window drives the standard clipping props.
             t_age: zoom.window?.t_age,
             b_age: zoom.window?.b_age,
+            // Reveal 24 px of the abutting sections past the window, resolved
+            // against their real laid-out heights.
+            windowPadding: 24,
             // Skip per-frame label/pattern work while the window animates.
             isTransitioning: zoom.isAnimating,
             axisTopContent: h(Button, {
@@ -130,7 +137,7 @@ function AnimatedZoomLayout(props) {
 }
 
 export default {
-  title: "Column views/Correlation chart",
+  title: "Column views/Column animations/Correlation chart",
   component: AnimatedZoomStoryUI,
   parameters: {
     layout: "fullscreen",

@@ -69,8 +69,6 @@ function groupUnitsByMutualOverlap<T extends BaseUnit>(
 
   const sections = groupUnitsIntoSectionsByOverlap(units, axisType, tolerance);
 
-  console.log("Grouped sections", sections);
-
   return sections.map((d) => {
     return new UnitGroup(d.units, axisType);
   });

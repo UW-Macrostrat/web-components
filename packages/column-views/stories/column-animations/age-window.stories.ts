@@ -2,9 +2,9 @@ import h from "@macrostrat/hyper";
 import { Meta } from "@storybook/react-vite";
 import { useMemo } from "react";
 import { Button, ButtonGroup, Spinner } from "@blueprintjs/core";
-import { useAPIResult } from "@macrostrat/ui-components";
 import "@macrostrat/style-system";
-import { Column, useAnimatedAgeWindow, type AgeWindow } from "../src";
+import { useColumnUnits } from "./utils";
+import { Column, useAnimatedAgeWindow, type AgeWindow } from "../../src";
 
 /** Named spans to jump between, demonstrating pan-and-contract on a single
  * stratigraphic column. Ordered `t_age` (younger) → `b_age` (older). */
@@ -13,14 +13,6 @@ const PRESETS: { label: string; window: AgeWindow }[] = [
   { label: "Mesozoic", window: { t_age: 66, b_age: 252 } },
   { label: "Paleozoic", window: { t_age: 252, b_age: 541 } },
 ];
-
-function useColumnUnits(col_id: number) {
-  return useAPIResult(
-    "https://dev.macrostrat.org/api/v2/units",
-    { col_id, response: "long", status_code: "active", show_position: true },
-    (res) => res.success.data,
-  );
-}
 
 function AnimatedColumn({ id, ...rest }: any) {
   const units = useColumnUnits(id);
@@ -39,52 +31,57 @@ function AnimatedColumn({ id, ...rest }: any) {
     return h(Spinner);
   }
 
-  return h("div", { style: { display: "flex", flexDirection: "column", gap: 12 } }, [
-    h("div", { style: { display: "flex", alignItems: "center", gap: 12 } }, [
-      h(ButtonGroup, [
-        PRESETS.map((p) =>
-          h(
-            Button,
-            {
-              key: p.label,
-              small: true,
-              onClick: () => zoom.zoomToWindow(p.window),
-            },
-            p.label,
+  return h(
+    "div",
+    { style: { display: "flex", flexDirection: "column", gap: 12 } },
+    [
+      h("div", { style: { display: "flex", alignItems: "center", gap: 12 } }, [
+        h(ButtonGroup, [
+          PRESETS.map((p) =>
+            h(
+              Button,
+              {
+                key: p.label,
+                small: true,
+                onClick: () => zoom.zoomToWindow(p.window),
+              },
+              p.label,
+            ),
           ),
+        ]),
+        h(
+          Button,
+          {
+            small: true,
+            intent: "primary",
+            disabled: zoom.isFullExtent,
+            onClick: () => zoom.reset(),
+          },
+          "Reset",
         ),
       ]),
-      h(
-        Button,
-        {
-          small: true,
-          intent: "primary",
-          disabled: zoom.isFullExtent,
-          onClick: () => zoom.reset(),
-        },
-        "Reset",
-      ),
-    ]),
-    h(Column, {
-      units,
-      // Animated age window → standard clipping props (pan-and-contract).
-      t_age: zoom.window?.t_age,
-      b_age: zoom.window?.b_age,
-      // Skip per-frame label/pattern work while the window animates.
-      isTransitioning: zoom.isAnimating,
-      ...rest,
-    }),
-  ]);
+      h(Column, {
+        units,
+        // Animated age window → standard clipping props (pan-and-contract).
+        t_age: zoom.window?.t_age,
+        b_age: zoom.window?.b_age,
+        // Skip per-frame label/pattern work while the window animates.
+        isTransitioning: zoom.isAnimating,
+        ...rest,
+      }),
+    ],
+  );
 }
 
 export default {
-  title: "Column views/Stratigraphic column rendering",
+  title: "Column views/Column animations/Age window",
   component: AnimatedColumn,
   args: {
     id: 432,
     showLabelColumn: true,
     unconformityLabels: true,
     hideLabelsWhileTransitioning: false,
+    minSectionHeight: 200,
   },
   argTypes: {
     hideLabelsWhileTransitioning: { control: { type: "boolean" } },

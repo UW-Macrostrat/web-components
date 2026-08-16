@@ -15,6 +15,9 @@ import {
   collapseUnconformitiesByPixelHeight,
   computeSectionHeights,
   finalizeSectionHeights,
+  padWindowByPixels,
+  resolveWindowScales,
+  trimSectionsToWindow,
   type CompositeColumnScale,
 } from "./composite-scale";
 import {
@@ -58,6 +61,7 @@ export function prepareColumnUnits(
     collapseSmallUnconformities = false,
     hybridScale,
     scale,
+    windowPadding = 0,
   } = options;
 
   let _totalHeight: number | null = null;
@@ -76,19 +80,29 @@ export function prepareColumnUnits(
     }
   }
 
+  /** Age columns lay every section out at its full extent and clip to the
+   * window at the end (see below), so that a section abutting the window is
+   * sized by its own content rather than by the sliver that survives the clip.
+   * Hybrid and externally-supplied scales build their own mapping and can't be
+   * re-derived that way, so they keep the original clip-then-lay-out path. */
+  const clipBeforeLayout =
+    axisType != ColumnAxisType.AGE || hybridScale != null || scale != null;
+
   // Start by ensuring that ages and positions are numbers
   // also set up some values for eODP-style columns
   let units1 = units.map(preprocessSectionUnit);
 
-  /** Prototype filtering to age range */
-  units1 = units1.filter((d) => {
-    // Filter units by t_age and b_age, inclusive
-    if (axisType == ColumnAxisType.AGE) {
-      return agesOverlap(d, { t_age, b_age });
-    } else {
-      return unitsOverlap(d, { t_pos, b_pos } as any, axisType);
-    }
-  });
+  if (clipBeforeLayout) {
+    /** Prototype filtering to age range */
+    units1 = units1.filter((d) => {
+      // Filter units by t_age and b_age, inclusive
+      if (axisType == ColumnAxisType.AGE) {
+        return agesOverlap(d, { t_age, b_age });
+      } else {
+        return unitsOverlap(d, { t_pos, b_pos } as any, axisType);
+      }
+    });
+  }
 
   let mergeMode = mergeSections;
   // if (axisType != ColumnAxisType.AGE) {
@@ -123,7 +137,7 @@ export function prepareColumnUnits(
   }
 
   // Limit sections to the range specified by t_age/b_age or t_pos/b_pos global options
-  for (let section of sections0) {
+  for (let section of clipBeforeLayout ? sections0 : []) {
     if (axisType == ColumnAxisType.AGE) {
       section.t_age = Math.max(section.t_age, t_age ?? -Infinity);
       section.b_age = Math.min(section.b_age, b_age ?? Infinity);
@@ -173,6 +187,42 @@ export function prepareColumnUnits(
     );
   }
 
+  /** Now that every section is laid out at full extent — with its own density
+   * and `minSectionHeight` already settled — apply the rendered window. Padding
+   * is spent here, against real pixel heights, so `windowPadding` px of an
+   * abutting section is exactly that many pixels.
+   */
+  if (!clipBeforeLayout && (t_age != null || b_age != null)) {
+    const focalWindow: [number, number] = [
+      b_age ?? Infinity,
+      t_age ?? -Infinity,
+    ];
+    // Resolve final densities first (a section the window cuts short is
+    // stretched to `minSectionHeight`), then spend the padding budget against
+    // them, so a margin is the pixels asked for rather than those pixels times
+    // whatever stretch its neighbor happened to need.
+    const floor = options.minSectionHeight ?? options.targetUnitHeight ?? 0;
+    const scales = resolveWindowScales(sectionsWithScales, focalWindow, floor);
+    const scaleFor = (section) =>
+      scales.get(section) ?? section.scaleInfo.pixelScale;
+
+    const window =
+      windowPadding > 0
+        ? padWindowByPixels(
+            sectionsWithScales,
+            focalWindow,
+            windowPadding,
+            scaleFor,
+          )
+        : focalWindow;
+
+    sectionsWithScales = trimSectionsToWindow(
+      sectionsWithScales,
+      window,
+      scaleFor,
+    );
+  }
+
   /** Prepare section scale information using groups.
    * Total height is computed from section scales.
    * */
@@ -185,8 +235,6 @@ export function prepareColumnUnits(
    * We do this after merging sections so that we can
    * handle cases where there are overlapping units across sections
    * */
-  console.log(sections2, "sections");
-
   const sectionsOut = sections2.map((section) => {
     return {
       ...section,

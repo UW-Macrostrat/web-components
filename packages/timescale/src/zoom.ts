@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { ScaleContinuousNumeric } from "d3-scale";
 import { zoomIdentity, ZoomTransform } from "d3-zoom";
-import { interpolate } from "d3-interpolate";
-import { easeCubicInOut } from "d3-ease";
-
-/** A visible time span, ordered [older, younger] to match the timescale's
- * `eag`/`lag` and the `Interval` shape. */
-export type AgeDomain = [number, number];
+import {
+  AgeDomain,
+  AnimateDomainOptions,
+  useAnimatedDomain,
+} from "./animated-domain";
 
 export interface UseZoomableScaleOptions {
   /** Default animation duration (ms) for programmatic zooms. */
@@ -29,7 +28,7 @@ export type ZoomToIntervalOptions = ZoomToDomainOptions;
 export interface ZoomableScale {
   /** The rescaled scale to hand to `<Timescale scale=... />`. */
   scale: ScaleContinuousNumeric<number, number>;
-  /** The canonical zoom transform (gesture-ready source of truth). */
+  /** The zoom transform corresponding to the visible domain (gesture-ready). */
   transform: ZoomTransform;
   /** The currently visible domain, ordered [older, younger]. */
   domain: AgeDomain;
@@ -51,103 +50,46 @@ export interface ZoomableScale {
 }
 
 /**
- * Drive a timescale's scale from a single `d3` zoom transform so that changing
- * the visible age span animates a zoom/pan rather than snapping.
+ * Drive a timescale's scale from a `d3` zoom transform so that changing the
+ * visible age span animates a zoom/pan rather than snapping.
  *
- * The transform is the canonical state (ready to accept `d3-zoom` gestures
- * later); the visible scale is derived via `transform.rescaleY(baseScale)`, and
- * programmatic targets animate by easing the *visible domain* frame-to-frame.
+ * This is the **pixel-viewport** geometry over the shared animation core
+ * (`useAnimatedDomain`): the animated span is mapped onto a fixed pixel range,
+ * so the transform and the rescaled scale are derived from it, and padding is
+ * expressed in pixels. (The column packages layer a fixed-*density* geometry
+ * over the same core — see `useAnimatedAgeWindow`.)
  */
 export function useZoomableScale(
   baseScale: ScaleContinuousNumeric<number, number>,
   options: UseZoomableScaleOptions = {},
 ): ZoomableScale {
-  const {
-    duration = 750,
-    ease = easeCubicInOut,
-    padding: defaultPadding = 0,
-  } = options;
+  const { duration, ease, padding: defaultPadding = 0 } = options;
 
-  // Keep a private copy so we never mutate the caller's scale, and reset the
-  // transform if the base extent itself changes.
+  // Keep a private copy so we never mutate the caller's scale.
   const base = useMemo(
     () => baseScale.copy(),
     [baseScale.domain().join(","), baseScale.range().join(",")],
   );
 
-  const [transform, setTransformState] = useState<ZoomTransform>(zoomIdentity);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const extent = useMemo(() => extentDomain(base), [base]);
 
-  // rAF bookkeeping, kept out of render state.
-  const frame = useRef<number | null>(null);
-  const cancelAnimation = useCallback(() => {
-    if (frame.current != null) {
-      cancelAnimationFrame(frame.current);
-      frame.current = null;
-    }
-  }, []);
-
-  useEffect(() => cancelAnimation, [cancelAnimation]);
-
-  // Read the latest transform inside the rAF loop without re-creating it.
-  const transformRef = useRef(transform);
-  transformRef.current = transform;
-
-  const setTransform = useCallback(
-    (t: ZoomTransform) => {
-      cancelAnimation();
-      setIsAnimating(false);
-      setTransformState(t);
-    },
-    [cancelAnimation],
+  const prepareTarget = useCallback(
+    (target: AgeDomain) => padDomain(base, target, defaultPadding),
+    [base, defaultPadding],
   );
 
-  const animateToDomain = useCallback(
-    (rawTarget: AgeDomain, animDuration: number, padding: number) => {
-      cancelAnimation();
-      const target = padDomain(base, rawTarget, padding);
-      const targetTransform = transformForDomain(base, target);
-      if (targetTransform == null) return;
-
-      if (animDuration <= 0) {
-        setIsAnimating(false);
-        setTransformState(targetTransform);
-        return;
-      }
-
-      const from = currentDomain(base, transformRef.current);
-      const interpolator = interpolate(from, target);
-      setIsAnimating(true);
-
-      let start: number | null = null;
-      const step = (now: number) => {
-        if (start == null) start = now;
-        const t = Math.min((now - start) / animDuration, 1);
-        const eased = ease(t);
-        const d = interpolator(eased) as AgeDomain;
-        const next = transformForDomain(base, d);
-        if (next != null) setTransformState(next);
-        if (t < 1) {
-          frame.current = requestAnimationFrame(step);
-        } else {
-          frame.current = null;
-          setIsAnimating(false);
-        }
-      };
-      frame.current = requestAnimationFrame(step);
-    },
-    [base, cancelAnimation, ease],
-  );
+  const anim = useAnimatedDomain({ extent, duration, ease, prepareTarget });
+  const domain = anim.domain ?? extent;
 
   const zoomToDomain = useCallback(
-    (domain: AgeDomain, opts: ZoomToDomainOptions = {}) => {
-      animateToDomain(
-        domain,
-        opts.duration ?? duration,
-        opts.padding ?? defaultPadding,
-      );
+    (target: AgeDomain, opts: ZoomToDomainOptions = {}) => {
+      const opts_: AnimateDomainOptions = { duration: opts.duration };
+      if (opts.padding != null) {
+        opts_.prepareTarget = (d) => padDomain(base, d, opts.padding);
+      }
+      anim.animateTo(target, opts_);
     },
-    [animateToDomain, duration, defaultPadding],
+    [anim.animateTo, base],
   );
 
   const zoomToInterval = useCallback(
@@ -164,27 +106,29 @@ export function useZoomableScale(
     (opts: ZoomToDomainOptions = {}) => {
       // Padding collapses at both ends of the full extent, so this lands
       // exactly on the identity transform.
-      animateToDomain(
-        extentDomain(base),
-        opts.duration ?? duration,
-        opts.padding ?? defaultPadding,
-      );
+      zoomToDomain(extent, opts);
     },
-    [animateToDomain, base, duration, defaultPadding],
+    [zoomToDomain, extent],
   );
 
-  const scale = useMemo(
-    () => transform.rescaleY(base),
-    [transform, base],
+  const transform = useMemo(
+    () => transformForDomain(base, domain) ?? zoomIdentity,
+    [base, domain],
   );
-  const domain = currentDomain(base, transform);
+
+  const scale = useMemo(() => transform.rescaleY(base), [transform, base]);
+
+  const setTransform = useCallback(
+    (t: ZoomTransform) => anim.setDomain(currentDomain(base, t)),
+    [anim.setDomain, base],
+  );
 
   return {
     scale,
     transform,
     domain,
-    isFullExtent: transform.k === 1 && transform.y === 0,
-    isAnimating,
+    isFullExtent: anim.isFullExtent,
+    isAnimating: anim.isAnimating,
     zoomToDomain,
     zoomToInterval,
     reset,
@@ -243,27 +187,6 @@ export function padDomain(
   return [paddedOld, paddedYoung];
 }
 
-/** Pixel length of the base scale's range. */
-function rangeWidth(base: ScaleContinuousNumeric<number, number>): number {
-  const r = base.range() as number[];
-  return Math.abs(r[r.length - 1] - r[0]);
-}
-
-/** The base scale's full domain, ordered [older, younger]. */
-function extentDomain(base: ScaleContinuousNumeric<number, number>): AgeDomain {
-  const d = base.domain() as number[];
-  return [Math.max(d[0], d[d.length - 1]), Math.min(d[0], d[d.length - 1])];
-}
-
-/** The visible domain under a transform, ordered [older, younger]. */
-function currentDomain(
-  base: ScaleContinuousNumeric<number, number>,
-  transform: ZoomTransform,
-): AgeDomain {
-  const d = transform.rescaleY(base).domain() as number[];
-  return [Math.max(d[0], d[d.length - 1]), Math.min(d[0], d[d.length - 1])];
-}
-
 /**
  * Build the `d3` zoom transform that makes `[older, younger]` fill the base
  * scale's full pixel range, i.e. `transform.rescaleY(base).domain() === domain`.
@@ -287,4 +210,25 @@ export function transformForDomain(
   const ty = r0 - k * pOld;
 
   return zoomIdentity.translate(0, ty).scale(k);
+}
+
+/** Pixel length of the base scale's range. */
+function rangeWidth(base: ScaleContinuousNumeric<number, number>): number {
+  const r = base.range() as number[];
+  return Math.abs(r[r.length - 1] - r[0]);
+}
+
+/** The base scale's full domain, ordered [older, younger]. */
+function extentDomain(base: ScaleContinuousNumeric<number, number>): AgeDomain {
+  const d = base.domain() as number[];
+  return [Math.max(d[0], d[d.length - 1]), Math.min(d[0], d[d.length - 1])];
+}
+
+/** The visible domain under a transform, ordered [older, younger]. */
+function currentDomain(
+  base: ScaleContinuousNumeric<number, number>,
+  transform: ZoomTransform,
+): AgeDomain {
+  const d = transform.rescaleY(base).domain() as number[];
+  return [Math.max(d[0], d[d.length - 1]), Math.min(d[0], d[d.length - 1])];
 }
