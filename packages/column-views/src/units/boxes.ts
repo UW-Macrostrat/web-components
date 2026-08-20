@@ -2,15 +2,15 @@ import {
   ColumnAxisType,
   ColumnContext,
   ColumnLayoutContext,
+  ClippableRect,
   ForeignObject,
   PatternDefsProvider,
   useColumn,
   useGeologicPattern,
-  zigZagBoxPath,
 } from "@macrostrat/column-components";
 import { SizeAwareLabel, Clickable } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
-import { forwardRef, ReactNode, useContext, useMemo } from "react";
+import { ReactNode, useContext, useMemo } from "react";
 import { resolveID, scalePattern } from "./resolvers";
 import { useUnitSelectionTarget } from "../data-provider";
 import { useLithologies } from "@macrostrat/data-provider";
@@ -22,6 +22,12 @@ import { getMixedUnitColor } from "./colors";
 import type { RectBounds } from "./types";
 
 const h = hyper.styled(styles);
+
+/** Resolve a class name through this file's CSS module exactly as the styled
+ * `h` would (module-scoped classes are hashed; unknown/global classes pass
+ * through). Needed because `ClippableRect` renders the element in
+ * `@macrostrat/column-components`, so class resolution must happen here. */
+const cls = (name: string): string => (styles as any)[name] ?? name;
 
 interface UnitRectOptions {
   widthFraction?: number;
@@ -170,69 +176,33 @@ function Unit(props: UnitProps) {
       },
     },
     [
-      h(UnitRect, {
+      h(ClippableRect, {
         ...bounds,
         fill: backgroundColor,
         onClick,
-        className: "background",
+        className: cls("background"),
       }),
-      h(UnitRect, {
+      h(ClippableRect, {
         ref,
         ...bounds,
         fill: _fill,
         //mask,
         onClick,
-        className: "unit",
+        className: cls("unit"),
       }),
-      h.if(linked)(UnitRect, { ...bounds, className: "linked-overlay" }),
-      h.if(selected)(UnitRect, { ...bounds, className: "selection-overlay" }),
+      h.if(linked)(ClippableRect, {
+        ...bounds,
+        className: cls("linked-overlay"),
+      }),
+      h.if(selected)(ClippableRect, {
+        ...bounds,
+        className: cls("selection-overlay"),
+      }),
       //defs,
       children,
     ],
   );
 }
-
-interface UnitRectProps {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  className: string;
-  // Used to determine if the rect should have a zig-zag edge on the top or bottom
-  overflowTop?: boolean;
-  overflowBottom?: boolean;
-  [key: string]: any;
-}
-
-const UnitRect = forwardRef((props: UnitRectProps, ref) => {
-  const {
-    x,
-    y,
-    width,
-    height,
-    overflowTop = false,
-    overflowBottom = false,
-    ...rest
-  } = props;
-
-  if (!overflowTop && !overflowBottom) {
-    return h("rect", {
-      x,
-      y,
-      width,
-      height,
-      ref,
-      ...rest,
-    });
-  } else {
-    const d = zigZagBoxPath(x, y, width, height, overflowTop, overflowBottom);
-    return h("path", {
-      d,
-      ref,
-      ...rest,
-    });
-  }
-});
 
 function LabeledUnit(props: LabeledUnitProps) {
   const {
@@ -247,12 +217,17 @@ function LabeledUnit(props: LabeledUnitProps) {
     ...baseBounds
   } = props;
 
-  const { axisType } = useColumn();
+  const { axisType, isTransitioning, hideLabelsWhileTransitioning } =
+    useColumn();
   const bounds = {
     ...useUnitRect(division, { widthFraction, axisType }),
     ...baseBounds,
   };
   const { width, height } = bounds;
+  // Labels stay visible through the animation by default. `hideLabelsWhileTransitioning`
+  // is a perf escape hatch: when set, the `foreignObject` label (whose HTML
+  // reflows on every size change) is skipped mid-transition and restored on settle.
+  const skipLabel = isTransitioning && hideLabelsWhileTransitioning;
   return h(
     Unit,
     {
@@ -263,7 +238,7 @@ function LabeledUnit(props: LabeledUnitProps) {
       ...bounds,
     },
     [
-      h.if(showLabel)(
+      h.if(showLabel && !skipLabel)(
         ForeignObject,
         { ...bounds, className: "unit-label-container" },
         h(SizeAwareLabel, {
@@ -271,6 +246,9 @@ function LabeledUnit(props: LabeledUnitProps) {
           labelClassName: "unit-label",
           style: { width, height },
           label,
+          // Re-fit the label when a transition settles (isTransitioning flips),
+          // not on every intermediate frame.
+          remeasureKey: isTransitioning,
           onVisibilityChanged(viz) {
             onLabelUpdated(label, viz);
           },

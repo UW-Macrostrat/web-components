@@ -45,6 +45,10 @@ import {
   ColumnHeightScaleOptions,
 } from "./prepare-units";
 import { UnitLong } from "@macrostrat/api-types";
+import type {
+  TimescaleClickHandler,
+  IntervalStyleBuilder,
+} from "@macrostrat/timescale";
 import { NonIdealState } from "@blueprintjs/core";
 import { DataField } from "@macrostrat/data-components";
 import { ScaleContinuousNumeric } from "d3-scale";
@@ -61,6 +65,10 @@ interface BaseColumnProps extends Omit<
   // Timescale properties
   showTimescale?: boolean;
   timescaleLevels?: number | [number, number];
+  /** Called when a timescale interval is clicked (e.g. to zoom the age range). */
+  onClickTimescaleInterval?: TimescaleClickHandler;
+  /** Per-interval style for the timescale (e.g. to bold the selected interval). */
+  timescaleIntervalStyle?: IntervalStyleBuilder;
   unconformityLabels?: boolean | UnconformityLabelPlacement;
   onMouseOver?: (
     unit: UnitLong | null,
@@ -87,6 +95,12 @@ export interface ColumnProps
   // Unconformity height in pixels
   unconformityHeight?: number;
   scale?: ScaleContinuousNumeric<number, number>;
+  /** True while the age window is animating (e.g. from `useAnimatedAgeWindow`),
+   * so per-frame label/pattern recalculation can be skipped. */
+  isTransitioning?: boolean;
+  /** Hide unit labels while transitioning (perf escape hatch; default false —
+   * labels stay visible through the animation). */
+  hideLabelsWhileTransitioning?: boolean;
   ref?: RefObject<ColumnRef>;
 }
 
@@ -108,11 +122,14 @@ export function Column(props: ColumnProps) {
     pixelScale,
     minPixelScale = 0.2,
     minSectionHeight = 50,
+    windowPadding = 0,
     collapseSmallUnconformities = true,
     allowUnitSelection = false,
     hybridScale,
     scale,
     axisType,
+    isTransitioning,
+    hideLabelsWhileTransitioning,
     ref,
     ...rest
   } = props;
@@ -152,6 +169,7 @@ export function Column(props: ColumnProps) {
     pixelScale,
     minPixelScale: _minPixelScale,
     minSectionHeight: _minSectionHeight,
+    windowPadding,
     collapseSmallUnconformities,
     // TODO: consider unifying scale and hybridScale options
     scale,
@@ -179,6 +197,8 @@ export function Column(props: ColumnProps) {
       allowUnitSelection: showUnitPopover || allowUnitSelection,
       onUnitSelected,
       selectedUnit,
+      isTransitioning,
+      hideLabelsWhileTransitioning,
       ref,
     },
     h(ColumnInner, { ageAxisComponent, ...rest }, [
@@ -218,6 +238,8 @@ function ColumnInner(props: ColumnInnerProps) {
     timescaleLevels,
     maxInternalColumns,
     onMouseOver,
+    onClickTimescaleInterval,
+    timescaleIntervalStyle,
     ageAxisComponent = CompositeAgeAxis,
   } = props;
 
@@ -262,6 +284,8 @@ function ColumnInner(props: ColumnInnerProps) {
       h.if(_showTimescale)(CompositeTimescale, {
         levels: timescaleLevels,
         unconformityLabels: _timescaleUnconformityLabels,
+        onClickInterval: onClickTimescaleInterval,
+        intervalStyle: timescaleIntervalStyle,
       }),
       h(SectionsColumn, {
         unitComponent,

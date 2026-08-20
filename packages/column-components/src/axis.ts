@@ -89,22 +89,30 @@ export function AgeAxis(props: AgeAxisProps) {
   };
 
   const ref = useRef(null);
-  const axisRef = useRef(axisLeft());
 
   const deps = __d3axisKeys.map((k) => props[k]);
+  // Redraw whenever the scale's *mapping* changes, not just its object identity.
+  // (Under stable React keys the axis no longer remounts on zoom, so relying on
+  // scale identity left tick positions stale when a new scale reused the same
+  // reference or a copy compared equal.)
+  const scaleKey = `${scale.domain().join(",")}|${scale.range().join(",")}`;
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    axisRef.current.scale(scale);
+    // Build a fresh axis generator each run. Reusing one across renders retained
+    // stale d3 config: `.tickValues([...])` set when a section was short would
+    // persist after it stretched (where we want a tick *count* instead), leaving
+    // that section's axis with labels outside the domain — i.e. no labels.
+    const axis = axisLeft().scale(scale);
     for (let k of __d3axisKeys) {
       const val = props[k] ?? defaultProps[k];
       if (val == null) continue;
-      axisRef.current[k](val);
+      axis[k](val);
     }
 
-    const ax = select(el).call(axisRef.current);
+    const ax = select(el).call(axis);
 
     if (!showDomain) {
       ax.select(".domain").remove();
@@ -119,7 +127,16 @@ export function AgeAxis(props: AgeAxisProps) {
     return () => {
       select(el).selectAll("*").remove();
     };
-  }, [scale, ref.current, showDomain, showLabel, ...deps]);
+  }, [
+    scale,
+    scaleKey,
+    ref.current,
+    showDomain,
+    showLabel,
+    ticks,
+    tickValues?.join(","),
+    ...deps,
+  ]);
 
   return h("g.y.axis.column-axis", { className, ref });
 }

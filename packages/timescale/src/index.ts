@@ -20,11 +20,14 @@ import { ReactNode, useCallback, useMemo, useRef } from "react";
 import h from "./main.module.sass";
 
 export * from "./intervals-api";
+export * from "./animated-domain";
+export * from "./zoom";
 export type {
   Interval,
   TimescaleClickHandler,
   TimescaleClickData,
 } from "./types";
+export type { IntervalStyleBuilder } from "./components";
 export {
   IncreaseDirection,
   TimescaleOrientation,
@@ -75,6 +78,14 @@ function TimescaleContainer(
 
   const onClick = useCallback(
     (evt: any, interval: Interval | undefined) => {
+      // This same handler is bound both to each interval box and to the
+      // container (which catches clicks that land on no interval at all). A box
+      // click would otherwise bubble to the container and report a *second*
+      // time with no interval, so consumers acting on `age` see every click
+      // twice, and any click-ordering-sensitive navigation sees a phantom
+      // "clicked nothing" event right after the real one.
+      if (interval != null) evt.stopPropagation?.();
+
       // Outer click handler
       const bbox = ref.current?.getBoundingClientRect();
       let age: number | undefined = undefined;

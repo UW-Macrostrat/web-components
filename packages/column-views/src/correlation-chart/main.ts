@@ -69,6 +69,13 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   /** Content rendered above the timescale axis (top-left), beside the column
    * headers — e.g. a zoom/filter indicator. */
   axisTopContent?: React.ReactNode;
+  /** True while the age window is animating (e.g. from `useAnimatedAgeWindow`).
+   * Propagated to each column's context so per-frame label/pattern work can be
+   * skipped during the transition. */
+  isTransitioning?: boolean;
+  /** Hide unit labels while transitioning (perf escape hatch; default false —
+   * labels stay visible through the animation). */
+  hideLabelsWhileTransitioning?: boolean;
   onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
   /** Called when a timescale interval is clicked (e.g. to zoom the age range) */
   onClickTimescaleInterval?: TimescaleClickHandler;
@@ -82,6 +89,14 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
 /** Horizontal padding of the main chart SVG. Column headers are aligned to
  * this so that they line up with the columns beneath them. */
 const chartPaddingH = 4;
+
+/** Default scale settings for the correlation chart. */
+const defaultCorrelationChartScaleProps = {
+  targetUnitHeight: 10,
+  unconformityHeight: 60,
+  minSectionHeight: 60,
+  collapseSmallUnconformities: true,
+};
 
 function MainChartArea({ children }) {
   const columnRef = useColumnRef();
@@ -109,19 +124,14 @@ export function CorrelationChart({
   onClickTimescaleInterval,
   onColumnMouseOver,
   onColumnClick,
+  isTransitioning = false,
+  hideLabelsWhileTransitioning = false,
   ...scaleProps
 }: CorrelationChartProps) {
-  const defaultScaleProps = {
-    targetUnitHeight: 10,
-    unconformityHeight: 60,
-    minSectionHeight: 60,
-    collapseSmallUnconformities: true,
-  };
-
   const chartData = useMemo(() => {
     if (!data) return null;
     return buildCorrelationChartData(data, {
-      ...defaultScaleProps,
+      ...defaultCorrelationChartScaleProps,
       ...scaleProps,
     });
   }, [data, ...Object.values(scaleProps)]);
@@ -180,6 +190,8 @@ export function CorrelationChart({
                 scale,
                 unitComponent,
                 onColumnMouseOver,
+                isTransitioning,
+                hideLabelsWhileTransitioning,
               });
             }),
           ),
@@ -215,6 +227,8 @@ function Package({
   pixelScale,
   scale,
   onColumnMouseOver,
+  isTransitioning,
+  hideLabelsWhileTransitioning,
 }) {
   return h("g.package", { transform: `translate(0 ${offset})` }, [
     // Disable the SVG overlay for now
@@ -232,6 +246,8 @@ function Package({
           scale,
           offsetLeft: i * (columnWidth + columnSpacing),
           onColumnMouseOver,
+          isTransitioning,
+          hideLabelsWhileTransitioning,
         });
       }),
     ]),
@@ -253,6 +269,8 @@ interface ColumnProps {
   pixelScale: number;
   scale?: ScaleContinuousNumeric<number, number>;
   onColumnMouseOver?: (columnID: number | null) => void;
+  isTransitioning?: boolean;
+  hideLabelsWhileTransitioning?: boolean;
 }
 
 function Column(props: ColumnProps) {
@@ -266,6 +284,8 @@ function Column(props: ColumnProps) {
     scale,
     unitComponent = ColoredUnitComponent,
     onColumnMouseOver,
+    isTransitioning,
+    hideLabelsWhileTransitioning,
   } = props;
 
   const columnWidth = width;
@@ -297,6 +317,8 @@ function Column(props: ColumnProps) {
         scale,
         pixelsPerMeter: pixelScale, // Actually pixels per myr
         axisType: ColumnAxisType.AGE,
+        isTransitioning,
+        hideLabelsWhileTransitioning,
       },
       h(UnitBoxes, {
         unitComponent,

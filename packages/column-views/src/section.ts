@@ -9,6 +9,7 @@ import {
   TimescaleOrientation,
   TimescaleClickHandler,
   useMacrostratIntervals,
+  type IntervalStyleBuilder,
 } from "@macrostrat/timescale";
 import { ColumnAxisType, SVG } from "@macrostrat/column-components";
 import hyper from "@macrostrat/hyper";
@@ -203,6 +204,9 @@ function SectionUnits(props: SectionProps) {
 interface CompositeTimescaleProps {
   levels?: [number, number] | number;
   unconformityLabels?: boolean;
+  onClickInterval?: TimescaleClickHandler;
+  /** Per-interval style (e.g. to highlight the currently selected interval). */
+  intervalStyle?: IntervalStyleBuilder;
 }
 
 export function CompositeTimescale(props: CompositeTimescaleProps) {
@@ -228,6 +232,7 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
     packages,
     unconformityLabels = false,
     onClickInterval,
+    intervalStyle,
   } = props;
 
   // Use intervals from Macrostrat API
@@ -262,6 +267,7 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
               scale,
               intervals,
               onClick: onClickInterval,
+              intervalStyle,
             }),
           ],
         );

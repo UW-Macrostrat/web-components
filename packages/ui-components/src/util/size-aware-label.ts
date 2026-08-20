@@ -24,6 +24,11 @@ export type SizeAwareLabelProps = React.HTMLProps<"div"> &
     onClick?: (evt: MouseEvent) => void;
     positionTolerance?: number;
     allowRotation?: boolean;
+    /** An extra value folded into the fit-measurement dependencies. Change it to
+     * force a re-measure without the label text changing — e.g. pass a flag that
+     * flips when an animation settles, so the label re-fits to its final size
+     * (and not on every intermediate frame). */
+    remeasureKey?: unknown;
     onVisibilityChanged?(
       fits: boolean,
       containerSize: ElementSize,
@@ -50,6 +55,7 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
     onClick,
     positionTolerance = 0,
     allowRotation = false,
+    remeasureKey,
     ...rest
   } = props;
   const containerRef = useRef<HTMLElement>();
@@ -81,7 +87,7 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
       }
     }
     setFits(doesFit);
-  }, [containerRef, labelRef, label, positionTolerance, allowRotation]);
+  }, [containerRef, labelRef, label, positionTolerance, allowRotation, remeasureKey]);
 
   // Report whether label fits upwards, if needed
   useEffect(() => {

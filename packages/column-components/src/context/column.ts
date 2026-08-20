@@ -36,6 +36,13 @@ export interface ColumnCtx<T extends ColumnDivision> {
   axisType?: ColumnAxisType;
   pixelHeight?: number;
   zoom: number;
+  /** True while the column's scale/age-window is being animated. Consumers can
+   * use this to skip expensive per-frame recalculations (e.g. label
+   * measurement, `foreignObject` reflows) and restore them once settled. */
+  isTransitioning: boolean;
+  /** When true, unit labels are hidden while `isTransitioning` (a perf escape
+   * hatch). Defaults to false — labels stay visible through the animation. */
+  hideLabelsWhileTransitioning: boolean;
 }
 
 export const ColumnContext = createContext<ColumnCtx<ColumnDivision>>({
@@ -44,6 +51,8 @@ export const ColumnContext = createContext<ColumnCtx<ColumnDivision>>({
   scaleClamped: scaleLinear().clamp(true),
   pixelsPerMeter: 1,
   zoom: 1,
+  isTransitioning: false,
+  hideLabelsWhileTransitioning: false,
 });
 
 export interface ColumnProviderProps<T extends ColumnDivision> {
@@ -56,6 +65,10 @@ export interface ColumnProviderProps<T extends ColumnDivision> {
   axisType?: ColumnAxisType;
   children?: any;
   scale?: ColumnScale;
+  /** True while the column's scale/age-window is being animated. */
+  isTransitioning?: boolean;
+  /** Hide unit labels while transitioning (perf escape hatch; default false). */
+  hideLabelsWhileTransitioning?: boolean;
 }
 
 function ColumnProvider<T extends ColumnDivision>(
@@ -76,6 +89,8 @@ function ColumnProvider<T extends ColumnDivision>(
     divisions = [],
     width = 150,
     axisType = ColumnAxisType.HEIGHT,
+    isTransitioning = false,
+    hideLabelsWhileTransitioning = false,
     scale: _scale,
     ...rest
   } = props;
@@ -129,6 +144,8 @@ function ColumnProvider<T extends ColumnDivision>(
       divisions,
       width,
       axisType,
+      isTransitioning,
+      hideLabelsWhileTransitioning,
       ...rest,
     };
   }, [
@@ -139,6 +156,8 @@ function ColumnProvider<T extends ColumnDivision>(
     zoom,
     divisions,
     width,
+    isTransitioning,
+    hideLabelsWhileTransitioning,
     restRef.current,
   ]);
   return h(ColumnContext.Provider, { value }, children);

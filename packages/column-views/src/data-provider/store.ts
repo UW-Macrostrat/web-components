@@ -118,6 +118,11 @@ export interface MacrostratColumnDataContext<T extends BaseUnit> {
   totalHeight?: number;
   axisType?: ColumnAxisType;
   allowUnitSelection?: boolean;
+  /** True while the age window is animating; propagated to each section's
+   * `ColumnProvider` so per-frame label/pattern work can be skipped. */
+  isTransitioning?: boolean;
+  /** Hide unit labels while transitioning (perf escape hatch; default false). */
+  hideLabelsWhileTransitioning?: boolean;
 }
 
 export interface ColumnDataProviderProps<T extends BaseUnit>
@@ -138,6 +143,8 @@ export function MacrostratColumnDataProvider<T extends BaseUnit>({
   allowUnitSelection,
   onUnitSelected,
   selectedUnit,
+  isTransitioning,
+  hideLabelsWhileTransitioning,
   ref,
 }: ColumnDataProviderProps<T>) {
   /** Internal provider for Macrostrat column data.
@@ -158,8 +165,17 @@ export function MacrostratColumnDataProvider<T extends BaseUnit>({
       sections,
       totalHeight,
       axisType,
+      isTransitioning,
+      hideLabelsWhileTransitioning,
     };
-  }, [units, sections, totalHeight, axisType]);
+  }, [
+    units,
+    sections,
+    totalHeight,
+    axisType,
+    isTransitioning,
+    hideLabelsWhileTransitioning,
+  ]);
 
   return h(
     MacrostratColumnStateProvider,
@@ -242,7 +258,8 @@ export function MacrostratColumnProvider(props) {
    * generic concepts to Macrostrat-specific ones.
    */
 
-  const { axisType } = useMacrostratColumnData();
+  const { axisType, isTransitioning, hideLabelsWhileTransitioning } =
+    useMacrostratColumnData();
   const { units, domain, pixelScale, scale, children } = props;
   return h(
     ColumnProvider,
@@ -252,6 +269,8 @@ export function MacrostratColumnProvider(props) {
       range: domain,
       pixelsPerMeter: pixelScale,
       scale,
+      isTransitioning,
+      hideLabelsWhileTransitioning,
     },
     children,
   );
