@@ -14,6 +14,11 @@ export interface ColumnHeightScaleOptions {
    * needed because small sections (<1-2 units) don't necessarily have space to comfortably
    * render two axis labels */
   minPixelScale?: number;
+  /** The requested render window, `[b_age, t_age]`, if there is one. Set
+   * internally by `prepareColumnUnits`: unit density is derived from the units
+   * this window actually shows, so `targetUnitHeight` describes the units you
+   * can see at any zoom depth rather than the section's overall average. */
+  visibleWindow?: [number, number];
   /** Padding around the `t_age`/`b_age` window, in **pixels** of neighboring
    * column: how much of the abutting sections to reveal past the window.
    *

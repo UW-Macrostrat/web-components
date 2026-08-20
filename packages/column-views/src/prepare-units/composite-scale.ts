@@ -137,6 +137,7 @@ function buildSectionScale<T extends UnitLong>(
     minPixelScale = 0.2,
     axisType,
     minSectionHeight,
+    visibleWindow,
     scale,
     hybridScale,
   } = opts;
@@ -164,7 +165,7 @@ function buildSectionScale<T extends UnitLong>(
 
   if (scale == null) {
     if (_pixelScale == null) {
-      const avgAgeRange = findAverageUnitHeight(data, axisType);
+      const avgAgeRange = findAverageUnitHeight(data, axisType, visibleWindow);
       // Get pixel height necessary to render average unit at target height
       _pixelScale = Math.max(targetUnitHeight / avgAgeRange, minPixelScale);
 
@@ -431,12 +432,40 @@ function findSectionHeightRange(
 function findAverageUnitHeight(
   data: UnitLong[],
   axisType: ColumnAxisType,
+  visibleWindow?: [number, number] | null,
 ): number {
-  const unitHeights = data.map((d) => {
-    const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
-    return Math.abs(b_pos - t_pos);
-  });
-  return unitHeights.reduce((a, b) => a + b, 0) / unitHeights.length;
+  /** The typical duration of a unit, which `targetUnitHeight` sizes.
+   *
+   * Measured over what the render window actually *shows* — units outside it
+   * are ignored and a unit it cuts through counts only for its visible part.
+   * That's what makes `targetUnitHeight` mean the same thing at every zoom
+   * depth: the units on screen are drawn at the target height whether they're
+   * whole or slivers of something much longer.
+   *
+   * A section the window doesn't reach has nothing visible to measure, so it
+   * falls back to its own units at full duration — it's drawn at its own scale.
+   * (Deriving it from the padded window instead would be circular: padding is
+   * measured in pixels, which is what we're trying to establish.)
+   */
+  const durations = (clip: boolean) =>
+    data
+      .map((d) => {
+        const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
+        if (!clip) return Math.abs(b_pos - t_pos);
+        const [b_win, t_win] = visibleWindow;
+        return Math.max(
+          0,
+          Math.min(b_pos, b_win) - Math.max(t_pos, t_win),
+        );
+      })
+      .filter((d) => d > 0);
+
+  const useWindow = visibleWindow != null && axisType === ColumnAxisType.AGE;
+  let heights = useWindow ? durations(true) : [];
+  if (heights.length === 0) heights = durations(false);
+  if (heights.length === 0) return 1;
+
+  return heights.reduce((a, b) => a + b, 0) / heights.length;
 }
 
 export interface CompositeColumnScale {

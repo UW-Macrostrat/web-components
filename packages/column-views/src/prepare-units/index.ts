@@ -166,11 +166,21 @@ export function prepareColumnUnits(
 
   // SCALES
 
+  /** The window we've been asked to render. Unit density is derived from what
+   * it shows (see `findAverageUnitHeight`), so it has to be known before any
+   * section is laid out — but nothing is *clipped* to it until the very end.
+   */
+  const focalWindow: [number, number] | null = clipBeforeLayout
+    ? null
+    : [b_age ?? Infinity, t_age ?? -Infinity];
+
+  const layoutOptions = { ...options, visibleWindow: focalWindow };
+
   /* Compute pixel scales etc. for sections
    * We need to do this now to determine which unconformities
    * are small enough to collapse.
    */
-  let sectionsWithScales = computeSectionHeights(sections, options);
+  let sectionsWithScales = computeSectionHeights(sections, layoutOptions);
 
   if (collapseSmallUnconformities && hybridScale == null) {
     // Collapse small unconformities in pixel height space
@@ -183,7 +193,7 @@ export function prepareColumnUnits(
     sectionsWithScales = collapseUnconformitiesByPixelHeight(
       sectionsWithScales,
       threshold,
-      options,
+      layoutOptions,
     );
   }
 
@@ -192,11 +202,7 @@ export function prepareColumnUnits(
    * is spent here, against real pixel heights, so `windowPadding` px of an
    * abutting section is exactly that many pixels.
    */
-  if (!clipBeforeLayout && (t_age != null || b_age != null)) {
-    const focalWindow: [number, number] = [
-      b_age ?? Infinity,
-      t_age ?? -Infinity,
-    ];
+  if (focalWindow != null && (t_age != null || b_age != null)) {
     // Resolve final densities first (a section the window cuts short is
     // stretched to `minSectionHeight`), then spend the padding budget against
     // them, so a margin is the pixels asked for rather than those pixels times
