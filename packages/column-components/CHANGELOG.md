@@ -1,5 +1,52 @@
 # Changelog
 
+## [2.1.0] - 2026-08-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.0.10...@macrostrat/column-components-v2.1.0)
+
+### Minor Changes
+
+- Add `isTransitioning` to `ColumnContext`/`ColumnProvider` so consumers can
+  skip expensive per-frame recalculation while a column's scale/age-window is
+  animating. Add a companion `hideLabelsWhileTransitioning` flag (default
+  false): unit labels now stay visible through the animation by default, with
+  hiding available as a perf escape hatch.
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+
+  Add `ClippableRect`: a presentational SVG box primitive (beside
+  `zigZagBoxPath`) that always renders a `<path>` with optional zig-zag
+  top/bottom edges. Because the element type no longer changes as clip state
+  toggles, React stops remounting unit boxes during age-window animations — a
+  large transition-performance win. Replaces the `<rect>`/`<path>`-switching
+  `UnitRect` that previously lived in `@macrostrat/column-views`.
+
+### Patch Changes
+
+- Fix the notes column not re-laying-out on scale change: `NoteLayoutProvider`
+  now re-filters notes to the visible domain and recomputes the vertical
+  de-overlap when the column's scale/zoom changes, instead of only when the
+  notes prop changes. Previously a zoom left notes at their prior positions,
+  overlapping when zoomed out.
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+- Fix two zoom-sync issues exposed by animated age-window zoom:
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+
+  - Age-axis (`AgeAxis`) now redraws when the scale's domain/range changes (not
+    just its object identity), and builds a fresh d3 axis generator each render.
+    Reusing the generator retained stale `.tickValues()` config, so a section
+    that was short (explicit first/last ticks) and later stretched kept those
+    out-of-domain tick values — leaving some axes with no labels. Both surfaced
+    once stable React keys stopped the axis remounting per frame.
+  - The inline-label/note tracker (`LabelTrackerProvider`) re-syncs to the
+    _current_ visible unit set on zoom. Its stale gate froze the "unlabeled" set
+    once the unit set changed, so a unit whose label now fit inline also kept
+    rendering as a note; it now recomputes over current units.
+
+- Updated dependencies
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+- Updated dependencies
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+  - @macrostrat/timescale@3.2.0
+  - @macrostrat/ui-components@5.2.0
+
 ## [2.0.10] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.0.9...@macrostrat/column-components-v2.0.10)
 
 ### Patch Changes
