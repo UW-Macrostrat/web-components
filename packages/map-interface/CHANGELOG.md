@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.3.2] - 2026-08-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.3.1...@macrostrat/map-interface-v2.3.2)
+
+### Patch Changes
+
+- Update CSS styles for map filter bar
+
 ## [2.3.1] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.3.0...@macrostrat/map-interface-v2.3.1)
 
 ### Patch Changes
