@@ -1,86 +1,86 @@
 import { Meta } from "@storybook/react-vite";
 import h from "./tokens.module.sass";
 
-// Proving ground for the Bornite design-token system. Renders live swatches and
-// samples straight from the `--bn-*` CSS variables, so token edits in
-// src/bornite/* show up here immediately (Storybook resolves style-system from
+// Proving ground for the Paleozoic design-token system. Renders live swatches and
+// samples straight from the `--pz-*` CSS variables, so token edits in
+// src/paleozoic/* show up here immediately (Storybook resolves style-system from
 // source). Toggle Storybook's dark mode to exercise the .bp6-dark overrides.
 
 const semanticColors = [
-  "--bn-text-color",
-  "--bn-text-subtle-color",
-  "--bn-text-emphasized-color",
-  "--bn-background-color",
-  "--bn-panel-background-color",
-  "--bn-panel-secondary-background-color",
-  "--bn-panel-rule-color",
-  "--bn-accent-color",
-  "--bn-accent-text-color",
-  "--bn-accent-secondary-color",
-  "--bn-accent-tertiary-color",
-  "--bn-secondary-color",
-  "--bn-error-color",
+  "--pz-text-color",
+  "--pz-text-subtle-color",
+  "--pz-text-emphasized-color",
+  "--pz-background-color",
+  "--pz-panel-background-color",
+  "--pz-panel-secondary-background-color",
+  "--pz-panel-rule-color",
+  "--pz-accent-color",
+  "--pz-accent-text-color",
+  "--pz-accent-secondary-color",
+  "--pz-accent-tertiary-color",
+  "--pz-secondary-color",
+  "--pz-error-color",
 ];
 
 const neutralRamp = [
-  "--bn-white",
-  "--bn-neutral-50",
-  "--bn-neutral-100",
-  "--bn-neutral-200",
-  "--bn-neutral-300",
-  "--bn-neutral-400",
-  "--bn-neutral-500",
-  "--bn-neutral-600",
-  "--bn-neutral-700",
-  "--bn-neutral-800",
-  "--bn-neutral-900",
-  "--bn-black",
+  "--pz-white",
+  "--pz-neutral-50",
+  "--pz-neutral-100",
+  "--pz-neutral-200",
+  "--pz-neutral-300",
+  "--pz-neutral-400",
+  "--pz-neutral-500",
+  "--pz-neutral-600",
+  "--pz-neutral-700",
+  "--pz-neutral-800",
+  "--pz-neutral-900",
+  "--pz-black",
 ];
 
 const intents = [
-  "--bn-intent-primary",
-  "--bn-intent-success",
-  "--bn-intent-warning",
-  "--bn-intent-danger",
+  "--pz-intent-primary",
+  "--pz-intent-success",
+  "--pz-intent-warning",
+  "--pz-intent-danger",
 ];
 
 const brandPalette = [
-  "--bn-purple-700",
-  "--bn-purple-500",
-  "--bn-purple-200",
-  "--bn-pink-500",
-  "--bn-pink-200",
-  "--bn-mint-500",
-  "--bn-mint-300",
-  "--bn-sky-500",
-  "--bn-sky-200",
+  "--pz-purple-700",
+  "--pz-purple-500",
+  "--pz-purple-200",
+  "--pz-pink-500",
+  "--pz-pink-200",
+  "--pz-mint-500",
+  "--pz-mint-300",
+  "--pz-sky-500",
+  "--pz-sky-200",
 ];
 
 const typeSizes = [
-  "--bn-font-size-xs",
-  "--bn-font-size-sm",
-  "--bn-font-size-md",
-  "--bn-font-size-lg",
-  "--bn-font-size-xl",
-  "--bn-font-size-2xl",
+  "--pz-font-size-xs",
+  "--pz-font-size-sm",
+  "--pz-font-size-md",
+  "--pz-font-size-lg",
+  "--pz-font-size-xl",
+  "--pz-font-size-2xl",
 ];
 
 const fontFamilies = [
-  "--bn-font-sans",
-  "--bn-font-serif",
-  "--bn-font-header",
-  "--bn-font-mono",
+  "--pz-font-sans",
+  "--pz-font-serif",
+  "--pz-font-header",
+  "--pz-font-mono",
 ];
 
 const spaceSteps = [
-  "--bn-space-1",
-  "--bn-space-2",
-  "--bn-space-3",
-  "--bn-space-4",
-  "--bn-space-5",
-  "--bn-space-6",
-  "--bn-space-7",
-  "--bn-space-8",
+  "--pz-space-1",
+  "--pz-space-2",
+  "--pz-space-3",
+  "--pz-space-4",
+  "--pz-space-5",
+  "--pz-space-6",
+  "--pz-space-7",
+  "--pz-space-8",
 ];
 
 function Swatch({ token }) {
@@ -115,7 +115,7 @@ function FontFamilySection() {
   const samples = fontFamilies.map((token) =>
     h(
       "p.type-sample",
-      { key: token, style: { fontFamily: `var(${token})`, fontSize: "var(--bn-font-size-lg)" } },
+      { key: token, style: { fontFamily: `var(${token})`, fontSize: "var(--pz-font-size-lg)" } },
       `${token} — The quick brown fox`
     )
   );
@@ -151,7 +151,7 @@ function TokenGallery() {
 }
 
 export default {
-  title: "Style system/Bornite tokens",
+  title: "Style system/Paleozoic tokens",
   component: TokenGallery,
 } as Meta<typeof TokenGallery>;
 

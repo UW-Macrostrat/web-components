@@ -1,9 +1,9 @@
 import { Meta } from "@storybook/react-vite";
+import classNames from "classnames";
 import h from "./form-field.module.sass";
 
 function Field({ label, placeholder, help, error }) {
-  const className = error ? "field error" : "field";
-  return h(`div.${className.split(" ").join(".")}`, [
+  return h("div.field", { className: classNames({ error }) }, [
     h("label.label", label),
     h("input.input", { placeholder }),
     h("span.help", help),

@@ -2,19 +2,19 @@ import { Meta } from "@storybook/react-vite";
 import h from "./typography.module.sass";
 
 // Two paths for applying type/spacing tokens into designs:
-//   1. `.bn-prose` — opt-in global overlay for free-flowing content (bare tags).
-//   2. mixins (`@include bn.heading` etc.) — component-scoped application.
-// Both resolve to --bn-* tokens, so dark mode + retheming work for free.
+//   1. `.pz-prose` — opt-in global overlay for free-flowing content (bare tags).
+//   2. mixins (`@include pz.heading` etc.) — component-scoped application.
+// Both resolve to --pz-* tokens, so dark mode + retheming work for free.
 
 function ProseOverlay() {
   return h("div.frame", [
-    h("p.label", ".bn-prose overlay (bare HTML, paragraph skips + rhythm)"),
-    h("div.bn-prose", [
+    h("p.label", ".pz-prose overlay (bare HTML, paragraph skips + rhythm)"),
+    h("div.pz-prose", [
       h("h2", "Stratigraphic context"),
       h("p", [
         "Macrostrat organizes geologic units across time and space. Prose like ",
         "this uses the serif prose font, with semantic ",
-        h("code", "--bn-paragraph-spacing"),
+        h("code", "--pz-paragraph-spacing"),
         " between blocks.",
       ]),
       h("h3", "Column data"),

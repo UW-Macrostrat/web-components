@@ -1,12 +1,12 @@
 import { Meta } from "@storybook/react-vite";
+import classNames from "classnames";
 import h from "./buttons.module.sass";
 
-// A button styled entirely from --bn-* tokens. Toggle Storybook dark mode to
+// A button styled entirely from --pz-* tokens. Toggle Storybook dark mode to
 // confirm fills stay legible (text-on-fill) and hover/focus adapt.
 
 function Button({ variant, disabled, children }) {
-  const className = variant ? `button ${variant}` : "button";
-  return h(`button.${className.split(" ").join(".")}`, { disabled }, children);
+  return h("button.button", { className: classNames(variant), disabled }, children);
 }
 
 function Buttons() {

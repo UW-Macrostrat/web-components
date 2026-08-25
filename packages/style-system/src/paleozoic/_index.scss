@@ -1,8 +1,8 @@
-// Bornite — the Macrostrat design-token system.
+// Paleozoic — the Macrostrat design-token system.
 //
-// Layered, all prefixed `--bn-`:
+// Layered, all prefixed `--pz-`:
 //   primitives → semantic → (brand overrides, supplied downstream)
-// plus text-style mixins (_typography) and an opt-in `.bn-prose` overlay (_base).
+// plus text-style mixins (_typography) and an opt-in `.pz-prose` overlay (_base).
 //
 // This is additive: it ships alongside the legacy unprefixed variables
 // (see ../colors.scss / ../main.sass) during migration and does not replace

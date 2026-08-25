@@ -1,29 +1,29 @@
 // Demonstrates the component-scoped application path: `@include` the text-style
-// mixins from _typography. Each class resolves to --bn-* tokens.
-@use "../src/bornite/typography" as bn
+// mixins from _typography. Each class resolves to --pz-* tokens.
+@use "../src/paleozoic/typography" as pz
 
 .frame
-  padding: var(--bn-space-5)
+  padding: var(--pz-space-5)
   display: flex
   flex-direction: column
-  gap: var(--bn-space-5)
+  gap: var(--pz-space-5)
   max-width: 42rem
 
 .mixin-heading
-  @include bn.heading
-  font-size: var(--bn-font-size-xl)
+  @include pz.heading
+  font-size: var(--pz-font-size-xl)
   margin: 0
 
 .mixin-body
-  @include bn.body
+  @include pz.body
   margin: 0
 
 .mixin-ui
-  @include bn.ui
-  color: var(--bn-text-subtle-color)
+  @include pz.ui
+  color: var(--pz-text-subtle-color)
   margin: 0
 
 .label
-  font-family: var(--bn-font-mono)
-  font-size: var(--bn-font-size-xs)
-  color: var(--bn-text-subtle-color)
+  font-family: var(--pz-font-mono)
+  font-size: var(--pz-font-size-xs)
+  color: var(--pz-text-subtle-color)

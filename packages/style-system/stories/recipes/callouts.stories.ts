@@ -1,9 +1,9 @@
 import { Meta } from "@storybook/react-vite";
+import classNames from "classnames";
 import h from "./callouts.module.sass";
 
 function Callout({ variant, title, body }) {
-  const className = variant ? `callout ${variant}` : "callout";
-  return h(`div.${className.split(" ").join(".")}`, [
+  return h("div.callout", { className: classNames(variant) }, [
     h("h4.title", title),
     h("p.body", body),
   ]);

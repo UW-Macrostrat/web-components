@@ -1,4 +1,5 @@
 import { Meta } from "@storybook/react-vite";
+import classNames from "classnames";
 import h from "./data-list.module.sass";
 
 const columns = [
@@ -9,8 +10,7 @@ const columns = [
 ];
 
 function Item({ name, meta, selected }) {
-  const className = selected ? "item selected" : "item";
-  return h(`div.${className.split(" ").join(".")}`, [
+  return h("div.item", { className: classNames({ selected }) }, [
     h("span", name),
     h("span.meta", meta),
   ]);
