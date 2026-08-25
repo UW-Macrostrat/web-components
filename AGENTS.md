@@ -39,6 +39,19 @@ h("div.container", [...])            // Classes auto-scoped
 See `packages/column-components/src/hyper.ts` for pattern. Styled variant:
 `hyperStyled(styles)`.
 
+Manage class names with the **`classnames`** package (imported as
+`import classNames from "classnames";`) — never hand-build class strings with
+template literals, `.split`/`.join`, or ternaries. Put the base class in the
+element tag and pass dynamic/conditional classes via the `className` prop;
+`hyperStyled` scopes both:
+
+```typescript
+import classNames from "classnames";
+// variant is a string class; `selected` is a boolean toggle
+h("button.button", { className: classNames(variant) }, label);
+h("div.item", { className: classNames({ selected }) }, children);
+```
+
 Do **not** add `key` props to elements in static child arrays — `@macrostrat/hyper`
 assigns keys for static arrays automatically. Only add an explicit `key` when it's
 genuinely necessary (e.g. keeping identity stable across reorders of a dynamic

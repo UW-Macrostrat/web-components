@@ -1,0 +1,71 @@
+// Token test case: buttons. Exercises fills (accent/intent), text-on-fill,
+// hover/active veils, radius, focus ring, and disabled affordances — all via
+// --pz-* tokens, so light/dark and retheming come for free.
+//
+// NOTE: the component's own knob is weak-named (`--button-fill`, no --pz-
+// prefix) and defaults to a --pz- semantic token — the global→component sync.
+
+.frame
+  display: flex
+  flex-direction: column
+  gap: var(--pz-space-5)
+  padding: var(--pz-space-5)
+
+.row
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  gap: var(--pz-control-gap)
+
+.button
+  font-family: var(--pz-body-font)
+  font-size: var(--pz-ui-font-size)
+  line-height: var(--pz-ui-line-height)
+  padding: var(--pz-space-2) var(--pz-space-4)
+  border: none
+  border-radius: var(--pz-radius-md)
+  cursor: pointer
+  color: var(--pz-text-on-fill-color)
+  background-color: var(--button-fill, var(--pz-accent-color))
+
+  &:hover
+    background-image: linear-gradient(var(--pz-active-background-color), var(--pz-active-background-color))
+
+  &:focus-visible
+    outline: 2px solid var(--pz-focus-ring-color)
+    outline-offset: 2px
+
+  &:disabled
+    opacity: 0.5
+    cursor: not-allowed
+
+// Fill variants re-point the local --button-fill token to a semantic color.
+.primary
+  --button-fill: var(--pz-accent-color)
+.intent-primary
+  --button-fill: var(--pz-intent-primary)
+.success
+  --button-fill: var(--pz-intent-success)
+.warning
+  --button-fill: var(--pz-intent-warning)
+.danger
+  --button-fill: var(--pz-intent-danger)
+
+// Minimal / subtle button — no fill, text-toned hover veil.
+.minimal
+  background-color: transparent
+  color: var(--pz-accent-text-color)
+
+  &:hover
+    background-image: none
+    background-color: var(--pz-hover-background-color)
+
+// Outlined button
+.outline
+  background-color: transparent
+  color: var(--pz-text-color)
+  box-shadow: inset 0 0 0 1px var(--pz-border-color)
+
+  &:hover
+    background-image: none
+    background-color: var(--pz-hover-background-color)

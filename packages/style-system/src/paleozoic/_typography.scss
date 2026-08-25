@@ -1,0 +1,48 @@
+// Paleozoic — text-style mixins
+//
+// A "text style" is a bundle of properties (family + size + line-height +
+// spacing), which a single CSS variable can't express. Mixins are the idiomatic
+// way to apply a bundle into a component's own SCSS module:
+//
+//   @use "@macrostrat/style-system/src/paleozoic/typography" as pz
+//   .my-heading
+//     @include pz.heading
+//
+// Every declaration resolves to a `--pz-` token, so restyling still happens at
+// the token layer. Mixins are the *component-scoped* application path; the
+// `.pz-prose` overlay in _base.scss is the *opt-in global* path built on them.
+
+@mixin heading {
+  font-family: var(--pz-heading-font);
+  font-weight: var(--pz-font-weight-normal);
+  line-height: var(--pz-line-height-tight);
+  color: var(--pz-text-emphasized-color);
+}
+
+@mixin body {
+  font-family: var(--pz-body-font);
+  font-size: var(--pz-body-font-size);
+  line-height: var(--pz-body-line-height);
+  color: var(--pz-text-color);
+}
+
+@mixin ui {
+  font-family: var(--pz-body-font);
+  font-size: var(--pz-ui-font-size);
+  line-height: var(--pz-ui-line-height);
+}
+
+@mixin prose {
+  font-family: var(--pz-prose-font);
+  font-size: var(--pz-body-font-size);
+  line-height: var(--pz-body-line-height);
+  color: var(--pz-text-color);
+}
+
+@mixin code {
+  font-family: var(--pz-font-mono);
+  font-size: 0.9em;
+  background-color: var(--pz-code-background-color);
+  border-radius: var(--pz-radius-sm);
+  padding: 0.1em 0.3em;
+}

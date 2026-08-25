@@ -1,0 +1,161 @@
+// Paleozoic — semantic tokens
+//
+// Role-based tokens that components consume. Each references a primitive (or a
+// Blueprint variable, called out with `⌁ bp:`) via var(). Light values live in
+// `:root`; dark overrides under `.bp6-dark` (Blueprint's dark-mode class).
+//
+// ── Brand-override contract ─────────────────────────────────────────────────
+// The `:root` tokens below ARE the surface a downstream brand overrides — a
+// brand ships its own `:root { --pz-*: … }` (+ a `.bp6-dark` counterpart).
+// Component-internal tokens (column-*, data-sheet-*, …) are NOT part of this
+// contract and stay owned by their packages; they *sync* to these via var()
+// fallback defaults (see stories/component-recipe).
+//
+// ── Blueprint alignment ─────────────────────────────────────────────────────
+// Text, surface, divider and intent tokens are deliberately aligned to
+// Blueprint core variables so existing bp6-* styling stays coherent as we
+// migrate. `⌁ bp:$pt-…` marks a direct alignment we may later choose to override.
+
+@use "@blueprintjs/core/lib/scss/variables" as *;
+
+:root {
+  color-scheme: light;
+
+  // --- Text ⌁ bp:$pt-text-color* ---
+  --pz-text-color: #{$pt-text-color};                    // ⌁ bp:$pt-text-color
+  --pz-text-subtle-color: #{$pt-text-color-muted};       // ⌁ bp:$pt-text-color-muted
+  --pz-text-disabled-color: #{$pt-text-color-disabled};  // ⌁ bp:$pt-text-color-disabled
+  --pz-text-emphasized-color: var(--pz-black);
+  --pz-link-color: var(--pz-blue-500);
+  --pz-link-hover-color: var(--pz-purple-700);
+
+  // --- Surfaces ⌁ bp:$pt-app-background-color ---
+  --pz-background-color: #{$pt-app-background-color};     // ⌁ bp:$pt-app-background-color
+  --pz-panel-background-color: var(--pz-white);
+  --pz-panel-secondary-background-color: var(--pz-neutral-50);
+  --pz-panel-tertiary-background-color: var(--pz-neutral-100);
+  --pz-overlay-background-color: rgba(255, 255, 255, 0.85);
+  --pz-code-background-color: var(--pz-neutral-50);
+
+  // --- Borders / rules ⌁ bp:$pt-divider-black ---
+  --pz-panel-rule-color: var(--pz-neutral-300);
+  --pz-border-color: #{$pt-divider-black};               // ⌁ bp:$pt-divider-black
+  --pz-border-muted-color: #{$pt-divider-black-muted};   // ⌁ bp:$pt-divider-black-muted
+
+  // --- Accent (brand) — purple primary ---
+  --pz-accent-color: var(--pz-purple-500);
+  --pz-accent-text-color: var(--pz-purple-700);
+  --pz-accent-secondary-color: var(--pz-mint-500);
+  --pz-accent-tertiary-color: var(--pz-pink-500);
+
+  // --- Secondary / muted ---
+  --pz-secondary-color: var(--pz-neutral-500);
+
+  // --- Intents ⌁ bp:$pt-intent-* (restated for use outside Blueprint markup) ---
+  --pz-intent-primary: var(--pz-blue-500);
+  --pz-intent-success: var(--pz-green-500);
+  --pz-intent-warning: var(--pz-orange-500);
+  --pz-intent-danger: var(--pz-red-500);
+  --pz-error-color: var(--pz-intent-danger); // legacy alias
+
+  // --- Intent surfaces (subtle tints for callouts / banners / tags) ---
+  // Derived from the intent tokens via color-mix, so brand overrides propagate
+  // and the tint stays translucent over any background (incl. dark).
+  --pz-intent-primary-surface: color-mix(in srgb, var(--pz-intent-primary) 14%, transparent);
+  --pz-intent-success-surface: color-mix(in srgb, var(--pz-intent-success) 14%, transparent);
+  --pz-intent-warning-surface: color-mix(in srgb, var(--pz-intent-warning) 14%, transparent);
+  --pz-intent-danger-surface: color-mix(in srgb, var(--pz-intent-danger) 14%, transparent);
+
+  // --- Interaction & state ---
+  // NB: tokens derived via var()/color-mix from a theme-varying token (text,
+  // accent, shadow, elevation) are substituted where declared, so they DON'T
+  // re-resolve on inheritance. Any such token must be re-declared in .bp6-dark
+  // below or it silently keeps its light-mode value.
+  --pz-hover-background-color: color-mix(in srgb, var(--pz-text-color) 6%, transparent);
+  --pz-active-background-color: color-mix(in srgb, var(--pz-text-color) 12%, transparent);
+  --pz-selected-background-color: color-mix(in srgb, var(--pz-accent-color) 15%, transparent);
+  --pz-selected-text-color: var(--pz-accent-text-color);
+  --pz-text-on-fill-color: var(--pz-white); // text/icons on a filled accent or intent
+  --pz-focus-ring-color: #{$pt-focus-indicator-color}; // ⌁ bp:$pt-focus-indicator-color
+
+  // --- Elevation ⌁ bp:$pt-elevation-shadow-* ---
+  --pz-shadow-color: #{$pt-divider-black};
+  --pz-shadow-sm: 0 0 0 1px var(--pz-shadow-color);
+  --pz-shadow-md: var(--pz-elevation-1);
+  --pz-shadow-lg: var(--pz-elevation-2);
+
+  // --- Semantic spacing (roles → primitive scale) ---
+  --pz-content-padding: var(--pz-space-4);
+  --pz-page-margin: var(--pz-space-6);
+  --pz-section-gap: var(--pz-space-6);
+  --pz-stack-gap: var(--pz-space-4);
+  --pz-inline-gap: var(--pz-space-2);
+  --pz-control-gap: var(--pz-space-2);
+
+  // --- Semantic text metrics (the "paragraph skip" family) ---
+  // Em-based ON PURPOSE. Custom-property `em` values resolve against the
+  // font-size of the element that *uses* them (not :root), so these scale with
+  // local type size — a skip below a big heading is proportionally larger, and
+  // prose in a smaller context tightens automatically. Layout spacing above
+  // stays rem (uniform); text rhythm stays em (proportional).
+  --pz-paragraph-spacing: 1em;      // gap below a <p> ≈ one line
+  --pz-heading-spacing: 0.4em;      // gap below a heading
+  --pz-heading-spacing-top: 1em;    // gap above a heading in flow
+  --pz-list-item-spacing: 0.35em;
+
+  // --- Semantic type roles ---
+  --pz-body-font: var(--pz-font-sans);
+  --pz-prose-font: var(--pz-font-serif);
+  --pz-heading-font: var(--pz-font-header);
+  --pz-body-font-size: var(--pz-font-size-md);
+  --pz-body-line-height: var(--pz-line-height-normal);
+  --pz-ui-font-size: var(--pz-font-size-sm);
+  --pz-ui-line-height: var(--pz-line-height-snug);
+}
+
+.bp6-dark {
+  color-scheme: dark;
+
+  --pz-text-color: #{$pt-dark-text-color};                    // ⌁ bp:$pt-dark-text-color
+  --pz-text-subtle-color: #{$pt-dark-text-color-muted};       // ⌁ bp:$pt-dark-text-color-muted
+  --pz-text-disabled-color: #{$pt-dark-text-color-disabled};  // ⌁ bp:$pt-dark-text-color-disabled
+  --pz-text-emphasized-color: var(--pz-white);
+  --pz-link-color: var(--pz-sky-500);
+  --pz-link-hover-color: var(--pz-pink-200);
+
+  --pz-background-color: #{$pt-dark-app-background-color};     // ⌁ bp:$pt-dark-app-background-color
+  --pz-panel-background-color: var(--pz-neutral-900);
+  --pz-panel-secondary-background-color: var(--pz-neutral-800);
+  --pz-panel-tertiary-background-color: var(--pz-neutral-700);
+  --pz-overlay-background-color: rgba(20, 26, 30, 0.85);
+  --pz-code-background-color: var(--pz-neutral-800);
+
+  --pz-panel-rule-color: #404854;
+  --pz-border-color: #{$pt-dark-divider-white};               // ⌁ bp:$pt-dark-divider-white
+  --pz-border-muted-color: #{$pt-dark-divider-white-muted};   // ⌁ bp:$pt-dark-divider-white-muted
+
+  // `accent-color` stays saturated (safe as a FILL with --pz-text-on-fill-color);
+  // `accent-text-color` is the readable-on-background variant, lifted for dark.
+  --pz-accent-color: var(--pz-purple-500);
+  --pz-accent-text-color: var(--pz-purple-200);
+  --pz-accent-secondary-color: var(--pz-mint-500);
+  --pz-accent-tertiary-color: var(--pz-pink-500);
+
+  --pz-secondary-color: var(--pz-neutral-600);
+
+  --pz-shadow-color: rgba(255, 255, 255, 0.1);
+  // Re-point the elevation primitives to Blueprint's dark elevation ramp
+  --pz-elevation-1: #{$pt-dark-elevation-shadow-1}; // ⌁ bp:$pt-dark-elevation-shadow-1
+  --pz-elevation-2: #{$pt-dark-elevation-shadow-2}; // ⌁ bp:$pt-dark-elevation-shadow-2
+
+  --pz-focus-ring-color: #{$pt-dark-focus-indicator-color}; // ⌁ bp:$pt-dark-focus-indicator-color
+
+  // Re-declare derived tokens so their var()/color-mix re-resolves against the
+  // dark values above (see note in :root). Same expressions on purpose.
+  --pz-selected-text-color: var(--pz-accent-text-color);       // → light lavender in dark
+  --pz-hover-background-color: color-mix(in srgb, var(--pz-text-color) 6%, transparent);   // → light veil
+  --pz-active-background-color: color-mix(in srgb, var(--pz-text-color) 12%, transparent);
+  --pz-shadow-sm: 0 0 0 1px var(--pz-shadow-color);
+  --pz-shadow-md: var(--pz-elevation-1);
+  --pz-shadow-lg: var(--pz-elevation-2);
+}

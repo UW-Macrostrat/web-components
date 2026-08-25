@@ -1,0 +1,48 @@
+// Demonstrates the global → component token flow.
+//
+// Rule of thumb:
+//   - Global, user-controllable tokens are `--pz-*` (strong-named contract).
+//   - A component defines its OWN weak-named tokens (here `--card-*`, no `--pz-`
+//     prefix) whose DEFAULT is a `--pz-` semantic token. That default is the
+//     "sync": change the global and every component tracks it.
+//   - A local override re-points the weak token — to another global, or (escape
+//     hatch) to a literal — WITHOUT touching the global contract.
+
+.card
+  // The component's local knobs default to the global semantic layer.
+  --card-background: var(--pz-panel-background-color)
+  --card-accent: var(--pz-accent-color)
+  --card-rule: var(--pz-panel-rule-color)
+
+  background-color: var(--card-background)
+  color: var(--pz-text-color)
+  border-left: 4px solid var(--card-accent)
+  box-shadow: var(--pz-shadow-sm)
+  border-radius: var(--pz-radius-md)
+  padding: var(--pz-space-4)
+  font-family: var(--pz-font-sans)
+  max-width: 22rem
+
+// Re-point the weak token to a DIFFERENT global — still fully themed.
+.card.secondary
+  --card-accent: var(--pz-accent-secondary-color)
+
+// Escape hatch: a one-off literal for this context only. Globals untouched.
+.card.custom
+  --card-accent: #e0651d
+
+.title
+  font-family: var(--pz-font-header)
+  font-size: var(--pz-font-size-lg)
+  margin: 0 0 var(--pz-space-2) 0
+  color: var(--pz-text-emphasized-color)
+
+.body
+  margin: 0
+  color: var(--pz-text-subtle-color)
+
+.stack
+  display: flex
+  flex-direction: column
+  gap: var(--pz-space-4)
+  padding: var(--pz-space-5)
