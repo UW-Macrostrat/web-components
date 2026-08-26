@@ -1,5 +1,10 @@
 # Changelog
 
+
+## [2.2.6] - 2026-08-26
+
+- Match Tag logic fix
+
 ## [2.2.5] - 2026-07-26
 
 - Better match logic
