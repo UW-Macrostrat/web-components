@@ -225,8 +225,31 @@ function presentationOf(filter: TableFilter): string {
   return filter.presentation ?? "menu";
 }
 
-function useDisplayIntent(atom) {
-  const [hasActive, clearActive] = ctx.use(atom);
+/** Active-state + clear for a subset of filters, keyed by id. */
+function useFilterSubsetState(entries: FilterEntry[]): [boolean, () => void] {
+  const ids = entries.map((e) => e.filter.id);
+  const key = ids.join("\u0000");
+  const subsetAtom = useMemo(
+    () =>
+      atom(
+        (get) => {
+          const active = get(storeAtom)?.activeFilters;
+          if (active == null) return false;
+          return ids.some((id) => active.has(id));
+        },
+        (get) => {
+          const store = get(storeAtom);
+          if (store == null) return;
+          for (const id of ids) store.removeFilter(id);
+        },
+      ),
+    [key],
+  );
+  const [hasActive, clear] = ctx.use(subsetAtom);
+  return [hasActive, clear as () => void];
+}
+
+function useDisplayIntent([hasActive, clearActive]: [boolean, () => void]) {
   const intent = hasActive ? "primary" : "none";
 
   let rightIcon: "caret-down" | undefined = "caret-down";
@@ -243,7 +266,11 @@ function useDisplayIntent(atom) {
 }
 
 function useFilterMenuAction(entries: FilterEntry[]): TableAction | null {
-  const rest = useDisplayIntent(hasActiveFiltersAtom);
+  // Scoped to the filters this menu actually holds. An `"inline"` filter has
+  // its own always-visible control, so it must not light up the Filter tag —
+  // nor be wiped by its clear button, which reads as "clear the filters in
+  // here".
+  const rest = useDisplayIntent(useFilterSubsetState(entries));
 
   if (entries.length === 0) return null;
 
@@ -291,7 +318,7 @@ function useFilterMenuAction(entries: FilterEntry[]): TableAction | null {
 function useSortAction(): TableAction | null {
   const columnSpec = useSelector((s) => s.columnSpec);
 
-  const rest = useDisplayIntent(hasActiveSortsAtom);
+  const rest = useDisplayIntent(ctx.use(hasActiveSortsAtom));
 
   const sortableCols = useMemo(
     () => columnSpec.filter((c) => c.sortable),
@@ -330,15 +357,18 @@ function useSortAction(): TableAction | null {
   };
 }
 
+// Both of these clear through the store's *actions* rather than writing the
+// state directly: the actions are what also drop a now-meaningless row
+// selection (see `dropRowSelection`).
 const hasActiveFiltersAtom = atom(
-  (get) => get(storeAtom)?.activeFilters.size ?? 0 > 0,
-  (get, set) => {
-    set(storeAtom, (s) => ({ ...s, activeFilters: new Map([]) }));
+  (get) => (get(storeAtom)?.activeFilters?.size ?? 0) > 0,
+  (get) => {
+    get(storeAtom)?.clearFilters?.();
   },
 );
 const hasActiveSortsAtom = atom(
-  (get) => get(storeAtom)?.columnSorts.length ?? 0 > 0,
-  (get, set) => {
-    set(storeAtom, (s) => ({ ...s, columnSorts: [] }));
+  (get) => (get(storeAtom)?.columnSorts?.length ?? 0) > 0,
+  (get) => {
+    get(storeAtom)?.clearColumnSorts?.();
   },
 );

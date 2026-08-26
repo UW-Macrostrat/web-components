@@ -14,7 +14,7 @@
   --data-panel-content-padding: 12px
   --data-panel-item-gap: 8px
   // Fallback to percentage
-  --data-panel-content-width: 100cqw
+  --data-panel-content-width: 100%
 
   --data-panel-selected-color: #2d72d2
   --data-panel-selected-background: rgba(45, 114, 210, 0.1)
@@ -173,8 +173,7 @@
         width: unset
 
     .data-panel-toolbar
-      left: 50%
-      transform: translateX(calc((var(--data-panel-content-width, 100cqw) / -2) + var(--data-panel-content-padding) - 4px))
+      left: calc(var(--data-panel-content-padding, 12px) - 4px)
       top: var(--data-panel-content-padding, 12px)
       background-color: var(--panel-secondary-background-color)
       box-shadow: 0 0 0 1px var(--panel-rule-color)

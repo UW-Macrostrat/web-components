@@ -1,5 +1,28 @@
 # Changelog
 
+## [4.4.1] - 2026-08-26 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.4.0...@macrostrat/data-sheet-v4.4.1)
+
+### Patch Changes
+
+- Fix the Filter tag's scope, and make the clear buttons drop stale row
+  selections:
+
+  - **The "Filter" tag no longer speaks for `"inline"` filters.** Its active
+    state and its clear button covered _every_ active filter, including ones
+    with `presentation: "inline"` — which have their own always-visible toolbar
+    control. So an open search box lit up the Filter tag it isn't in, and the
+    tag's ✕ (which reads as "clear the filters in here") silently emptied the
+    search box too. Both are now scoped to the filters the menu actually holds.
+  - **The Filter and Sort clear buttons go through the store's actions**
+    (`clearFilters` / `clearColumnSorts`) instead of writing state directly, so
+    they also drop a row selection the cleared view made meaningless — the same
+    guarantee `setFilter` and `setColumnSort` got in 4.4.0. Reachable on a view
+    with non-modal selection, where selecting and filtering coexist.
+  - Tidied a `??`/`>` precedence accident in the two indicator atoms
+    (`x?.size ?? 0 > 0` parses as `x?.size ?? (0 > 0)`; it happened to behave).
+
+- Improve styles for the inline filter menu.
+
 ## [4.4.0] - 2026-08-26 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.3.0...@macrostrat/data-sheet-v4.4.0)
 
 ### Minor Changes
