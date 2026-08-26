@@ -4,19 +4,35 @@ import {
   TableAction,
   TableFilter,
 } from "../../actions";
-import { ctx, storeAtom, useSelector } from "../../provider";
-import { useMemo } from "react";
+import {
+  ctx,
+  enableSelectionAtom,
+  interactionOptionsAtom,
+  storeAtom,
+  useSelector,
+} from "../../provider";
+import { type ReactNode, useMemo } from "react";
 import h from "../../data-panel.module.sass";
-import { Menu, Tag } from "@blueprintjs/core";
+import { Button, Menu, MenuDivider, Tag } from "@blueprintjs/core";
 import {
   ColumnFilterMenuItem,
   ColumnSortMenu,
   InlineFilterControl,
   MenuDropdown,
+  MenuFormItem,
   MenuInlineFilterItem,
   resolveColumnFilter,
 } from "./filter-and-sort.ts";
+import { toggleModalSelectionAtom } from "./selection.ts";
 import { atom } from "jotai";
+
+/** How the built-in view controls (inline filters, Filter menu, Sort menu) are
+ * placed in the toolbar:
+ *  - `"inline"` (default): each control sits in the toolbar.
+ *  - `"popover"`: all of them collapse behind a single button — for a narrow or
+ *    deliberately chrome-light toolbar.
+ * In both cases the controls, state, and provider seam are identical. */
+export type ViewControlsPresentation = "inline" | "popover";
 
 /** A filter to surface, plus the label to show for it. */
 interface FilterEntry {
@@ -36,6 +52,7 @@ interface FilterEntry {
  */
 export function useDataPanelControls(
   tableFilters: TableFilter[] = [],
+  presentation: ViewControlsPresentation = "inline",
 ): TableAction[] {
   const columnSpec = useSelector((s) => s.columnSpec);
 
@@ -58,6 +75,21 @@ export function useDataPanelControls(
   // Hooks first (stable order), then assemble.
   const filterMenuAction = useFilterMenuAction(menuEntries);
   const sortAction = useSortAction();
+  const collapsedAction = useCollapsedControlsAction(entries);
+  const exitSelectionAction = useExitSelectionAction();
+
+  // While a modal view is *selecting*, the toolbar belongs to the selection and
+  // its set-actions. Changing the view would also invalidate the selection
+  // (rows are addressed by index — see `dropRowSelection`), so rather than
+  // competing for space, the view controls collapse to a single affordance that
+  // **leaves select mode** and hands the toolbar back.
+  if (exitSelectionAction != null) return [exitSelectionAction];
+
+  // One button holding every control, for a toolbar with no room for them (or a
+  // deliberately chrome-light layout).
+  if (presentation === "popover" && collapsedAction != null) {
+    return [collapsedAction];
+  }
 
   const actions: TableAction[] = [];
   // Inline filters: one always-visible toolbar control each.
@@ -73,6 +105,120 @@ export function useDataPanelControls(
   if (filterMenuAction != null) actions.push(filterMenuAction);
   if (sortAction != null) actions.push(sortAction);
   return actions;
+}
+
+/**
+ * The whole view-control set behind one button: inline filters as titled
+ * sections, then the filters, then the sorts. Same controls, same store seam —
+ * only placement changes (the `presentation` idea from `TableFilter`, applied to
+ * the toolbar as a whole).
+ */
+function useCollapsedControlsAction(
+  entries: FilterEntry[],
+): TableAction | null {
+  const columnSpec = useSelector((s) => s.columnSpec);
+  const hasActiveFilters = ctx.useValue(hasActiveFiltersAtom);
+  const hasActiveSorts = ctx.useValue(hasActiveSortsAtom);
+
+  const sortableCols = useMemo(
+    () => columnSpec.filter((c) => c.sortable),
+    [columnSpec],
+  );
+
+  if (entries.length === 0 && sortableCols.length === 0) return null;
+
+  const inlineEntries = entries.filter(
+    (e) => presentationOf(e.filter) === "inline",
+  );
+  const menuEntries = entries.filter(
+    (e) => presentationOf(e.filter) !== "inline",
+  );
+
+  const items: ReactNode[] = [];
+  for (const { filter, label } of inlineEntries) {
+    items.push(
+      h(MenuFormItem, { key: filter.id, title: label }, [
+        h(InlineFilterControl, { filter }),
+      ]),
+    );
+  }
+  if (menuEntries.length > 0) {
+    items.push(h(MenuDivider, { key: "filter-divider", title: "Filter" }));
+    for (const { filter, label } of menuEntries) {
+      if (presentationOf(filter) === "menu-inline") {
+        items.push(h(MenuInlineFilterItem, { key: filter.id, filter, label }));
+      } else {
+        items.push(h(ColumnFilterMenuItem, { key: filter.id, filter, label }));
+      }
+    }
+  }
+  if (sortableCols.length > 0) {
+    items.push(h(MenuDivider, { key: "sort-divider", title: "Sort" }));
+    for (const col of sortableCols) {
+      items.push(
+        h(ColumnSortMenu, { key: col.key, columnKey: col.key, text: col.name }),
+      );
+    }
+  }
+
+  let intent: "primary" | "none" = "none";
+  if (hasActiveFilters || hasActiveSorts) intent = "primary";
+
+  return {
+    id: "view-controls",
+    name: "View",
+    icon: "filter-list",
+    description: "Search, filter and sort.",
+    targets: ALL_CARDINALITIES,
+    requiresEditable: false,
+    render: () =>
+      h(
+        MenuDropdown,
+        { content: h(Menu, { className: "collapsed-controls" }, items) },
+        [
+          h(Button, {
+            minimal: true,
+            small: true,
+            icon: "filter-list",
+            intent,
+            title: "Search, filter and sort",
+          }),
+        ],
+      ),
+  };
+}
+
+/** While selecting on a modal view: one control that leaves select mode (and so
+ * restores the view controls). Labelled for where it takes you, not what it
+ * does to the selection. */
+function useExitSelectionAction(): TableAction | null {
+  const { enableModalSelection } = ctx.useValue(interactionOptionsAtom);
+  const selecting = ctx.useValue(enableSelectionAtom);
+  const toggleSelectMode = ctx.useSet(toggleModalSelectionAtom);
+
+  if (!enableModalSelection || !selecting) return null;
+
+  return {
+    id: "exit-selection",
+    name: "Filter",
+    icon: "filter",
+    description: "Leave select mode to filter and sort.",
+    targets: ALL_CARDINALITIES,
+    requiresEditable: false,
+    render: () =>
+      h(
+        Tag,
+        {
+          minimal: true,
+          large: true,
+          interactive: true,
+          icon: "filter",
+          title: "Filter and sort (leaves select mode)",
+          onClick: () => toggleSelectMode(),
+        },
+        "Filter",
+      ),
+  };
 }
 
 function presentationOf(filter: TableFilter): string {

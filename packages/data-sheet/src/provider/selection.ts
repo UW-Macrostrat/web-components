@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { interactionOptionsAtom } from "./interactions.ts";
+import { enableSelectionAtom } from "./interactions.ts";
 import { storeAtom } from "./core.ts";
 import type { Region } from "@blueprintjs/table";
 
@@ -11,12 +11,12 @@ export const anchorRefAtom = atom<{ current: number | null }>({
 
 export const selectionAtom = atom(
   (get) => {
-    if (!get(interactionOptionsAtom).enableSelection) return [];
+    if (!get(enableSelectionAtom)) return [];
     return get(storeAtom)?.selection ?? [];
   },
   (get, set, regions: Region[] = []) => {
     /** Don't do anything if selection isn't enabled */
-    if (!get(interactionOptionsAtom).enableSelection) return;
+    if (!get(enableSelectionAtom)) return;
     /** Reset the selection anchor ref */
     if (regions.length === 0) {
       get(anchorRefAtom).current = null;

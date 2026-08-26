@@ -109,18 +109,47 @@ export function FilterIndicator({
   );
 }
 
-export function MenuDropdown({ children, content, isOpen, ...props }: any) {
+/**
+ * A dropdown for a panel of controls (not just menu items).
+ *
+ * Deliberately **not** focus-trapping. These panels hold real form controls,
+ * and a control whose own typeahead renders in a separate portal (a
+ * `MultiSelect`, a date picker) has focus yanked back out of it by an enclosing
+ * trap — which is what makes a nested filter submenu feel unstable. Caller
+ * props are passed through (`placement`, `isOpen`, …).
+ */
+export function MenuDropdown({ children, content, ...props }: any) {
   return h(
     PopoverNext,
     {
       content,
       placement: "bottom-start",
-      enforceFocus: true,
+      enforceFocus: false,
       autoFocus: false,
       arrow: false,
+      ...props,
     },
     children,
   );
+}
+
+/**
+ * A titled block *inside* a menu holding an arbitrary form, rather than a menu
+ * item that opens a submenu — one click away instead of two, with no nested
+ * popover to lose focus to. The building block behind `MenuInlineFilterItem`,
+ * exported so a custom control panel can use the same idiom.
+ */
+export function MenuFormItem({
+  title,
+  children,
+}: {
+  title?: ReactNode;
+  children: ReactNode;
+}) {
+  return h("li.menu-form-item", [
+    h.if(title != null)(MenuDivider, { title }),
+    h("div.menu-form-body", children),
+  ]);
 }
 
 function buildFilterTagLabel(

@@ -1,6 +1,7 @@
 import {
   columnSpecAtom,
   ctx,
+  enableSelectionAtom,
   interactionOptionsAtom,
   itemLabelAtom,
   pluralize,
@@ -51,20 +52,13 @@ function itemCount(n: number, itemType: string) {
   return `${n} ` + pluralize(itemType, n);
 }
 
-const toggleModalSelectionAtom = atom(null, (get, set) => {
-  const interactionState = get(interactionOptionsAtom);
-  if (interactionState.enableModalSelection) {
-    const enableSelection = !interactionState.enableSelection;
-
-    if (!enableSelection) {
-      set(clearableSelectionAtom);
-    }
-
-    set(interactionOptionsAtom, {
-      ...interactionState,
-      enableSelection,
-    });
-  }
+/** Enter/leave select mode. Leaving clears the selection — it has to happen
+ * *before* selection is switched off, since the selection write is gated on it. */
+export const toggleModalSelectionAtom = atom(null, (get, set) => {
+  if (!get(interactionOptionsAtom).enableModalSelection) return;
+  const next = !get(enableSelectionAtom);
+  if (!next) set(clearableSelectionAtom);
+  set(enableSelectionAtom, next);
 });
 const clearableSelectionAtom = atom(
   (get) => get(selectionAtom),
@@ -89,7 +83,8 @@ export function SelectionIndicator({ minimal = true }: { minimal?: boolean }) {
   const tableName = ctx.useValue(tableNameAtom);
 
   const toggleModalSelection = ctx.useSet(toggleModalSelectionAtom);
-  const { enableModalSelection, enableSelection } = interactionState;
+  const { enableModalSelection } = interactionState;
+  const enableSelection = ctx.useValue(enableSelectionAtom);
 
   const hasSelection = selection != null && selection.length > 0;
 

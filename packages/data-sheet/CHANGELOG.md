@@ -1,5 +1,56 @@
 # Changelog
 
+## [4.4.0] - 2026-08-26 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.3.0...@macrostrat/data-sheet-v4.4.0)
+
+### Minor Changes
+
+- View-control placement, modal-selection fixes, and cmd-click selection
+  (`DataPanel`):
+
+  - **`viewControls: "inline" | "popover"`** — where the built-in view controls
+    (inline filters, the Filter menu, the Sort menu) sit in the toolbar.
+    `popover` collapses all of them behind one button, for a narrow or
+    deliberately chrome-light toolbar. Same controls, same store seam; only
+    placement changes — the `TableFilter.presentation` idea applied to the
+    toolbar as a whole.
+  - **The view controls get out of the way while selecting.** On a
+    modal-selection view, entering select mode replaces them with a single
+    **Filter** control that _leaves_ select mode, handing the toolbar to the
+    selection and its set-actions. Filtering and selecting no longer compete for
+    the toolbar — or for each other's correctness (below).
+  - **A view change drops row selections.** `setFilter` / `removeFilter` /
+    `clearFilters` / `setColumnSort` / `clearColumnSorts` now clear the
+    row-addressed parts of the selection: rows are selected _by index_, so a
+    re-filter or re-sort leaves "rows 3–5" pointing at different records, and a
+    set-action would silently act on the wrong ones. Column selections survive
+    (they're index-stable, and the sheet's own sort/filter controls are invoked
+    from a column selection).
+  - **Cmd/ctrl-click enters select mode** on a modal-selection `DataPanel` and
+    selects the clicked row — the familiar list idiom, so a bulk action no
+    longer requires finding the Select control first.
+  - **Modal selection state is no longer clobberable.** It lived in
+    `interactionOptionsAtom`, which the provider re-syncs from props on every
+    render (`resolveInteractionOptions` builds a fresh object each time), so any
+    provider re-render reset select mode. It now has its own atom
+    (`selectionModeActiveAtom`), read through the new `enableSelectionAtom` —
+    which is what every selection path should consult from now on.
+  - **`MenuDropdown` no longer traps focus, and passes its props through.** It
+    hard-coded `enforceFocus: true` and silently dropped extra props (a caller's
+    `placement` never applied). The focus trap is what made a filter submenu
+    feel unstable: a control whose own typeahead renders in a separate portal
+    had focus yanked back out of it.
+  - **New `MenuFormItem`** — a titled block inside a menu holding an arbitrary
+    form (rather than a submenu), exported so a custom control panel can use the
+    idiom `MenuInlineFilterItem` is built on.
+  - **`DataPanelToolbarStyle.FLOATING`** — the `"floating"` toolbar style was
+    implemented in the stylesheet (and used by consumers) but missing from the
+    enum.
+  - New story `Data sheet/Data panel/View controls`, with `viewControls`,
+    `toolbarStyle`, and `enableSelection` as arg controls — the three are
+    coupled (how much toolbar there is decides whether inline controls fit, and
+    modal selection is what makes them step aside), so the story is a matrix to
+    try rather than one arrangement per story.
+
 ## [4.3.0] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.2.1...@macrostrat/data-sheet-v4.3.0)
 
 ### Minor Changes

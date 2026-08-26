@@ -4,7 +4,6 @@
 :root
   --data-panel-content-padding: 0px
 
-
 .data-panel
   display: flex
   flex: 1 1 auto
@@ -14,7 +13,9 @@
   min-width: 0
   --data-panel-content-padding: 12px
   --data-panel-item-gap: 8px
-  --data-panel-content-width: 100%
+  // Fallback to percentage
+  --data-panel-content-width: 100cqw
+
   --data-panel-selected-color: #2d72d2
   --data-panel-selected-background: rgba(45, 114, 210, 0.1)
 
@@ -173,7 +174,7 @@
 
     .data-panel-toolbar
       left: 50%
-      transform: translateX(calc((var(--data-panel-content-width, 100%) / -2) - 4px))
+      transform: translateX(calc((var(--data-panel-content-width, 100cqw) / -2) + var(--data-panel-content-padding) - 4px))
       top: var(--data-panel-content-padding, 12px)
       background-color: var(--panel-secondary-background-color)
       box-shadow: 0 0 0 1px var(--panel-rule-color)
@@ -200,3 +201,7 @@
     .data-panel-body.is-scrolled
       mask-image: linear-gradient(to bottom, transparent 0, var(--background-color) 20px)
 
+
+// Every view control behind one button (`viewControls: "popover"`).
+.collapsed-controls
+  max-width: 360px

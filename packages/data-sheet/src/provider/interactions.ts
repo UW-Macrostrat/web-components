@@ -152,6 +152,37 @@ export function resolveInteractionOptions(
   };
 }
 
+/**
+ * Whether **modal** selection is currently switched on.
+ *
+ * This is *runtime view state*, not configuration, so it lives in its own atom
+ * rather than inside `interactionOptionsAtom`: the latter is re-synced from the
+ * view's props (`resolveInteractionOptions` builds a fresh object on every
+ * render of the provider), so a runtime override stored there is reset by any
+ * provider re-render that happens to fire. Keeping the flag separate makes
+ * select mode stable, and gives consumers a single, safe thing to read and set.
+ */
+export const selectionModeActiveAtom = atom(false);
+
+/**
+ * The effective "is selection live right now" flag — the one every selection
+ * path should read. For a modal view it follows {@link selectionModeActiveAtom};
+ * otherwise it's the configured `enableSelection`.
+ */
+export const enableSelectionAtom = atom(
+  (get) => {
+    const options = get(interactionOptionsAtom);
+    if (options.enableModalSelection) return get(selectionModeActiveAtom);
+    return options.enableSelection;
+  },
+  (get, set, next: boolean) => {
+    /** Turn selection on/off. Only meaningful for a modal view; a view with a
+     * fixed selection style ignores it. */
+    if (!get(interactionOptionsAtom).enableModalSelection) return;
+    set(selectionModeActiveAtom, next);
+  },
+);
+
 export const enableDragValueAtom = atom((get) => {
   return get(interactionOptionsAtom).enableDragValue;
 });

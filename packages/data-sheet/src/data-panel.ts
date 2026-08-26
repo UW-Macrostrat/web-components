@@ -43,6 +43,7 @@ import {
   DataSheetProvider,
   DataViewRendererType,
   FetchData,
+  enableSelectionAtom,
   interactionOptionsAtom,
   selectionAtom,
   splitDataProviderProps,
@@ -64,6 +65,7 @@ import {
   ActionsToolbar,
   LoadProgressIndicator,
   useDataPanelControls,
+  type ViewControlsPresentation,
 } from "./components";
 import { DataViewSharedProps, FetchDataOptions } from "./types";
 import { atom } from "jotai";
@@ -73,6 +75,10 @@ export enum DataPanelToolbarStyle {
   BORDERED = "bordered",
   FADE = "fade",
   MINIMAL = "minimal",
+  /** Toolbar (and footer) sized to their contents and lifted over the scroll
+   * body, rather than occupying a full-width band. Pairs with
+   * `viewControls: "popover"`, since inline controls cost real space here. */
+  FLOATING = "floating",
 }
 
 /** Props for a custom scroll-body layout component. It receives the
@@ -138,6 +144,13 @@ export interface DataPanelProps<T = any> extends DataViewSharedProps<T> {
   scrollBody?: ComponentType<ScrollBodyProps>;
   className?: string;
   toolbarStyle?: DataPanelToolbarStyle | string;
+  /** Where the built-in view controls (inline filters, Filter menu, Sort menu)
+   * sit in the toolbar: `"inline"` (default) places each in the toolbar;
+   * `"popover"` collapses all of them behind a single button — for a narrow or
+   * deliberately chrome-light toolbar. Same controls and state either way.
+   * Ignored while a modal view is selecting: the toolbar then carries a single
+   * control that leaves select mode. */
+  viewControls?: ViewControlsPresentation;
   /** Arbitrary children rendered inside the provider, after the panel. */
   children?: ReactNode;
 }
@@ -187,6 +200,7 @@ export function DataPanelRenderer<T>({
   scrollBody,
   className,
   toolbarStyle = DataPanelToolbarStyle.BORDERED,
+  viewControls = "inline",
   children,
 }: Omit<DataPanelProps<T>, "provider" | "fetchData" | "data" | "identity">) {
   const {
@@ -233,7 +247,7 @@ export function DataPanelRenderer<T>({
     setScrolled(e.currentTarget.scrollTop > 4);
   }, []);
 
-  const enableSelection = ctx.useValue(interactionOptionsAtom).enableSelection;
+  const enableSelection = ctx.useValue(enableSelectionAtom);
   const selectedIndices = ctx.useValue(selectedRowIndicesAtom);
   const select = ctx.useSet(updateSelectionAtom);
 
@@ -341,7 +355,7 @@ export function DataPanelRenderer<T>({
     });
   }
 
-  const coreActions = useDataPanelControls(filters);
+  const coreActions = useDataPanelControls(filters, viewControls);
 
   // Merge consumer actions with the synthesized Filter/Sort controls, deduped
   // by id — consumer actions come first, so passing an action with id `filter`
@@ -545,10 +559,20 @@ const updateSelectionAtom = atom(
   null,
   (get, set, index: number, mods: SelectModifiers) => {
     /** Update selection from a row index and modifiers. */
-    const { enableMultipleSelection, enableSelection } = get(
+    const { enableMultipleSelection, enableModalSelection } = get(
       interactionOptionsAtom,
     );
-    if (!enableSelection) return;
+    let enableSelection = get(enableSelectionAtom);
+    if (!enableSelection) {
+      // Cmd/ctrl-click *enters* select mode on a modal view and selects the
+      // row, the familiar list idiom — so a bulk action doesn't require finding
+      // the Select control first. The flag is read back below rather than
+      // trusted from this scope: the write goes through the store synchronously.
+      if (!enableModalSelection || !mods.additive) return;
+      set(enableSelectionAtom, true);
+      enableSelection = get(enableSelectionAtom);
+      if (!enableSelection) return;
+    }
     const selection = get(rowSelectionAtom);
     const anchorRef = get(anchorRefAtom);
     const res = buildDataViewSelection(
