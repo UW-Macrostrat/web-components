@@ -1,5 +1,56 @@
 # Changelog
 
+## [2.3.2] - 2026-08-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.3.1...@macrostrat/map-interface-v2.3.2)
+
+### Patch Changes
+
+- Update CSS styles for map filter bar
+
+## [2.3.1] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.3.0...@macrostrat/map-interface-v2.3.1)
+
+### Patch Changes
+
+- Update position focus styles
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+- Updated dependencies
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+- Updated dependencies
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+  - @macrostrat/mapbox-react@3.3.2
+  - @macrostrat/data-components@1.4.1
+
+## [2.3.0] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.7...@macrostrat/map-interface-v2.3.0)
+
+### Minor Changes
+
+- - Improve batching of map easing updates to reduce UI jank
+    [3bb6b543](https://github.com/UW-Macrostrat/web-components/commit/3bb6b543e20db76e55fbe454116d871e096dfa3d)
+  - Streamline the calculation of padding for map context and detail panels
+  - Add a new `--map-context-stack-padding` CSS variable to control whether the
+    map's internal padding responds to the width of the map context panel. This
+    is useful for cases when the context panel is expected to take up minimum
+    vertical space and should not be considered to cover the map
+  - Added a new `near-edge` position value to allow markers to be centered only
+    when clicked near the edge
+  - New Storybook stories for map context and detail panels
+
+### Patch Changes
+
+- Add useWarning component and a deprecation notice
+  [155a855c](https://github.com/UW-Macrostrat/web-components/commit/155a855c2bf99d6f218735616724ab6f5a362590)
+- Updated dependencies
+  [f1bb8214](https://github.com/UW-Macrostrat/web-components/commit/f1bb8214b97668a4c4107d1d6faceb648f91f2b4)
+- Updated dependencies
+  [83bd1412](https://github.com/UW-Macrostrat/web-components/commit/83bd141204a6de81a49b643266693fcfa7776eef)
+- Updated dependencies
+  [3bb6b543](https://github.com/UW-Macrostrat/web-components/commit/3bb6b543e20db76e55fbe454116d871e096dfa3d)
+- Updated dependencies
+  [155a855c](https://github.com/UW-Macrostrat/web-components/commit/155a855c2bf99d6f218735616724ab6f5a362590)
+  - @macrostrat/data-components@1.3.0
+  - @macrostrat/mapbox-react@3.3.0
+  - @macrostrat/mapbox-utils@1.8.0
+  - @macrostrat/ui-components@5.1.0
+
 ## [2.2.7] - 2026-06-23 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.6...@macrostrat/map-interface-v2.2.7)
 
 ### Patch Changes

@@ -1,5 +1,70 @@
 # Changelog
 
+## [1.5.1] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.5.0...@macrostrat/data-components-v1.5.1)
+
+### Patch Changes
+
+- Don't be as rigid about identifiers
+  [e2c2fd73](https://github.com/UW-Macrostrat/web-components/commit/e2c2fd731a24e3ae60d4bbab5f04dc56b9a7b3e8)
+
+## [1.5.0] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.4.1...@macrostrat/data-components-v1.5.0)
+
+### Minor Changes
+
+- Move Identifier and UnitIdentifier to `@macrostrat/data-components`
+  [91fcea53](https://github.com/UW-Macrostrat/web-components/commit/91fcea536dd55e387b6f5bce1da0c07395da4635)
+
+### Patch Changes
+
+- Add new units to macrostratIdentifierFields resolution
+  [1961f84a](https://github.com/UW-Macrostrat/web-components/commit/1961f84a397a341ce92eb032dcdc77c79f957707)
+- Remove some unnecessarily bundled packages
+  [930edeae](https://github.com/UW-Macrostrat/web-components/commit/930edeaef23d42d62ee3f533d2e20c75dbf9ea42)
+
+## [1.4.1] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.4.0...@macrostrat/data-components-v1.4.1)
+
+### Patch Changes
+
+- - Improve column correlation chart to support more options
+    [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+  - Create a new column reorganization draggable control
+  - Update data provider for intervals fetching
+
+## [1.4.0] - 2026-07-28 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.3.0...@macrostrat/data-components-v1.4.0)
+
+### Minor Changes
+
+- Remove createStateIsolation and associated exports from
+  `@macrostrat/data-components`; move them to `@macrostrat/scoped-store`.
+
+### Patch Changes
+
+- Updated dependencies
+  - @macrostrat/scoped-store@1.0.1
+
+## [1.3.0] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.2.0...@macrostrat/data-components-v1.3.0)
+
+### Minor Changes
+
+- Create a `@macrostrat/scoped-store` library:
+  [f1bb8214](https://github.com/UW-Macrostrat/web-components/commit/f1bb8214b97668a4c4107d1d6faceb648f91f2b4)
+  - Move Jotai scope and enhancements to a separate package (formerly part of
+    `@macrostrat/data-components`).
+  - Add extensions for Zustand coordination (`ZustandStoreProvider`,
+    `useZustandSelector`, `useZustandStoreAPI`).
+
+### Patch Changes
+
+- Updated dependencies
+  [f1bb8214](https://github.com/UW-Macrostrat/web-components/commit/f1bb8214b97668a4c4107d1d6faceb648f91f2b4)
+- Updated dependencies
+  [3bb6b543](https://github.com/UW-Macrostrat/web-components/commit/3bb6b543e20db76e55fbe454116d871e096dfa3d)
+- Updated dependencies
+  [155a855c](https://github.com/UW-Macrostrat/web-components/commit/155a855c2bf99d6f218735616724ab6f5a362590)
+  - @macrostrat/scoped-store@1.0.0
+  - @macrostrat/mapbox-utils@1.8.0
+  - @macrostrat/ui-components@5.1.0
+
 ## [1.2.0] - 2026-07-16 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.13...@macrostrat/data-components-v1.2.0)
 
 ### Minor Changes

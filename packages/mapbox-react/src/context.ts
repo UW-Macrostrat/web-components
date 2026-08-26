@@ -1,5 +1,5 @@
-import { RefObject, useEffect } from "react";
-import { createContext, useContext, useMemo, useRef, useState } from "react";
+import { RefObject, useCallback, useEffect } from "react";
+import { useMemo, useRef } from "react";
 import update from "immutability-helper";
 import type {
   Map,
@@ -7,51 +7,53 @@ import type {
 } from "mapbox-gl";
 import h from "@macrostrat/hyper";
 import type { MapPosition } from "@macrostrat/mapbox-utils";
-import { createStore, useStore } from "zustand";
+import {
+  createScopedStore,
+  ZustandStoreProvider,
+  useZustandSelector,
+  useZustandStoreAPI,
+} from "@macrostrat/scoped-store";
+
+const ctx = createScopedStore();
+
+export const mapState = ctx;
 
 // This may or may not be defined...
 import type { StyleSpecification as MaplibreStyleSpecification } from "maplibre-gl";
 
 export type StyleSpecification =
-  | MapboxStyleSpecification
-  | MaplibreStyleSpecification;
+  MapboxStyleSpecification | MaplibreStyleSpecification;
 export type StyleFragment = Partial<StyleSpecification> & {
   order?: number;
 };
 
-const MapStoreContext = createContext(null);
-
 export function MapboxMapProvider({ children }) {
   const ref = useRef<Map | null>(null);
-  const [store] = useState(() => {
-    return createStore<MapState>((set) => {
-      return {
-        status: defaultMapStatus,
-        position: null,
-        overlayStyles: [],
-        // Hold a reference to the map object in state
-        ref,
-        dispatch: (action: MapAction): void => {
-          if (action.type === "set-map") {
-            ref.current = action.payload;
-          }
-          set((state) => mapReducer(state, action));
-        },
-      };
-    });
-  });
-
-  return h(MapStoreContext.Provider, { value: store }, children);
+  const initializeStore = useCallback((set) => {
+    return {
+      status: defaultMapStatus,
+      position: null,
+      overlayStyles: [],
+      // Hold a reference to the map object in state
+      ref,
+      dispatch: (action: MapAction): void => {
+        if (action.type === "set-map") {
+          ref.current = action.payload;
+        }
+        set((state) => mapReducer(state, action));
+      },
+    };
+  }, []);
+  return h(ZustandStoreProvider, { ctx, initializeStore }, children);
 }
 
 function internal_useMapSelector<T>(selector: (state: MapState) => T): T {
-  const store = useMapStore();
-  return useStore(store, selector);
+  return useZustandSelector(ctx, selector);
 }
 
 function useMapStore() {
   /** Function to get the map state object itself */
-  const store = useContext(MapStoreContext);
+  const store = useZustandStoreAPI<MapState>(ctx);
   if (!store) {
     throw new Error("Missing MapStoreProvider");
   }
@@ -89,9 +91,9 @@ export function useMapRef() {
   return internal_useMapSelector((state) => state.ref);
 }
 
-export function useMapStatus(
-  selector: (state: MapStatus) => any | null = null,
-) {
+type OptionalSelector = ((state: MapState) => any) | null;
+
+export function useMapStatus(selector: OptionalSelector = null) {
   return internal_useMapSelector(useSubSelector("status", selector));
 }
 
@@ -101,7 +103,7 @@ export function useMapInitialized() {
 
 function useSubSelector(
   key: string,
-  selector: (state: any) => any | null,
+  selector: OptionalSelector,
 ): (state: MapState) => any {
   return useMemo(() => {
     if (selector == null) {

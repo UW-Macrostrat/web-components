@@ -14,8 +14,8 @@ import {
   ColumnLayoutCtx,
   ColumnDivision,
 } from "./context";
-import chroma from "chroma-js";
-import { Box }  from "@macrostrat/ui-components";
+import { Box } from "@macrostrat/ui-components";
+import { asChromaColor } from "@macrostrat/color-utils";
 
 const fmt = format(".1f");
 const fmt2 = format(".2f");
@@ -91,7 +91,8 @@ const EditingBox = function ({ division, color, ...rest }) {
   if (color == null) {
     color = "red";
   }
-  const background = chroma(color).alpha(0.5).css();
+  const _base = asChromaColor(color);
+  const background = _base?.alpha(0.5).css();
   return h(OverlayBox, {
     className: "editing-box",
     division,
@@ -113,7 +114,7 @@ interface DivisionEditOverlayProps {
   renderEditorPopup(d: ColumnDivision): ReactNode;
   scaleToGrainsize: boolean;
   editingInterval: ColumnDivision;
-  color: color;
+  color: color | null;
   width: number;
   popoverWidth: number;
   selectedHeight: number;
@@ -140,7 +141,6 @@ export class DivisionEditOverlay extends Component<
     renderEditorPopup() {
       return null;
     },
-    color: "red",
     popoverWidth: 340,
   };
 
@@ -281,7 +281,7 @@ export class DivisionEditOverlay extends Component<
     const { popoverIsOpen, hoveredDivision: division } = this.state;
     const width = this.context.widthForDivision(division);
     const { color } = this.props;
-    const background = chroma(color).alpha(0.3).css();
+    const background = asChromaColor(color)?.alpha(0.3).css();
 
     return h(
       OverlayBox,

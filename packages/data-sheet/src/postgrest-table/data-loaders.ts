@@ -2,7 +2,7 @@
 
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { debounce } from "underscore";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import update, { Spec } from "immutability-helper";
 import {
   ClientServerOptions,
@@ -22,7 +22,7 @@ import {
   useSelector,
 } from "../provider";
 import { atom } from "jotai";
-import { FetchDataOptions, FetchMode } from "../types.ts";
+import { FetchDataOptions, FetchMode, InitialDataChunk } from "../types.ts";
 
 interface LazyLoaderStateCore<T> {
   loading: boolean;
@@ -130,6 +130,7 @@ function splitFilterList(value: any): string[] {
 
 type LazyLoaderAction<T> =
   | { type: "start-loading" }
+  | { type: "seed"; data: T[]; totalCount?: number | null }
   | {
       type: "loaded";
       data: T[];
@@ -199,6 +200,26 @@ function lazyLoadingReducer<T>(
         fetchMode: state.fetchMode,
         pageSize: state.pageSize,
       };
+    case "seed": {
+      // Rows the caller already had (a server render, say). Same shape as a
+      // completed first fetch: pre-size to the reported total so the scrollbar
+      // and counter are right immediately, and mark the loader `initialized` so
+      // it neither refetches the seeded window nor flashes an empty state.
+      const rows = action.data ?? [];
+      const size = Math.max(action.totalCount ?? rows.length, rows.length);
+      const data: (T | null)[] = new Array(size).fill(null);
+      for (let i = 0; i < rows.length; i++) data[i] = rows[i];
+      return {
+        visibleRegion: defaultVisibleRegion,
+        data: data as T[],
+        loading: false,
+        error: null,
+        initialized: true,
+        totalCount: action.totalCount ?? null,
+        fetchMode: state.fetchMode,
+        pageSize: state.pageSize,
+      };
+    }
     case "error":
       return {
         ...state,
@@ -372,6 +393,10 @@ export interface TableFooterInfo {
   loaded: number;
   total: number | null;
   loading: boolean;
+  /** A fetch has been attempted since the last view reset — so `loaded === 0`
+   * can be told apart from "not loaded yet" (avoids an empty-state flash). */
+  initialized: boolean;
+  error: Error | null;
   page: number;
   pageSize: number;
   totalPages: number | null;
@@ -396,6 +421,8 @@ export const tableFooterAtom = atom<TableFooterInfo>((get) => {
     loaded,
     total,
     loading: core.loading,
+    initialized: core.initialized,
+    error: core.error,
     page: get(chunkPageAtom),
     pageSize: core.pageSize,
     totalPages,
@@ -419,6 +446,12 @@ export interface LoadControls {
   loadMore: () => void;
   /** A fetch is in flight. */
   loading: boolean;
+  /** A fetch has been attempted since the last view reset (so an empty result
+   * can be told apart from "not loaded yet"). */
+  initialized: boolean;
+  /** The most recent load error (cleared on the next successful load), else
+   * `null` — so a footer/consumer can degrade gracefully instead of hanging. */
+  error: Error | null;
   /** More rows remain to load. */
   hasMore: boolean;
   /** Rows loaded so far. */
@@ -433,6 +466,13 @@ export interface LoadControls {
   /** Advance one page *without* resuming a paused auto-load (the sentinel
    * uses this; `loadMore` is the manual, un-pausing variant). */
   advance: () => void;
+  /** Rows per page. */
+  pageSize: number;
+  /** Current page index (0-based). Only meaningful in `"paged"` fetch mode —
+   * scroll mode accumulates windows rather than sitting on a page. */
+  page: number;
+  /** Total pages when the source reported a total, else `null`. */
+  totalPages: number | null;
 }
 
 /** Store-managed load controls (see `LoadControls`). Reads the loader's footer
@@ -472,12 +512,22 @@ export function useLoadControls(): LoadControls {
   return {
     loadMore,
     loading: footer.loading,
+    initialized: footer.initialized,
+    error: footer.error,
     hasMore,
     loaded: footer.loaded,
     total: footer.total,
     paused,
     canLoadMore,
     advance,
+    pageSize,
+    page: footer.page,
+    totalPages: footer.totalPages,
+    // Page addressing is exposed so a footer can render a real link to the next
+    // page, not just a button that calls `loadMore`. That's the difference
+    // between a list a crawler (or a JS-less client) can follow and one it
+    // can't — see the note on crawlable pagination in the Data list editors
+    // feature doc.
   };
 }
 
@@ -625,9 +675,14 @@ export function useScrollHandler() {
  */
 export function useDataLoader<T = any>(
   fetchChunk: FetchData<T>,
-  options: FetchDataOptions = {},
+  options: FetchDataOptions<T> = {},
 ) {
-  const { pageSize = 100, fetchMode = "scroll" } = options;
+  const {
+    pageSize = 100,
+    fetchMode = "scroll",
+    filterDebounce = 0,
+    initialData,
+  } = options;
   const [state, dispatch] = useLazyLoaderReducer();
 
   const { isLocalProvider, provider } = ctx.useValue(dataProviderAtom);
@@ -671,13 +726,46 @@ export function useDataLoader<T = any>(
     () => JSON.stringify({ sorts: columnSorts, filters }),
     [columnSorts, filters],
   );
+  // Debounce the view-state → refetch: rapid changes (typing in a text filter)
+  // otherwise reset + refetch on every keystroke, flashing the list. The store
+  // (and so the filter input) still updates instantly; only the *fetch* waits
+  // for the view to settle. Scroll paging is unaffected — it's driven by
+  // `visibleRegion`/`data`, not this key. `filterDebounce: 0` (default) keeps
+  // the immediate behavior.
+  const debouncedViewKey = useDebouncedValue(viewKey, filterDebounce);
+  // A caller-supplied first window (`initialData`) stands in for the mount-time
+  // reset+fetch. It's consumed once: any later view change resets normally,
+  // since the seed only describes the view it was fetched for.
+  const seedRef = useRef(resolveInitialData(initialData));
+  // Gate on the seed until it's actually in state (see the fetch effect).
+  const awaitingSeedRef = useRef(seedRef.current != null);
   useEffect(() => {
+    const seed = seedRef.current;
+    seedRef.current = null;
+    if (seed != null) {
+      dispatch({ type: "seed", data: seed.rows, totalCount: seed.totalCount });
+      setPage(0);
+      // Paged mode tracks which (page, view) it has in hand separately from the
+      // array; record the seed there too, or it would immediately re-fetch the
+      // page it was just handed.
+      loadedRef.current = { page: 0, viewKey };
+      return;
+    }
     dispatch({ type: "reset" });
     setPage(0);
-  }, [viewKey, fetchMode, refreshToken]);
+  }, [debouncedViewKey, fetchMode, refreshToken]);
 
   useAsyncEffect(async () => {
     if (state.loading) return;
+
+    // A seed hasn't landed in state yet. Every effect in a commit sees the
+    // render's snapshot, so this one runs *before* the seed it was mounted
+    // alongside is visible — and would issue exactly the request the seed
+    // exists to avoid. Skip until the seeded state arrives.
+    if (awaitingSeedRef.current) {
+      if (state.initialized) awaitingSeedRef.current = false;
+      return;
+    }
 
     // Determine the chunk offset to fetch, and (scroll mode) a keyset cursor:
     // the already-loaded row just before the chunk, so keyset sources can page
@@ -759,9 +847,39 @@ export function useDataLoader<T = any>(
         dispatch({ type: "error", error: err as Error });
       }
     }
-  }, [state.data, visibleRegion, viewKey, page, fetchMode]);
+  }, [state.data, visibleRegion, debouncedViewKey, page, fetchMode]);
 
   return { data: state.data, loading: state.loading, error: state.error };
+}
+
+/** A value that trails `value` by `delay` ms of stability — the first value is
+ * returned immediately, and `delay <= 0` disables debouncing entirely. */
+/** Normalize the two accepted `initialData` shapes (bare rows, or rows with a
+ * total) to one. An empty seed is treated as no seed — there'd be nothing to
+ * show and nothing saved. */
+function resolveInitialData<T>(
+  initialData: FetchDataOptions<T>["initialData"],
+): InitialDataChunk<T> | null {
+  if (initialData == null) return null;
+  if (Array.isArray(initialData)) {
+    if (initialData.length === 0) return null;
+    return { rows: initialData };
+  }
+  if ((initialData.rows ?? []).length === 0) return null;
+  return initialData;
+}
+
+function useDebouncedValue<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    if (delay <= 0) {
+      setDebounced(value);
+      return;
+    }
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
 }
 
 /**
@@ -862,6 +980,27 @@ export function createPostgRESTProvider<T = any>(config: {
   return {
     fetchData: createPostgRESTFetchChunk<T>(config),
     identity: (row: any) => row?.[config.identityKey],
+    async distinctValues(columnKey, options = {}) {
+      // PostgREST derives a GROUP BY from a `select` that mixes a plain column
+      // with an aggregate, so one small request returns the whole vocabulary
+      // *with* frequencies — rather than paging the table and deduplicating
+      // client-side. Ordered by the value so the picker's list is stable.
+      //
+      // `baseFilter` applies (it defines the rows this view is *about*), but the
+      // *active* filters deliberately don't: a picker whose options disappear as
+      // you narrow the view can't be used to widen it again.
+      let req: any = from().select(`${columnKey},count()`);
+      if (config.baseFilter != null) req = config.baseFilter(req);
+      req = req.order(columnKey, { ascending: true, nullsFirst: false });
+      if (options.limit != null) req = req.limit(options.limit);
+      if (options.signal != null) req = req.abortSignal(options.signal);
+      const { data, error } = await req;
+      if (error != null) throw error;
+      return (data ?? []).map((row: any) => ({
+        value: row[columnKey],
+        count: row.count,
+      }));
+    },
     async saveRows(rows) {
       const res: any = await from().upsert(rows as any[], {
         defaultToNull: false,

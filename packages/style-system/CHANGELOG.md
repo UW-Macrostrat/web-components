@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.0] - 2026-08-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/style-system-v0.4.0...@macrostrat/style-system-v1.0.0)
+
+### Major Changes
+
+- Inaugurate the **Paleozoic** style system in `@macrostrat/style-system`, with
+  the `--pz-` CSS
+  [d76a0014](https://github.com/UW-Macrostrat/web-components/commit/d76a0014b2971643e4f3c19a0e272403ac8149c1)
+  variable prefix. This will allow more consistent styling of Macrostrat
+  components going forward.
+
 ## [0.4.0] - 2026-06-09
 
 Remove management of fonts entirely. Now, we need to manage font loading in the

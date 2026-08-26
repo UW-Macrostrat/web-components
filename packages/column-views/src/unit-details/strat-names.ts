@@ -3,11 +3,11 @@ import {
   isClickable,
   ItemInteractionProps,
   useInteractionProps,
+  Identifier,
 } from "@macrostrat/data-components";
 import h from "./panel.module.sass";
 import classNames from "classnames";
 import { useStratNames } from "@macrostrat/data-provider";
-import { Identifier } from "./identifiers.ts";
 
 function useStratNameData(strat_name_id: number) {
   const stratNames = useStratNames([strat_name_id]);

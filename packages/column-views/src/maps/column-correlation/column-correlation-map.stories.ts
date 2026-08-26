@@ -15,6 +15,7 @@ function ColumnCorrelationMapExt(
 ) {
   const {
     focusedLine,
+    manualColumns,
     columns,
     onSelectColumns,
     projectID,
@@ -26,6 +27,7 @@ function ColumnCorrelationMapExt(
     ColumnCorrelationProvider,
     {
       focusedLine,
+      manualColumns,
       columns,
       onSelectColumns,
       projectID,
@@ -60,6 +62,16 @@ export const withPreloadedCrossSection = {
         [-100, 45],
       ],
     },
+  },
+};
+
+// Manual selection: click columns to add/remove them (no line of section).
+// Hovering highlights a column; the dashed line shows the selection order.
+export const manualColumnSelection = {
+  args: {
+    style: { width: "800px", height: "600px" },
+    padding: 100,
+    manualColumns: [432, 490],
   },
 };
 

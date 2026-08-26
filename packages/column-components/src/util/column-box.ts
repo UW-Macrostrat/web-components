@@ -1,4 +1,5 @@
 import h from "@macrostrat/hyper";
+import { forwardRef, ForwardedRef } from "react";
 import { useContext } from "react";
 import { ColumnContext } from "../context";
 import classNames from "classnames";
@@ -26,6 +27,45 @@ export function ColumnBox(props: any) {
     ...rest,
   });
 }
+
+export interface ClippableRectProps {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  /** Draw a zig-zag (torn) edge on the top, e.g. for a clipped unit. */
+  overflowTop?: boolean;
+  /** Draw a zig-zag (torn) edge on the bottom. */
+  overflowBottom?: boolean;
+  [key: string]: any;
+}
+
+/**
+ * A rectangular column box rendered as an SVG `<path>`, with optional zig-zag
+ * (torn) top/bottom edges for content clipped to a range. It always renders a
+ * `path` (a plain rectangle when neither edge overflows), so the element type
+ * never changes as clip state toggles — this keeps React from remounting the
+ * node during age-window animations, which is essential for smooth transitions.
+ *
+ * Presentational only: it applies whatever `className` it is given. Callers in
+ * CSS-module contexts should pass the already-resolved class name.
+ */
+export const ClippableRect = forwardRef(function ClippableRect(
+  props: ClippableRectProps,
+  ref: ForwardedRef<SVGPathElement>,
+) {
+  const {
+    x,
+    y,
+    width,
+    height,
+    overflowTop = false,
+    overflowBottom = false,
+    ...rest
+  } = props;
+  const d = zigZagBoxPath(x, y, width, height, overflowTop, overflowBottom);
+  return h("path", { d, ref, ...rest });
+});
 
 export function zigZagBoxPath(
   x,

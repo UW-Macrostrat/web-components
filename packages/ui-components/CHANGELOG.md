@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.2.0] - 2026-08-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.1.0...@macrostrat/ui-components-v5.2.0)
+
+### Minor Changes
+
+- `SizeAwareLabel` accepts a `remeasureKey` prop folded into its fit-measurement
+  dependencies, so a consumer can force a re-fit (e.g. when an animation
+  settles) without the label text changing.
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+
+## [5.1.0] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.0.11...@macrostrat/ui-components-v5.1.0)
+
+### Minor Changes
+
+- Add useWarning component and a deprecation notice
+  [155a855c](https://github.com/UW-Macrostrat/web-components/commit/155a855c2bf99d6f218735616724ab6f5a362590)
+
 ## [5.0.11] - 2026-06-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.0.10...@macrostrat/ui-components-v5.0.11)
 
 ### Patch Changes

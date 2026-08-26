@@ -1,0 +1,45 @@
+// Token test case: callouts. Exercises the intent-surface tints (color-mixed
+// from the intent tokens) with an intent-colored rule + title.
+//
+// NOTE: weak-named local knobs (`--callout-intent`, `--callout-surface`) default
+// to --pz- intent tokens; variants just re-point them.
+
+.frame
+  display: flex
+  flex-direction: column
+  gap: var(--pz-stack-gap)
+  padding: var(--pz-space-5)
+  max-width: 34rem
+
+.callout
+  padding: var(--pz-space-3) var(--pz-space-4)
+  border-radius: var(--pz-radius-md)
+  border-left: 3px solid var(--callout-intent, var(--pz-intent-primary))
+  background-color: var(--callout-surface, var(--pz-intent-primary-surface))
+
+.title
+  font-family: var(--pz-heading-font)
+  font-weight: var(--pz-font-weight-normal)
+  font-size: var(--pz-font-size-md)
+  color: var(--callout-intent, var(--pz-intent-primary))
+  margin: 0 0 var(--pz-space-1) 0
+
+.body
+  font-family: var(--pz-body-font)
+  font-size: var(--pz-ui-font-size)
+  line-height: var(--pz-ui-line-height)
+  color: var(--pz-text-color)
+  margin: 0
+
+.primary
+  --callout-intent: var(--pz-intent-primary)
+  --callout-surface: var(--pz-intent-primary-surface)
+.success
+  --callout-intent: var(--pz-intent-success)
+  --callout-surface: var(--pz-intent-success-surface)
+.warning
+  --callout-intent: var(--pz-intent-warning)
+  --callout-surface: var(--pz-intent-warning-surface)
+.danger
+  --callout-intent: var(--pz-intent-danger)
+  --callout-surface: var(--pz-intent-danger-surface)

@@ -1,6 +1,6 @@
 import { atom } from "jotai";
 import h from "@macrostrat/hyper";
-import { createScopedStore } from "@macrostrat/data-components";
+import { createScopedStore } from "@macrostrat/scoped-store";
 import { Store } from "jotai/vanilla/store";
 import { ComponentProps } from "react";
 

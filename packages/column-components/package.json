@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-components",
-  "version": "2.0.8",
+  "version": "2.1.0",
   "description": "React rendering primitives for stratigraphic columns",
   "keywords": [
     "geology",
@@ -54,6 +54,7 @@
   },
   "dependencies": {
     "@blueprintjs/core": "^6.14.0",
+    "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.1.1",
     "@macrostrat/stratigraphy-utils": "workspace:^",
     "@macrostrat/timescale": "workspace:^",

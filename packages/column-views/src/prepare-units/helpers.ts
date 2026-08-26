@@ -69,8 +69,6 @@ function groupUnitsByMutualOverlap<T extends BaseUnit>(
 
   const sections = groupUnitsIntoSectionsByOverlap(units, axisType, tolerance);
 
-  console.log("Grouped sections", sections);
-
   return sections.map((d) => {
     return new UnitGroup(d.units, axisType);
   });
@@ -117,8 +115,6 @@ function assignColumnsToUnitsWithinOverlappingGroup<T extends BaseUnit>(
       columns.push([unit]);
     }
   }
-
-  console.log(columns);
 
   const units: UnitWithLayoutParameters<T>[] = columns.flatMap(
     (column, columnIndex) =>
@@ -267,7 +263,10 @@ export function groupUnitsIntoSectionsByOverlap<T extends BaseUnit>(
         const lastSection = nextSections[nextSections.length - 1];
         if (isOverlapping(section, lastSection)) {
           // Merge with the last section
-          nextSections[nextSections.length - 1] = mergeSections(lastSection, section);
+          nextSections[nextSections.length - 1] = mergeSections(
+            lastSection,
+            section,
+          );
           merged = true;
         } else {
           nextSections.push(section);

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/mapbox-react",
-  "version": "3.2.2",
+  "version": "3.3.3",
   "description": "Components to support using Mapbox maps in React",
   "repository": {
     "type": "git",
@@ -44,16 +44,18 @@
     "@macrostrat/hyper": "^3.1.1",
     "@macrostrat/map-styles": "workspace:^",
     "@macrostrat/mapbox-utils": "workspace:^",
+    "@macrostrat/scoped-store": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
     "@turf/centroid": "^7.3.2",
     "classnames": "^2.5.1",
     "immutability-helper": "^3.1.1",
     "mapbox-gl": "^3.0.0",
     "mapbox-gl-controls": "^2.3.5",
-    "zustand": "^5.0.1"
+    "underscore": "^1.13.8"
   },
   "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:*"
+    "@macrostrat/web-components-bundler": "workspace:*",
+    "@types/underscore": "^1"
   },
   "publishConfig": {
     "access": "public"

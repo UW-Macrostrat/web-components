@@ -111,3 +111,12 @@
     color: var(--parenthetical-sep-color, var(--secondary-color))
   .unit
     color: var(--secondary-color)
+
+
+.identifier
+  font-family: var(--monospace-font)
+  color: var(--secondary-color)
+
+  &::before
+    content: '#'
+    color: color-mix(var(--secondary-color) 60%, var(--tertiary-color) 40%)

@@ -1,5 +1,168 @@
 # Changelog
 
+## [3.9.0] - 2026-08-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.8.0...@macrostrat/column-views-v3.9.0)
+
+### Minor Changes
+
+- Add `useAnimatedAgeWindow`: animates a column/correlation-chart's rendered
+  `t_age`/`b_age` for smooth pan-and-contract navigation at constant
+  `pixelScale` (density), driving the existing clipping + zig-zag unit edges. It
+  runs on the shared `useAnimatedDomain` core from `@macrostrat/timescale`.
+  Threads `isTransitioning` / `hideLabelsWhileTransitioning` flags through
+  `Column`/`CorrelationChart` → `ColumnProvider`; labels stay visible through
+  the animation by default, with an opt-in toggle to hide them. New stories for
+  the correlation chart and a single stratigraphic column, each with a
+  fixed-`pixelScale` variant and a label-hiding toggle.
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+
+  Add `windowPadding` (px): how much of the sections abutting the rendered
+  `t_age`/`b_age` window to reveal, so neighboring stratigraphy — and its
+  timescale intervals — stay visible and navigable when zoomed in. Available on
+  `Column` and `CorrelationChart`.
+
+  Unit density is now derived from the units the rendered window actually shows,
+  measured by their visible duration — so `targetUnitHeight` describes the units
+  on screen at any zoom depth, rather than the containing section's overall
+  average. A section the window doesn't reach falls back to its own units at
+  full duration and is drawn at its own scale. This removes the need for any
+  zoom-factor input: clipping shortens visible durations, which raises density,
+  so a column renders identically whether a window was animated to or set
+  directly.
+
+  Age columns now lay every section out at its **full extent** and apply the
+  rendered window as the last step, rather than clipping units and section
+  bounds up front. A section abutting the window therefore keeps its own density
+  and `minSectionHeight`, and is then trimmed to exactly the requested sliver —
+  previously such a fragment had its density re-derived from the few units that
+  survived the clip and was re-inflated to the floor, with its scale stretched
+  to match. Sections clipped by the window itself still honor
+  `minSectionHeight`, expanding their scale rather than rendering a sliver; only
+  the padding margin past the window renders at exactly its requested pixels.
+  Those final densities are resolved before the padding budget is spent, so a
+  margin measures the pixels requested rather than those pixels times whatever
+  stretch its neighbor needed — otherwise a short interval (a Holocene beside a
+  Pleistocene) is swallowed by its own margin. This also makes `windowPadding`
+  exact (it is spent against real section pixel heights; unconformity gaps
+  aren't charged, so padding smaller than `unconformityHeight` can still reach
+  across one) and stops unconformity-collapse decisions from shifting as the
+  window moves. Hybrid and externally-supplied scales keep the previous
+  clip-then-lay-out path.
+
+  Stabilize composite-scale package keys (positional index instead of
+  `package-${b_age}-${t_age}`) so the correlation chart's packages, columns, and
+  timescale reconcile instead of remounting on every animation frame. Unit
+  labels re-fit when a transition settles (via `SizeAwareLabel`'s
+  `remeasureKey`), not on intermediate frames.
+
+  `Column` now forwards `onClickTimescaleInterval` and `timescaleIntervalStyle`
+  to its composite timescale (via `CompositeTimescale`'s new
+  `onClickInterval`/`intervalStyle` props), so a standalone column supports
+  click-to-zoom interval navigation and per-interval styling (e.g. bolding the
+  selected interval).
+
+  Add an interval-zoom story (grouped with the other animation stories under
+  `Column views/Column animations`): clicking a timescale interval animates the
+  window to it, a preceding/postdating interval moves along the timescale, and
+  clicking the selected interval zooms out a level. The timescale shows a fixed
+  3-level window that slides with the selected interval's rank (always one
+  coarser level to navigate up, one finer to drill down), independent of the
+  layout. `targetUnitHeight`, `minSectionHeight` and `windowPadding` are plain
+  display controls — there is no zoom-level input.
+
+### Patch Changes
+
+- Fix two zoom-sync issues exposed by animated age-window zoom:
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+
+  - Age-axis (`AgeAxis`) now redraws when the scale's domain/range changes (not
+    just its object identity), and builds a fresh d3 axis generator each render.
+    Reusing the generator retained stale `.tickValues()` config, so a section
+    that was short (explicit first/last ticks) and later stretched kept those
+    out-of-domain tick values — leaving some axes with no labels. Both surfaced
+    once stable React keys stopped the axis remounting per frame.
+  - The inline-label/note tracker (`LabelTrackerProvider`) re-syncs to the
+    _current_ visible unit set on zoom. Its stale gate froze the "unlabeled" set
+    once the unit set changed, so a unit whose label now fit inline also kept
+    rendering as a note; it now recomputes over current units.
+
+- Updated dependencies
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+- Updated dependencies
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+- Updated dependencies
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+- Updated dependencies
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+- Updated dependencies
+  [0247a5a2](https://github.com/UW-Macrostrat/web-components/commit/0247a5a2e12062fdb5e586b4b5dca9c3c6490127)
+  - @macrostrat/timescale@3.2.0
+  - @macrostrat/column-components@2.1.0
+  - @macrostrat/ui-components@5.2.0
+  - @macrostrat/map-styles@2.2.7
+
+## [3.8.0] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.7.0...@macrostrat/column-views-v3.8.0)
+
+### Minor Changes
+
+- Move Identifier and UnitIdentifier to `@macrostrat/data-components`
+  [91fcea53](https://github.com/UW-Macrostrat/web-components/commit/91fcea536dd55e387b6f5bce1da0c07395da4635)
+
+### Patch Changes
+
+- Remove some unnecessarily bundled packages
+  [930edeae](https://github.com/UW-Macrostrat/web-components/commit/930edeaef23d42d62ee3f533d2e20c75dbf9ea42)
+- Updated dependencies
+  [1961f84a](https://github.com/UW-Macrostrat/web-components/commit/1961f84a397a341ce92eb032dcdc77c79f957707)
+- Updated dependencies
+  [930edeae](https://github.com/UW-Macrostrat/web-components/commit/930edeaef23d42d62ee3f533d2e20c75dbf9ea42)
+- Updated dependencies
+  [91fcea53](https://github.com/UW-Macrostrat/web-components/commit/91fcea536dd55e387b6f5bce1da0c07395da4635)
+  - @macrostrat/data-components@1.5.0
+  - @macrostrat/column-components@2.0.10
+  - @macrostrat/mapbox-react@3.3.3
+
+## [3.7.0] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.6.1...@macrostrat/column-views-v3.7.0)
+
+### Minor Changes
+
+- - Improve column correlation chart to support more options
+    [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+  - Create a new column reorganization draggable control
+  - Update data provider for intervals fetching
+
+### Patch Changes
+
+- Updated dependencies
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+- Updated dependencies
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+- Updated dependencies
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+  - @macrostrat/map-interface@2.3.1
+  - @macrostrat/mapbox-react@3.3.2
+  - @macrostrat/data-components@1.4.1
+  - @macrostrat/data-provider@1.2.0
+  - @macrostrat/timescale@3.1.6
+
+## [3.6.1] - 2026-07-28 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.6.0...@macrostrat/column-views-v3.6.1)
+
+### Patch Changes
+
+- Fix regression in unit selection
+
+## [3.6.0] - 2026-07-28 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.5.1...@macrostrat/column-views-v3.6.0)
+
+### Minor Changes
+
+- Remove createStateIsolation and associated exports from
+  `@macrostrat/data-components`; move them to `@macrostrat/scoped-store`.
+
+### Patch Changes
+
+- Updated dependencies
+  - @macrostrat/data-components@1.4.0
+  - @macrostrat/scoped-store@1.0.1
+
 ## [3.5.1] - 2026-05-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.5.0...@macrostrat/column-views-v3.5.1)
 
 ### Patch Changes

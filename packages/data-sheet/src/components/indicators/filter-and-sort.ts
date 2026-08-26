@@ -11,6 +11,7 @@ import {
   HTMLSelect,
   InputGroup,
   Menu,
+  MenuDivider,
   MenuItem,
   PopoverNext,
   Tag,
@@ -29,6 +30,22 @@ export function resolveColumnFilter(col: ColumnSpec): TableFilter {
   );
   if (rich != null) return { ...rich, columnKey: rich.columnKey ?? col.key };
   return buildMultiOperatorColumnFilter(col);
+}
+
+/**
+ * Render a filter's `filterForm` as an always-visible inline control — rather
+ * than behind a menu dropdown — wired to the shared filter state. Lets any
+ * `TableFilter` (e.g. an open text search spanning several columns) live
+ * directly in a toolbar while still flowing through the standard filter model:
+ * store `activeFilters` → the provider's `translateFilter`, identical to the
+ * menu-driven controls. The form clears the filter when its state goes empty
+ * (`state.value === ""`), matching the rest of the filter UI.
+ */
+export function InlineFilterControl({ filter }: { filter: TableFilter }) {
+  const [state, setState] = useFilterAtom(filter);
+  const Form = filter.filterForm;
+  if (Form == null) return null;
+  return h(Form, { state: state ?? filter.defaultState, setState });
 }
 
 /** Shows an active column filter in the top menu */
@@ -92,18 +109,47 @@ export function FilterIndicator({
   );
 }
 
-export function MenuDropdown({ children, content, isOpen, ...props }: any) {
+/**
+ * A dropdown for a panel of controls (not just menu items).
+ *
+ * Deliberately **not** focus-trapping. These panels hold real form controls,
+ * and a control whose own typeahead renders in a separate portal (a
+ * `MultiSelect`, a date picker) has focus yanked back out of it by an enclosing
+ * trap — which is what makes a nested filter submenu feel unstable. Caller
+ * props are passed through (`placement`, `isOpen`, …).
+ */
+export function MenuDropdown({ children, content, ...props }: any) {
   return h(
     PopoverNext,
     {
       content,
       placement: "bottom-start",
-      enforceFocus: true,
+      enforceFocus: false,
       autoFocus: false,
       arrow: false,
+      ...props,
     },
     children,
   );
+}
+
+/**
+ * A titled block *inside* a menu holding an arbitrary form, rather than a menu
+ * item that opens a submenu — one click away instead of two, with no nested
+ * popover to lose focus to. The building block behind `MenuInlineFilterItem`,
+ * exported so a custom control panel can use the same idiom.
+ */
+export function MenuFormItem({
+  title,
+  children,
+}: {
+  title?: ReactNode;
+  children: ReactNode;
+}) {
+  return h("li.menu-form-item", [
+    h.if(title != null)(MenuDivider, { title }),
+    h("div.menu-form-body", children),
+  ]);
 }
 
 function buildFilterTagLabel(
@@ -185,6 +231,25 @@ export function ColumnFilterMenuItem({
     },
     filterForm,
   );
+}
+
+/** A filter rendered *inside* a menu but without a submenu — its name as a
+ * section header, its form directly below. For `presentation: "menu-inline"`
+ * (e.g. a compact segmented control that doesn't warrant a submenu hop). */
+export function MenuInlineFilterItem({
+  filter,
+  label,
+}: {
+  filter: TableFilter;
+  label?: string;
+}) {
+  const { filterForm, valueText } = useFilterProps(filter);
+  return h("li.menu-inline-filter", [
+    h(MenuDivider, { title: label ?? filter.name }),
+    h("div.menu-inline-filter-body", { "data-filter-value": valueText }, [
+      filterForm,
+    ]),
+  ]);
 }
 
 function useFilterProps(filter: TableFilter) {
@@ -399,13 +464,14 @@ export function ColumnSortIndicator({
   );
 }
 
-/** Menu-native sort: a "Sort" item whose submenu holds Ascending / Descending.
- * Clicking the *active* direction again clears the sort (toggle off) — there's
- * no explicit "Clear" item, since the active-filter/sort tag in the status bar
- * already offers direct removal. `text` overrides the parent item's label (the
- * `DataPanel` uses the column name, so its Sort menu lists one item per field). */
+/** Menu-native sort as a **single, flat** item — no submenu. The item shows the
+ * field name with a direction icon (↑/↓); an active sort reads through the
+ * `primary` intent, and clicking the item toggles the direction (unsorted →
+ * ascending → descending → …). A right-aligned ✕ clears it. `text` is the
+ * field's display label (the `DataPanel` lists one item per sortable field). */
 export function ColumnSortMenu({
   columnKey,
+  text,
   defaultLabel,
 }: {
   columnKey: string;
@@ -413,12 +479,35 @@ export function ColumnSortMenu({
   defaultLabel?: string;
 }) {
   const [sort, setSort] = useSortAtom(columnKey);
-  const { icon, label, intent } = displayParamsForSort(sort);
-  return h(
-    MenuItem,
-    { icon, text: label ?? defaultLabel ?? columnKey, intent },
-    h(ColumnSortActions, { sort, setSort }),
-  );
+  const isActive = sort != null;
+  const icon =
+    sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
+  const name = text ?? defaultLabel ?? columnKey;
+
+  let clearButton: ReactNode = undefined;
+  if (isActive) {
+    clearButton = h(Button, {
+      icon: "cross",
+      minimal: true,
+      small: true,
+      onClick: (e: any) => {
+        e.stopPropagation();
+        setSort(null);
+      },
+    });
+  }
+
+  return h(MenuItem, {
+    icon,
+    text: name,
+    intent: isActive ? "primary" : undefined,
+    active: isActive,
+    labelElement: clearButton,
+    shouldDismissPopover: false,
+    // Toggle direction; `setSort` never receives the current direction (so its
+    // click-same-to-clear path doesn't fire) — clearing is the ✕'s job.
+    onClick: () => setSort(sort == null ? true : !sort.ascending),
+  });
 }
 
 const setFilterAtom = atom(null, (get, set, filter: TableFilter, next: any) => {

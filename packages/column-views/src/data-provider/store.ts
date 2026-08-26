@@ -24,7 +24,7 @@ import {
   type AtomMap,
   createScopedStore,
   StateIsolation,
-} from "@macrostrat/data-components";
+} from "@macrostrat/scoped-store";
 import { atom } from "jotai";
 import { useEffect } from "react";
 
@@ -73,6 +73,17 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
     return selectedUnit != null || onUnitSelected != null;
   }, []);
 
+  // Check if we're already in a columnStateProvider, and render a no-op if so
+  const existingUnits = scope.useAtomValueIfExists(columnUnitsAtom);
+  if (existingUnits != null) {
+    if (allowUnitSelection || onUnitSelected || selectedUnit != null) {
+      console.warn(
+        "MacrostratColumnStateProvider: unit selection props are ignored because a provider already exists in the tree",
+      );
+    }
+    return children;
+  }
+
   const atomMap: AtomMap = [
     [columnUnitsAtom, units],
     [allowUnitSelectionAtom, _allowSelection],
@@ -89,7 +100,6 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
     {
       atoms: atomMap,
       keepUpdated: true,
-      inherit: true,
     },
     [selectionHandlers, children],
   );
@@ -108,6 +118,11 @@ export interface MacrostratColumnDataContext<T extends BaseUnit> {
   totalHeight?: number;
   axisType?: ColumnAxisType;
   allowUnitSelection?: boolean;
+  /** True while the age window is animating; propagated to each section's
+   * `ColumnProvider` so per-frame label/pattern work can be skipped. */
+  isTransitioning?: boolean;
+  /** Hide unit labels while transitioning (perf escape hatch; default false). */
+  hideLabelsWhileTransitioning?: boolean;
 }
 
 export interface ColumnDataProviderProps<T extends BaseUnit>
@@ -128,6 +143,8 @@ export function MacrostratColumnDataProvider<T extends BaseUnit>({
   allowUnitSelection,
   onUnitSelected,
   selectedUnit,
+  isTransitioning,
+  hideLabelsWhileTransitioning,
   ref,
 }: ColumnDataProviderProps<T>) {
   /** Internal provider for Macrostrat column data.
@@ -148,8 +165,17 @@ export function MacrostratColumnDataProvider<T extends BaseUnit>({
       sections,
       totalHeight,
       axisType,
+      isTransitioning,
+      hideLabelsWhileTransitioning,
     };
-  }, [units, sections, totalHeight, axisType]);
+  }, [
+    units,
+    sections,
+    totalHeight,
+    axisType,
+    isTransitioning,
+    hideLabelsWhileTransitioning,
+  ]);
 
   return h(
     MacrostratColumnStateProvider,
@@ -232,7 +258,8 @@ export function MacrostratColumnProvider(props) {
    * generic concepts to Macrostrat-specific ones.
    */
 
-  const { axisType } = useMacrostratColumnData();
+  const { axisType, isTransitioning, hideLabelsWhileTransitioning } =
+    useMacrostratColumnData();
   const { units, domain, pixelScale, scale, children } = props;
   return h(
     ColumnProvider,
@@ -242,6 +269,8 @@ export function MacrostratColumnProvider(props) {
       range: domain,
       pixelsPerMeter: pixelScale,
       scale,
+      isTransitioning,
+      hideLabelsWhileTransitioning,
     },
     children,
   );

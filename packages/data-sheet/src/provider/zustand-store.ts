@@ -431,7 +431,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           state.activeFilters,
         );
         newFilters.set(filterId, { filter, state: filterState });
-        return { activeFilters: newFilters };
+        return { activeFilters: newFilters, ...dropRowSelection(state) };
       });
     },
     removeFilter(filterId: string) {
@@ -440,12 +440,13 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           state.activeFilters,
         );
         newFilters.delete(filterId);
-        return { activeFilters: newFilters };
+        return { activeFilters: newFilters, ...dropRowSelection(state) };
       });
     },
     clearFilters() {
-      set(() => ({
+      set((state) => ({
         activeFilters: new Map<string, { filter: any; state: any }>(),
+        ...dropRowSelection(state),
       }));
     },
     setColumnSort(key: string, ascending: boolean | null) {
@@ -457,16 +458,33 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           const without = state.columnSorts.filter((s) => s.key !== key);
           newSorts = [...without, { key, ascending }];
         }
-        return { columnSorts: newSorts };
+        return { columnSorts: newSorts, ...dropRowSelection(state) };
       });
     },
     clearColumnSorts() {
-      set(() => ({ columnSorts: [] }));
+      set((state) => ({ columnSorts: [], ...dropRowSelection(state) }));
     },
     setClipboardProxy(proxy) {
       set({ clipboardProxy: proxy });
     },
   };
+}
+
+/**
+ * Drop the parts of a selection that are addressed by **row index**, because a
+ * filter or sort change re-orders and re-filters the rows underneath them —
+ * "rows 3–5" then means different records, and a set-action would silently act
+ * on the wrong ones. Column selections are index-stable under a view change, so
+ * they survive (and must: the sheet's sort/filter controls are themselves
+ * column-scoped, and are invoked *from* that selection).
+ */
+function dropRowSelection<T>(
+  state: DataSheetState<T>,
+): Partial<DataSheetState<T>> {
+  const selection = state.selection ?? [];
+  const kept = selection.filter((region) => region.rows == null);
+  if (kept.length === selection.length) return {};
+  return { selection: kept, focusedCell: null, topLeftCell: null };
 }
 
 export function updateSelection<T>(selection: Region[]) {

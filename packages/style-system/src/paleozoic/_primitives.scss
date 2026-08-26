@@ -1,0 +1,96 @@
+// Paleozoic — primitive tokens
+//
+// Raw, role-agnostic scales. Lowest layer: semantic tokens (_semantic.scss)
+// reference these via var(), and brands may retint them. All prefixed `--pz-`.
+// Primitives are rarely consumed directly — reach for a semantic token.
+//
+// BLUEPRINT ALIGNMENT: where a value is seeded from a Blueprint core variable we
+// say so inline (`⌁ bp:$pt-…`). This is deliberate — many existing components
+// reference Blueprint tokens directly, and calling out the alignment lets us
+// "progressively enhance" (and, later, cleanly override) that coupling.
+
+@use "@blueprintjs/core/lib/scss/variables" as *;
+
+:root {
+  // --- Neutral ramp (light → dark) ⌁ bp: Blueprint gray scale ---
+  --pz-white: #{$white};
+  --pz-neutral-50: #{$light-gray5};
+  --pz-neutral-100: #{$light-gray4};
+  --pz-neutral-200: #{$light-gray3};
+  --pz-neutral-300: #{$light-gray1};
+  --pz-neutral-400: #{$gray5};
+  --pz-neutral-500: #{$gray3};
+  --pz-neutral-600: #{$gray1};
+  --pz-neutral-700: #{$dark-gray5};
+  --pz-neutral-800: #{$dark-gray2};
+  --pz-neutral-900: #141a1e;
+  --pz-black: #{$black};
+
+  // --- Macrostrat brand palette (sampled from the logos) ---
+  // Purple primary; pink + mint/teal supporting; sky secondary. This block is
+  // the brand seam — a downstream brand overrides it to re-skin. (The system's
+  // *name*, Paleozoic, is independent of these colors.)
+  --pz-purple-700: #492f7a;
+  --pz-purple-500: #7e66a9;
+  --pz-purple-200: #d7cce8;
+  --pz-pink-500: #f073b9;
+  --pz-pink-200: #fcd9fa;
+  --pz-mint-500: #68ded4;
+  --pz-mint-300: #a7e8cd;
+  --pz-sky-500: #5b8bd9;
+  --pz-sky-200: #b8c9e7;
+
+  // --- Functional hues ⌁ bp:$pt-intent-* (Blueprint intent colors) ---
+  --pz-blue-500: #{$pt-intent-primary};   // ⌁ bp:$pt-intent-primary
+  --pz-green-500: #{$pt-intent-success};  // ⌁ bp:$pt-intent-success
+  --pz-orange-500: #{$pt-intent-warning}; // ⌁ bp:$pt-intent-warning
+  --pz-red-500: #{$pt-intent-danger};     // ⌁ bp:$pt-intent-danger
+
+  // --- Type: families ---
+  --pz-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --pz-font-serif: "PT Serif", Georgia, serif;
+  --pz-font-header: "Geologica", var(--pz-font-sans);
+  --pz-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  // --- Type: size scale (rem) ---
+  --pz-font-size-xs: 0.75rem;
+  --pz-font-size-sm: 0.875rem;
+  --pz-font-size-md: 1rem;
+  --pz-font-size-lg: 1.25rem;
+  --pz-font-size-xl: 1.5rem;
+  --pz-font-size-2xl: 2rem;
+  --pz-font-size-3xl: 2.5rem;
+
+  // --- Type: weights ---
+  --pz-font-weight-normal: 400;
+  --pz-font-weight-medium: 500;
+  --pz-font-weight-semibold: 600;
+  --pz-font-weight-bold: 700;
+
+  // --- Type: line heights ---
+  --pz-line-height-tight: 1.2;   // headings
+  --pz-line-height-snug: 1.35;   // UI text
+  --pz-line-height-normal: 1.5;  // prose
+
+  // --- Spacing scale (rem, 0.25rem base) ---
+  --pz-space-0: 0;
+  --pz-space-1: 0.25rem;
+  --pz-space-2: 0.5rem;
+  --pz-space-3: 0.75rem;
+  --pz-space-4: 1rem;
+  --pz-space-5: 1.5rem;
+  --pz-space-6: 2rem;
+  --pz-space-7: 3rem;
+  --pz-space-8: 4rem;
+
+  // --- Radii ---
+  --pz-radius-sm: 2px;
+  --pz-radius-md: 4px;
+  --pz-radius-lg: 8px;
+  --pz-radius-full: 9999px;
+
+  // --- Elevation shadows ⌁ bp:$pt-elevation-shadow-* ---
+  --pz-elevation-0: #{$pt-elevation-shadow-0};
+  --pz-elevation-1: #{$pt-elevation-shadow-1};
+  --pz-elevation-2: #{$pt-elevation-shadow-2};
+}

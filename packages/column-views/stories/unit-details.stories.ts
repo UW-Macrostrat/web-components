@@ -3,7 +3,11 @@ import { Meta, StoryObj } from "@storybook/react-vite";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { Button, Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
-import { UnitDetailsPanel, UnitDetailsPanelProps } from "../src";
+import {
+  IntervalProportions,
+  UnitDetailsPanel,
+  UnitDetailsPanelProps,
+} from "../src";
 import {
   ExtUnit,
   LithologiesProvider,
@@ -16,6 +20,7 @@ import { MacrostratInteractionProvider } from "@macrostrat/data-components";
 import {
   createMacrostratStore,
   MacrostratDataProvider,
+  useMacrostratDefs,
 } from "@macrostrat/data-provider";
 import { useState } from "react";
 
@@ -185,4 +190,16 @@ export function WithExternalLinks(args: Omit<UnitDetailsPanelProps, "unit">) {
     { linkDomain: domain },
     h(UnitDetailsPanel, { unit: units[0] }),
   );
+}
+
+export function IntervalProportionsStory() {
+  useMacrostratDefs("intervals");
+  return h(IntervalProportions, {
+    unit: {
+      b_int_id: 40,
+      t_int_id: 39,
+      b_prop: 0.4,
+      t_prop: 0.2,
+    },
+  });
 }

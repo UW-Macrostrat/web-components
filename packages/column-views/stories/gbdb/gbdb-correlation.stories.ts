@@ -16,7 +16,7 @@ import {
   useAsyncMemo,
 } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
-import { useCorrelationLine } from "../../src/correlation-chart/stories/utils";
+import { useCorrelationLine } from "../correlation-chart/utils.ts";
 import { UnitLong } from "@macrostrat/api-types";
 
 const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;

@@ -1,5 +1,5 @@
 import h from "../main.module.sass";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Interval, NestedInterval, TimescaleOrientation } from "../types";
 import { useTimescale } from "../provider";
 import { SizeAwareLabel } from "@macrostrat/ui-components";
@@ -18,16 +18,39 @@ export type LabelProps = {
   positionTolerance?: number;
 };
 
+/** Track a value but only report it once it has stopped changing for `delay`
+ * ms. During a zoom animation the box size changes every frame, so this holds
+ * label re-fitting until the animation settles. */
+function useSettledValue<T>(value: T, delay: number = 200): T {
+  const [settled, setSettled] = useState<T>(value);
+  useEffect(() => {
+    const id = setTimeout(() => setSettled(value), delay);
+    return () => clearTimeout(id);
+  }, [value, delay]);
+  return settled;
+}
+
 function IntervalBox(props: {
   interval: Interval;
   labelProps?: LabelProps;
   intervalStyle: IntervalStyleBuilder;
   allowLabelRotation?: boolean;
+  /** The box's pixel size along the axis; used to re-fit the label when the
+   * scale settles at a new zoom level. */
+  size?: number | null;
   onClick: (e: Event, interval: Interval) => void;
 }) {
-  const { interval, intervalStyle, onClick, labelProps = {} } = props;
+  const { interval, intervalStyle, onClick, labelProps = {}, size } = props;
 
   const [labelText, setLabelText] = useState<string>(interval.nam);
+
+  // When the box settles at a new size (e.g. after a zoom), reset to the full
+  // name so the fit check below can re-abbreviate or restore it. Debounced, so
+  // this happens once the animation ends rather than on every frame.
+  const settledSize = useSettledValue(size ?? null);
+  useEffect(() => {
+    setLabelText(interval.nam);
+  }, [settledSize, interval.nam]);
 
   const _onClick = useMemo(() => {
     if (onClick == null) return null;
@@ -53,6 +76,9 @@ function IntervalBox(props: {
     className,
     labelClassName: "interval-label",
     label: labelText,
+    // Force a re-measure when the box settles at a new size, so the fit is
+    // re-evaluated on zoom (both directions) rather than only at mount.
+    remeasureKey: settledSize,
     ...labelProps,
     onVisibilityChanged(viz) {
       if (!viz && labelText.length > 1) {
@@ -132,6 +158,7 @@ function TimescaleBoxes(props: {
       intervalStyle,
       onClick,
       labelProps,
+      size: length,
     }),
     h.if(lvl < maxLevel)(IntervalChildren, {
       children,

@@ -34,7 +34,11 @@ import { AgeField, Duration, IntervalProportions } from "./age-range";
 import { formatRange, formatSignificance } from "./utils.ts";
 import h from "./panel.module.sass";
 import { StratNameField } from "./strat-names.ts";
-import { Identifier, UnitIdentifier, UnitInfo } from "./identifiers.ts";
+import {
+  Identifier,
+  UnitIdentifier,
+  UnitInfo,
+} from "@macrostrat/data-components";
 import { LithologyIdentifier } from "@macrostrat/api-types/src/lithologies";
 
 export interface UnitDetailsPanelProps {
@@ -196,11 +200,7 @@ export enum UnitDetailsFeature {
 export type MacrostratItemClickHandler = (
   event: MouseEvent,
   item:
-    | Lithology
-    | Environment
-    | UnitLong
-    | Interval
-    | { strat_name_id: number },
+    Lithology | Environment | UnitLong | Interval | { strat_name_id: number },
 ) => void;
 
 function UnitDetailsContent({

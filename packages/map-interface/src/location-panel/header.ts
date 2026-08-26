@@ -1,6 +1,5 @@
 import { Icon, Button } from "@blueprintjs/core";
-import hyper from "@macrostrat/hyper";
-import styles from "./main.module.sass";
+import h from "./main.module.sass";
 import { useToaster } from "@macrostrat/ui-components";
 import { LngLatCoords, Elevation } from "@macrostrat/data-components";
 import { LocationFocusButton, useFocusState } from "@macrostrat/mapbox-react";
@@ -8,8 +7,6 @@ import classNames from "classnames";
 import type { ReactNode } from "react";
 import type { LngLatBounds, LngLatLike } from "mapbox-gl";
 import { isCentered } from "@macrostrat/mapbox-utils";
-
-const h = hyper.styled(styles);
 
 function PositionButton({ position, bounds, showCopyLink = false }) {
   const focusState = useFocusState(position);

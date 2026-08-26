@@ -1,50 +1,35 @@
 /* Reporters and buttons for evaluating a feature's focus on the map. */
-import { Intent, Button } from "@blueprintjs/core";
+import { Button, Intent } from "@blueprintjs/core";
 import { useMapInitialized, useMapRef } from "./context";
 import classNames from "classnames";
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useState } from "react";
 import styles from "./main.module.scss";
 import styleRules from "./main.module.scss?inline";
 import hyper from "@macrostrat/hyper";
 import {
-  moveMap,
+  getBestTargetPosition,
   getFocusState,
   isCentered,
-  filterChanges,
-  getBestTargetPosition,
   PositionFocusState,
 } from "@macrostrat/mapbox-utils";
-import type { MapEaseToState } from "@macrostrat/mapbox-utils";
+import type GeoJSON from "geojson";
+import type { LngLatLike } from "mapbox-gl";
+import { FlyToOptions } from "./easing.ts";
 
+// Re-export values from mapbox utils
 export { PositionFocusState };
 export type { MapEaseToState } from "@macrostrat/mapbox-utils";
 
 export { isCentered };
 
-import type GeoJSON from "geojson";
-import type {
-  LngLatBoundsLike,
-  LngLatLike,
-  PaddingOptions,
-  AnimationOptions,
-  CameraOptions,
-} from "mapbox-gl";
-
-/**
- * FlyToOptions
- * For some reason, we have to shadow the mapboxgl.FlyToOptions type
- * */
-export interface FlyToOptions extends AnimationOptions, CameraOptions {
-  curve?: number | undefined;
-  minZoom?: number | undefined;
-  speed?: number | undefined;
-  screenSpeed?: number | undefined;
-  maxDuration?: number | undefined;
-}
-
 const h = hyper.styled(styles);
 
-export function classNameForFocusState(pos: PositionFocusState): string {
+export function classNameForFocusState(
+  pos: PositionFocusState | null | undefined,
+): string | null {
+  if (pos == null) {
+    return null;
+  }
   switch (pos) {
     case PositionFocusState.CENTERED:
       return "centered";
@@ -52,6 +37,8 @@ export function classNameForFocusState(pos: PositionFocusState): string {
       return "near-center";
     case PositionFocusState.OFF_CENTER:
       return "off-center";
+    case PositionFocusState.NEAR_EDGE:
+      return "near-edge";
     case PositionFocusState.OUT_OF_PADDING:
       return "out-of-padding";
     case PositionFocusState.OUT_OF_VIEW:
@@ -59,166 +46,22 @@ export function classNameForFocusState(pos: PositionFocusState): string {
   }
 }
 
-export function intentForFocusState(pos: PositionFocusState): Intent {
+export function intentForFocusState(
+  pos: PositionFocusState | null | undefined,
+): Intent {
+  if (pos == null) return Intent.NONE;
   switch (pos) {
     case PositionFocusState.CENTERED:
     case PositionFocusState.NEAR_CENTER:
       return Intent.NONE;
     case PositionFocusState.OFF_CENTER:
+    case PositionFocusState.NEAR_EDGE:
       return Intent.PRIMARY;
     case PositionFocusState.OUT_OF_PADDING:
       return Intent.SUCCESS;
     case PositionFocusState.OUT_OF_VIEW:
       return Intent.WARNING;
   }
-}
-
-/**
- * Ease the map to a center position with optional padding.
- * @deprecated Use useMapEaseTo instead
- */
-export function useMapEaseToCenter(position, padding) {
-  const mapRef = useMapRef();
-
-  const prevPosition = useRef<any>(null);
-  const prevPadding = useRef<any>(null);
-  // Handle map position easing (for both map padding and markers)
-  useEffect(() => {
-    console.warn(
-      "Using deprecated function useMapEaseToCenter, consider using useMapEaseTo instead",
-    );
-    const map = mapRef.current;
-    if (map == null) return;
-    let opts: FlyToOptions = null;
-    if (position != prevPosition.current) {
-      opts ??= {};
-      opts.center = position;
-    }
-    if (padding != prevPadding.current) {
-      opts ??= {};
-      opts.padding = padding;
-    }
-    if (opts == null) return;
-    if (prevPadding.current == null) {
-      opts.duration = 0;
-    } else {
-      opts.duration = 800;
-    }
-    map.flyTo(opts);
-    map.once("moveend", () => {
-      /* Waiting until moveend to update the refs allows us to
-      batch overlapping movements together, which increases UI
-      smoothness when, e.g., flying to new panels */
-      prevPosition.current = position;
-      prevPadding.current = padding;
-    });
-  }, [position, padding, mapRef.current]);
-}
-
-/**
- * Ease the map to a set of bounds, with optional padding.
- * @deprecated Use useMapEaseTo instead
- */
-export function useMapEaseToBounds(
-  bounds: LngLatBoundsLike,
-  padding: PaddingOptions | number = 0,
-) {
-  const mapRef = useMapRef();
-
-  const prevPosition = useRef<any>(null);
-  const prevPadding = useRef<any>(null);
-  // Handle map position easing (for both map padding and markers)
-  useEffect(() => {
-    console.warn(
-      "Using deprecated function useMapEaseToBounds, consider using useMapEaseTo instead",
-    );
-    const map = mapRef.current;
-    if (map == null) return;
-    if (bounds == prevPosition.current || padding == prevPadding.current) {
-      return;
-    }
-    let opts: FlyToOptions = {
-      padding,
-      duration: prevPadding.current == null ? 0 : 800,
-    };
-
-    map.fitBounds(bounds, opts);
-    map.once("moveend", () => {
-      /* Waiting until moveend to update the refs allows us to
-      batch overlapping movements together, which increases UI
-      smoothness when, e.g., flying to new panels */
-      prevPosition.current = bounds;
-      prevPadding.current = padding;
-    });
-  }, [bounds, padding, mapRef.current]);
-}
-
-type MapEaseToProps = MapEaseToState & {
-  duration?: number;
-  trackResize?: boolean;
-};
-
-export function useMapEaseTo(props: MapEaseToProps) {
-  const mapRef = useMapRef();
-  const {
-    bounds,
-    padding,
-    center,
-    zoom,
-    duration = 800,
-    trackResize = false,
-  } = props;
-  const prevState = useRef<MapEaseToState | null>(null);
-  /** We need an update queue to batch together updates, especially during map initialization.
-   * If we don't have this, early position updates are not respected unless they are
-   * controlled outside of the component. */
-  const updateQueue = useRef<MapEaseToState[]>([]);
-  // This forces a re-render after initialization, I guess
-  const isInitialized = useMapInitialized();
-
-  /** Handle changes to any map props */
-  useEffect(() => {
-    // Add the proposed update to the queue
-    updateQueue.current.push({ bounds, padding, center, zoom });
-
-    const map = mapRef.current;
-    if (map == null) {
-      return;
-    }
-
-    const initialized = prevState.current != null;
-
-    const state = updateQueue.current.reduce((acc, val) => {
-      return { ...acc, ...val };
-    });
-    updateQueue.current = [];
-
-    const positionChanges = filterChanges(state, prevState.current);
-
-    let opts: FlyToOptions = {
-      padding,
-      duration: initialized ? duration : 0,
-    };
-
-    moveMap(map, positionChanges, opts);
-    map.once("moveend", () => {
-      prevState.current = state;
-    });
-  }, [bounds, padding, center, zoom, isInitialized]);
-
-  /** Handle map resize events */
-  useEffect(() => {
-    const map = mapRef?.current;
-    if (map == null || !props.trackResize) return;
-    const cb = () => {
-      if (prevState.current == null) return;
-      moveMap(map, prevState.current, { duration: 0 });
-    };
-    map.on("resize", cb);
-    return () => {
-      map.off("resize", cb);
-    };
-  }, [trackResize, mapRef?.current]);
 }
 
 export function useFocusState(position: LngLatLike | GeoJSON.Geometry) {
@@ -229,6 +72,7 @@ export function useFocusState(position: LngLatLike | GeoJSON.Geometry) {
   useEffect(() => {
     if (map.current == null || position == null) return;
     const cb = () => {
+      if (map.current == null) return;
       setFocusState(getFocusState(map.current, position));
     };
     map.current?.on("move", cb);
@@ -259,7 +103,7 @@ export function LocationFocusButton({
   bounds,
   className,
   easeDuration = 800,
-  focusState = null,
+  focusState: _focusState = null,
   icon = null,
   ...rest
 }) {
@@ -277,8 +121,8 @@ export function LocationFocusButton({
   }
 
   const defaultFocusState = useFocusState(location);
-  focusState ??= defaultFocusState;
-  const _isCentered = isCentered(focusState);
+  const focusState = _focusState ?? defaultFocusState;
+  const _isCentered = focusState != null ? isCentered(focusState) : false;
 
   return h(
     Button,

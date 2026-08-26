@@ -1,5 +1,59 @@
 # Changelog
 
+## [3.3.3] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.3.2...@macrostrat/mapbox-react-v3.3.3)
+
+### Patch Changes
+
+- Remove some unnecessarily bundled packages
+  [930edeae](https://github.com/UW-Macrostrat/web-components/commit/930edeaef23d42d62ee3f533d2e20c75dbf9ea42)
+
+## [3.3.2] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.3.1...@macrostrat/mapbox-react-v3.3.2)
+
+### Patch Changes
+
+- Update position focus styles
+  [b21ea1fc](https://github.com/UW-Macrostrat/web-components/commit/b21ea1fc297a5449a91997b3d97ff3509e8cd824)
+
+## [3.3.1] - 2026-07-28
+
+Re-export values from `@macrostrat/utils` (fixes regression in 3.3.0)
+
+## [3.3.0] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.2.2...@macrostrat/mapbox-react-v3.3.0)
+
+### Minor Changes
+
+- Create a `@macrostrat/scoped-store` library:
+  [f1bb8214](https://github.com/UW-Macrostrat/web-components/commit/f1bb8214b97668a4c4107d1d6faceb648f91f2b4)
+  - Move Jotai scope and enhancements to a separate package (formerly part of
+    `@macrostrat/data-components`).
+  - Add extensions for Zustand coordination (`ZustandStoreProvider`,
+    `useZustandSelector`, `useZustandStoreAPI`).
+- - Improve batching of map easing updates to reduce UI jank
+    [3bb6b543](https://github.com/UW-Macrostrat/web-components/commit/3bb6b543e20db76e55fbe454116d871e096dfa3d)
+  - Streamline the calculation of padding for map context and detail panels
+  - Add a new `--map-context-stack-padding` CSS variable to control whether the
+    map's internal padding responds to the width of the map context panel. This
+    is useful for cases when the context panel is expected to take up minimum
+    vertical space and should not be considered to cover the map
+  - Added a new `near-edge` position value to allow markers to be centered only
+    when clicked near the edge
+  - New Storybook stories for map context and detail panels
+
+### Patch Changes
+
+- Refactor map easing and focus management components
+  [83bd1412](https://github.com/UW-Macrostrat/web-components/commit/83bd141204a6de81a49b643266693fcfa7776eef)
+- Updated dependencies
+  [f1bb8214](https://github.com/UW-Macrostrat/web-components/commit/f1bb8214b97668a4c4107d1d6faceb648f91f2b4)
+- Updated dependencies
+  [3bb6b543](https://github.com/UW-Macrostrat/web-components/commit/3bb6b543e20db76e55fbe454116d871e096dfa3d)
+- Updated dependencies
+  [155a855c](https://github.com/UW-Macrostrat/web-components/commit/155a855c2bf99d6f218735616724ab6f5a362590)
+  - @macrostrat/scoped-store@1.0.0
+  - @macrostrat/mapbox-utils@1.8.0
+  - @macrostrat/ui-components@5.1.0
+  - @macrostrat/map-styles@2.2.6
+
 ## [3.2.2] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.2.1...@macrostrat/mapbox-react-v3.2.2)
 
 ### Patch Changes

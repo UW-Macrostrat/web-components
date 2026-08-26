@@ -42,22 +42,31 @@ export function LabelTrackerProvider(props) {
     BaseUnit[] | null
   >(null);
   const labelTrackerRef = useRef<LabelTracker>({});
+
+  const recompute = useCallback(() => {
+    // Recompute over the *current* unit set (which changes as the column zooms).
+    // The tracker ref accumulates entries for units seen at any zoom level, so
+    // we gate on whether every currently-visible unit has reported — not on the
+    // total number of tracked units, which would go stale and freeze the notes.
+    const tracker = labelTrackerRef.current;
+    const allReported = units.every((d) => findUnitID(d) in tracker);
+    if (!allReported) return;
+    setUnlabeledDivisions(units.filter((d) => tracker[findUnitID(d)] === false));
+  }, [units, findUnitID]);
+
   const trackLabelVisibility = useCallback(
     (div, visible) => {
-      const id = findUnitID(div);
-      labelTrackerRef.current[id] = visible;
-      if (Object.keys(labelTrackerRef.current).length == units.length) {
-        setUnlabeledDivisions(
-          // @ts-ignore
-          units.filter((d) => {
-            const id = findUnitID(d);
-            return labelTrackerRef.current[id] == false;
-          }),
-        );
-      }
+      labelTrackerRef.current[findUnitID(div)] = visible;
+      recompute();
     },
-    [labelTrackerRef, units, findUnitID],
+    [recompute, findUnitID],
   );
+
+  // Re-sync when the visible unit set changes (e.g. on zoom), so a unit whose
+  // label now fits inline stops also rendering as a note, and vice versa.
+  useEffect(() => {
+    recompute();
+  }, [recompute]);
 
   const value = trackLabelVisibility;
   return h(

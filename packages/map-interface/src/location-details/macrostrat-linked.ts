@@ -8,6 +8,7 @@ import { AxisBottom } from "@visx/axis";
 import chroma from "chroma-js";
 import { AgeChip } from "./info-blocks";
 import h from "./main.module.sass";
+import { useDeprecationWarning } from "@macrostrat/ui-components";
 
 export function MacrostratLinkedData(props: any) {
   const {
@@ -19,6 +20,7 @@ export function MacrostratLinkedData(props: any) {
     lithologyURL,
     expanded = true,
   } = props;
+  useDeprecationWarning("MacrostratLinkedData");
 
   if (!mapInfo.mapData[0]) return null;
 

@@ -4,7 +4,6 @@
 :root
   --data-panel-content-padding: 0px
 
-
 .data-panel
   display: flex
   flex: 1 1 auto
@@ -14,7 +13,9 @@
   min-width: 0
   --data-panel-content-padding: 12px
   --data-panel-item-gap: 8px
+  // Fallback to percentage
   --data-panel-content-width: 100%
+
   --data-panel-selected-color: #2d72d2
   --data-panel-selected-background: rgba(45, 114, 210, 0.1)
 
@@ -53,9 +54,26 @@
     min-width: 0
 
 // The inline end-of-scroll region (default spinner sentinel, or an inline
-// footer). Sits in the scroll flow, so it's seen only at the bottom.
+// footer). Sits in the scroll flow, so it's seen only at the bottom. A constant
+// min-height keeps its content (spinner / "Load more" / end note) swapping in
+// place instead of the footer pinging up into the list as pages append.
 .content-footer-holder
   flex: 0 0 auto
+  min-height: 44px
+  display: flex
+  align-items: center
+  justify-content: center
+
+// Skeleton placeholder shown where a loading page's rows will land — sized like
+// a card so the body height stays stable (no blank flash, no footer ping). The
+// shimmer comes from Blueprint's `.bp6-skeleton`.
+.data-panel-item-container.is-skeleton
+  pointer-events: none
+
+.data-panel-skeleton
+  width: 100%
+  min-height: 3.25em
+  border-radius: 4px
 
 // Default layout body — a vertical list of cards. A custom `scrollBody`
 // replaces this element (e.g. with a CSS grid) but keeps the same scroll
@@ -155,8 +173,7 @@
         width: unset
 
     .data-panel-toolbar
-      left: 50%
-      transform: translateX(calc((var(--data-panel-content-width, 100%) / -2) - 4px))
+      left: calc(var(--data-panel-content-padding, 12px) - 4px)
       top: var(--data-panel-content-padding, 12px)
       background-color: var(--panel-secondary-background-color)
       box-shadow: 0 0 0 1px var(--panel-rule-color)
@@ -183,3 +200,7 @@
     .data-panel-body.is-scrolled
       mask-image: linear-gradient(to bottom, transparent 0, var(--background-color) 20px)
 
+
+// Every view control behind one button (`viewControls: "popover"`).
+.collapsed-controls
+  max-width: 360px

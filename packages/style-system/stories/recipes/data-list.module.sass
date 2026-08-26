@@ -1,0 +1,50 @@
+// Token test case: selectable data list — the recurring primary/assistant list
+// pattern (columns, sections, search results). Exercises hover/selected state
+// tokens, panel surface + rules, and dense UI text metrics.
+
+.panel
+  background-color: var(--pz-panel-background-color)
+  border: 1px solid var(--pz-border-muted-color)
+  border-radius: var(--pz-radius-md)
+  box-shadow: var(--pz-shadow-sm)
+  max-width: 22rem
+  margin: var(--pz-space-5)
+  overflow: hidden
+
+.header
+  font-family: var(--pz-heading-font)
+  font-size: var(--pz-ui-font-size)
+  color: var(--pz-text-subtle-color)
+  text-transform: uppercase
+  letter-spacing: 0.04em
+  padding: var(--pz-space-2) var(--pz-space-3)
+  background-color: var(--pz-panel-secondary-background-color)
+  border-bottom: 1px solid var(--pz-border-muted-color)
+
+.item
+  display: flex
+  justify-content: space-between
+  align-items: baseline
+  gap: var(--pz-inline-gap)
+  padding: var(--pz-space-2) var(--pz-space-3)
+  font-family: var(--pz-body-font)
+  font-size: var(--pz-ui-font-size)
+  line-height: var(--pz-ui-line-height)
+  color: var(--pz-text-color)
+  cursor: pointer
+  border-left: 2px solid transparent
+
+  & + .item
+    border-top: 1px solid var(--pz-border-muted-color)
+
+  &:hover
+    background-color: var(--pz-hover-background-color)
+
+.item.selected
+  background-color: var(--pz-selected-background-color)
+  color: var(--pz-selected-text-color)
+  border-left-color: var(--pz-accent-color)
+
+.meta
+  color: var(--pz-text-subtle-color)
+  font-size: var(--pz-font-size-xs)

@@ -1,5 +1,212 @@
 # Changelog
 
+## [4.5.0] - 2026-08-26 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.4.1...@macrostrat/data-sheet-v4.5.0)
+
+### Minor Changes
+
+- Starting a view somewhere other than the beginning — three additions that each
+  [051e06fb](https://github.com/UW-Macrostrat/web-components/commit/051e06fb5b29bdeb2a2239829f5429b272ff5ab1)
+  remove a wasted request:
+
+  - **`TableDataProvider.distinctValues(columnKey, options?)`** — the values a
+    column actually holds, with frequencies where the source reports them. A
+    value picker can then offer only choices that match something, instead of a
+    free-text box (or a hand-rolled scan of the table). Implemented for both
+    built-in providers: `createLocalProvider` counts in memory, and
+    `createPostgRESTProvider` uses a grouped aggregate query
+    (`select=col,count()`), so one small request returns the whole vocabulary.
+    `baseFilter` applies to it; the _active_ filters deliberately don't — a
+    picker whose options vanish as you narrow the view can't be used to widen it
+    again. New `useDistinctValues(columnKey)` /
+    `useDistinctValueList(columnKey)` hooks read it, cached per (provider,
+    column, refresh token) so controls that mount and unmount with a menu don't
+    each pay for a request, and a provider mutation refreshes the vocabulary.
+    Also exported: `distinctValuesOf(rows, columnKey)` for in-memory sources.
+  - **`initialFilters` / `initialSorts`** on any data view — view state applied
+    when the store is _created_, so a restored view (a link, a saved query, a
+    server render) issues one correct fetch. Applying the same state from an
+    effect, which was the only option before, always let the unfiltered first
+    page go out and immediately superseded it: a wasted round-trip and a flash
+    of the wrong rows on every linked view. Uncontrolled — later user changes
+    win.
+  - **`initialData`** — rows already in hand for the first window, so a
+    server-rendered page doesn't re-request what it just shipped. Accepts bare
+    rows or `{ rows, totalCount }`; with a total, the sparse array is pre-sized,
+    so the scrollbar and the counter are right from the first paint. The loader
+    starts `initialized` (no empty-state flash, no mount fetch); scrolling past
+    the seed loads normally, and any view change discards it — the seed only
+    describes the view it was fetched for, so pair it with matching
+    `initialFilters` / `initialSorts`.
+
+  Also: **`useLoadControls()` now exposes `page`, `pageSize`, and `totalPages`**
+  (the loader already computed them; the footer contract dropped them). A footer
+  can now render a real _link_ to the next page rather than only a button that
+  calls `loadMore` — which is what a crawler, or a client with no JavaScript,
+  can actually follow.
+
+  New story `Data sheet/Data panel/Initial state` demonstrates all three against
+  a provider that logs every request, so the saving is visible rather than
+  asserted — including the realistic combination (server resolves the view from
+  the URL, fetches that page, ships both) where the client mounts with no
+  request at all.
+
+## [4.4.1] - 2026-08-26 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.4.0...@macrostrat/data-sheet-v4.4.1)
+
+### Patch Changes
+
+- Fix the Filter tag's scope, and make the clear buttons drop stale row
+  selections:
+
+  - **The "Filter" tag no longer speaks for `"inline"` filters.** Its active
+    state and its clear button covered _every_ active filter, including ones
+    with `presentation: "inline"` — which have their own always-visible toolbar
+    control. So an open search box lit up the Filter tag it isn't in, and the
+    tag's ✕ (which reads as "clear the filters in here") silently emptied the
+    search box too. Both are now scoped to the filters the menu actually holds.
+  - **The Filter and Sort clear buttons go through the store's actions**
+    (`clearFilters` / `clearColumnSorts`) instead of writing state directly, so
+    they also drop a row selection the cleared view made meaningless — the same
+    guarantee `setFilter` and `setColumnSort` got in 4.4.0. Reachable on a view
+    with non-modal selection, where selecting and filtering coexist.
+  - Tidied a `??`/`>` precedence accident in the two indicator atoms
+    (`x?.size ?? 0 > 0` parses as `x?.size ?? (0 > 0)`; it happened to behave).
+
+- Improve styles for the inline filter menu.
+
+## [4.4.0] - 2026-08-26 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.3.0...@macrostrat/data-sheet-v4.4.0)
+
+### Minor Changes
+
+- View-control placement, modal-selection fixes, and cmd-click selection
+  (`DataPanel`):
+
+  - **`viewControls: "inline" | "popover"`** — where the built-in view controls
+    (inline filters, the Filter menu, the Sort menu) sit in the toolbar.
+    `popover` collapses all of them behind one button, for a narrow or
+    deliberately chrome-light toolbar. Same controls, same store seam; only
+    placement changes — the `TableFilter.presentation` idea applied to the
+    toolbar as a whole.
+  - **The view controls get out of the way while selecting.** On a
+    modal-selection view, entering select mode replaces them with a single
+    **Filter** control that _leaves_ select mode, handing the toolbar to the
+    selection and its set-actions. Filtering and selecting no longer compete for
+    the toolbar — or for each other's correctness (below).
+  - **A view change drops row selections.** `setFilter` / `removeFilter` /
+    `clearFilters` / `setColumnSort` / `clearColumnSorts` now clear the
+    row-addressed parts of the selection: rows are selected _by index_, so a
+    re-filter or re-sort leaves "rows 3–5" pointing at different records, and a
+    set-action would silently act on the wrong ones. Column selections survive
+    (they're index-stable, and the sheet's own sort/filter controls are invoked
+    from a column selection).
+  - **Cmd/ctrl-click enters select mode** on a modal-selection `DataPanel` and
+    selects the clicked row — the familiar list idiom, so a bulk action no
+    longer requires finding the Select control first.
+  - **Modal selection state is no longer clobberable.** It lived in
+    `interactionOptionsAtom`, which the provider re-syncs from props on every
+    render (`resolveInteractionOptions` builds a fresh object each time), so any
+    provider re-render reset select mode. It now has its own atom
+    (`selectionModeActiveAtom`), read through the new `enableSelectionAtom` —
+    which is what every selection path should consult from now on.
+  - **`MenuDropdown` no longer traps focus, and passes its props through.** It
+    hard-coded `enforceFocus: true` and silently dropped extra props (a caller's
+    `placement` never applied). The focus trap is what made a filter submenu
+    feel unstable: a control whose own typeahead renders in a separate portal
+    had focus yanked back out of it.
+  - **New `MenuFormItem`** — a titled block inside a menu holding an arbitrary
+    form (rather than a submenu), exported so a custom control panel can use the
+    idiom `MenuInlineFilterItem` is built on.
+  - **`DataPanelToolbarStyle.FLOATING`** — the `"floating"` toolbar style was
+    implemented in the stylesheet (and used by consumers) but missing from the
+    enum.
+  - New story `Data sheet/Data panel/View controls`, with `viewControls`,
+    `toolbarStyle`, and `enableSelection` as arg controls — the three are
+    coupled (how much toolbar there is decides whether inline controls fit, and
+    modal selection is what makes them step aside), so the story is a matrix to
+    try rather than one arrangement per story.
+
+## [4.3.0] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.2.1...@macrostrat/data-sheet-v4.3.0)
+
+### Minor Changes
+
+- Create a `@macrostrat/scoped-store` library:
+  [f1bb8214](https://github.com/UW-Macrostrat/web-components/commit/f1bb8214b97668a4c4107d1d6faceb648f91f2b4)
+  - Move Jotai scope and enhancements to a separate package (formerly part of
+    `@macrostrat/data-components`).
+  - Add extensions for Zustand coordination (`ZustandStoreProvider`,
+    `useZustandSelector`, `useZustandStoreAPI`).
+
+### Patch Changes
+
+- Graceful degradation on load errors. A failed `fetchData` (e.g. the whole
+  PostgREST route returning 401) was caught but never surfaced — the panel sat
+  blank. Now the load error flows through `tableFooterAtom` /
+  `useLoadControls().error`; `LoadProgressIndicator` shows a compact error chip,
+  and `DataPanel` shows a "Couldn't load data" `NonIdealState` (and a "No
+  results" state for a genuinely empty result) instead of a perpetual spinner or
+  an empty list.
+  [20a49359](https://github.com/UW-Macrostrat/web-components/commit/20a493594c3813c14462dd997f5f58c7ed89f102)
+- Smoother windowed loading (workstream H):
+  [83dbc89f](https://github.com/UW-Macrostrat/web-components/commit/83dbc89f269ee462ffd3419268844cc76a1f2653)
+
+  - **`filterDebounce`** (ms) on `DataSheet` / `DataPanel` — debounces the
+    view-state → refetch, so typing in a text filter no longer resets and
+    refetches on every keystroke. The input (and store) stay instant; only the
+    fetch waits for the view to settle. Scroll paging is unaffected. Default `0`
+    keeps immediate refetching.
+  - **`DataPanel` skeleton rows** — the panel used to _skip_ the loader's `null`
+    placeholder rows, so a view change flashed the list blank while the sheet
+    showed skeletons. It now renders bounded shimmer cards where the loading
+    page's rows will land (on a view change and on the next scroll page), so the
+    body height stays stable — no blank flash, no footer pinging up into the
+    scroll flow. The end region also holds a constant min-height.
+  - **No empty-state flash** — `useLoadControls()` now exposes `initialized`;
+    the "No results" state shows only after a fetch settles empty, not during
+    the reset→fetch gap.
+
+- Toolbar + filter presentation:
+  [20a49359](https://github.com/UW-Macrostrat/web-components/commit/20a493594c3813c14462dd997f5f58c7ed89f102)
+
+  - **`TableFilter.presentation`** (`"menu"` | `"menu-inline"` | `"inline"`) —
+    progressive enhancement over the same `filterForm`, choosing where a filter
+    surfaces without changing its state/wiring:
+    - `"menu"` (default): a menu item whose submenu holds the form (today's
+      behavior).
+    - `"menu-inline"`: the form renders directly in the Filter menu (no submenu)
+      — for compact controls like a segmented picker.
+    - `"inline"`: the form renders as an always-visible toolbar control (no
+      menu) — for a common always-on control like a text search.
+  - **`DataPanel` now surfaces the table-level `filters` prop** (previously
+    dropped), splitting them by `presentation` — inline filters become
+    always-visible toolbar controls, the rest join the "Filter" menu.
+    Column-declared filters are unchanged (default `"menu"`).
+  - New exports: **`InlineFilterControl`** (renders any filter's `filterForm`
+    inline, wired to the shared filter state) and **`MenuInlineFilterItem`**
+    (renders a filter's form directly in a menu).
+  - Action buttons (`RunActionButton` + the details-form trigger) render
+    `minimal` + `small`, matching the toolbar's other controls; and
+    `ActionsToolbar` renders when given custom `children` even with no
+    displayable actions.
+  - **`DataPanel` title** is now `compact`: it renders only when modal selection
+    is toggle-able (or a selection is active), since the title doubles as the
+    modal-selection control — no bare label when selection is off.
+  - **Flat sort menu** — `ColumnSortMenu` is a single item (no
+    Ascending/Descending submenu): direction shows as an icon, an active sort
+    reads through the `primary` intent, clicking toggles the direction, and a
+    right-aligned ✕ clears it.
+  - **Explicit empty `columnSpec` is respected** — an explicitly-passed spec
+    (function or array, _including `[]`_) now suppresses the loader's
+    first-chunk auto-generation. `columnSpec: []` means "no facet columns" (e.g.
+    a browse panel whose only control is a sheet-level filter), not "generate
+    from the data". Auto-gen still runs when no `columnSpec` is passed.
+
+- Updated dependencies
+  [f1bb8214](https://github.com/UW-Macrostrat/web-components/commit/f1bb8214b97668a4c4107d1d6faceb648f91f2b4)
+- Updated dependencies
+  [155a855c](https://github.com/UW-Macrostrat/web-components/commit/155a855c2bf99d6f218735616724ab6f5a362590)
+  - @macrostrat/scoped-store@1.0.0
+  - @macrostrat/data-components@1.3.0
+  - @macrostrat/ui-components@5.1.0
+
 ## [4.2.1] - 2026-07-21 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.2.0...@macrostrat/data-sheet-v4.2.1)
 
 ### Patch Changes
