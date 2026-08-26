@@ -189,6 +189,7 @@ export function DataPanelRenderer<T>({
   filters = [],
   pageSize = 50,
   filterDebounce,
+  initialData,
   name,
   // Bottom bar
   statusBar,
@@ -352,6 +353,7 @@ export function DataPanelRenderer<T>({
       pageSize: loaderPageSize,
       fetchMode: isLocalProvider ? undefined : "scroll",
       filterDebounce,
+      initialData,
     });
   }
 
@@ -472,7 +474,7 @@ function DefaultScrollBody({ children }: { children: ReactNode }) {
 function PanelLoader<T = any>({
   fetchData,
   ...options
-}: { fetchData: FetchData<T> } & FetchDataOptions) {
+}: { fetchData: FetchData<T> } & FetchDataOptions<T>) {
   useDataLoader(fetchData, options);
   return null;
 }

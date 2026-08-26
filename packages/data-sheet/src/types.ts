@@ -8,16 +8,37 @@ import {
   TableElementStatus,
   VisibleCells,
 } from "./provider";
-import type { ColumnSpec, ColumnSpecOptions } from "./provider";
+import type { ColumnSort, ColumnSpec, ColumnSpecOptions } from "./provider";
 import { ReactNode } from "react";
-import { TableAction, TableActionContext, TableFilter } from "./actions";
+import {
+  ActiveFilterEntry,
+  TableAction,
+  TableActionContext,
+  TableFilter,
+} from "./actions";
 import { Region, TableProps } from "@blueprintjs/table";
 
 export type FetchMode = "scroll" | "paged";
 
-export interface FetchDataOptions {
+export interface InitialDataChunk<T = any> {
+  rows: T[];
+  /** Total rows in the source, when the caller's fetch reported it. */
+  totalCount?: number | null;
+}
+
+export interface FetchDataOptions<T = any> {
   pageSize?: number;
   fetchMode?: FetchMode;
+  /** Rows already in hand for the first window — typically fetched outside the
+   * view (a server render, a parent that needed the data anyway) — so mounting
+   * doesn't re-request a page the caller already has. The loader starts
+   * populated and initialized; scrolling past the seed fetches as usual, and any
+   * view change discards it and re-fetches (the seed only describes the view it
+   * was fetched for, so pass matching `initialFilters` / `initialSorts`).
+   *
+   * Pass `totalCount` when it's known — the array is pre-sized to it, so the
+   * scrollbar and the counter are right from the first paint. */
+  initialData?: T[] | InitialDataChunk<T>;
   /** Debounce (ms) applied to view-state → refetch, so rapid changes (typing a
    * text filter) collapse into one fetch once the view settles. The input stays
    * instant; only the fetch waits. `0` (default) keeps immediate refetching. */
@@ -57,10 +78,18 @@ export interface DataViewCoreProps<T> extends InteractionOptions {
   /** Bump to force a re-fetch from scratch (e.g. after an immediate edit that
    * mutated rows through the provider). */
   refreshToken?: number | string;
+  /** Filters active from the start, applied when the store is *created* rather
+   * than in an effect — so a restored view (from a link, a saved query, a
+   * server render) never fires an unfiltered fetch first and immediately
+   * supersedes it. Uncontrolled: the user's later changes win, and changing
+   * this prop afterwards does nothing. */
+  initialFilters?: ActiveFilterEntry[];
+  /** Sorts active from the start. Same contract as `initialFilters`. */
+  initialSorts?: ColumnSort[];
 }
 
 export interface DataViewSharedProps<T = any>
-  extends FetchDataOptions, DataViewCoreProps<T> {
+  extends FetchDataOptions<T>, DataViewCoreProps<T> {
   /** Configurable table actions shown in a selection-aware toolbar.
    * When provided, the actions toolbar renders alongside the existing
    * edit toolbar. Actions are filtered by the current selection cardinality. */

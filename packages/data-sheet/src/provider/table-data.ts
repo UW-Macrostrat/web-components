@@ -61,6 +61,54 @@ export interface TableDataProvider<T = any> {
   saveRows?(rows: T[]): Promise<void>;
   deleteRows?(ids: Array<string | number>): Promise<void>;
   insertRow?(row: Partial<T>): Promise<void>;
+  /** The distinct values a column holds — the vocabulary a value picker offers,
+   * so a filter can only be set to something that matches. Optional: a source
+   * that can't answer it cheaply simply omits it, and pickers fall back to free
+   * entry. See {@link useDistinctValues}. */
+  distinctValues?(
+    columnKey: string,
+    options?: DistinctValuesOptions,
+  ): Promise<DistinctValue[]>;
+}
+
+/** One value a column holds, with its frequency where the source reports it. */
+export interface DistinctValue<V = any> {
+  value: V;
+  /** Rows carrying this value. Omitted when the source can't count cheaply. */
+  count?: number;
+}
+
+export interface DistinctValuesOptions {
+  /** Aborts when the request is superseded (unmount, key change). */
+  signal?: AbortSignal;
+  /** Cap on how many values to return — a high-cardinality column shouldn't
+   * become an unbounded fetch. */
+  limit?: number;
+}
+
+/** Distinct values of an in-memory column, ordered by descending frequency then
+ * value. Array cells are *not* flattened: the values of an array column are its
+ * arrays, matching what a server-side `GROUP BY` would report. */
+export function distinctValuesOf<T>(
+  rows: T[],
+  columnKey: string,
+  options: DistinctValuesOptions = {},
+): DistinctValue[] {
+  const counts = new Map<any, number>();
+  for (const row of rows) {
+    const value = (row as any)?.[columnKey];
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  const values = [...counts.entries()].map(([value, count]) => ({
+    value,
+    count,
+  }));
+  values.sort((a, b) => {
+    if (b.count !== a.count) return b.count - a.count;
+    return String(a.value).localeCompare(String(b.value));
+  });
+  if (options.limit != null) return values.slice(0, options.limit);
+  return values;
 }
 
 /**
@@ -93,6 +141,9 @@ export function createLocalProvider<T = any>(
         rows: rows.slice(offset, offset + limit),
         totalCount: rows.length,
       };
+    },
+    async distinctValues(columnKey, opts) {
+      return distinctValuesOf(data, columnKey, opts);
     },
   };
 }

@@ -41,7 +41,7 @@ import {
   resolveInteractionOptions,
 } from "./interactions.ts";
 import { DataViewProps } from "../data-view.ts";
-import { DataSheetProps } from "../types.ts";
+import { DataSheetProps, DataViewCoreProps } from "../types.ts";
 import { DataPanelProps } from "../data-panel.ts";
 
 /** Create a Jotai scoped store */
@@ -153,17 +153,48 @@ export function useResolvedProvider<T>(props: {
 }
 
 function DataSheetStoreWrapper<T>(props: DataSheetProviderProps<T>) {
-  const { toaster, ...rest } = props;
+  const { toaster, initialFilters, initialSorts, ...rest } = props;
+
+  // Initial view state is folded into the store's *creation*, not applied in an
+  // effect: the loader mounts below this and its effects run first, so an
+  // effect-applied filter would arrive after the first (unfiltered) fetch had
+  // already gone out — and be immediately superseded. Creating the store with
+  // the view already set means the first fetch is the right one.
+  const initializeStore = (set: any, get: any) => ({
+    ...createZustandStore<T>(set, get),
+    ...initialViewState({ initialFilters, initialSorts }),
+  });
+
   return h(
     ZustandStoreProvider,
     {
       ctx,
-      initializeStore: createZustandStore,
+      initializeStore,
       atoms: [[toasterAtom, toaster]],
       debugName: "DataSheetProvider",
     },
     h(DataSheetProviderInner, rest),
   );
+}
+
+/** The store fields that carry a caller-supplied starting view. Absent props
+ * contribute nothing, so the store's own defaults stand. */
+function initialViewState<T>({
+  initialFilters,
+  initialSorts,
+}: Pick<DataViewCoreProps<T>, "initialFilters" | "initialSorts">): Partial<
+  DataSheetState<T>
+> {
+  const state: Partial<DataSheetState<T>> = {};
+  if (initialFilters != null && initialFilters.length > 0) {
+    state.activeFilters = new Map(
+      initialFilters.map((entry) => [entry.filter.id, entry]),
+    );
+  }
+  if (initialSorts != null && initialSorts.length > 0) {
+    state.columnSorts = [...initialSorts];
+  }
+  return state;
 }
 
 const tableDataProviderKeys = new Set([
@@ -174,6 +205,8 @@ const tableDataProviderKeys = new Set([
 ]);
 
 const dataProviderKeys = new Set([
+  "initialFilters",
+  "initialSorts",
   "columnSpec",
   "columnSpecOptions",
   "name",

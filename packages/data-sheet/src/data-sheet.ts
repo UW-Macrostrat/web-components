@@ -109,6 +109,7 @@ export function DataSheetRenderer<T>({
   pageSize,
   fetchMode,
   filterDebounce,
+  initialData,
   onVisibleCellsChange,
   onUpdateData,
   onEdit,
@@ -541,6 +542,7 @@ export function DataSheetRenderer<T>({
       pageSize: isLocalProvider ? Math.max(localCount, 1) : pageSize,
       fetchMode: isLocalProvider ? undefined : fetchMode,
       filterDebounce,
+      initialData,
     });
   }
   const showFilterBar =
@@ -670,7 +672,7 @@ function _DataLoaderManager<T = any>({
   ...rest
 }: {
   fetchData: FetchData<T>;
-} & FetchDataOptions) {
+} & FetchDataOptions<any>) {
   useDataLoader(fetchData, rest);
   return null;
 }
