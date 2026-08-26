@@ -279,8 +279,8 @@ export const RestoredView: StoryObj = {
  * Note what this does *not* buy on its own: a crawler renders the page but never
  * scrolls, so it sees the seeded page and nothing beyond it. Making a scrolling
  * list crawlable needs paginated URLs and a real `<a href>` to the next one
- * underneath the scroll — `useLoadControls()` exposes `page` / `totalPages` for
- * exactly that. See the note in the Data list editors feature doc.
+ * underneath the scroll — `useLoadControls()` exposes `page` / `pageSize` /
+ * `totalPages` for exactly that.
  */
 export const HydratedFromServer: StoryObj = {
   render: () => {
