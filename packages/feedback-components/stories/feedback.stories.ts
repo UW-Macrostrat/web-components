@@ -61,6 +61,7 @@ export const MatchLinks: StoryObj<{}> = {
       lith_att: `${lexURL}/lith-atts`,
       concept: `${lexURL}/strat-name-concepts`,
       interval: `${lexURL}/intervals`,
+      minerals: `${lexURL}/minerals`,
     },
     onSave: async (tree) => {
       const { nodes, edges } = treeToGraph(tree);
