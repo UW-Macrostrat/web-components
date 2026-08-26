@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Icon, Divider, Overlay2 } from "@blueprintjs/core";
 import { JSONView, SaveButton } from "@macrostrat/ui-components";
 import { useAPIResult, DataField } from "@macrostrat/ui-components";
-import { LithologyTag } from "@macrostrat/data-components";
+import { Tag } from "@macrostrat/data-components";
 
 const h = hyper.styled(styles);
 
@@ -203,21 +203,13 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
       h(DataField, {
         className: "match-item",
         label: entity_type?.replace(/^./, (c) => c.toUpperCase()),
-        value: h(LithologyTag, {
-          data: {
-            name: data.name,
-            id: data.entity_id ?? data.macrostrat_terms_id,
-            lith_id: data.entity_id ?? data.macrostrat_terms_id,
-          },
-          onClick: () => {
-            const matchUrl = getMatchUrl(data, matchLinks);
-            if (matchUrl != null) window.open(matchUrl, "_blank");
-          },
+        value: h(Tag, {
+          name: data.name,
+          href: getMatchUrl(data, matchLinks),
+          target: "_blank",
         }),
       }),
     );
-
-  return h(JSONView, { data });
 }
 
 function getMatchUrl(match: any, matchLinks?: Record<string, string>) {
