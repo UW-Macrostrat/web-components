@@ -165,9 +165,6 @@
   position: relative
   overflow: hidden
 
-.navbar-holder
-  margin-bottom: 0.5em
-
 .right-panel
   width: 24em
 
@@ -393,7 +390,7 @@
     max-width: var(--map-context-stack-max-width, 34em)
     min-width: var(--map-context-min-width, 14em)
     transition: width 300ms ease
-    padding-bottom: 0.5em
+    //padding-bottom: 0.5em
     width: var(--map-context-stack-width, fit-content)
     display: flex
     flex-direction: column
@@ -412,6 +409,7 @@
       flex-grow: 0
 
   .context-panel-holder
+    display: flex
     min-height: 0
     position: relative
 
@@ -436,10 +434,10 @@
   .context-stack, .detail-stack
     pointer-events: none
     z-index: 10
+    gap: var(--map-panel-gap, var(--pz-space-3))
 
     & > div
       pointer-events: all
-      margin-bottom: 0.5em
 
       &:last-child
         margin-bottom: 0
@@ -448,7 +446,7 @@
         pointer-events: none
 
     .context-stack .spacer
-      min-height: 1em
+      min-height: 0em
 
   .context-panel-leave .navbar-holder
     width: 0

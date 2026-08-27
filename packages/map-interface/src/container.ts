@@ -145,7 +145,6 @@ function ContextStack(props: ContextStackProps) {
   return h("div.context-stack", props1, [
     h("div.navbar-holder", navbar),
     h("div.context-panel-holder", null, children),
-    h("div.spacer"),
   ]);
 }
 
