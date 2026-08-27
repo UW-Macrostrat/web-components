@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.3] - 2026-08-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.3.2...@macrostrat/map-interface-v2.3.3)
+
+### Patch Changes
+
+- Streamlined map context panel sizing
+  [c8570c62](https://github.com/UW-Macrostrat/web-components/commit/c8570c6271fb909c299c49638d7d99ff17bbd0fc)
+
 ## [2.3.2] - 2026-08-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.3.1...@macrostrat/map-interface-v2.3.2)
 
 ### Patch Changes
