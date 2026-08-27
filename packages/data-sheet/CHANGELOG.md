@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.5.2] - 2026-08-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.5.1...@macrostrat/data-sheet-v4.5.2)
+
+### Patch Changes
+
+- Update data panel styles again
+
 ## [4.5.1] - 2026-08-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.5.0...@macrostrat/data-sheet-v4.5.1)
 
 ### Patch Changes

@@ -144,10 +144,10 @@
 
 .data-panel
   &.toolbar-style-bordered
-    .data-panel-toolbar, .data-panel-footer
+    .data-panel-top-area, .data-panel-footer
       background-color: var(--panel-secondary-background-color)
 
-    .data-panel-toolbar
+    .data-panel-top-area
       border-bottom: 1px solid var(--panel-rule-color)
 
     .data-panel-toolbar-content
@@ -168,6 +168,7 @@
       position: absolute
       top: 0
       left: 0
+      right: 0
 
     .data-panel-footer, .data-panel-toolbar
       flex: unset
@@ -195,8 +196,8 @@
       padding-right: 6px
       flex-grow: 1
       max-width: fit-content
-      //margin-left: var(--data-panel-toolbar-offset, -6px)
-      //margin-right: var(--data-panel-toolbar-offset, -6px)
+      margin-left: var(--data-panel-toolbar-offset, -6px)
+      margin-right: var(--data-panel-toolbar-offset, -6px)
       pointer-events: all
       &>*:empty
         display: none
