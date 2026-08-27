@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.5.1] - 2026-08-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.5.0...@macrostrat/data-sheet-v4.5.1)
+
+### Patch Changes
+
+- Update sizing of data panel toolbars
+
 ## [4.5.0] - 2026-08-26 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.4.1...@macrostrat/data-sheet-v4.5.0)
 
 ### Minor Changes

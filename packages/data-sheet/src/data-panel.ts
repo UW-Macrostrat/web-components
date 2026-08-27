@@ -276,12 +276,11 @@ export function DataPanelRenderer<T>({
     canLoadMore,
   ]);
 
-  const cards: ReactNode[] = [];
-  data.forEach((row, i) => {
-    if (row == null) return;
-    const selected = enableSelection && selectedIndices.has(i);
-    cards.push(
-      h(
+  const cards: ReactNode[] = data
+    .filter((d) => d != null)
+    .map((row: ReactNode, i) => {
+      const selected = enableSelection && selectedIndices.has(i);
+      return h(
         "div.data-panel-item-container",
         { key: `item-${i}`, className: classNames({ selected }) },
         h(itemComponent, {
@@ -292,9 +291,8 @@ export function DataPanelRenderer<T>({
           onSelect: (arg?: SelectModifiers | ReactMouseEvent) =>
             select(i, modifiersOf(arg)),
         }),
-      ),
-    );
-  });
+      );
+    });
 
   // Body-level empty/error state: when nothing has loaded, show a clear message
   // instead of a blank list — an errored source (e.g. a 401 on the whole route)
@@ -417,38 +415,45 @@ export function DataPanelRenderer<T>({
     );
   }
 
+  const _toolbar = h(
+    "div.data-panel-top-area",
+    h(
+      "div.data-panel-toolbar",
+      h(
+        ActionsToolbar,
+        {
+          actions: _actions,
+          tableName: name,
+          className: "data-panel-toolbar-content",
+          // In the panel the title doubles as the modal-selection control,
+          // so only render it when modal selection is toggle-able (or a
+          // selection is active) — not as a bare label otherwise.
+          compact: true,
+        },
+        toolbar,
+      ),
+    ),
+  );
+
   return h(
     "div.data-panel",
     { className: classNames(className, "toolbar-style-" + toolbarStyle) },
     [
       h("div.data-panel-main", [
         loaderNode,
-        h(
-          "div.data-panel-toolbar",
-          h(
-            ActionsToolbar,
-            {
-              actions: _actions,
-              tableName: name,
-              className: "data-panel-toolbar-content",
-              // In the panel the title doubles as the modal-selection control,
-              // so only render it when modal selection is toggle-able (or a
-              // selection is active) — not as a bare label otherwise.
-              compact: true,
-            },
-            toolbar,
-          ),
-        ),
+        _toolbar,
         h(
           "div.data-panel-body",
           {
             onScroll,
             className: classNames({ "is-scrolled": scrolled }),
           },
-          h("div.data-panel-body-content", [
-            emptyState ?? h(ScrollBody, cards),
-            _contentFooter,
-          ]),
+          [
+            h("div.data-panel-body-content", [
+              emptyState ?? h(ScrollBody, cards),
+              _contentFooter,
+            ]),
+          ],
         ),
         footer,
       ]),

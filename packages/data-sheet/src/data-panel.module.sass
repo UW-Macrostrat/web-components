@@ -5,6 +5,7 @@
   --data-panel-content-padding: 0px
 
 .data-panel
+  position: relative
   display: flex
   flex: 1 1 auto
   min-height: 0
@@ -149,23 +150,31 @@
     .data-panel-toolbar
       border-bottom: 1px solid var(--panel-rule-color)
 
+    .data-panel-toolbar-content
+      padding: 0.2em var(--data-panel-content-padding, 12px)
+
     .data-panel-footer
       border-top: 1px solid var(--panel-rule-color)
 
   &.toolbar-style-floating
     --data-panel-top-margin: calc(var(--data-panel-toolbar-height, 40px) + 2 * var(--data-panel-content-padding, 12px))
 
-    .data-panel-toolbar, .data-panel-footer
-      //background-color: var(--panel-secondary-background-color)
-      border-radius: 4px
-      //box-shadow: 0 0 0 1px var(--panel-rule-color)
+    .data-panel-top-area
+      display: flex
+      flex-direction: row
+      justify-content: center
+      padding: var(--data-panel-content-padding, 12px)
+      pointer-events: none
+      position: absolute
+      top: 0
+      left: 0
 
     .data-panel-footer, .data-panel-toolbar
+      flex: unset
       z-index: 10
       min-width: 0
-      max-width: fit-content
-      position: absolute
       width: var(--data-panel-content-width, 100%)
+      margin: 0
 
       &>*
         max-width: unset
@@ -173,15 +182,24 @@
         width: unset
 
     .data-panel-toolbar
-      left: calc(var(--data-panel-content-padding, 12px) - 4px)
-      top: var(--data-panel-content-padding, 12px)
+      display: flex
+      flex-direction: row
+      justify-content: start
+      pointer-events: none
+
+    .data-panel-toolbar-content
       background-color: var(--panel-secondary-background-color)
       box-shadow: 0 0 0 1px var(--panel-rule-color)
-      .data-panel-toolbar-content
-        padding-left: 6px
-        padding-right: 6px
-        &>*:empty
-          display: none
+      border-radius: 4px
+      padding-left: 6px
+      padding-right: 6px
+      flex-grow: 1
+      max-width: fit-content
+      //margin-left: var(--data-panel-toolbar-offset, -6px)
+      //margin-right: var(--data-panel-toolbar-offset, -6px)
+      pointer-events: all
+      &>*:empty
+        display: none
 
 
     .data-panel-footer
