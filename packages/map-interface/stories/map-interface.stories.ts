@@ -106,3 +106,21 @@ export const LargeContextPanel = {
     });
   },
 };
+
+export const LargeDetailPanel = {
+  render() {
+    return h(MapAreaContainerDemo, {
+      detailPanel: h(
+        Box,
+        {
+          backgroundColor: "lightsalmon",
+          flex: 1,
+          padding: "1rem",
+          overflowY: "scroll",
+          color: "darksalmon",
+        },
+        h("div.content", blurbFor(10)),
+      ),
+    });
+  },
+};
