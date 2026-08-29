@@ -11,14 +11,10 @@ import {
   UnitDetailsFeature,
   CorrelationChart,
 } from "../../src";
-import {
-  MacrostratDataProvider,
-  fetchUnits,
-  useMacrostratFetch,
-} from "@macrostrat/data-provider";
+import { MacrostratDataProvider } from "@macrostrat/data-provider";
 import { useState } from "react";
 import type { BaseUnit } from "@macrostrat/api-types";
-import { CorrelationColumnHeader } from "./utils.ts";
+import { CorrelationColumnHeader, useCorrelationChartUnits } from "./utils.ts";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
 import { MacrostratInteractionProvider } from "@macrostrat/data-components";
@@ -58,17 +54,10 @@ function FixedPanelStoryUI({ focusedLine, projectID, ...rest }: any) {
 function FixedPanelLayout(props) {
   /** A correlation diagram where the map and unit-details panel are docked in a
    * fixed right column, rather than floating in a popover over the chart. */
-  const fetch = useMacrostratFetch();
 
-  const focusedColumns = useCorrelationMapStore(
-    (state) => state.focusedColumns,
-  );
+  const data = useCorrelationChartUnits();
+
   const columnMapLink = useColumnMapLink();
-
-  const columnUnits = useAsyncMemo(async () => {
-    const col_ids = focusedColumns.map((col) => col.properties.col_id);
-    return await fetchUnits(col_ids, fetch);
-  }, [focusedColumns]);
 
   // Selection is lifted out of the chart so the details panel can live in the
   // right column, outside of the chart's own layout.
@@ -82,7 +71,7 @@ function FixedPanelLayout(props) {
         ErrorBoundary,
         h(OverlaysProvider, [
           h(CorrelationChart, {
-            data: columnUnits,
+            data,
             // Disable the floating popover — details render in the side column
             showUnitPopover: false,
             // Selection stays internal to the chart; mirror it into the panel

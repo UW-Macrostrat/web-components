@@ -1,18 +1,12 @@
 import { LineString, Point } from "geojson";
-import { create, StoreApi, useStore } from "zustand";
+import { useStore } from "zustand";
 import type { ColumnGeoJSONRecord } from "@macrostrat/api-types";
 // Turf intersection
 import { lineIntersect } from "@turf/line-intersect";
 import distance from "@turf/distance";
 import { nearestPointOnLine } from "@turf/nearest-point-on-line";
 import { centroid } from "@turf/centroid";
-import {
-  createContext,
-  useState,
-  useContext,
-  ReactNode,
-  useEffect,
-} from "react";
+import { ReactNode, useEffect } from "react";
 import h from "@macrostrat/hyper";
 import { createComputed } from "zustand-computed";
 import { useMacrostratColumns } from "@macrostrat/data-provider";
@@ -20,6 +14,8 @@ import { buffer } from "@turf/buffer";
 import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
 import {
   createScopedStore,
+  useZustandSelector,
+  useZustandStoreAPI,
   ZustandStoreProvider,
 } from "@macrostrat/scoped-store";
 
@@ -65,9 +61,6 @@ export interface CorrelationProviderProps extends CorrelationMapInput {
   ) => void;
 }
 
-const CorrelationStoreContext =
-  createContext<StoreApi<CorrelationMapStore> | null>(null);
-
 type ComputedStore = {
   focusedColumns: FocusedColumnGeoJSONRecord[];
   selectionMode: CorrelationSelectionMode;
@@ -76,7 +69,6 @@ type ComputedStore = {
 /** A computed store that will automatically update when the state changes */
 const computed = createComputed((state: CorrelationMapStore): ComputedStore => {
   const manual = state.manualColumns != null;
-  console.log(state.manualColumns, state.focusedLine);
   return {
     selectionMode: manual ? "manual" : "line",
     // Focused columns are derived either from an explicit manual selection or
@@ -86,6 +78,8 @@ const computed = createComputed((state: CorrelationMapStore): ComputedStore => {
       : buildCorrelationColumns(state.columns, state.focusedLine),
   };
 }) as any;
+
+const ctx = createScopedStore();
 
 export function ColumnCorrelationProvider({
   children,
@@ -156,18 +150,18 @@ export function ColumnCorrelationProvider({
       },
     };
   };
-  const [store] = useState(() => {
-    return create<CorrelationMapStore & ComputedStore>(
-      computed(initializeStore),
-    );
-  });
-  return h(CorrelationStoreContext.Provider, { value: store }, [
-    h(_StoreEffects, { store, projectID, inProcess, onSelectColumns }),
+
+  const _initializeStore = computed(initializeStore);
+
+  return h(ZustandStoreProvider, { ctx, initializeStore: _initializeStore }, [
+    h(_StoreEffects, { projectID, inProcess, onSelectColumns }),
     children,
   ]);
 }
 
-function _StoreEffects({ store, projectID, inProcess, onSelectColumns }) {
+function _StoreEffects({ projectID, inProcess, onSelectColumns }) {
+  const store = useZustandStoreAPI(ctx);
+
   // Set up the store
   /** TODO: move the fetching of all columns to within the map */
   const _columns = useMacrostratColumns(projectID, inProcess);
@@ -197,11 +191,7 @@ function _StoreEffects({ store, projectID, inProcess, onSelectColumns }) {
 export function useCorrelationMapStore(
   selector: (state: CorrelationMapStore & ComputedStore) => any,
 ) {
-  const storeApi = useContext(CorrelationStoreContext);
-  if (storeApi == null) {
-    throw new Error("Missing CorrelationMapProvider");
-  }
-  return useStore(storeApi, selector);
+  return useZustandSelector(ctx, selector);
 }
 
 export interface ColumnMapLink {

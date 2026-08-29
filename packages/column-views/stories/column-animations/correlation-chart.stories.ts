@@ -130,7 +130,10 @@ function AnimatedZoomLayout(props) {
           "p",
           "Click a timescale interval (left axis) to pan-and-contract the chart to that span.",
         ),
-        h("p", "Density (px/Myr) is unchanged; use Reset to ease back to the full column."),
+        h(
+          "p",
+          "Density (px/Myr) is unchanged; use Reset to ease back to the full column.",
+        ),
       ]),
     ]),
   ]);

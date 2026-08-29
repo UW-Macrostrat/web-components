@@ -3,11 +3,9 @@ import "@macrostrat/style-system";
 import { hyperStyled } from "@macrostrat/hyper";
 import {
   MacrostratDataProvider,
-  fetchUnits,
-  useMacrostratFetch,
   useMacrostratColumnInfo,
 } from "@macrostrat/data-provider";
-import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
+import { ErrorBoundary } from "@macrostrat/ui-components";
 import { Button, Intent, OverlaysProvider } from "@blueprintjs/core";
 import {
   MacrostratInteractionProvider,
@@ -22,7 +20,7 @@ import {
   useColumnMapLink,
 } from "@macrostrat/map-views";
 import { CorrelationChart } from "../../src";
-import { CorrelationColumnHeader } from "./utils.ts";
+import { CorrelationColumnHeader, useCorrelationChartUnits } from "./utils.ts";
 import styles from "./stories.module.sass";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
@@ -54,21 +52,8 @@ function ArbitraryColumnsStoryUI({ projectID, manualColumns, ...rest }: any) {
 }
 
 function ArbitraryColumnsLayout(props) {
-  /** Select an arbitrary set of (possibly non-adjacent) columns directly, with
-   * no line-of-section. Click columns on the map to add/remove them, and use
-   * the sidebar list to reorder or remove them. */
-  const fetch = useMacrostratFetch();
-
-  const focusedColumns = useCorrelationMapStore(
-    (state) => state.focusedColumns,
-  );
+  const data = useCorrelationChartUnits();
   const columnMapLink = useColumnMapLink();
-  const colIDs = focusedColumns.map((col) => col.properties.col_id);
-
-  const columnUnits = useAsyncMemo(async () => {
-    if (colIDs.length === 0) return [];
-    return await fetchUnits(colIDs, fetch);
-  }, [colIDs.join(",")]);
 
   return h("div.side-panel-ui", [
     h(
@@ -77,7 +62,7 @@ function ArbitraryColumnsLayout(props) {
         ErrorBoundary,
         h(OverlaysProvider, [
           h(CorrelationChart, {
-            data: columnUnits,
+            data,
             columnHeaderComponent: CorrelationColumnHeader,
             ...columnMapLink,
             ...props,
