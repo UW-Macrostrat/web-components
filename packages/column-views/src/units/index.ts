@@ -5,20 +5,21 @@ import {
 } from "@macrostrat/column-components";
 import { UnitNamesColumn } from "./names";
 import { ICompositeUnitProps } from "./composite";
-import { UnitBoxes, UnitProps } from "./boxes";
+import { UnitBoxes } from "./boxes";
 import { useColumnLayout } from "@macrostrat/column-components";
 import { useInDarkMode } from "@macrostrat/ui-components";
-import { getMixedUnitColor } from "./colors";
+import {
+  getBestFGDCPatternForUnit,
+  getMixedUnitColor,
+} from "@macrostrat/stratigraphy-utils";
 import { TrackedLabeledUnit } from "./composite";
 import { useEnvironments, useLithologies } from "@macrostrat/data-provider";
 import { useMemo } from "react";
-import { resolveID } from "./resolvers";
 import { BaseUnit, Lithology } from "@macrostrat/api-types";
 import { UnitWithLayoutParameters } from "../prepare-units/helpers.ts";
 
 export * from "./composite";
 export * from "./types";
-export * from "./colors";
 
 export function UnitsColumn({ width = 100 }) {
   /*
@@ -115,7 +116,7 @@ export function ColoredUnitComponent(props) {
   const backgroundColor = useUnitColor(props.division);
 
   const patternID = useMemo(() => {
-    return resolveID(props.division); // ?? getPatternID(props.division.lith, lithMap);
+    return getBestFGDCPatternForUnit(props.division); // ?? getPatternID(props.division.lith, lithMap);
   }, [props.division?.unit_id]);
 
   const fill = useGeologicPattern(patternID);
@@ -157,7 +158,7 @@ export function EnvironmentColoredUnitComponent(props) {
   const backgroundColor = useUnitColorByEnvironment(props.division);
 
   const patternID = useMemo(() => {
-    return resolveID(props.division); // ?? getPatternID(props.division.lith, lithMap);
+    return getBestFGDCPatternForUnit(props.division); // ?? getPatternID(props.division.lith, lithMap);
   }, [props.division?.unit_id]);
 
   const fill = useGeologicPattern(patternID);

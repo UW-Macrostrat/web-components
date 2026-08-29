@@ -11,15 +11,18 @@ import {
 import { SizeAwareLabel, Clickable } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import { ReactNode, useContext, useMemo } from "react";
-import { resolveID, scalePattern } from "./resolvers";
 import { useUnitSelectionTarget } from "../data-provider";
 import { useLithologies } from "@macrostrat/data-provider";
 import { IUnit } from "./types";
 import styles from "./boxes.module.sass";
 import classNames from "classnames";
 import { getUnitHeightRange } from "../prepare-units/utils";
-import { getMixedUnitColor } from "./colors";
 import type { RectBounds } from "./types";
+import {
+  getBestFGDCPatternForUnit,
+  scalePattern,
+  getMixedUnitColor,
+} from "@macrostrat/stratigraphy-utils";
 
 const h = hyper.styled(styles);
 
@@ -158,7 +161,7 @@ function Unit(props: UnitProps) {
     overflowTop: hasOverflowTop,
     overflowBottom: hasOverflowBottom,
   };
-  const _patternID = patternID ?? resolveID(d);
+  const _patternID = patternID ?? getBestFGDCPatternForUnit(d);
   let _fill = fill ?? useGeologicPattern(_patternID, defaultFill);
 
   const hasBackgroundColor = backgroundColor != null;
@@ -289,7 +292,7 @@ function UnitBoxes<T>(props: {
 
   return h(
     PatternDefsProvider,
-    { resolveID, scalePattern },
+    { resolveID: getBestFGDCPatternForUnit, scalePattern },
     h("g.divisions", children),
   );
 }

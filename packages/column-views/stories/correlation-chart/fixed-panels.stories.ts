@@ -5,6 +5,8 @@ import {
   ColumnCorrelationProvider,
   useCorrelationMapStore,
   useColumnMapLink,
+} from "@macrostrat/map-views";
+import {
   UnitDetailsPanel,
   UnitDetailsFeature,
   CorrelationChart,

@@ -36,6 +36,10 @@
   "scripts": {
     "build": "bundle-library ."
   },
+  "dependencies": {
+    "@macrostrat/api-types": "workspace:*",
+    "chroma-js": "^3.2.0"
+  },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"
   },

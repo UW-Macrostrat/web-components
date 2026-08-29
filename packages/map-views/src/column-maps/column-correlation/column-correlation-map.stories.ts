@@ -39,7 +39,7 @@ function ColumnCorrelationMapExt(
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Column views/Maps/Column correlation",
+  title: "Map views/Column correlation",
   component: ColumnCorrelationMapExt,
   description: "Cross section creation map",
 } as Meta<typeof ColumnCorrelationMapExt>;

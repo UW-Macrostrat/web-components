@@ -7,7 +7,7 @@ import { InsetMap } from ".";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Column views/Maps/Inset map",
+  title: "Map views/Maps/Inset map",
   component: InsetMap,
   description: "A basic inset map",
 } as Meta<typeof InsetMap>;

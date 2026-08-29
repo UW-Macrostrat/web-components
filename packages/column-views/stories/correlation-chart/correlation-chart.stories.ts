@@ -4,10 +4,10 @@ import { useCorrelationLine, CorrelationColumnHeader } from "./utils.ts";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
-  MergeSectionsMode,
   useCorrelationMapStore,
   useColumnMapLink,
-} from "../../src";
+} from "@macrostrat/map-views";
+import { MergeSectionsMode } from "../../src";
 import { hyperStyled } from "@macrostrat/hyper";
 import {
   MacrostratDataProvider,
@@ -276,4 +276,3 @@ WideColumnSpacing.parameters = {
     },
   },
 };
-

@@ -1,0 +1,101 @@
+{
+  "name": "@macrostrat/map-views",
+  "version": "1.0.0",
+  "description": "Data views for Macrostrat map interfaces",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/map-views"
+  },
+  "license": "MIT",
+  "source": "src/index.ts",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "node": "dist/index.cjs",
+  "types": "dist/index.d.ts",
+  "style": "dist/map-views.css",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      },
+      "style": "./dist/map-views.css"
+    },
+    "./package.json": "./package.json",
+    "./style.css": "./dist/map-views.css",
+    "./dist/map-views.css": "./dist/map-views.css"
+  },
+  "scripts": {
+    "build": "bundle-library ."
+  },
+  "peerDependencies": {
+    "react": "^18.0.0||^19.0.0"
+  },
+  "dependencies": {
+    "@blueprintjs/core": "^6.14.0",
+    "@macrostrat/api-types": "workspace:^",
+    "@macrostrat/color-utils": "workspace:^",
+    "@macrostrat/column-components": "workspace:^",
+    "@macrostrat/data-components": "workspace:^",
+    "@macrostrat/data-provider": "workspace:^",
+    "@macrostrat/hyper": "^3.1.1",
+    "@macrostrat/map-interface": "workspace:^",
+    "@macrostrat/map-styles": "workspace:^",
+    "@macrostrat/mapbox-react": "workspace:^",
+    "@macrostrat/mapbox-utils": "workspace:^",
+    "@macrostrat/scoped-store": "workspace:^",
+    "@macrostrat/stratigraphy-utils": "workspace:^",
+    "@macrostrat/svg-map-components": "workspace:^",
+    "@macrostrat/timescale": "workspace:^",
+    "@macrostrat/ui-components": "workspace:^",
+    "@turf/boolean-point-in-polygon": "^7.3.2",
+    "@turf/buffer": "^7.3.2",
+    "@turf/centroid": "^7.3.2",
+    "@turf/distance": "^7.3.2",
+    "@turf/line-intersect": "^7.3.2",
+    "@turf/nearest-point-on-line": "^7.3.2",
+    "@types/chroma-js": "^3.1.1",
+    "@types/d3-format": "^3.0.4",
+    "@types/d3-geo": "^3.1.0",
+    "@types/d3-shape": "^3.1.7",
+    "@types/topojson-client": "^3.1.5",
+    "@visx/axis": "^3.12.0",
+    "chroma-js": "^3.2.0",
+    "classnames": "^2.5.1",
+    "cross-fetch": "^4.1.0",
+    "d3-array": "^3.2.4",
+    "d3-format": "^3.1.2",
+    "d3-geo": "^3.1.1",
+    "d3-geo-voronoi": "^2.1.0",
+    "d3-path": "^3.1.0",
+    "d3-scale": "^4.0.2",
+    "d3-shape": "^3.2.0",
+    "jotai": "^2.20.0",
+    "mapbox-gl": "^3.0.0",
+    "p-map": "^7.0.4",
+    "react-spring": "^9.7.5",
+    "topojson-client": "^3.1.0",
+    "zustand": "^5.0.3",
+    "zustand-computed": "^2.0.2"
+  },
+  "devDependencies": {
+    "@macrostrat/web-components-bundler": "workspace:*",
+    "jotai-scope": "^0.11.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

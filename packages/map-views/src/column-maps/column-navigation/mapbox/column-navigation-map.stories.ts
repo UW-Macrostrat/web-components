@@ -17,7 +17,7 @@ function ColumnNavigationMapExt(props) {
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Column views/Maps/Column navigation",
+  title: "Map views/Column navigation",
   component: ColumnNavigationMapExt,
   description: "Cross section creation map",
 } as Meta<typeof ColumnNavigationMap>;
