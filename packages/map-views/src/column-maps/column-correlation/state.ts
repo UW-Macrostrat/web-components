@@ -18,6 +18,10 @@ import { createComputed } from "zustand-computed";
 import { useMacrostratColumns } from "@macrostrat/data-provider";
 import { buffer } from "@turf/buffer";
 import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
+import {
+  createScopedStore,
+  ZustandStoreProvider,
+} from "@macrostrat/scoped-store";
 
 export type CorrelationSelectionMode = "line" | "manual";
 
@@ -72,6 +76,7 @@ type ComputedStore = {
 /** A computed store that will automatically update when the state changes */
 const computed = createComputed((state: CorrelationMapStore): ComputedStore => {
   const manual = state.manualColumns != null;
+  console.log(state.manualColumns, state.focusedLine);
   return {
     selectionMode: manual ? "manual" : "line",
     // Focused columns are derived either from an explicit manual selection or
@@ -91,68 +96,70 @@ export function ColumnCorrelationProvider({
   manualColumns = null,
   onSelectColumns,
 }: CorrelationProviderProps) {
+  const initializeStore = (set, get): CorrelationMapStore => {
+    return {
+      focusedLine,
+      manualColumns,
+      hoveredColumn: null,
+      zoomColumn: null,
+      zoomNonce: 0,
+      projectID,
+      columns: null,
+      onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
+        const state = get();
+        // In manual-selection mode the map click is handled per-column
+        if (state.manualColumns != null) return;
+        // Check if shift key is pressed
+        const shiftKeyPressed = event.originalEvent.shiftKey;
+        let existingCoords = state.focusedLine?.coordinates ?? [];
+
+        if (existingCoords.length >= 2 && !shiftKeyPressed) {
+          // Reset the line to zero length
+          existingCoords = [];
+        }
+        set({
+          focusedLine: {
+            type: "LineString",
+            coordinates: [...existingCoords, point.coordinates],
+          },
+        });
+      },
+      toggleColumn(colID: number) {
+        const state = get();
+        const current =
+          state.manualColumns ??
+          state.focusedColumns.map((d) => d.properties.col_id);
+        const next = current.includes(colID)
+          ? current.filter((d) => d !== colID)
+          : [...current, colID];
+        set({ manualColumns: next, focusedLine: null });
+      },
+      removeColumn(colID: number) {
+        const state = get();
+        // Seed from the current selection (line-derived or manual)
+        const current =
+          state.manualColumns ??
+          state.focusedColumns.map((d) => d.properties.col_id);
+        set({
+          manualColumns: current.filter((d) => d !== colID),
+          focusedLine: null,
+        });
+      },
+      setManualColumns(colIDs: number[]) {
+        set({ manualColumns: colIDs, focusedLine: null });
+      },
+      setHoveredColumn(colID: number | null) {
+        set({ hoveredColumn: colID });
+      },
+      zoomToColumn(colID: number | null) {
+        set({ zoomColumn: colID, zoomNonce: get().zoomNonce + 1 });
+      },
+    };
+  };
+
   const [store] = useState(() => {
     return create<CorrelationMapStore & ComputedStore>(
-      computed((set, get): CorrelationMapStore => {
-        return {
-          focusedLine,
-          manualColumns,
-          hoveredColumn: null,
-          zoomColumn: null,
-          zoomNonce: 0,
-          projectID,
-          columns: null,
-          onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
-            const state = get();
-            // In manual-selection mode the map click is handled per-column
-            if (state.manualColumns != null) return;
-            // Check if shift key is pressed
-            const shiftKeyPressed = event.originalEvent.shiftKey;
-            let existingCoords = state.focusedLine?.coordinates ?? [];
-
-            if (existingCoords.length >= 2 && !shiftKeyPressed) {
-              // Reset the line to zero length
-              existingCoords = [];
-            }
-            set({
-              focusedLine: {
-                type: "LineString",
-                coordinates: [...existingCoords, point.coordinates],
-              },
-            });
-          },
-          toggleColumn(colID: number) {
-            const state = get();
-            const current =
-              state.manualColumns ??
-              state.focusedColumns.map((d) => d.properties.col_id);
-            const next = current.includes(colID)
-              ? current.filter((d) => d !== colID)
-              : [...current, colID];
-            set({ manualColumns: next, focusedLine: null });
-          },
-          removeColumn(colID: number) {
-            const state = get();
-            // Seed from the current selection (line-derived or manual)
-            const current =
-              state.manualColumns ??
-              state.focusedColumns.map((d) => d.properties.col_id);
-            set({
-              manualColumns: current.filter((d) => d !== colID),
-              focusedLine: null,
-            });
-          },
-          setManualColumns(colIDs: number[]) {
-            set({ manualColumns: colIDs, focusedLine: null });
-          },
-          setHoveredColumn(colID: number | null) {
-            set({ hoveredColumn: colID });
-          },
-          zoomToColumn(colID: number | null) {
-            set({ zoomColumn: colID, zoomNonce: get().zoomNonce + 1 });
-          },
-        };
-      }),
+      computed(initializeStore),
     );
   });
 

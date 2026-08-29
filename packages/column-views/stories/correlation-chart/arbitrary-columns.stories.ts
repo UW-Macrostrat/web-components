@@ -20,8 +20,8 @@ import {
   ColumnCorrelationProvider,
   useCorrelationMapStore,
   useColumnMapLink,
-  CorrelationChart,
-} from "../../src";
+} from "@macrostrat/map-views";
+import { CorrelationChart } from "../../src";
 import { CorrelationColumnHeader } from "./utils.ts";
 import styles from "./stories.module.sass";
 
