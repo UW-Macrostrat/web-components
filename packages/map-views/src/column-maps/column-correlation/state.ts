@@ -156,13 +156,18 @@ export function ColumnCorrelationProvider({
       },
     };
   };
-
   const [store] = useState(() => {
     return create<CorrelationMapStore & ComputedStore>(
       computed(initializeStore),
     );
   });
+  return h(CorrelationStoreContext.Provider, { value: store }, [
+    h(_StoreEffects, { store, projectID, inProcess, onSelectColumns }),
+    children,
+  ]);
+}
 
+function _StoreEffects({ store, projectID, inProcess, onSelectColumns }) {
   // Set up the store
   /** TODO: move the fetching of all columns to within the map */
   const _columns = useMacrostratColumns(projectID, inProcess);
@@ -173,14 +178,20 @@ export function ColumnCorrelationProvider({
   }, [_columns]);
 
   // Kind of an awkward way to do this but we need to allow the selector to run
-  const focusedColumns = useStore(store, (state) => state.focusedColumns);
-  const _focusedLine = useStore(store, (state) => state.focusedLine);
+  const focusedColumns = useStore(
+    store,
+    (state: CorrelationMapStore) => state.focusedColumns,
+  );
+  const _focusedLine = useStore(
+    store,
+    (state: CorrelationMapStore) => state.focusedLine,
+  );
 
   useEffect(() => {
     onSelectColumns?.(focusedColumns, _focusedLine);
   }, [focusedColumns, _focusedLine]);
 
-  return h(CorrelationStoreContext.Provider, { value: store }, children);
+  return null;
 }
 
 export function useCorrelationMapStore(
