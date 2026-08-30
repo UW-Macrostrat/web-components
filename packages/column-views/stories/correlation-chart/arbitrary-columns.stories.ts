@@ -27,7 +27,7 @@ const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 const h = hyperStyled(styles);
 
-function ArbitraryColumnsStoryUI({ projectID, manualColumns, ...rest }: any) {
+function ArbitraryColumnsStoryUI({ projectID, selectedColumns, ...rest }: any) {
   const domain = "https://dev.macrostrat.org";
   return h(
     MacrostratDataProvider,
@@ -40,7 +40,7 @@ function ArbitraryColumnsStoryUI({ projectID, manualColumns, ...rest }: any) {
         {
           // No line of section — columns are chosen directly (manual mode)
           focusedLine: null,
-          manualColumns: manualColumns ?? [],
+          selectedColumns: selectedColumns ?? [],
           columns: null,
           projectID,
           onSelectColumns() {},
@@ -93,7 +93,9 @@ function ColumnReorderList() {
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns,
   );
-  const setManualColumns = useCorrelationMapStore((s) => s.setManualColumns);
+  const setSelectedColumns = useCorrelationMapStore(
+    (s) => s.setSelectedColumns,
+  );
   const removeColumn = useCorrelationMapStore((s) => s.removeColumn);
   const setHoveredColumn = useCorrelationMapStore((s) => s.setHoveredColumn);
   const zoomToColumn = useCorrelationMapStore((s) => s.zoomToColumn);
@@ -107,7 +109,7 @@ function ColumnReorderList() {
   return h(SortableItems, {
     ids,
     className: "column-reorder-list",
-    onReorder: (next) => setManualColumns(next as number[]),
+    onReorder: (next) => setSelectedColumns(next as number[]),
     itemProps: (id) => ({
       className: "reorder-item",
       onMouseEnter: () => setHoveredColumn(id as number),
@@ -163,7 +165,7 @@ export default {
   },
   args: {
     // A couple of far-apart, non-adjacent columns to start with
-    manualColumns: [432, 490],
+    selectedColumns: [432, 490],
     columnSpacing: 20,
     columnWidth: 100,
     collapseSmallUnconformities: true,

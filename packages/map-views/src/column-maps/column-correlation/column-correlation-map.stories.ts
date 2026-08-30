@@ -15,7 +15,7 @@ function ColumnCorrelationMapExt(
 ) {
   const {
     focusedLine,
-    manualColumns,
+    columnIDs,
     columns,
     onSelectColumns,
     projectID,
@@ -27,7 +27,7 @@ function ColumnCorrelationMapExt(
     ColumnCorrelationProvider,
     {
       focusedLine,
-      manualColumns,
+      selectedColumns: columnIDs,
       columns,
       onSelectColumns,
       projectID,
@@ -71,7 +71,7 @@ export const manualColumnSelection = {
   args: {
     style: { width: "800px", height: "600px" },
     padding: 100,
-    manualColumns: [432, 490],
+    selectedColumns: [432, 490],
   },
 };
 

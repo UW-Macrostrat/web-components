@@ -22,14 +22,15 @@ import {
 export type CorrelationSelectionMode = "line" | "manual";
 
 export interface CorrelationMapInput {
-  columns: ColumnGeoJSONRecord[];
+  columns: ColumnGeoJSONRecord[] | null;
   focusedLine: LineString | null;
   /** When set, columns are selected manually (by clicking) in this order,
    * rather than derived from a line of section. */
-  manualColumns?: number[] | null;
+  selectedColumns?: number[] | null;
 }
 
 export interface CorrelationMapStore extends CorrelationMapInput {
+  columns: ColumnGeoJSONRecord[];
   onClickMap: (event: mapboxgl.MapMouseEvent, point: Point) => void;
   /** Toggle a column in/out of the manual selection (used in "manual" mode) */
   toggleColumn: (colID: number) => void;
@@ -39,7 +40,7 @@ export interface CorrelationMapStore extends CorrelationMapInput {
   removeColumn: (colID: number) => void;
   /** Replace the manual column selection with an explicit ordered list (used
    * e.g. for drag-and-drop reordering). Switches to manual mode. */
-  setManualColumns: (colIDs: number[]) => void;
+  setSelectedColumns: (colIDs: number[]) => void;
   setHoveredColumn: (colID: number | null) => void;
   hoveredColumn: number | null;
   /** Request the map to frame a particular column (e.g. on header click). */
@@ -66,16 +67,26 @@ type ComputedStore = {
   selectionMode: CorrelationSelectionMode;
 };
 
+type ComputedCorrelationMapStore = CorrelationMapStore & ComputedStore;
+
 /** A computed store that will automatically update when the state changes */
 const computed = createComputed((state: CorrelationMapStore): ComputedStore => {
-  const manual = state.manualColumns != null;
+  const manual = state.selectedColumns != null;
+  let focusedColumns: FocusedColumnGeoJSONRecord[] = [];
+  if (state.selectedColumns != null) {
+    focusedColumns = buildManuallySelectedColumns(
+      state.columns,
+      state.selectedColumns,
+    );
+  } else if (state.focusedLine != null) {
+    focusedColumns = buildCorrelationColumns(state.columns, state.focusedLine);
+  }
+
   return {
     selectionMode: manual ? "manual" : "line",
     // Focused columns are derived either from an explicit manual selection or
     // from the columns intersecting the line of section.
-    focusedColumns: manual
-      ? buildManualColumns(state.columns, state.manualColumns)
-      : buildCorrelationColumns(state.columns, state.focusedLine),
+    focusedColumns,
   };
 }) as any;
 
@@ -87,22 +98,22 @@ export function ColumnCorrelationProvider({
   projectID,
   inProcess,
   focusedLine,
-  manualColumns = null,
+  selectedColumns = null,
   onSelectColumns,
 }: CorrelationProviderProps) {
   const initializeStore = (set, get): CorrelationMapStore => {
     return {
       focusedLine,
-      manualColumns,
+      selectedColumns,
       hoveredColumn: null,
       zoomColumn: null,
       zoomNonce: 0,
       projectID,
-      columns: null,
+      columns: columns ?? [],
       onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
         const state = get();
         // In manual-selection mode the map click is handled per-column
-        if (state.manualColumns != null) return;
+        if (state.selectedColumns != null) return;
         // Check if shift key is pressed
         const shiftKeyPressed = event.originalEvent.shiftKey;
         let existingCoords = state.focusedLine?.coordinates ?? [];
@@ -121,26 +132,26 @@ export function ColumnCorrelationProvider({
       toggleColumn(colID: number) {
         const state = get();
         const current =
-          state.manualColumns ??
+          state.selectedColumns ??
           state.focusedColumns.map((d) => d.properties.col_id);
         const next = current.includes(colID)
           ? current.filter((d) => d !== colID)
           : [...current, colID];
-        set({ manualColumns: next, focusedLine: null });
+        set({ selectedColumns: next, focusedLine: null });
       },
       removeColumn(colID: number) {
         const state = get();
         // Seed from the current selection (line-derived or manual)
         const current =
-          state.manualColumns ??
+          state.selectedColumns ??
           state.focusedColumns.map((d) => d.properties.col_id);
         set({
-          manualColumns: current.filter((d) => d !== colID),
+          selectedColumns: current.filter((d) => d !== colID),
           focusedLine: null,
         });
       },
-      setManualColumns(colIDs: number[]) {
-        set({ manualColumns: colIDs, focusedLine: null });
+      setSelectedColumns(colIDs: number[]) {
+        set({ selectedColumns: colIDs, focusedLine: null });
       },
       setHoveredColumn(colID: number | null) {
         set({ hoveredColumn: colID });
@@ -225,7 +236,7 @@ function buildCorrelationColumns(
   );
 }
 
-function buildManualColumns(
+function buildManuallySelectedColumns(
   columns: ColumnGeoJSONRecord[],
   ids: number[],
 ): FocusedColumnGeoJSONRecord[] {
