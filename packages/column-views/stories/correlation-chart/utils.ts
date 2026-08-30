@@ -1,8 +1,15 @@
 import { useArgs } from "storybook/preview-api";
 import { useCallback } from "react";
-import { parseLineFromString, stringifyLine, Identifier } from "../../src";
-import type { ColumnHeaderProps } from "../../src";
+import type { AgeWindow, ColumnHeaderProps } from "../../src";
+import { Identifier, parseLineFromString, stringifyLine } from "../../src";
 import h from "./stories.module.sass";
+import {
+  ColumnData,
+  fetchUnits,
+  useMacrostratFetch,
+} from "@macrostrat/data-provider";
+import { useAsyncMemo } from "@macrostrat/ui-components";
+import { useCorrelationMapStore } from "@macrostrat/map-views";
 
 export function useCorrelationLine() {
   const [{ focusedLine, selectedUnit }, updateArgs] = useArgs();
@@ -38,4 +45,33 @@ export function CorrelationColumnHeader({
     " ",
     h(Identifier, { id: columnID, className: "column-id" }),
   ]);
+}
+
+export function useCorrelationChartUnits(): ColumnData[] | null {
+  const fetch = useMacrostratFetch();
+
+  // Sync focused columns with map
+  const focusedColumns = useCorrelationMapStore(
+    (state) => state.focusedColumns,
+  );
+
+  const colIDs = focusedColumns.map((col) => col.properties.col_id);
+
+  return useAsyncMemo(async () => {
+    const col_ids = focusedColumns.map((col) => col.properties.col_id);
+    return await fetchUnits(col_ids, fetch);
+  }, [colIDs.join(",")]);
+}
+
+export function correlationChartAgeRange(
+  columnData: ColumnData[] | null,
+): AgeWindow | null {
+  const units = columnData?.flatMap((d) => d.units) ?? [];
+
+  // The full data extent — the window we reset to and animate away from.
+  if (units.length === 0) return null;
+  return {
+    t_age: Math.min(...units.map((u) => u.t_age)),
+    b_age: Math.max(...units.map((u) => u.b_age)),
+  };
 }

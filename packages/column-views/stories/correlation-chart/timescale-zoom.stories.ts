@@ -2,26 +2,21 @@ import { Meta } from "@storybook/react-vite";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useState } from "react";
 import { Button, Intent, OverlaysProvider } from "@blueprintjs/core";
-import {
-  MacrostratDataProvider,
-  fetchUnits,
-  useMacrostratFetch,
-} from "@macrostrat/data-provider";
-import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
+import { MacrostratDataProvider } from "@macrostrat/data-provider";
+import { ErrorBoundary } from "@macrostrat/ui-components";
 import {
   MacrostratInteractionProvider,
   IntervalTag,
   type IntervalShort,
 } from "@macrostrat/data-components";
 
+import { CorrelationChart } from "../../src";
 import {
-  CorrelationChart,
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
-  useCorrelationMapStore,
   useColumnMapLink,
-} from "../../src";
-import { CorrelationColumnHeader } from "./utils.ts";
+} from "@macrostrat/map-views";
+import { CorrelationColumnHeader, useCorrelationChartUnits } from "./utils.ts";
 import styles from "./stories.module.sass";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
@@ -51,17 +46,9 @@ function TimescaleZoomStoryUI({ focusedLine, projectID, ...rest }: any) {
 }
 
 function TimescaleZoomLayout(props) {
-  const fetch = useMacrostratFetch();
-  const focusedColumns = useCorrelationMapStore(
-    (state) => state.focusedColumns,
-  );
-  const columnMapLink = useColumnMapLink();
-  const colIDs = focusedColumns.map((col) => col.properties.col_id);
+  const data = useCorrelationChartUnits();
 
-  const columnUnits = useAsyncMemo(async () => {
-    if (colIDs.length === 0) return [];
-    return await fetchUnits(colIDs, fetch);
-  }, [colIDs.join(",")]);
+  const columnMapLink = useColumnMapLink();
 
   // The interval we've zoomed to (null = full range)
   const [zoom, setZoom] = useState<{
@@ -97,7 +84,7 @@ function TimescaleZoomLayout(props) {
         ErrorBoundary,
         h(OverlaysProvider, [
           h(CorrelationChart, {
-            data: columnUnits,
+            data,
             columnHeaderComponent: CorrelationColumnHeader,
             // Show the current zoom as a pill above the timescale axis
             axisTopContent: h(ZoomPill, {
