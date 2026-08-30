@@ -177,3 +177,10 @@ export default {
 } as Meta<typeof ArbitraryColumnsStoryUI>;
 
 export const ArbitraryColumnSelection = {};
+
+export const TwoDifferentProjects = {
+  args: {
+    selectedColumns: [464, 2192],
+    projectID: "1,10",
+  },
+};
