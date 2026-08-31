@@ -81,11 +81,12 @@ export function UnitComponent<T extends BaseUnit>({
   let reducedWidth = _nColumns;
   if ("layout" in division) {
     const layout = division.layout;
-    _nColumns = Math.min(_nColumns, layout.totalColumns);
+    _nColumns = layout.totalColumns;
     columnIx = layout.column;
     reducedWidth = width / layout.totalColumns / layout.nColumns;
     x = (columnIx * width) / _nColumns;
   }
+
   return h(TrackedLabeledUnit, {
     division,
     ...rest,
@@ -168,23 +169,4 @@ export function EnvironmentColoredUnitComponent(props) {
     backgroundColor,
     ...props,
   });
-}
-
-function getPatternID(
-  liths: Array<Lithology>,
-  lithMap: Map<number, Lithology>,
-): string | null {
-  if (lithMap == null || liths == null || liths.length == 0) {
-    return null;
-  }
-  const patternIDs = new Set<string>();
-  for (const lith of liths) {
-    const lithData = lithMap.get(lith.lith_id);
-    if (lithData) {
-      patternIDs.add(`${lithData.fill}`);
-    }
-  }
-  let id = patternIDs.values()[0];
-  if (id == "0") return null;
-  return id;
 }
