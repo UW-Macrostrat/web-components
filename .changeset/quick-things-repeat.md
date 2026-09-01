@@ -6,4 +6,4 @@
 ---
 
 Created the @macrostrat/map-views module for specific map interactions and
-high-level views
+high-level views around Macrostrat maps.
