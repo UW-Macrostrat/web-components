@@ -49,6 +49,7 @@
     "@macrostrat/mapbox-react": "workspace:^",
     "@macrostrat/mapbox-utils": "workspace:^",
     "@macrostrat/scoped-store": "workspace:^",
+    "@macrostrat/stratigraphy-utils": "workspace:^",
     "@macrostrat/svg-map-components": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
     "@turf/boolean-point-in-polygon": "^7.3.2",

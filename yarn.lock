@@ -2017,6 +2017,7 @@ __metadata:
     "@macrostrat/mapbox-react": "workspace:^"
     "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/scoped-store": "workspace:^"
+    "@macrostrat/stratigraphy-utils": "workspace:^"
     "@macrostrat/svg-map-components": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
