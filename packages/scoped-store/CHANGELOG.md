@@ -1,5 +1,13 @@
 # @macrostrat/scoped-store
 
+## [1.1.0] - 2026-09-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/scoped-store-v1.0.1...@macrostrat/scoped-store-v1.1.0)
+
+### Minor Changes
+
+- `ZustandStoreProvider` passes an `inherit` prop through to the underlying
+  scoped provider
+  [03860266](https://github.com/UW-Macrostrat/web-components/commit/038602669f6d71fed4b847cd55c9d7c32885c054)
+
 ## [1.0.1] - 2026-07-28 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/scoped-store-v1.0.0...@macrostrat/scoped-store-v1.0.1)
 
 ### Patch Changes

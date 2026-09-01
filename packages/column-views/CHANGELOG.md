@@ -1,5 +1,30 @@
 # Changelog
 
+## [3.10.0] - 2026-09-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.9.0...@macrostrat/column-views-v3.10.0)
+
+### Minor Changes
+
+- Improve the internal structure of the correlation map store
+  [4738d3df](https://github.com/UW-Macrostrat/web-components/commit/4738d3df1bdec8f4b233af215cadc0422ed562e8)
+- Created the @macrostrat/map-views module for specific map interactions and
+  [4738d3df](https://github.com/UW-Macrostrat/web-components/commit/4738d3df1bdec8f4b233af215cadc0422ed562e8)
+  high-level views around Macrostrat maps.
+
+### Patch Changes
+
+- Improve the rendering of correlation chart units
+  [4738d3df](https://github.com/UW-Macrostrat/web-components/commit/4738d3df1bdec8f4b233af215cadc0422ed562e8)
+- Updated dependencies
+  [4738d3df](https://github.com/UW-Macrostrat/web-components/commit/4738d3df1bdec8f4b233af215cadc0422ed562e8)
+- Updated dependencies
+  [03860266](https://github.com/UW-Macrostrat/web-components/commit/038602669f6d71fed4b847cd55c9d7c32885c054)
+- Updated dependencies
+  [4738d3df](https://github.com/UW-Macrostrat/web-components/commit/4738d3df1bdec8f4b233af215cadc0422ed562e8)
+  - @macrostrat/map-views@1.0.0
+  - @macrostrat/scoped-store@1.1.0
+  - @macrostrat/stratigraphy-utils@1.4.0
+  - @macrostrat/api-types@1.3.0
+
 ## [3.9.0] - 2026-08-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.8.0...@macrostrat/column-views-v3.9.0)
 
 ### Minor Changes
