@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useEffect } from "react";
+import { ReactNode, RefObject, useCallback, useEffect } from "react";
 import { useMemo, useRef } from "react";
 import update from "immutability-helper";
 import type {
@@ -27,7 +27,18 @@ export type StyleFragment = Partial<StyleSpecification> & {
   order?: number;
 };
 
-export function MapboxMapProvider({ children }) {
+interface MapboxMapProviderProps {
+  children?: ReactNode;
+  /** Reuse the map state of an enclosing provider, if one exists. Set to
+   * `false` to manage a second, independent map within an existing map
+   * context (e.g. the two panes of a `CompareMapView`). */
+  inherit?: boolean;
+}
+
+export function MapboxMapProvider({
+  children,
+  inherit = true,
+}: MapboxMapProviderProps) {
   const ref = useRef<Map | null>(null);
   const initializeStore = useCallback((set) => {
     return {
@@ -44,7 +55,7 @@ export function MapboxMapProvider({ children }) {
       },
     };
   }, []);
-  return h(ZustandStoreProvider, { ctx, initializeStore }, children);
+  return h(ZustandStoreProvider, { ctx, initializeStore, inherit }, children);
 }
 
 function internal_useMapSelector<T>(selector: (state: MapState) => T): T {
