@@ -13,14 +13,11 @@
   "module": "dist/index.js",
   "node": "dist/index.cjs",
   "types": "dist/index.d.ts",
-  "style": "dist/map-views.css",
   "files": [
     "src",
     "dist"
   ],
-  "sideEffects": [
-    "**/*.css"
-  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "source": "./src/index.ts",
@@ -31,12 +28,9 @@
       "require": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.cjs"
-      },
-      "style": "./dist/map-views.css"
+      }
     },
-    "./package.json": "./package.json",
-    "./style.css": "./dist/map-views.css",
-    "./dist/map-views.css": "./dist/map-views.css"
+    "./package.json": "./package.json"
   },
   "scripts": {
     "build": "bundle-library ."
