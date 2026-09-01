@@ -26,6 +26,16 @@ const meta: Meta<typeof MapAreaContainer> = {
       },
     },
   },
+  args: {
+    detailPanel: h(Box, {
+      backgroundColor: "magenta",
+      flex: 1,
+      minHeight: 50,
+    }),
+  },
+  render(props) {
+    return h(MapAreaContainerDemo, props);
+  },
 };
 
 export default meta;
@@ -55,14 +65,10 @@ function MapAreaContainerDemo(props: any) {
       }),
     mainPanel:
       mainPanel ?? h(Box, { outline: "2px dotted dodgerblue", flex: 1 }),
-    detailPanel:
-      detailPanel ??
-      h(Box, {
-        backgroundColor: "magenta",
-        flex: 1,
-        minHeight: 50,
-      }),
-    mapControls: mapControls ?? h(Box, { backgroundColor: "gray", height: 30 }),
+    detailPanel,
+    mapControls:
+      mapControls ??
+      h(Box, { backgroundColor: "gray", height: 30, flexShrink: 0 }),
   });
 }
 
@@ -91,36 +97,43 @@ export const SmallContextPanel = {
 };
 
 export const LargeContextPanel = {
-  render() {
-    return h(MapAreaContainerDemo, {
-      contextPanel: h(
-        Box,
-        {
-          backgroundColor: "dodgerblue",
-          flex: 1,
-          padding: "1rem",
-          overflowY: "scroll",
-        },
-        h("div.content", blurbFor(10)),
-      ),
-    });
+  args: {
+    contextPanel: h(
+      Box,
+      {
+        backgroundColor: "dodgerblue",
+        flex: 1,
+        padding: "1rem",
+        overflowY: "scroll",
+      },
+      h("div.content", blurbFor(10)),
+    ),
   },
 };
 
 export const LargeDetailPanel = {
-  render() {
-    return h(MapAreaContainerDemo, {
-      detailPanel: h(
-        Box,
-        {
-          backgroundColor: "lightsalmon",
-          flex: 1,
-          padding: "1rem",
-          overflowY: "scroll",
-          color: "darksalmon",
-        },
-        h("div.content", blurbFor(10)),
-      ),
-    });
+  args: {
+    detailPanel: h(
+      Box,
+      {
+        backgroundColor: "magenta",
+        flex: 1,
+        padding: "1rem",
+        overflowY: "scroll",
+      },
+      h("div.content", blurbFor(10)),
+    ),
+  },
+};
+
+export const NoDetailPanel = {
+  args: {
+    detailPanel: null,
+  },
+};
+
+export const WithPanelOutlines = {
+  args: {
+    showPanelOutlines: true,
   },
 };

@@ -102,7 +102,7 @@ function _MapAreaContainer({
 
   const mapControlsExt = h([
     h(ZoomControl, { className: "zoom-control" }),
-    h("div.spacer"),
+    //h("div.spacer"),
     mapControls,
   ]);
 
@@ -126,7 +126,7 @@ function _MapAreaContainer({
     h("div.main-row", [
       h("div.map-ui", rest, [
         h("div.context-stack-holder", contextStack),
-        children ?? mainPanel,
+        h("div.map-main-stack", [children ?? mainPanel]),
         h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([detailStackExt]),
         h.if(detailPanelStyle == DetailPanelStyle.FIXED)(
           "div.map-control-stack",
