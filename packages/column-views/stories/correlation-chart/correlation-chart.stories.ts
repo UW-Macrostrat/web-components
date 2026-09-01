@@ -1,26 +1,25 @@
 import { Meta } from "@storybook/react-vite";
 import "@macrostrat/style-system";
-import { useCorrelationLine, CorrelationColumnHeader } from "./utils.ts";
+import {
+  CorrelationColumnHeader,
+  useCorrelationChartUnits,
+  useCorrelationLine,
+} from "./utils.ts";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
-  MergeSectionsMode,
-  useCorrelationMapStore,
   useColumnMapLink,
-} from "../../src";
+} from "@macrostrat/map-views";
 import { hyperStyled } from "@macrostrat/hyper";
-import {
-  MacrostratDataProvider,
-  fetchUnits,
-  useMacrostratFetch,
-} from "@macrostrat/data-provider";
+import { MacrostratDataProvider } from "@macrostrat/data-provider";
 
 import styles from "./stories.module.sass";
 import {
   CorrelationChart,
   CorrelationChartProps,
-} from "../../src/correlation-chart/main.ts";
-import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
+  MergeSectionsMode,
+} from "../../src";
+import { ErrorBoundary } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
 import { EnvironmentColoredUnitComponent } from "../../src/units";
 import { scaleLinear, scalePow } from "d3-scale";
@@ -75,27 +74,16 @@ function CorrelationStoryUI({
 
 function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
   /** This state management is a bit too complicated, but it does kinda sorta work */
-
-  const fetch = useMacrostratFetch();
-
-  // Sync focused columns with map
-  const focusedColumns = useCorrelationMapStore(
-    (state) => state.focusedColumns,
-  );
   // Link column hover/click to the map (highlight on hover, frame on click)
   const columnMapLink = useColumnMapLink();
-
-  const columnUnits = useAsyncMemo(async () => {
-    const col_ids = focusedColumns.map((col) => col.properties.col_id);
-    return await fetchUnits(col_ids, fetch);
-  }, [focusedColumns]);
+  const data = useCorrelationChartUnits();
 
   return h("div.correlation-diagram", [
     h(
       ErrorBoundary,
       h(OverlaysProvider, [
         h(CorrelationChart, {
-          data: columnUnits,
+          data,
           ...props,
           ...columnMapLink,
         }),
@@ -276,4 +264,3 @@ WideColumnSpacing.parameters = {
     },
   },
 };
-

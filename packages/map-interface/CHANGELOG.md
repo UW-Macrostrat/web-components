@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.4.0] - 2026-09-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.3.3...@macrostrat/map-interface-v2.4.0)
+
+### Minor Changes
+
+- Add `CompareMapView`, a swipe-to-compare view that reveals one of two
+  synchronized maps with a draggable divider
+  [03860266](https://github.com/UW-Macrostrat/web-components/commit/038602669f6d71fed4b847cd55c9d7c32885c054)
+
+### Patch Changes
+
+- Updated dependencies
+  [03860266](https://github.com/UW-Macrostrat/web-components/commit/038602669f6d71fed4b847cd55c9d7c32885c054)
+  - @macrostrat/mapbox-react@3.4.0
+
 ## [2.3.3] - 2026-08-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.3.2...@macrostrat/map-interface-v2.3.3)
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/stratigraphy-utils",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Utility functions for dealing with stratigraphy",
   "repository": {
     "type": "git",
@@ -35,6 +35,10 @@
   },
   "scripts": {
     "build": "bundle-library ."
+  },
+  "dependencies": {
+    "@macrostrat/api-types": "workspace:*",
+    "chroma-js": "^3.2.0"
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"

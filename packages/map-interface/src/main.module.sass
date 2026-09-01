@@ -8,7 +8,7 @@
   --map-panel-border-radius: 6px
 
   &.show-panel-outlines
-    .map-view-container
+    .map-padding-overlay
       outline: 2px dotted dodgerblue
 
   &.fit-viewport
@@ -47,6 +47,10 @@
       opacity: 0
       display: none
 
+  &:not(.detail-panel-open)
+    .detail-stack
+      margin-left: calc(-1 * var(--map-detail-stack-width, 30em))
+
   &.detail-panel-fixed
     .detail-panel-holder
       & > *
@@ -62,9 +66,15 @@
 
 .detail-stack
   position: relative
+  justify-content: space-between
 
 .detail-panel-container, .map-right-controls
   flex: 1
+
+.map-main-stack
+  display: flex
+  flex-direction: column
+  flex-grow: 1
 
 .map-control-stack
   display: flex

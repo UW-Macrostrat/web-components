@@ -1,0 +1,107 @@
+.compare-map-view
+  // Mirrors the divider position, so the handle can be placed on it
+  --compare-position: 50%
+  position: relative
+  flex: 1
+  width: 100%
+  height: 100%
+  overflow: hidden
+  // Each map is sized against this box rather than against its own pane, so
+  // that dragging the divider reveals more of a map instead of resizing it.
+  container-type: size
+
+  &.standalone
+    position: relative
+    width: 100%
+    height: 100%
+
+  // Everything in this component is positioned against this box, so it has to
+  // cover the area the maps should fill. In the map-interface layout that is
+  // the whole `.map-ui`, not the padded center column the compare view is
+  // nested in -- the same "overflow the safe area" behavior that
+  // `.map-view-container:not(.standalone)` gets by unsetting its position.
+  @media screen and (min-width: 768px)
+    &:not(.standalone)
+      position: absolute
+      top: 0
+      bottom: 0
+      left: 0
+      right: 0
+      width: auto
+      height: auto
+
+// Each pane fills the whole compare view and is anchored to the outer edge it
+// owns, so the split-view pane it sits in only ever reveals part of it. The
+// panes clip with `overflow: hidden`, which clips hit testing as well as
+// painting -- that is what lets each map be interacted with where it's visible.
+.compare-pane
+  position: absolute
+  width: 100cqw
+  height: 100cqh
+
+  // The maps are rendered standalone so they size to this pane rather than
+  // overflowing it; this pins them to it explicitly as well.
+  & > *
+    position: absolute
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
+
+.vertical
+  .compare-pane
+    top: 0
+
+    &.before
+      left: 0
+
+    &.after
+      right: 0
+
+.horizontal
+  .compare-pane
+    left: 0
+
+    &.before
+      top: 0
+
+    &.after
+      bottom: 0
+
+// The visible divider. Dragging is handled by allotment's sash, which sits
+// above this (z-index 35); `pointer-events: none` keeps this out of the way
+// while still allowing keyboard focus.
+.compare-handle
+  position: absolute
+  z-index: 4
+  pointer-events: none
+  background-color: var(--panel-background-color, #fff)
+  box-shadow: 0 0 3px 0 var(--card-shadow-color, rgba(0, 0, 0, 0.3))
+
+  &::after
+    content: ""
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    width: 34px
+    height: 34px
+    border-radius: 50%
+    background-color: var(--accent-color, #3887be)
+    box-shadow: inset 0 0 0 2px var(--panel-background-color, #fff), 0 0 4px 0 var(--card-shadow-color, rgba(0, 0, 0, 0.3))
+
+  &:focus-visible
+    outline: 2px solid var(--accent-color, #3887be)
+    outline-offset: 2px
+
+.vertical .compare-handle
+  top: 0
+  bottom: 0
+  width: 2px
+  left: calc(var(--compare-position) - 1px)
+
+.horizontal .compare-handle
+  left: 0
+  right: 0
+  height: 2px
+  top: calc(var(--compare-position) - 1px)

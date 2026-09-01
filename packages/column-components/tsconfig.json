@@ -11,6 +11,7 @@
     "stories"
   ],
   "references": [
+    { "path": "../color-utils" },
     { "path": "../stratigraphy-utils" },
     { "path": "../timescale" },
     { "path": "../ui-components" }

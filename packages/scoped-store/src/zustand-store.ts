@@ -49,6 +49,9 @@ interface ZustandStoreProviderProps<T> {
   atoms?: AtomMap;
   children?: React.ReactNode;
   debugName?: string;
+  /** Reuse a store from an enclosing provider, if one exists. Set to `false`
+   * to nest an independent store within an existing one. */
+  inherit?: boolean;
 }
 
 const debugNameAtom = atom<string>("Zustand store");
@@ -59,7 +62,7 @@ export function ZustandStoreProvider<T>(props: ZustandStoreProviderProps<T>) {
    * state isolation context. It is meant to support transition
    * to Jotai as state management infrastructure
    * */
-  const { ctx, atoms, initializeStore, children, debugName } = props;
+  const { ctx, atoms, initializeStore, children, debugName, inherit } = props;
   const [storeAPI] = useState(() => {
     return createStore<T>(initializeStore);
   });
@@ -80,6 +83,7 @@ export function ZustandStoreProvider<T>(props: ZustandStoreProviderProps<T>) {
     ctx.Provider,
     {
       atoms: atomMap,
+      inherit,
     },
     children,
   );

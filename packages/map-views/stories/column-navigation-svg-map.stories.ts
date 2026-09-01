@@ -1,7 +1,7 @@
 import h from "@macrostrat/hyper";
 
 import { Meta } from "@storybook/react-vite";
-import { ColumnNavigationSVGMap, ColumnNavigationSVGMapProps } from ".";
+import { ColumnNavigationSVGMap, ColumnNavigationSVGMapProps } from "../src";
 import { MacrostratDataProvider } from "@macrostrat/data-provider";
 import { useState } from "react";
 
@@ -18,7 +18,7 @@ function BasicColumnNavigationSVGMap(props: ColumnIndexMapProps) {
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Column views/Maps/Column navigation (SVG)",
+  title: "Map views/Column navigation (SVG)",
   component: BasicColumnNavigationSVGMap,
 } as Meta<typeof ColumnNavigationSVGMap>;
 

@@ -1,30 +1,25 @@
 import { Meta } from "@storybook/react-vite";
-import { hyperStyled } from "@macrostrat/hyper";
 import { useMemo } from "react";
 import { Button, Intent, OverlaysProvider } from "@blueprintjs/core";
-import {
-  MacrostratDataProvider,
-  fetchUnits,
-  useMacrostratFetch,
-} from "@macrostrat/data-provider";
-import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
+import { MacrostratDataProvider } from "@macrostrat/data-provider";
+import { ErrorBoundary } from "@macrostrat/ui-components";
 import { MacrostratInteractionProvider } from "@macrostrat/data-components";
 
+import { CorrelationChart, useAnimatedAgeWindow } from "../../src";
 import {
-  CorrelationChart,
+  correlationChartAgeRange,
+  CorrelationColumnHeader,
+  useCorrelationChartUnits,
+} from "../correlation-chart/utils.ts";
+import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
-  useCorrelationMapStore,
   useColumnMapLink,
-  useAnimatedAgeWindow,
-  type AgeWindow,
-} from "../../src";
-import { CorrelationColumnHeader } from "../correlation-chart/utils.ts";
-import styles from "../correlation-chart/stories.module.sass";
+} from "@macrostrat/map-views";
+
+import h from "../correlation-chart/stories.module.sass";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
-
-const h = hyperStyled(styles);
 
 function AnimatedZoomStoryUI({ focusedLine, projectID, ...rest }: any) {
   const domain = "https://dev.macrostrat.org";
@@ -49,31 +44,13 @@ function AnimatedZoomStoryUI({ focusedLine, projectID, ...rest }: any) {
 }
 
 function AnimatedZoomLayout(props) {
-  const fetch = useMacrostratFetch();
-  const focusedColumns = useCorrelationMapStore(
-    (state) => state.focusedColumns,
-  );
   const columnMapLink = useColumnMapLink();
-  const colIDs = focusedColumns.map((col) => col.properties.col_id);
+  const columnUnits = useCorrelationChartUnits();
 
-  const columnUnits = useAsyncMemo(async () => {
-    if (colIDs.length === 0) return [];
-    return await fetchUnits(colIDs, fetch);
-  }, [colIDs.join(",")]);
-
-  const units = useMemo(
-    () => columnUnits?.flatMap((d) => d.units) ?? [],
+  const fullExtent = useMemo(
+    () => correlationChartAgeRange(columnUnits),
     [columnUnits],
   );
-
-  // The full data extent — the window we reset to and animate away from.
-  const fullExtent = useMemo<AgeWindow | null>(() => {
-    if (units.length === 0) return null;
-    return {
-      t_age: Math.min(...units.map((u) => u.t_age)),
-      b_age: Math.max(...units.map((u) => u.b_age)),
-    };
-  }, [units]);
 
   const zoom = useAnimatedAgeWindow({ fullExtent });
 
@@ -130,7 +107,10 @@ function AnimatedZoomLayout(props) {
           "p",
           "Click a timescale interval (left axis) to pan-and-contract the chart to that span.",
         ),
-        h("p", "Density (px/Myr) is unchanged; use Reset to ease back to the full column."),
+        h(
+          "p",
+          "Density (px/Myr) is unchanged; use Reset to ease back to the full column.",
+        ),
       ]),
     ]),
   ]);

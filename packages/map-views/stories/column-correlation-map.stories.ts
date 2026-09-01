@@ -8,14 +8,14 @@ import {
   ColumnCorrelationProvider,
   CorrelationMapProps,
   CorrelationProviderProps,
-} from ".";
+} from "../src";
 
 function ColumnCorrelationMapExt(
   props: CorrelationMapProps & CorrelationProviderProps,
 ) {
   const {
     focusedLine,
-    manualColumns,
+    columnIDs,
     columns,
     onSelectColumns,
     projectID,
@@ -27,7 +27,7 @@ function ColumnCorrelationMapExt(
     ColumnCorrelationProvider,
     {
       focusedLine,
-      manualColumns,
+      selectedColumns: columnIDs,
       columns,
       onSelectColumns,
       projectID,
@@ -39,7 +39,7 @@ function ColumnCorrelationMapExt(
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Column views/Maps/Column correlation",
+  title: "Map views/Column correlation",
   component: ColumnCorrelationMapExt,
   description: "Cross section creation map",
 } as Meta<typeof ColumnCorrelationMapExt>;
@@ -71,7 +71,7 @@ export const manualColumnSelection = {
   args: {
     style: { width: "800px", height: "600px" },
     padding: 100,
-    manualColumns: [432, 490],
+    selectedColumns: [432, 490],
   },
 };
 

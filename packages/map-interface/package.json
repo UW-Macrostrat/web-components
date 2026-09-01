@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "2.3.3",
+  "version": "2.4.0",
   "description": "Map interface for Macrostrat",
   "repository": {
     "type": "git",
@@ -56,6 +56,7 @@
     "@mapbox/tilebelt": "^2.0.0",
     "@visx/axis": "^3.12.0",
     "@visx/scale": "^3.12.0",
+    "allotment": "^1.20.5",
     "chroma-js": "^3.2.0",
     "classnames": "^2.5.1",
     "d3-array": "^3.2.4",

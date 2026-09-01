@@ -9,6 +9,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { debounce } from "underscore";
 import useResizeObserver from "use-resize-observer";
+import h from "./main.module.sass";
 
 import {
   getFocusState,
@@ -16,7 +17,8 @@ import {
   PositionFocusState,
 } from "@macrostrat/mapbox-utils";
 import { getMapPadding, useMapMarker } from "./utils";
-import { useInDarkMode } from "@macrostrat/ui-components";
+import { expandPadding, useInDarkMode } from "@macrostrat/ui-components";
+import { PaddingOptions } from "mapbox-gl";
 
 export function MapResizeManager({ containerRef }) {
   const mapRef = useMapRef();
@@ -47,6 +49,7 @@ export function MapPaddingManager({
   parentRef,
   infoMarkerPosition,
   debounceTime = 200,
+  showOverlay = false,
 }: MapPaddingManagerProps) {
   const mapRef = useMapRef();
 
@@ -84,7 +87,21 @@ export function MapPaddingManager({
   // Ideally, we would not have to do this when we know the infobox is loaded
   useMapEaseTo({ center: infoMarkerPosition, padding });
 
-  return null;
+  const paddingStyle = buildPaddingCSS(padding);
+
+  return h("div.map-padding-overlay", { style: paddingStyle });
+}
+
+function buildPaddingCSS(padding: PaddingOptions | undefined) {
+  const { top = 0, bottom = 0, left = 0, right = 0 } = padding ?? {};
+  return {
+    position: "absolute",
+    top: `${top}px`,
+    bottom: `${bottom}px`,
+    left: `${left}px`,
+    right: `${right}px`,
+    pointerEvents: "none",
+  };
 }
 
 export function MapMovedReporter({ onMapMoved = null }) {

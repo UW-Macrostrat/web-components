@@ -8,8 +8,11 @@ import { FeatureCollection } from "geojson";
 import { useMemo } from "react";
 import { mergeStyles, setGeoJSON } from "@macrostrat/mapbox-utils";
 import { UnitLithology, UnitLong } from "@macrostrat/api-types";
-import { flattenLithologies, getMixedColorForData } from "../../units";
-import { getBestFGDCPatternForLithologyList } from "../../units/resolvers";
+import {
+  flattenLithologies,
+  getMixedColorForData,
+  getBestFGDCPatternForLithologyList,
+} from "@macrostrat/stratigraphy-utils";
 import {
   setupStyleImageManager,
   loadStyleImage,

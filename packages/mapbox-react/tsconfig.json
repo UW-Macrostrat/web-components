@@ -12,6 +12,7 @@
   "references": [
     { "path": "../map-styles" },
     { "path": "../mapbox-utils" },
+    { "path": "../scoped-store" },
     { "path": "../ui-components" }
   ]
 }

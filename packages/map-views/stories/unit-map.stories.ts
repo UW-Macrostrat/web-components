@@ -1,12 +1,12 @@
 import h from "@macrostrat/hyper";
 import { Meta } from "@storybook/react-vite";
-import { InsetMap } from "./inset-map";
 import { MacrostratDataProvider } from "@macrostrat/data-provider";
-import { MacrostratUnitsOverlay } from "./layers/units";
 import {
+  InsetMap,
+  MacrostratUnitsOverlay,
   ColumnHoverInteraction,
   ColumnSelectionManager,
-} from "./column-navigation";
+} from "../src";
 import { useState } from "react";
 
 // @ts-ignore
@@ -14,7 +14,7 @@ const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Column views/Maps/Unit map",
+  title: "Map views/Unit map",
   component: UnitMapComponent,
   description: "A map of units through time",
   argTypes: {

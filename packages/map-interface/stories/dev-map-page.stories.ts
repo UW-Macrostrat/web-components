@@ -86,6 +86,16 @@ export const WithBounds: Story = {
   },
 };
 
+export const WithPanelOutlines: Story = {
+  args: {
+    title: "Macrostrat",
+    overlayStyle: buildMacrostratStyle({}),
+    // Zoom to Utah
+    bounds: [-114.052885, 36.997966, -109.04106, 42.001567],
+    showPanelOutlines: true,
+  },
+};
+
 export const LowAltitudeOblique: Story = {
   args: {
     title: "Low altitude oblique view",

@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.4.0] - 2026-09-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.3.3...@macrostrat/mapbox-react-v3.4.0)
+
+### Minor Changes
+
+- Add `useLinkedMapCameras` / `linkMapCameras` / `copyMapCamera`, which lock
+  several maps' cameras together using the free-camera API
+  [03860266](https://github.com/UW-Macrostrat/web-components/commit/038602669f6d71fed4b847cd55c9d7c32885c054)
+
+  `MapboxMapProvider` accepts an `inherit` prop, so a second map can be managed
+  within an existing map context
+
+### Patch Changes
+
+- Updated dependencies
+  [03860266](https://github.com/UW-Macrostrat/web-components/commit/038602669f6d71fed4b847cd55c9d7c32885c054)
+  - @macrostrat/scoped-store@1.1.0
+
 ## [3.3.3] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.3.2...@macrostrat/mapbox-react-v3.3.3)
 
 ### Patch Changes

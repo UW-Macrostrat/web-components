@@ -20,6 +20,7 @@ export interface CorrelationMapProps extends InsetMapProps {
   children?: ReactNode;
   accessToken?: string;
   columnColor?: string;
+  projectID?: number;
 }
 
 export function ColumnCorrelationMap(props: CorrelationMapProps) {
@@ -56,7 +57,9 @@ function ColumnZoomer({ padding }: { padding: number }) {
     const col = columns.find((c) => c.properties?.col_id === zoomColumn);
     if (col?.geometry == null) return null;
     const b = new LngLatBounds();
-    forEachCoordinate(col.geometry, (coord) => b.extend(coord as [number, number]));
+    forEachCoordinate(col.geometry, (coord) =>
+      b.extend(coord as [number, number]),
+    );
     return b.isEmpty() ? null : b;
     // zoomNonce forces a fresh bounds object so repeat clicks re-frame
   }, [zoomColumn, zoomNonce, columns]);

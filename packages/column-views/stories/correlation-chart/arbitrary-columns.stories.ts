@@ -3,11 +3,9 @@ import "@macrostrat/style-system";
 import { hyperStyled } from "@macrostrat/hyper";
 import {
   MacrostratDataProvider,
-  fetchUnits,
-  useMacrostratFetch,
   useMacrostratColumnInfo,
 } from "@macrostrat/data-provider";
-import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
+import { ErrorBoundary } from "@macrostrat/ui-components";
 import { Button, Intent, OverlaysProvider } from "@blueprintjs/core";
 import {
   MacrostratInteractionProvider,
@@ -20,16 +18,16 @@ import {
   ColumnCorrelationProvider,
   useCorrelationMapStore,
   useColumnMapLink,
-  CorrelationChart,
-} from "../../src";
-import { CorrelationColumnHeader } from "./utils.ts";
+} from "@macrostrat/map-views";
+import { CorrelationChart } from "../../src";
+import { CorrelationColumnHeader, useCorrelationChartUnits } from "./utils.ts";
 import styles from "./stories.module.sass";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 const h = hyperStyled(styles);
 
-function ArbitraryColumnsStoryUI({ projectID, manualColumns, ...rest }: any) {
+function ArbitraryColumnsStoryUI({ projectID, selectedColumns, ...rest }: any) {
   const domain = "https://dev.macrostrat.org";
   return h(
     MacrostratDataProvider,
@@ -42,7 +40,7 @@ function ArbitraryColumnsStoryUI({ projectID, manualColumns, ...rest }: any) {
         {
           // No line of section — columns are chosen directly (manual mode)
           focusedLine: null,
-          manualColumns: manualColumns ?? [],
+          selectedColumns: selectedColumns ?? [],
           columns: null,
           projectID,
           onSelectColumns() {},
@@ -54,21 +52,8 @@ function ArbitraryColumnsStoryUI({ projectID, manualColumns, ...rest }: any) {
 }
 
 function ArbitraryColumnsLayout(props) {
-  /** Select an arbitrary set of (possibly non-adjacent) columns directly, with
-   * no line-of-section. Click columns on the map to add/remove them, and use
-   * the sidebar list to reorder or remove them. */
-  const fetch = useMacrostratFetch();
-
-  const focusedColumns = useCorrelationMapStore(
-    (state) => state.focusedColumns,
-  );
+  const data = useCorrelationChartUnits();
   const columnMapLink = useColumnMapLink();
-  const colIDs = focusedColumns.map((col) => col.properties.col_id);
-
-  const columnUnits = useAsyncMemo(async () => {
-    if (colIDs.length === 0) return [];
-    return await fetchUnits(colIDs, fetch);
-  }, [colIDs.join(",")]);
 
   return h("div.side-panel-ui", [
     h(
@@ -77,7 +62,7 @@ function ArbitraryColumnsLayout(props) {
         ErrorBoundary,
         h(OverlaysProvider, [
           h(CorrelationChart, {
-            data: columnUnits,
+            data,
             columnHeaderComponent: CorrelationColumnHeader,
             ...columnMapLink,
             ...props,
@@ -108,7 +93,9 @@ function ColumnReorderList() {
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns,
   );
-  const setManualColumns = useCorrelationMapStore((s) => s.setManualColumns);
+  const setSelectedColumns = useCorrelationMapStore(
+    (s) => s.setSelectedColumns,
+  );
   const removeColumn = useCorrelationMapStore((s) => s.removeColumn);
   const setHoveredColumn = useCorrelationMapStore((s) => s.setHoveredColumn);
   const zoomToColumn = useCorrelationMapStore((s) => s.zoomToColumn);
@@ -122,7 +109,7 @@ function ColumnReorderList() {
   return h(SortableItems, {
     ids,
     className: "column-reorder-list",
-    onReorder: (next) => setManualColumns(next as number[]),
+    onReorder: (next) => setSelectedColumns(next as number[]),
     itemProps: (id) => ({
       className: "reorder-item",
       onMouseEnter: () => setHoveredColumn(id as number),
@@ -178,7 +165,7 @@ export default {
   },
   args: {
     // A couple of far-apart, non-adjacent columns to start with
-    manualColumns: [432, 490],
+    selectedColumns: [432, 490],
     columnSpacing: 20,
     columnWidth: 100,
     collapseSmallUnconformities: true,
@@ -190,3 +177,10 @@ export default {
 } as Meta<typeof ArbitraryColumnsStoryUI>;
 
 export const ArbitraryColumnSelection = {};
+
+export const TwoDifferentProjects = {
+  args: {
+    selectedColumns: [464, 2192],
+    projectID: "1,10",
+  },
+};

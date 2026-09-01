@@ -1,35 +1,36 @@
 import { LineString, Point } from "geojson";
-import { create, StoreApi, useStore } from "zustand";
+import { useStore } from "zustand";
 import type { ColumnGeoJSONRecord } from "@macrostrat/api-types";
 // Turf intersection
 import { lineIntersect } from "@turf/line-intersect";
 import distance from "@turf/distance";
 import { nearestPointOnLine } from "@turf/nearest-point-on-line";
 import { centroid } from "@turf/centroid";
-import {
-  createContext,
-  useState,
-  useContext,
-  ReactNode,
-  useEffect,
-} from "react";
+import { ReactNode, useEffect } from "react";
 import h from "@macrostrat/hyper";
 import { createComputed } from "zustand-computed";
 import { useMacrostratColumns } from "@macrostrat/data-provider";
 import { buffer } from "@turf/buffer";
 import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
+import {
+  createScopedStore,
+  useZustandSelector,
+  useZustandStoreAPI,
+  ZustandStoreProvider,
+} from "@macrostrat/scoped-store";
 
 export type CorrelationSelectionMode = "line" | "manual";
 
 export interface CorrelationMapInput {
-  columns: ColumnGeoJSONRecord[];
+  columns: ColumnGeoJSONRecord[] | null;
   focusedLine: LineString | null;
   /** When set, columns are selected manually (by clicking) in this order,
    * rather than derived from a line of section. */
-  manualColumns?: number[] | null;
+  selectedColumns?: number[] | null;
 }
 
 export interface CorrelationMapStore extends CorrelationMapInput {
+  columns: ColumnGeoJSONRecord[];
   onClickMap: (event: mapboxgl.MapMouseEvent, point: Point) => void;
   /** Toggle a column in/out of the manual selection (used in "manual" mode) */
   toggleColumn: (colID: number) => void;
@@ -39,7 +40,7 @@ export interface CorrelationMapStore extends CorrelationMapInput {
   removeColumn: (colID: number) => void;
   /** Replace the manual column selection with an explicit ordered list (used
    * e.g. for drag-and-drop reordering). Switches to manual mode. */
-  setManualColumns: (colIDs: number[]) => void;
+  setSelectedColumns: (colIDs: number[]) => void;
   setHoveredColumn: (colID: number | null) => void;
   hoveredColumn: number | null;
   /** Request the map to frame a particular column (e.g. on header click). */
@@ -61,26 +62,35 @@ export interface CorrelationProviderProps extends CorrelationMapInput {
   ) => void;
 }
 
-const CorrelationStoreContext =
-  createContext<StoreApi<CorrelationMapStore> | null>(null);
-
 type ComputedStore = {
   focusedColumns: FocusedColumnGeoJSONRecord[];
   selectionMode: CorrelationSelectionMode;
 };
 
+type ComputedCorrelationMapStore = CorrelationMapStore & ComputedStore;
+
 /** A computed store that will automatically update when the state changes */
 const computed = createComputed((state: CorrelationMapStore): ComputedStore => {
-  const manual = state.manualColumns != null;
+  const manual = state.selectedColumns != null;
+  let focusedColumns: FocusedColumnGeoJSONRecord[] = [];
+  if (state.selectedColumns != null) {
+    focusedColumns = buildManuallySelectedColumns(
+      state.columns,
+      state.selectedColumns,
+    );
+  } else if (state.focusedLine != null) {
+    focusedColumns = buildCorrelationColumns(state.columns, state.focusedLine);
+  }
+
   return {
     selectionMode: manual ? "manual" : "line",
     // Focused columns are derived either from an explicit manual selection or
     // from the columns intersecting the line of section.
-    focusedColumns: manual
-      ? buildManualColumns(state.columns, state.manualColumns)
-      : buildCorrelationColumns(state.columns, state.focusedLine),
+    focusedColumns,
   };
 }) as any;
+
+const ctx = createScopedStore();
 
 export function ColumnCorrelationProvider({
   children,
@@ -88,73 +98,80 @@ export function ColumnCorrelationProvider({
   projectID,
   inProcess,
   focusedLine,
-  manualColumns = null,
+  selectedColumns = null,
   onSelectColumns,
 }: CorrelationProviderProps) {
-  const [store] = useState(() => {
-    return create<CorrelationMapStore & ComputedStore>(
-      computed((set, get): CorrelationMapStore => {
-        return {
-          focusedLine,
-          manualColumns,
-          hoveredColumn: null,
-          zoomColumn: null,
-          zoomNonce: 0,
-          projectID,
-          columns: null,
-          onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
-            const state = get();
-            // In manual-selection mode the map click is handled per-column
-            if (state.manualColumns != null) return;
-            // Check if shift key is pressed
-            const shiftKeyPressed = event.originalEvent.shiftKey;
-            let existingCoords = state.focusedLine?.coordinates ?? [];
+  const initializeStore = (set, get): CorrelationMapStore => {
+    return {
+      focusedLine,
+      selectedColumns,
+      hoveredColumn: null,
+      zoomColumn: null,
+      zoomNonce: 0,
+      projectID,
+      columns: columns ?? [],
+      onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
+        const state = get();
+        // In manual-selection mode the map click is handled per-column
+        if (state.selectedColumns != null) return;
+        // Check if shift key is pressed
+        const shiftKeyPressed = event.originalEvent.shiftKey;
+        let existingCoords = state.focusedLine?.coordinates ?? [];
 
-            if (existingCoords.length >= 2 && !shiftKeyPressed) {
-              // Reset the line to zero length
-              existingCoords = [];
-            }
-            set({
-              focusedLine: {
-                type: "LineString",
-                coordinates: [...existingCoords, point.coordinates],
-              },
-            });
+        if (existingCoords.length >= 2 && !shiftKeyPressed) {
+          // Reset the line to zero length
+          existingCoords = [];
+        }
+        set({
+          focusedLine: {
+            type: "LineString",
+            coordinates: [...existingCoords, point.coordinates],
           },
-          toggleColumn(colID: number) {
-            const state = get();
-            const current =
-              state.manualColumns ??
-              state.focusedColumns.map((d) => d.properties.col_id);
-            const next = current.includes(colID)
-              ? current.filter((d) => d !== colID)
-              : [...current, colID];
-            set({ manualColumns: next, focusedLine: null });
-          },
-          removeColumn(colID: number) {
-            const state = get();
-            // Seed from the current selection (line-derived or manual)
-            const current =
-              state.manualColumns ??
-              state.focusedColumns.map((d) => d.properties.col_id);
-            set({
-              manualColumns: current.filter((d) => d !== colID),
-              focusedLine: null,
-            });
-          },
-          setManualColumns(colIDs: number[]) {
-            set({ manualColumns: colIDs, focusedLine: null });
-          },
-          setHoveredColumn(colID: number | null) {
-            set({ hoveredColumn: colID });
-          },
-          zoomToColumn(colID: number | null) {
-            set({ zoomColumn: colID, zoomNonce: get().zoomNonce + 1 });
-          },
-        };
-      }),
-    );
-  });
+        });
+      },
+      toggleColumn(colID: number) {
+        const state = get();
+        const current =
+          state.selectedColumns ??
+          state.focusedColumns.map((d) => d.properties.col_id);
+        const next = current.includes(colID)
+          ? current.filter((d) => d !== colID)
+          : [...current, colID];
+        set({ selectedColumns: next, focusedLine: null });
+      },
+      removeColumn(colID: number) {
+        const state = get();
+        // Seed from the current selection (line-derived or manual)
+        const current =
+          state.selectedColumns ??
+          state.focusedColumns.map((d) => d.properties.col_id);
+        set({
+          selectedColumns: current.filter((d) => d !== colID),
+          focusedLine: null,
+        });
+      },
+      setSelectedColumns(colIDs: number[]) {
+        set({ selectedColumns: colIDs, focusedLine: null });
+      },
+      setHoveredColumn(colID: number | null) {
+        set({ hoveredColumn: colID });
+      },
+      zoomToColumn(colID: number | null) {
+        set({ zoomColumn: colID, zoomNonce: get().zoomNonce + 1 });
+      },
+    };
+  };
+
+  const _initializeStore = computed(initializeStore);
+
+  return h(ZustandStoreProvider, { ctx, initializeStore: _initializeStore }, [
+    h(_StoreEffects, { projectID, inProcess, onSelectColumns }),
+    children,
+  ]);
+}
+
+function _StoreEffects({ projectID, inProcess, onSelectColumns }) {
+  const store = useZustandStoreAPI(ctx);
 
   // Set up the store
   /** TODO: move the fetching of all columns to within the map */
@@ -166,24 +183,26 @@ export function ColumnCorrelationProvider({
   }, [_columns]);
 
   // Kind of an awkward way to do this but we need to allow the selector to run
-  const focusedColumns = useStore(store, (state) => state.focusedColumns);
-  const _focusedLine = useStore(store, (state) => state.focusedLine);
+  const focusedColumns = useStore(
+    store,
+    (state: CorrelationMapStore) => state.focusedColumns,
+  );
+  const _focusedLine = useStore(
+    store,
+    (state: CorrelationMapStore) => state.focusedLine,
+  );
 
   useEffect(() => {
     onSelectColumns?.(focusedColumns, _focusedLine);
   }, [focusedColumns, _focusedLine]);
 
-  return h(CorrelationStoreContext.Provider, { value: store }, children);
+  return null;
 }
 
 export function useCorrelationMapStore(
   selector: (state: CorrelationMapStore & ComputedStore) => any,
 ) {
-  const storeApi = useContext(CorrelationStoreContext);
-  if (storeApi == null) {
-    throw new Error("Missing CorrelationMapProvider");
-  }
-  return useStore(storeApi, selector);
+  return useZustandSelector(ctx, selector);
 }
 
 export interface ColumnMapLink {
@@ -217,7 +236,7 @@ function buildCorrelationColumns(
   );
 }
 
-function buildManualColumns(
+function buildManuallySelectedColumns(
   columns: ColumnGeoJSONRecord[],
   ids: number[],
 ): FocusedColumnGeoJSONRecord[] {

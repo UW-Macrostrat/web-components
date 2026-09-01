@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.0] - 2026-09-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/stratigraphy-utils-v1.3.0...@macrostrat/stratigraphy-utils-v1.4.0)
+
+### Minor Changes
+
+- Created the @macrostrat/map-views module for specific map interactions and
+  [4738d3df](https://github.com/UW-Macrostrat/web-components/commit/4738d3df1bdec8f4b233af215cadc0422ed562e8)
+  high-level views around Macrostrat maps.
+
+### Patch Changes
+
+- Updated dependencies
+  [4738d3df](https://github.com/UW-Macrostrat/web-components/commit/4738d3df1bdec8f4b233af215cadc0422ed562e8)
+  - @macrostrat/api-types@1.3.0
+
 ## [1.3.0] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/stratigraphy-utils-v1.2.2...@macrostrat/stratigraphy-utils-v1.3.0)
 
 ### Minor Changes

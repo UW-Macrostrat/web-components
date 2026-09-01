@@ -39,6 +39,7 @@ interface MapInspectorProps extends MapViewProps {
   fitViewport?: boolean;
   styleType?: "standard" | "macrostrat";
   enableTerrain?: boolean;
+  showPanelOutlines?: boolean;
 }
 
 export function MapInspectorV2({
@@ -56,6 +57,7 @@ export function MapInspectorV2({
   focusedSourceTitle = null,
   fitViewport = true,
   styleType = "macrostrat",
+  showPanelOutlines = false,
   ...rest
 }: MapInspectorProps) {
   /* We apply a custom style to the panel container when we are interacting
@@ -159,6 +161,7 @@ export function MapInspectorV2({
       style: {
         "--map-context-stack-padding": "0px",
       },
+      showPanelOutlines,
     },
     h(
       MapView,

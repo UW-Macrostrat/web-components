@@ -3,7 +3,7 @@ import h from "@macrostrat/hyper";
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 import { Meta } from "@storybook/react-vite";
-import { ColumnNavigationMap } from ".";
+import { ColumnNavigationMap } from "../src";
 import { useState } from "react";
 
 function ColumnNavigationMapExt(props) {
@@ -17,7 +17,7 @@ function ColumnNavigationMapExt(props) {
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Column views/Maps/Column navigation",
+  title: "Map views/Column navigation",
   component: ColumnNavigationMapExt,
   description: "Cross section creation map",
 } as Meta<typeof ColumnNavigationMap>;
