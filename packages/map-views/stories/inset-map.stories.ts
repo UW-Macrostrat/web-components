@@ -3,11 +3,11 @@ import h from "@macrostrat/hyper";
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 import { Meta } from "@storybook/react-vite";
-import { InsetMap } from ".";
+import { InsetMap } from "../src";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Map views/Maps/Inset map",
+  title: "Map views/Inset map",
   component: InsetMap,
   description: "A basic inset map",
 } as Meta<typeof InsetMap>;

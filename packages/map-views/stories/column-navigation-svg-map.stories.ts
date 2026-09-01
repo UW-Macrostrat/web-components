@@ -1,7 +1,7 @@
 import h from "@macrostrat/hyper";
 
 import { Meta } from "@storybook/react-vite";
-import { ColumnNavigationSVGMap, ColumnNavigationSVGMapProps } from ".";
+import { ColumnNavigationSVGMap, ColumnNavigationSVGMapProps } from "../src";
 import { MacrostratDataProvider } from "@macrostrat/data-provider";
 import { useState } from "react";
 

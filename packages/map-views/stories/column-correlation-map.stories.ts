@@ -8,7 +8,7 @@ import {
   ColumnCorrelationProvider,
   CorrelationMapProps,
   CorrelationProviderProps,
-} from ".";
+} from "../src";
 
 function ColumnCorrelationMapExt(
   props: CorrelationMapProps & CorrelationProviderProps,
