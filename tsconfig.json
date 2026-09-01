@@ -6,12 +6,7 @@
         "./packages/*/src/index.ts",
         "./toolchain/*/src/index.ts"
       ]
-    },
-    "types": [
-      "node",
-      "@macrostrat/vite-plugin-hyperstyles/client",
-      "vite/client"
-    ]
+    }
   },
   "files": [],
   "references": [
@@ -28,6 +23,7 @@
     { "path": "./packages/form-components" },
     { "path": "./packages/map-interface" },
     { "path": "./packages/map-styles" },
+    { "path": "./packages/map-views" },
     { "path": "./packages/mapbox-react" },
     { "path": "./packages/mapbox-utils" },
     { "path": "./packages/scoped-store" },

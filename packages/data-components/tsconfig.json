@@ -7,11 +7,13 @@
     "declarationDir": "dist"
   },
   "include": [
-    "src"
+    "src",
+    "stories"
   ],
   "references": [
     { "path": "../color-utils" },
     { "path": "../mapbox-utils" },
+    { "path": "../scoped-store" },
     { "path": "../stratigraphy-utils" },
     { "path": "../ui-components" }
   ]
