@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.6.0] - 2026-09-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.5.2...@macrostrat/data-sheet-v4.6.0)
+
+### Minor Changes
+
+- Hoist `MasonryScrollBody` into the library (measured, append-only column
+  balancing, optional responsive columns), and stop counting loading skeletons
+  as layout items — `ScrollBodyProps` now carries them as `placeholders`.
+
 ## [4.5.2] - 2026-08-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.5.1...@macrostrat/data-sheet-v4.5.2)
 
 ### Patch Changes

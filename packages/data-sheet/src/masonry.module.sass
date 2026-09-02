@@ -1,0 +1,29 @@
+// Masonry scroll body for the DataPanel — a fixed set of equal-width columns
+// that items are distributed across by measured height (see `masonry.ts`).
+// Not CSS multi-column: real columns, so appending a page never reflows what
+// is already on screen.
+
+.data-panel-masonry-body
+  display: flex
+  flex-direction: column
+  flex-grow: 1
+
+.data-panel-masonry
+  display: flex
+  align-items: flex-start
+  gap: var(--data-panel-item-gap, 8px)
+
+.data-panel-masonry-column
+  flex: 1 1 0
+  min-width: 0
+  display: flex
+  flex-direction: column
+  gap: var(--data-panel-masonry-row-gap, var(--data-panel-item-gap, 8px))
+
+// Loading placeholders sit below the columns, outside the measured layout —
+// they are transient, so they never take a (frozen) column assignment.
+.data-panel-masonry-placeholders
+  display: flex
+  flex-direction: column
+  gap: var(--data-panel-masonry-row-gap, var(--data-panel-item-gap, 8px))
+  margin-top: var(--data-panel-masonry-row-gap, var(--data-panel-item-gap, 8px))

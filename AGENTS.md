@@ -142,6 +142,34 @@ Manual: `yarn run publish` (requires NPM org credentials)
 **PR Requirements**: Updated `package.json` version AND `CHANGELOG.md` entry for
 each changed package.
 
+### Release process
+
+**Ask the maintainer before starting a release, every time.** Cutting a version
+is a publishing action — merging the version bump to `main` is what makes CI
+publish to NPM, so it is not reversible from here. Landing a change with a
+changeset attached is normal work; turning that changeset into a version is not.
+Do it only when asked explicitly, and don't treat one release as standing
+permission for the next.
+
+Once asked, the sequence is:
+
+1. `yarn run build` — verify every package still bundles, and that the changed
+   package emits what you expect (its chunk, `dist/index.d.ts` re-export, and
+   any new CSS in `dist/<package>.css`). Note the pre-existing `vite-plugin-dts`
+   type errors across the repo: they don't fail the build, so read them against
+   the files you touched rather than as pass/fail.
+2. `yarn run update-versions` — applies the pending changesets: bumps
+   `package.json` versions, writes dated `CHANGELOG.md` entries, and consumes
+   the changeset files. Don't hand-edit versions or changelogs instead.
+3. Check the resulting version bump and changelog text read correctly, then
+   commit everything (source + version + changelog) together and push.
+4. CI publishes on merge to `main`. `yarn run publish` is the manual fallback
+   and needs NPM org credentials.
+
+A stale `dist/` is not a release blocker (it's gitignored and CI rebuilds), but
+`yarn run build` refuses the publish-status step on a dirty tree — that error at
+the end of a build is about uncommitted changes, not about the build failing.
+
 ## Storybook Development
 
 Stories located in:

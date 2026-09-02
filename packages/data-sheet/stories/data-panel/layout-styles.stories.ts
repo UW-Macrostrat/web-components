@@ -1,11 +1,11 @@
 // Selection is "modal": a toolbar toggle enters select-mode. Outside it, a card
 // is a link (its title navigates); inside it, cards show a checkbox and a click
 // selects. So item interactivity and selection never fight over the click.
-import { DataPanel } from "../../src";
+import { DataPanel, MasonryScrollBody } from "../../src";
 import h from "./card-styles.stories.module.sass";
 import { container, fetchSamples, fullSpec, Sample } from "./utils.ts";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { MasonryCard, MasonryScrollBody } from "./layout-helpers.ts";
+import { MasonryCard } from "./layout-helpers.ts";
 
 const meta: Meta<any> = {
   title: "Data sheet/Data panel/Layouts",

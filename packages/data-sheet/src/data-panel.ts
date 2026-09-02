@@ -89,6 +89,12 @@ export enum DataPanelToolbarStyle {
 export interface ScrollBodyProps {
   /** The rendered item cards (each wrapped for selection styling). */
   children: ReactNode;
+  /** Loading skeletons for the page currently being fetched, if any. Kept
+   * separate from `children` because they are transient stand-ins, not items:
+   * a layout that assigns a lasting position per item (e.g. the masonry body)
+   * must not hand one to a placeholder. Render them after the items; a body
+   * that ignores them simply shows no loading state. */
+  placeholders?: ReactNode;
 }
 
 /** Props handed to a consumer's card renderer for one row. */
@@ -324,10 +330,11 @@ export function DataPanelRenderer<T>({
   // reset pre-sizes to a page of `null` slots) or the next scroll page — so the
   // body shows shimmer where rows will land instead of a blank flash or a
   // footer pinging up into the gap. Bounded to a viewport's worth of cards.
+  const placeholderCards: ReactNode[] = [];
   if (loadPending) {
     const pending = Math.min(Math.max(data.length - loadedCount, 0), 24);
     for (let i = 0; i < pending; i++) {
-      cards.push(
+      placeholderCards.push(
         h(
           "div.data-panel-item-container.is-skeleton",
           { key: `skeleton-${i}`, "aria-hidden": true },
@@ -335,6 +342,10 @@ export function DataPanelRenderer<T>({
         ),
       );
     }
+  }
+  let placeholders: ReactNode = null;
+  if (placeholderCards.length > 0) {
+    placeholders = placeholderCards;
   }
 
   // The default spinner sentinel (below-placement): hidden while paused so the
@@ -450,7 +461,7 @@ export function DataPanelRenderer<T>({
           },
           [
             h("div.data-panel-body-content", [
-              emptyState ?? h(ScrollBody, cards),
+              emptyState ?? h(ScrollBody, { placeholders }, cards),
               _contentFooter,
             ]),
           ],
@@ -468,9 +479,10 @@ function DataPanelStatusBar({ children }) {
   return h("div.data-panel-status-bar", [children, h(LoadProgressIndicator)]);
 }
 
-/** Default scroll-body layout: a vertical flex list of cards. */
-function DefaultScrollBody({ children }: { children: ReactNode }) {
-  return h("div.data-panel-list", children);
+/** Default scroll-body layout: a vertical flex list of cards, with any loading
+ * placeholders appended in the same flow. */
+function DefaultScrollBody({ children, placeholders }: ScrollBodyProps) {
+  return h("div.data-panel-list", [children, placeholders]);
 }
 
 /** Runs the shared windowed loader from inside the panel (renders nothing).

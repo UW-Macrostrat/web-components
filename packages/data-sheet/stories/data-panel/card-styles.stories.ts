@@ -1,7 +1,13 @@
 // Selection is "modal": a toolbar toggle enters select-mode. Outside it, a card
 // is a link (its title navigates); inside it, cards show a checkbox and a click
 // selects. So item interactivity and selection never fight over the click.
-import { DataCard, DataPanel, ItemComponentProps } from "../../src";
+import {
+  DataCard,
+  DataPanel,
+  ItemComponentProps,
+  MasonryScrollBody,
+  ScrollBodyProps,
+} from "../../src";
 import h from "./card-styles.stories.module.sass";
 import {
   CATEGORY_INTENT,
@@ -12,7 +18,7 @@ import {
 } from "./utils.ts";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Tag } from "@blueprintjs/core";
-import { MasonryCard, MasonryScrollBody } from "./layout-helpers.ts";
+import { MasonryCard } from "./layout-helpers.ts";
 
 const meta: Meta<any> = {
   title: "Data sheet/Data panel/Card styles",
@@ -21,9 +27,11 @@ const meta: Meta<any> = {
 export default meta;
 
 /**
- * A masonry layout for variable-height items via a custom `scrollBody`. Uses an
- * append-only, measured column distribution (see `MasonryScrollBody`) so new
- * pages don't reflow the existing layout. Paging and selection are unaffected.
+ * A masonry layout for variable-height items, via the library's
+ * `MasonryScrollBody`. Placement is append-only and measured — each card is
+ * frozen into the running-shortest column once — so appending a page balances
+ * the new batch without reflowing what's already on screen. Paging and
+ * selection are unaffected.
  */
 export const Masonry: StoryObj = {
   render: () =>
@@ -76,7 +84,9 @@ function GridCard({
 // A custom scroll-body component: lays the cards out as a CSS grid. It's a
 // component (not just a style), so it could just as well add section headers,
 // sticky bits, or its own windowing — the panel still owns scroll + paging.
-function GridScrollBody({ children }: { children: any }) {
+// `placeholders` are the loading skeletons for the page in flight; a body that
+// wants a loading state renders them after the items.
+function GridScrollBody({ children, placeholders }: ScrollBodyProps) {
   return h(
     "div",
     {
@@ -87,7 +97,7 @@ function GridScrollBody({ children }: { children: any }) {
         alignContent: "start",
       },
     },
-    children,
+    [children, placeholders],
   );
 }
 

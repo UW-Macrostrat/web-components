@@ -1,5 +1,6 @@
 export * from "./data-sheet.ts";
 export * from "./data-panel.ts";
+export * from "./masonry.ts";
 export * from "./data-view";
 export * from "./postgrest-table";
 export * from "./components";
