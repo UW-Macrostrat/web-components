@@ -123,12 +123,16 @@ export function FeedbackComponent({
 
   // New input (another run, or reloaded data) replaces the working tree, so a
   // consumer need not remount the component per run.
-  const isFirstTree = useRef(true);
+  //
+  // Keyed on the tree we last rendered, not on a "first run" flag: under
+  // StrictMode an effect is invoked, cleaned up, and invoked again on mount, so
+  // a flag consumed by the first invocation makes the second one replace the
+  // tree — discarding the mount-time state, including any `autoSelect`.
+  // Comparing identities makes the effect idempotent.
+  const renderedTree = useRef(initialTree);
   useEffect(() => {
-    if (isFirstTree.current) {
-      isFirstTree.current = false;
-      return;
-    }
+    if (renderedTree.current === initialTree) return;
+    renderedTree.current = initialTree;
     dispatch({ type: "replace-tree", payload: { tree: initialTree } });
   }, [initialTree]);
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.3.1] - 2026-09-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/feedback-components-v2.3.0...@macrostrat/feedback-components-v2.3.1)
+
+### Patch Changes
+
+- Fix `autoSelect` being cleared on mount under React StrictMode. 2.3.0's "new
+  input replaces the working tree" effect used a first-run ref flag, but
+  StrictMode invokes an effect, cleans it up, and invokes it again on mount — so
+  the second invocation replaced the tree and discarded the mount-time
+  selection. The effect now compares the tree identity it last rendered, which
+  is idempotent under double invocation.
+  [0f5abd66](https://github.com/UW-Macrostrat/web-components/commit/0f5abd661d3729bdd7c861e0e2c1d2301d24e1ce)
+
 ## [2.3.0] - 2026-09-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/feedback-components-v2.2.6...@macrostrat/feedback-components-v2.3.0)
 
 ### Minor Changes
