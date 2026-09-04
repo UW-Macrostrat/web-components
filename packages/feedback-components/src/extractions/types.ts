@@ -10,7 +10,11 @@ export interface Entity {
   id: number;
   name: string;
   type?: number;
+  /** The primary text span. */
   indices: [number, number];
+  /** Every span this entity covers, when it has more than one (an entity
+   * merged from several mentions). Includes `indices`. */
+  spans?: [number, number][];
   children: Entity[];
   match?: Match;
 }

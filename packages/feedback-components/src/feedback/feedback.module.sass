@@ -36,21 +36,26 @@ circle
 .feedback-text
   margin-bottom: 2em
 
+// The tree and graph are sized from a measurement of `.entity-panel-inner`,
+// so the panel needs a definite height: measuring an auto-height box that
+// then grows to fit its measured contents is a feedback loop. Consumers set
+// `--feedback-panel-height` (or the `panelHeight` prop) to change it.
 .entity-panel
   position: relative
-  max-height: 600px
-  width: calc(100% - 2em)
-  flex: 1
-  min-height: 100px
+  height: var(--feedback-panel-height, min(600px, 60vh))
+  width: 100%
+  box-sizing: border-box
   padding: 1em
   background: var(--panel-secondary-background-color)
   border-radius: 4px
   // Inset box shadow
   box-shadow: 0 0 0 1px var(--panel-border-color) inset
 
-.selection-tree
-  margin: -1em 0
-  padding: 1em 0
+.entity-panel-inner
+  position: relative
+  width: 100%
+  height: 100%
+  overflow: hidden
   
 .type-list
   display: grid
@@ -83,11 +88,35 @@ mark
 .clickable
   cursor: pointer
 
-.feedback-text-wrapper 
+.feedback-text-wrapper
   position: relative
   z-index: 0
   overflow: visible
   line-height: var(--text-line-height)
+  outline: none
+
+// Floating "tag this selection" control, anchored under the text selection
+.pending-tag
+  position: absolute
+  z-index: 20
+  display: flex
+  align-items: center
+  gap: 0.25em
+  padding: 0.25em
+  line-height: normal
+  background: var(--panel-background-color, white)
+  border-radius: 4px
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25)
+
+  .pending-tag-swatch
+    display: inline-block
+    width: 0.8em
+    height: 0.8em
+    border-radius: 2px
+    margin-right: 0.4em
+
+.merge-button
+  margin-top: 0.5em
 
 .type-container
   display: flex
