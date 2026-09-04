@@ -117,6 +117,32 @@ export const TestData2: StoryObj<{}> = {
   },
 };
 
+/** An entity merged from two mentions: both spans highlight as one node. */
+export const MergedSpans: StoryObj<{}> = {
+  args: {
+    data: {
+      ...data,
+      entities: [
+        {
+          id: 1,
+          name: "sandstone",
+          type: entityTypes[0]?.id,
+          indices: [0, 9],
+          spans: [
+            [0, 9],
+            [40, 49],
+          ],
+          children: [],
+        },
+      ],
+      paragraph_text:
+        "Sandstone beds of the lower member pass into sandstone and shale of the upper member.",
+    },
+    types: entityTypes,
+    allowOverlap: true,
+  },
+};
+
 export const TestData3: StoryObj<{}> = {
   args: {
     data: data3,

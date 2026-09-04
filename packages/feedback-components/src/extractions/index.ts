@@ -22,19 +22,32 @@ export function buildHighlights(
   }
 
   for (const entity of entities) {
-    highlights.push({
-      start: entity.indices[0],
-      end: entity.indices[1],
-      text: entity.name,
-      backgroundColor: entity.type?.color,
-      tag: entity.type?.name ?? "lith",
-      id: entity.id,
-      parents,
-      match: entity.match,
-    });
+    // A merged entity covers several spans; each is highlighted as the same
+    // entity (same id), so selecting one selects them all.
+    for (const [start, end] of entitySpans(entity)) {
+      highlights.push({
+        start,
+        end,
+        text: entity.name,
+        backgroundColor: entity.type?.color,
+        tag: entity.type?.name ?? "lith",
+        id: entity.id,
+        parents,
+        match: entity.match,
+      });
+    }
     highlights.push(...buildHighlights(entity.children ?? [], entity));
   }
   return highlights;
+}
+
+/** Every text span an entity covers (`spans` when merged, else `indices`). */
+export function entitySpans(
+  entity: Pick<Entity, "indices" | "spans">,
+): [number, number][] {
+  const spans = entity.spans ?? [];
+  if (spans.length > 0) return spans;
+  return [entity.indices];
 }
 
 export function enhanceData(extractionData, models, entityTypes) {
@@ -233,7 +246,9 @@ export function EntityTag({
   ]);
 }
 
-function getMatchUrl(
+/** The lexicon URL for a matched entity, from the consumer's `matchLinks`
+ * prefix map (keyed by term type). Shared by the tag, tree and paragraph views. */
+export function getMatchUrl(
   match: any,
   matchLinks?: Record<string, string>,
   entityTypeName?: string,

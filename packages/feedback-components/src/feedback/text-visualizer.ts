@@ -3,11 +3,12 @@ import { InternalEntity } from "./types";
 import { TreeDispatch } from "./edit-state";
 import styles from "./feedback.module.sass";
 import hyper from "@macrostrat/hyper";
-import { buildHighlights, getTagStyle } from "../extractions";
-import { Highlight } from "../extractions/types";
-import { useEffect, useRef } from "react";
-import { Popover } from "@blueprintjs/core";
+import { buildHighlights, getMatchUrl, getTagStyle } from "../extractions";
+import { EntityType, Highlight } from "../extractions/types";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Button, ButtonGroup, Popover } from "@blueprintjs/core";
 import { MatchTag } from "./matches";
+import classNames from "classnames";
 
 const h = hyper.styled(styles);
 
@@ -15,12 +16,174 @@ export interface FeedbackTextProps {
   text: string;
   selectedNodes: number[];
   nodes: InternalEntity[];
-  updateNodes: (nodes: string[]) => void;
   dispatch: TreeDispatch;
-  lineHeight: string;
+  /** The type a newly tagged span will get (shown on the tagging control). */
+  selectedEntityType?: EntityType;
   allowOverlap?: boolean;
   matchLinks?: Record<string, string>;
   viewOnly?: boolean;
+  /** Create an entity as soon as text is selected, without confirmation (the
+   * pre-2.3 behavior). Off by default: selecting text shows a "Tag" control. */
+  autoCreateTags?: boolean;
+}
+
+/** A span of text the reviewer has selected but not yet tagged. */
+interface PendingTag {
+  start: number;
+  end: number;
+  text: string;
+  /** Position for the floating control, relative to the text wrapper. */
+  left: number;
+  top: number;
+}
+
+export function FeedbackText(props: FeedbackTextProps) {
+  const {
+    text,
+    selectedNodes,
+    nodes,
+    dispatch,
+    allowOverlap,
+    matchLinks,
+    viewOnly,
+    selectedEntityType,
+    autoCreateTags = false,
+  } = props;
+  const allTags: AnnotateBlendTag[] = buildTags(
+    buildHighlights(nodes, null),
+    selectedNodes,
+  );
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [pending, setPending] = useState<PendingTag | null>(null);
+
+  const createTag = useCallback(
+    (tag: PendingTag) => {
+      dispatch({
+        type: "create-node",
+        payload: { start: tag.start, end: tag.end, text: tag.text },
+      });
+      setPending(null);
+      window.getSelection()?.removeAllRanges();
+    },
+    [dispatch],
+  );
+
+  // Keyboard grammar, shared with the graph view: Escape clears, Backspace /
+  // Delete removes the selection, Enter confirms a pending tag, M merges.
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (viewOnly) return;
+    if (e.key === "Escape") {
+      setPending(null);
+      dispatch({ type: "deselect" });
+    } else if (e.key === "Enter" && pending != null) {
+      e.preventDefault();
+      createTag(pending);
+    } else if (e.key === "Backspace" || e.key === "Delete") {
+      // Not while the browser has a text selection: that is a pending tag,
+      // not a request to delete entities.
+      if (pending != null) return;
+      dispatch({ type: "delete-node", payload: { ids: selectedNodes } });
+    } else if (e.key === "m" && selectedNodes.length > 1) {
+      dispatch({ type: "merge-nodes" });
+    }
+  };
+
+  // A click on plain text (highlights stop propagation) clears the selection.
+  const onClick = () => {
+    if (viewOnly) return;
+    const selection = window.getSelection();
+    if (selection != null && !selection.isCollapsed) return;
+    dispatch({ type: "deselect" });
+  };
+
+  const onPendingTag = useCallback(
+    (tag: PendingTag | null) => {
+      if (tag == null) return;
+      if (autoCreateTags) {
+        createTag(tag);
+        return;
+      }
+      // A new text selection supersedes the node selection, so the type
+      // picker acts on the tag about to be created rather than on nodes.
+      dispatch({ type: "deselect" });
+      setPending(tag);
+    },
+    [autoCreateTags, createTag, dispatch],
+  );
+
+  let pendingControl = null;
+  if (pending != null && !viewOnly) {
+    pendingControl = h(PendingTagControl, {
+      pending,
+      entityType: selectedEntityType,
+      onConfirm: () => createTag(pending),
+      onChangeType: () =>
+        dispatch({ type: "toggle-entity-type-selector", payload: true }),
+      onCancel: () => setPending(null),
+    });
+  }
+
+  return h(
+    "div.feedback-text-wrapper",
+    { ref: wrapperRef, tabIndex: 0, onKeyDown, onClick },
+    [
+      h(HighlightedText, {
+        text,
+        allTags,
+        allowOverlap,
+        dispatch,
+        selectedNodes,
+        viewOnly,
+        matchLinks,
+        wrapperRef,
+        autoCreateTags,
+        onPendingTag,
+      }),
+      pendingControl,
+    ],
+  );
+}
+
+/** Floating control under a text selection: confirm the tag (with the type it
+ * will get), pick another type, or dismiss. */
+function PendingTagControl({
+  pending,
+  entityType,
+  onConfirm,
+  onChangeType,
+  onCancel,
+}: {
+  pending: PendingTag;
+  entityType?: EntityType;
+  onConfirm(): void;
+  onChangeType(): void;
+  onCancel(): void;
+}) {
+  const typeName = entityType?.name ?? "entity";
+  return h(
+    "div.pending-tag",
+    {
+      style: { left: pending.left, top: pending.top },
+      // Keep the browser selection and focus while interacting with the control.
+      onMouseDown: (e) => e.preventDefault(),
+      onClick: (e) => e.stopPropagation(),
+    },
+    h(ButtonGroup, { minimal: true, small: true }, [
+      h(Button, { intent: "primary", icon: "tag", onClick: onConfirm }, [
+        h("span.pending-tag-swatch", {
+          style: { backgroundColor: entityType?.color },
+        }),
+        `Tag as ${typeName}`,
+      ]),
+      h(Button, {
+        icon: "caret-down",
+        title: "Choose another type",
+        onClick: onChangeType,
+      }),
+      h(Button, { icon: "cross", title: "Cancel", onClick: onCancel }),
+    ]),
+  );
 }
 
 function buildTags(
@@ -28,12 +191,13 @@ function buildTags(
   selectedNodes: number[],
 ): AnnotateBlendTag[] {
   let tags: AnnotateBlendTag[] = [];
-  // If entity ID has already been seen, don't add it again
-  const entities = new Set<number>();
+  // An entity reached through several parents appears once per span; a merged
+  // entity contributes one tag per span.
+  const seen = new Set<string>();
 
   for (const highlight of highlights) {
-    // Don't add multiply-linked entities multiple times
-    if (entities.has(highlight.id)) continue;
+    const key = `${highlight.id}:${highlight.start}`;
+    if (seen.has(key)) continue;
 
     const highlighted = isHighlighted(highlight, selectedNodes);
     const active = isActive(highlight, selectedNodes);
@@ -55,8 +219,7 @@ function buildTags(
     };
 
     tags.push(tag);
-
-    entities.add(highlight.id);
+    seen.add(key);
   }
 
   return tags;
@@ -75,52 +238,9 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
   );
 }
 
-export function FeedbackText(props: FeedbackTextProps) {
-  // Convert input to tags
-  const {
-    text,
-    selectedNodes,
-    nodes,
-    dispatch,
-    allowOverlap,
-    matchLinks,
-    viewOnly,
-  } = props;
-  const allTags: AnnotateBlendTag[] = buildTags(
-    buildHighlights(nodes, null),
-    selectedNodes,
-  );
-
-  return h(
-    "div.feedback-text-wrapper",
-    {
-      tabIndex: 0,
-      onKeyDown: (e) => {
-        if (e.key === "Backspace") {
-          dispatch({
-            type: "delete-node",
-            payload: { ids: selectedNodes },
-          });
-        }
-      },
-    },
-    h(HighlightedText, {
-      text,
-      allTags,
-      allowOverlap,
-      dispatch,
-      selectedNodes,
-      viewOnly,
-      matchLinks,
-    }),
-  );
-}
-
-function createTagFromSelection({
-  container,
-}: {
-  container: HTMLElement | null;
-}) {
+/** The current browser selection as character offsets into the paragraph, or
+ * null if it is empty or lies outside the container. */
+function rangeFromSelection(container: HTMLElement | null) {
   const selection = window.getSelection();
   if (
     !selection ||
@@ -147,14 +267,22 @@ function createTagFromSelection({
   const selectedText = range.toString();
   const end = start + selectedText.length;
 
-  return {
-    start,
-    end,
-    text: selectedText,
-  };
+  return { start, end, text: selectedText, range };
 }
 
-function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
+/** Snap a raw selection to word boundaries and reject empty, duplicate, or
+ * (unless allowed) overlapping spans. Returns the span to tag, or null. */
+function normalizeTag({
+  tag,
+  text,
+  allTags,
+  allowOverlap,
+}: {
+  tag: { start: number; end: number };
+  text: string;
+  allTags: AnnotateBlendTag[];
+  allowOverlap?: boolean;
+}) {
   let { start, end } = tag;
   // snap to text
   if (text[end - 1] != " ") {
@@ -169,21 +297,14 @@ function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
 
   let payload = { start, end, text: text.slice(start, end) };
 
-  if (payload.text.trim() === "") {
-    console.log("Blank tag found, ignoring");
-    return;
-  }
+  if (payload.text.trim() === "") return null;
 
   const duplicate = allTags.find(
     (t) =>
       t.start === payload.start &&
       (t.end === payload.end || t.end === payload.end - 1),
   );
-
-  if (duplicate) {
-    console.log("Duplicate tag found, ignoring");
-    return;
-  }
+  if (duplicate) return null;
 
   if (payload.text.endsWith(" ")) {
     payload.text = payload.text.slice(0, -1);
@@ -198,12 +319,9 @@ function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
     (t) => t.start < payload.end && t.end > payload.start,
   );
 
-  if ((inside || overlap) && !allowOverlap) {
-    console.log("Tag is inside another tag, ignoring");
-    return;
-  }
+  if ((inside || overlap) && !allowOverlap) return null;
 
-  dispatch({ type: "create-node", payload });
+  return payload;
 }
 
 function nestHighlights(text: string, tags: AnnotateBlendTag[]) {
@@ -260,11 +378,7 @@ function renderNode(
   dispatch: TreeDispatch,
   selectedNodes: number[],
   parentSelected: boolean,
-  matchLinks?: {
-    lithology: string;
-    strat_name: string;
-    lith_att: string;
-  },
+  matchLinks?: Record<string, string>,
   viewOnly?: boolean,
 ): any {
   if (typeof node === "string") return node;
@@ -274,16 +388,17 @@ function renderNode(
   const showBorder = selectedNodes.length === 0 || isSelected;
   const match = tag.match;
 
+  let borderColor = "transparent";
+  if (match != undefined && matchLinks) {
+    borderColor = "orange";
+  } else if (showBorder) {
+    borderColor = tag.color;
+  }
+
   const style = {
     ...tag,
     zIndex: parentSelected ? -1 : 1,
-    border:
-      "1px solid " +
-      (match != undefined && matchLinks
-        ? "orange"
-        : showBorder
-          ? tag.color
-          : "transparent"),
+    border: "1px solid " + borderColor,
     margin: "-1px",
   };
 
@@ -301,64 +416,69 @@ function renderNode(
     }
   }
 
-  const url = viewOnly && match
-    ? getMatchUrl(match, matchLinks, tag.type?.name ?? tag.term_type)
-    : undefined;
+  let url: string | undefined = undefined;
+  if (viewOnly && match) {
+    url = getMatchUrl(match, matchLinks, tag.type?.name ?? tag.term_type);
+  }
+
+  let onClick = undefined;
+  if (url == null) {
+    onClick = (e: MouseEvent) => {
+      e.stopPropagation();
+      if (viewOnly) return;
+      if (
+        e.ctrlKey ||
+        e.metaKey ||
+        (selectedNodes[0] === tag.id && selectedNodes.length === 1)
+      ) {
+        // Toggle selection on ctrl/cmd click or when node is only selected node
+        dispatch({
+          type: "toggle-node-selected",
+          payload: { ids: [tag.id] },
+        });
+      } else if (e.shiftKey && selectedNodes.length > 0) {
+        // Select range from last selected node to this one
+        const lastSelected = selectedNodes[selectedNodes.length - 1];
+
+        dispatch({
+          type: "select-range",
+          payload: { ids: [lastSelected, tag.id] },
+        });
+      } else {
+        dispatch({
+          type: "select-node",
+          payload: { ids: [tag.id] },
+        });
+      }
+    };
+  }
+
+  let content;
+  if (isSelected) {
+    content = moveText.flat();
+  } else {
+    content = children.map((child: any) =>
+      renderNode(child, dispatch, selectedNodes, isSelected, matchLinks, viewOnly),
+    );
+  }
+
+  let tagName = "span";
+  if (url != null) tagName = "a.highlight-link";
 
   const tagComponent = h(
-    url ? "a.highlight-link" : "span",
+    tagName,
     {
       onMouseEnter: (e: MouseEvent) => {
         e.stopPropagation();
       },
-      className: "highlight" + (!viewOnly || match ? " clickable" : ""),
+      className: classNames("highlight", { clickable: !viewOnly || match }),
       style,
       href: url,
       target: url ? "_blank" : undefined,
       rel: url ? "noreferrer noopener" : undefined,
-      onClick: url
-        ? undefined
-        : (e: MouseEvent) => {
-            e.stopPropagation();
-            if (
-              e.ctrlKey ||
-              e.metaKey ||
-              (selectedNodes[0] === tag.id && selectedNodes.length === 1)
-            ) {
-              // Toggle selection on ctrl/cmd click or when node is only selected node
-              e.stopPropagation();
-              dispatch({
-                type: "toggle-node-selected",
-                payload: { ids: [tag.id] },
-              });
-            } else if (e.shiftKey && selectedNodes.length > 0) {
-              // Select range from last selected node to this one
-              const lastSelected = selectedNodes[selectedNodes.length - 1];
-
-              dispatch({
-                type: "select-range",
-                payload: { ids: [lastSelected, tag.id] },
-              });
-            } else {
-              dispatch({
-                type: "select-node",
-                payload: { ids: [tag.id] },
-              });
-            }
-          },
+      onClick,
     },
-    isSelected
-      ? moveText.flat()
-      : children.map((child: any, i: number) =>
-          renderNode(
-            child,
-            dispatch,
-            selectedNodes,
-            isSelected,
-            matchLinks,
-            viewOnly,
-          ),
-        ),
+    content,
   );
 
   if (viewOnly && match) {
@@ -375,137 +495,18 @@ function renderNode(
   return tagComponent;
 }
 
-function getMatchUrl(
-  match: any,
-  matchLinks?: Record<string, string>,
-  entityTypeName?: string,
-) {
-  if (!match || !matchLinks) return undefined;
-
-  const prefix = getMatchPrefix(match, matchLinks, entityTypeName);
-  const matchId = getMatchId(match);
-
-  if (!prefix || matchId == null) return undefined;
-
-  const normalized = prefix.replace(/\/$/, "");
-  return `${normalized}/${matchId}`;
-}
-
-function getMatchPrefix(
-  match: any,
-  matchLinks?: Record<string, string>,
-  entityTypeName?: string,
-) {
-  if (!match || !matchLinks) return undefined;
-
-  const typeCandidates = [
-    match?.entity_type,
-    match?.entityType,
-    entityTypeName,
-    match?.type?.name,
-    match?.type,
-  ];
-
-  for (const candidate of typeCandidates) {
-    const direct = getMatchLinkValue(matchLinks, candidate);
-    if (direct) return direct;
-  }
-
-  const idBasedPrefixes = [
-    match?.lith_id != null || match?.lith_att_id != null ? ["lithology", "lith", "lithologies"] : [],
-    match?.strat_name_id != null ? ["strat_name", "strat_names"] : [],
-    match?.concept_id != null ? ["concept", "concepts"] : [],
-    match?.interval_id != null ? ["interval", "intervals"] : [],
-    match?.lith_att_id != null ? ["lith_att", "lith_atts"] : [],
-  ];
-
-  for (const prefixGroup of idBasedPrefixes) {
-    for (const prefix of prefixGroup) {
-      const value = getMatchLinkValue(matchLinks, prefix);
-      if (value) return value;
-    }
-  }
-
-  for (const prefix of ["lithology", "lith", "lithologies", "strat_name", "strat_names", "concept", "concepts", "interval", "intervals", "lith_att", "lith_atts"]) {
-    const value = getMatchLinkValue(matchLinks, prefix);
-    if (value) return value;
-  }
-
-  if (Object.keys(matchLinks).length === 1) {
-    return matchLinks[Object.keys(matchLinks)[0]];
-  }
-
-  return undefined;
-}
-
-function getMatchLinkValue(matchLinks: Record<string, string>, candidate?: unknown) {
-  if (!candidate) return undefined;
-
-  const rawKey = String(candidate);
-  const aliases = [rawKey, rawKey.toLowerCase(), rawKey.toUpperCase()];
-  const normalizedAliases = [
-    normalizeMatchLinkKey(rawKey),
-    normalizeMatchLinkKey(rawKey.toLowerCase()),
-    normalizeMatchLinkKey(rawKey.toUpperCase()),
-  ];
-
-  for (const alias of [...aliases, ...normalizedAliases]) {
-    if (!alias) continue;
-    const value = matchLinks[alias];
-    if (value) return value;
-  }
-
-  return undefined;
-}
-
-function normalizeMatchLinkKey(key: string) {
-  if (!key) return undefined;
-
-  const normalized = key.toLowerCase().replace(/\s+/g, "_");
-  const aliasMap = {
-    lith: "lithology",
-    lithology: "lithology",
-    lithologies: "lithology",
-    strat_name: "strat_name",
-    strat_names: "strat_name",
-    strat_name_concept: "concept",
-    concept: "concept",
-    concepts: "concept",
-    interval: "interval",
-    intervals: "interval",
-    lith_att: "lith_att",
-    lith_atts: "lith_att",
-  };
-
-  return aliasMap[normalized] ?? normalized;
-}
-
-function getMatchId(match: any) {
-  return (
-    match?.entity_id ??
-    match?.macrostrat_terms_id ??
-    match?.strat_name_id ??
-    match?.lith_id ??
-    match?.concept_id ??
-    match?.lith_att_id ??
-    match?.interval_id ??
-    null
-  );
-}
-
 export function HighlightedText(props: {
   text: string;
   allTags: AnnotateBlendTag[];
-  lineHeight: string;
   allowOverlap?: boolean;
   dispatch: TreeDispatch;
   selectedNodes: number[];
-  matchLinks?: {
-    lithology: string;
-    strat_name: string;
-    lith_att: string;
-  };
+  matchLinks?: Record<string, string>;
   viewOnly?: boolean;
+  autoCreateTags?: boolean;
+  wrapperRef: React.RefObject<HTMLElement>;
+  /** Called with the normalized span when the reviewer finishes selecting text. */
+  onPendingTag: (tag: PendingTag | null) => void;
 }) {
   const {
     text,
@@ -515,6 +516,8 @@ export function HighlightedText(props: {
     allowOverlap,
     matchLinks,
     viewOnly,
+    wrapperRef,
+    onPendingTag,
   } = props;
 
   const tree = nestHighlights(text, allTags);
@@ -522,22 +525,30 @@ export function HighlightedText(props: {
   const spanRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    if (viewOnly) return;
     const handleMouseUp = () => {
-      const tag = createTagFromSelection({ container: spanRef.current });
-      if (!tag) return;
-      addTag({ tag, dispatch, text, allTags, allowOverlap });
+      const raw = rangeFromSelection(spanRef.current);
+      if (!raw) return;
+      const payload = normalizeTag({ tag: raw, text, allTags, allowOverlap });
+      if (!payload) return;
+      // Anchor the control under the end of the selection.
+      const rect = raw.range.getBoundingClientRect();
+      const wrapperRect = wrapperRef.current?.getBoundingClientRect();
+      const left = rect.left - (wrapperRect?.left ?? 0);
+      const top = rect.bottom - (wrapperRect?.top ?? 0) + 4;
+      onPendingTag({ ...payload, left, top });
     };
 
     document.addEventListener("mouseup", handleMouseUp);
     return () => {
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [text, allTags, dispatch, allowOverlap]);
+  }, [text, allTags, allowOverlap, viewOnly, onPendingTag, wrapperRef]);
 
   return h(
     "span",
     { ref: spanRef },
-    tree.children.map((child: any, i: number) =>
+    tree.children.map((child: any) =>
       renderNode(child, dispatch, selectedNodes, false, matchLinks, viewOnly),
     ),
   );

@@ -14,13 +14,19 @@ import {
   useUpdatableTree,
   ViewMode,
 } from "./edit-state";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Button,
   ButtonGroup,
   Card,
   SegmentedControl,
   Divider,
 } from "@blueprintjs/core";
+import {
+  DEFAULT_TERMS_ENDPOINT,
+  FeedbackConfigContext,
+  type FeedbackConfig,
+} from "./config";
 import { OmniboxSelector } from "./type-selector";
 import {
   CancelButton,
@@ -34,9 +40,11 @@ import { GraphView } from "./graph";
 import { Matches } from "./matches";
 import { TypeList } from "./typelist";
 
-export type { GraphData } from "./edit-state";
-export { treeToGraph } from "./edit-state";
+export type { GraphData, EntityOutput } from "./edit-state";
+export { treeToGraph, mergeNodes, spansOf } from "./edit-state";
 export type { TreeData } from "./types";
+export type { FeedbackConfig } from "./config";
+export { DEFAULT_TERMS_ENDPOINT } from "./config";
 
 const h = hyper.styled(styles);
 
@@ -48,8 +56,42 @@ function setsAreTheSame<T>(a: Set<T>, b: Set<T>) {
   return true;
 }
 
+export interface FeedbackComponentProps {
+  /** The run's entity tree (`type` as an entity-type id or object). */
+  entities?: Entity[];
+  /** The paragraph the entities were extracted from. */
+  text: string;
+  /** The model that produced the run (shown under the text). */
+  model?: any;
+  entityTypes: Map<number, EntityType>;
+  /** Renders a matched entity's link in the tree (legacy; prefer `matchLinks`). */
+  matchComponent?: MatchComponent;
+  /** Called with the edited tree when the reviewer saves. */
+  onSave?: (tree: TreeData[]) => void | Promise<void>;
+  /** Allow a new tag to overlap or nest inside an existing one. */
+  allowOverlap?: boolean;
+  /** Lexicon route prefixes for matched entities, keyed by term type. */
+  matchLinks?: Record<string, string>;
+  /** Read-only: no editing controls, matched entities link to the lexicon. */
+  view?: boolean;
+  /** Entity names to pre-select. */
+  autoSelect?: string[];
+  /** PostgREST route of the terms view searched by "Add match". Defaults to the
+   * development database; pass your deployment's route (`null` disables). */
+  termsEndpoint?: string | null;
+  /** Height of the tree/graph panel (CSS length). Defaults to `min(600px, 60vh)`. */
+  panelHeight?: string | number;
+  /** Create an entity as soon as text is selected, without the confirmation
+   * control (the pre-2.3 behavior). */
+  autoCreateTags?: boolean;
+}
+
+// A stable default so an omitted `entities` prop does not read as new input on
+// every render (which would replace the working tree each time).
+const NO_ENTITIES: Entity[] = [];
+
 export function FeedbackComponent({
-  entities = [],
+  entities = NO_ENTITIES,
   text,
   model,
   entityTypes,
@@ -59,17 +101,46 @@ export function FeedbackComponent({
   matchLinks,
   view = false,
   autoSelect = [],
-}) {
+  termsEndpoint = DEFAULT_TERMS_ENDPOINT,
+  panelHeight,
+  autoCreateTags = false,
+}: FeedbackComponentProps) {
   const [viewOnly, setViewOnly] = useState(view);
   const [match, setMatchLinks] = useState(matchLinks);
 
+  const initialTree = useMemo(
+    () => entities.map((entity) => processEntity(entity, entityTypes)) as any,
+    [entities, entityTypes],
+  );
+
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
-    entities.map((entity) => processEntity(entity, entityTypes)) as any,
+    initialTree,
     entityTypes,
     viewOnly,
     autoSelect,
   );
+
+  // New input (another run, or reloaded data) replaces the working tree, so a
+  // consumer need not remount the component per run.
+  const isFirstTree = useRef(true);
+  useEffect(() => {
+    if (isFirstTree.current) {
+      isFirstTree.current = false;
+      return;
+    }
+    dispatch({ type: "replace-tree", payload: { tree: initialTree } });
+  }, [initialTree]);
+
+  const config: FeedbackConfig = useMemo(
+    () => ({ termsEndpoint }),
+    [termsEndpoint],
+  );
+
+  let panelStyle = undefined;
+  if (panelHeight != null) {
+    panelStyle = { "--feedback-panel-height": panelHeight } as any;
+  }
 
   const {
     selectedNodes,
@@ -81,7 +152,9 @@ export function FeedbackComponent({
 
   const [{ width, height }, ref] = useElementDimensions();
 
-  return h("div.page-wrapper", [
+  const canMerge = !viewOnly && selectedNodes.length > 1;
+
+  return h(FeedbackConfigContext.Provider, { value: config }, h("div.page-wrapper", [
     h(
       "div.feedback-container",
       h(TreeDispatchContext.Provider, { value: dispatch }, [
@@ -110,9 +183,11 @@ export function FeedbackComponent({
             // @ts-ignore
             nodes: tree,
             selectedNodes,
+            selectedEntityType,
             allowOverlap,
             matchLinks: match,
             viewOnly,
+            autoCreateTags,
           }),
         ),
         h(
@@ -128,7 +203,6 @@ export function FeedbackComponent({
               value: state.viewMode,
               small: true,
               onValueChange(value: ViewMode) {
-                console.log("Setting view mode", value);
                 dispatch({ type: "set-view-mode", payload: value });
               },
             }),
@@ -136,10 +210,8 @@ export function FeedbackComponent({
         ),
         h(
           "div.entity-panel",
-          {
-            ref,
-          },
-          [
+          { style: panelStyle },
+          h("div.entity-panel-inner", { ref }, [
             h.if(state.viewMode == "tree")(ManagedSelectionTree, {
               selectedNodes,
               dispatch,
@@ -158,7 +230,7 @@ export function FeedbackComponent({
               selectedNodes,
               viewOnly,
             }),
-          ],
+          ]),
         ),
       ]),
     ),
@@ -196,6 +268,21 @@ export function FeedbackComponent({
             ),
           ],
         ),
+        h.if(canMerge)(
+          Button,
+          {
+            className: "merge-button",
+            icon: "git-merge",
+            fill: true,
+            minimal: true,
+            alignText: "left",
+            title: "Combine the selected entities into one (M)",
+            onClick() {
+              dispatch({ type: "merge-nodes" });
+            },
+          },
+          `Merge ${selectedNodes.length} entities`,
+        ),
         h.if(!viewOnly)(Matches, {
           match,
           setMatchLinks,
@@ -224,7 +311,7 @@ export function FeedbackComponent({
         }),
       ]),
     ]),
-  ]);
+  ]));
 }
 
 function normalizeMatch(match: any) {
@@ -249,7 +336,7 @@ function processEntity(entity: Entity, entityTypes: Map<number, EntityType>): In
     ...entity,
     type: type ?? { id: -1, name: "unknown", description: null, color: "#999" },
     term_type: type?.name ?? "unknown",
-    txt_range: [entity.indices],
+    txt_range: entity.spans ?? [entity.indices],
     match: normalizeMatch(entity.match),
     children: entity.children?.map((child) => processEntity(child, entityTypes)) ?? [],
   } as InternalEntity;

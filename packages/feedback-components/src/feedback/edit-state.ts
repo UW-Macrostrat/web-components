@@ -52,6 +52,17 @@ type TreeAction =
   | { type: "select-range"; payload: { ids: number[] } }
   | { type: "add-match"; payload: { id: number; payload: any } }
   | { type: "remove-match"; payload: { id: number } }
+  | {
+      /** Combine several entities that refer to the same thing into one node
+       * that carries every text span. Defaults to the currently selected nodes. */
+      type: "merge-nodes";
+      payload?: { ids?: number[] };
+    }
+  | {
+      /** Replace the tree wholesale (new input data); clears the selection. */
+      type: "replace-tree";
+      payload: { tree: TreeData[] };
+    }
   | { type: "toggle-view-only" };
 
 export type TreeDispatch = Dispatch<TreeAction>;
@@ -103,6 +114,11 @@ export function useTreeDispatch() {
 function treeReducer(state: TreeState, action: TreeAction) {
   if (action.type === "toggle-view-only") {
     return { ...state, viewOnly: !state.viewOnly, selectedNodes: [] };
+  }
+
+  if (action.type === "replace-tree") {
+    const { tree } = action.payload;
+    return { ...state, initialTree: tree, tree, selectedNodes: [] };
   }
 
   if (state.viewOnly) return viewMode(state, action);
@@ -174,7 +190,6 @@ function treeReducer(state: TreeState, action: TreeAction) {
 
       const selectedNodes = allNodes.slice(startIndex, endIndex + 1);
 
-      console.log("Selecting range:", selectedNodes);
       return {
         ...state,
         selectedNodes: selectedNodes.map((node) => node.id),
@@ -349,6 +364,12 @@ function treeReducer(state: TreeState, action: TreeAction) {
         selectedEntityType: action.payload,
       };
     }
+    case "merge-nodes": {
+      const ids = action.payload?.ids ?? state.selectedNodes;
+      const merged = mergeNodes(state.tree, ids);
+      if (merged == null) return state;
+      return { ...state, tree: merged.tree, selectedNodes: [merged.id] };
+    }
     case "deselect":
       return { ...state, selectedNodes: [] };
     case "reset":
@@ -462,7 +483,7 @@ export function treeToGraph(tree: TreeData[]): GraphData {
       continue;
     }
 
-    const { indices, id, name, type, children } = node;
+    const { id, name, type, children } = node;
 
     const nodeData: EntityOutput = {
       id,
@@ -470,7 +491,7 @@ export function treeToGraph(tree: TreeData[]): GraphData {
       type_name: type.name,
       color: type.color,
       name,
-      txt_range: [indices],
+      txt_range: spansOf(node),
       reasoning: null,
       match: node.match,
       children,
@@ -494,6 +515,83 @@ export function treeToGraph(tree: TreeData[]): GraphData {
   }
 
   return { nodes, edges };
+}
+
+/** Every text span an entity covers. `indices` is the primary span; a merged
+ * entity carries the rest in `spans`. */
+export function spansOf(node: TreeData): [number, number][] {
+  const spans = node.spans ?? [];
+  if (spans.length > 0) return spans;
+  return [node.indices];
+}
+
+function spanKey(span: [number, number]) {
+  return `${span[0]}:${span[1]}`;
+}
+
+function unionSpans(nodes: TreeData[]): [number, number][] {
+  const seen = new Set<string>();
+  const out: [number, number][] = [];
+  for (const node of nodes) {
+    for (const span of spansOf(node)) {
+      const key = spanKey(span);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(span);
+    }
+  }
+  return out.sort((a, b) => a[0] - b[0]);
+}
+
+/** Merge several nodes into one. The survivor is the shallowest selected node
+ * (earliest in the text among equals): it keeps its name, type and position,
+ * gains every span and child of the others, and takes a match from them if it
+ * has none. The others are removed. Returns null if fewer than two of the ids
+ * are in the tree. */
+export function mergeNodes(
+  tree: TreeData[],
+  ids: number[],
+): { tree: TreeData[]; id: number } | null {
+  const candidates = ids
+    .map((id) => ({ id, path: findNode(tree, id) }))
+    .filter((d) => d.path != null);
+  if (candidates.length < 2) return null;
+
+  candidates.sort((a, b) => {
+    if (a.path.length !== b.path.length) return a.path.length - b.path.length;
+    const na = findNodeById(tree, a.id);
+    const nb = findNodeById(tree, b.id);
+    return na.indices[0] - nb.indices[0];
+  });
+  const survivorId = candidates[0].id;
+  const otherIds = candidates.slice(1).map((d) => d.id);
+
+  // Take the others out first (this also detaches any that were nested in
+  // each other), then fold them into the survivor.
+  const [pruned, removed] = removeNodes(tree, otherIds);
+  const survivorPath = findNode(pruned, survivorId);
+  if (survivorPath == null) return null;
+  const survivor = findNodeById(pruned, survivorId);
+
+  const childIds = new Set((survivor.children ?? []).map((d) => d.id));
+  const extraChildren = removed
+    .flatMap((node) => node.children ?? [])
+    .filter((child) => {
+      if (child.id === survivorId || childIds.has(child.id)) return false;
+      childIds.add(child.id);
+      return true;
+    });
+
+  const match =
+    survivor.match ?? removed.find((node) => node.match != null)?.match ?? null;
+
+  const spec = buildNestedSpec(survivorPath, {
+    spans: { $set: unionSpans([survivor, ...removed]) },
+    children: { $set: [...(survivor.children ?? []), ...extraChildren] },
+    match: { $set: match },
+  });
+
+  return { tree: update(pruned, spec), id: survivorId };
 }
 
 export function findNodeById(tree, id) {

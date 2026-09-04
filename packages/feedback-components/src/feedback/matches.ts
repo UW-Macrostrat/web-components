@@ -6,6 +6,7 @@ import { Icon, Divider, Overlay2 } from "@blueprintjs/core";
 import { JSONView, SaveButton } from "@macrostrat/ui-components";
 import { useAPIResult, DataField } from "@macrostrat/ui-components";
 import { Tag } from "@macrostrat/data-components";
+import { useFeedbackConfig } from "./config";
 
 const h = hyper.styled(styles);
 
@@ -85,20 +86,28 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
   const [disabled, setDisabled] = useState(true);
   const [payload, setPayload] = useState({});
   const [data, setData] = useState([]);
+  const { termsEndpoint } = useFeedbackConfig();
 
   useEffect(() => {
     if (!inputValue || inputValue.length < 3) return;
-
-    fetch(
-      "https://dev.macrostrat.org/api/pg/kg_macrostrat_terms?name=ilike.*" +
-        inputValue +
-        "*"
-    )
+    if (termsEndpoint == null) return;
+    let cancelled = false;
+    const url = new URL(termsEndpoint);
+    url.searchParams.set("name", `ilike.*${inputValue}*`);
+    url.searchParams.set("limit", "50");
+    fetch(url.toString())
       .then((res) => res.json())
       .then((res) => {
+        if (cancelled || !Array.isArray(res)) return;
         setData(res);
+      })
+      .catch(() => {
+        if (!cancelled) setData([]);
       });
-  }, [inputValue]);
+    return () => {
+      cancelled = true;
+    };
+  }, [inputValue, termsEndpoint]);
 
   const items = data?.map((data) => h(MatchTag, { data, setPayload }));
 

@@ -55,9 +55,7 @@ export function GraphView(props: {
       .force("center", forceCenter(width / 2, height / 2))
       .force("collide", forceCollide().radius(20))
       .on("tick", () => {
-        // Update the positions of the nodes
-        // setNodes(nodes);
-        console.log("Simulation tick");
+        // Positions are read once the layout settles.
       })
       .on("end", () => {
         // Update the positions of the nodes
@@ -74,21 +72,41 @@ export function GraphView(props: {
     return h(Spinner);
   }
 
-  console.log("Graph", nodes, links, selectedNodes);
-
   return h(
     ErrorBoundary,
     {
       description: "An error occurred while rendering the graph view.",
     },
-    h("div.graph-view", { style: { width, height } }, [
+    h(
+      "div.graph-view",
+      {
+        style: { width, height },
+        tabIndex: 0,
+        // The same keyboard gestures as the paragraph view.
+        onKeyDown: (e) => {
+          if (viewOnly) return;
+          if (e.key === "Escape") dispatch({ type: "deselect" });
+          if (e.key === "Backspace" || e.key === "Delete") {
+            dispatch({ type: "delete-node", payload: { ids: selectedNodes } });
+          }
+        },
+      },
+      [
       h(Switch, {
         className: "show-labels-switch",
         label: "Show Labels",
         checked: showLabels,
         onChange: (e) => setShowLabels(e.target.checked),
       }),
-      h("svg", { width, height }, [
+      h(
+        "svg",
+        {
+          width,
+          height,
+          // Clicking the background clears the selection (nodes stop propagation).
+          onClick: () => dispatch({ type: "deselect" }),
+        },
+        [
         h(
           "g.links",
           links.map((d) => {
@@ -117,16 +135,24 @@ export function GraphView(props: {
                 fill: style.backgroundColor || "blue",
                 onClick: (e) => {
                   e.stopPropagation();
+                  if (viewOnly) return;
+                  // The same click grammar as the paragraph and tree views:
+                  // click selects, cmd/ctrl toggles, shift extends a range
+                  // (in text order), clicking the sole selected node clears.
                   if (
                     e.ctrlKey ||
                     e.metaKey ||
                     (selectedNodes[0] === d.id && selectedNodes.length === 1)
                   ) {
-                    // Toggle selection on ctrl/cmd click or when node is only selected node
-                    e.stopPropagation();
                     dispatch({
                       type: "toggle-node-selected",
                       payload: { ids: [d.id] },
+                    });
+                  } else if (e.shiftKey && selectedNodes.length > 0) {
+                    const lastSelected = selectedNodes[selectedNodes.length - 1];
+                    dispatch({
+                      type: "select-range",
+                      payload: { ids: [lastSelected, d.id] },
                     });
                   } else {
                     dispatch({
@@ -154,8 +180,10 @@ export function GraphView(props: {
             ]);
           }),
         ),
-      ]),
-    ]),
+      ],
+      ),
+      ],
+    ),
   );
 }
 
