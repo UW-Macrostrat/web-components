@@ -1,16 +1,19 @@
 import { Meta } from "@storybook/react-vite";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useState } from "react";
-import { Button, Intent, OverlaysProvider } from "@blueprintjs/core";
+import { OverlaysProvider } from "@blueprintjs/core";
 import { MacrostratDataProvider } from "@macrostrat/data-provider";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import {
   MacrostratInteractionProvider,
-  IntervalTag,
   type IntervalShort,
 } from "@macrostrat/data-components";
 
-import { CorrelationChart } from "../../src";
+import {
+  AgeWindowTag,
+  CorrelationChart,
+  intervalShortFromTimescale,
+} from "../../src";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
@@ -64,14 +67,7 @@ function TimescaleZoomLayout(props) {
     // Buffer around the interval so neighboring time can still be traversed
     const buffer = Math.max((eag - lag) * 0.25, 5);
     setZoom({
-      interval: {
-        id: interval.int_id ?? interval.oid,
-        name: interval.nam,
-        color: interval.col,
-        b_age: eag,
-        t_age: lag,
-        rank: interval.lvl,
-      },
+      interval: intervalShortFromTimescale(interval),
       t_age: Math.max(lag - buffer, 0),
       b_age: eag + buffer,
     });
@@ -91,6 +87,12 @@ function TimescaleZoomLayout(props) {
               zoom,
               onClear: () => setZoom(null),
             }),
+            timescaleIntervalStyle: (interval) => {
+              if (zoom != null && interval.int_id === zoom.interval.id) {
+                return { fontWeight: "bold" };
+              }
+              return {};
+            },
             onClickTimescaleInterval,
             t_age: zoom?.t_age,
             b_age: zoom?.b_age,
@@ -116,9 +118,9 @@ function TimescaleZoomLayout(props) {
   ]);
 }
 
-/** A clearable pill showing the currently zoomed interval. The interval tag
- * itself links to the interval page; the separate danger button clears the
- * zoom, keeping the two interactions distinct. */
+/** A clearable pill showing the currently zoomed interval, positioned over the
+ * chart's axis header. The tag itself links to the interval page; the clear
+ * button resets the zoom, keeping the two interactions distinct. */
 function ZoomPill({
   zoom,
   onClear,
@@ -127,17 +129,10 @@ function ZoomPill({
   onClear: () => void;
 }) {
   if (zoom == null) return null;
-  return h("div.zoom-pill", [
-    h(IntervalTag, { interval: zoom.interval, showAgeRange: true }),
-    h(Button, {
-      icon: "cross",
-      intent: Intent.DANGER,
-      minimal: true,
-      small: true,
-      title: "Clear zoom",
-      onClick: onClear,
-    }),
-  ]);
+  return h(
+    "div.zoom-pill",
+    h(AgeWindowTag, { interval: zoom.interval, onClear }),
+  );
 }
 
 export default {

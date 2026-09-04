@@ -34,7 +34,10 @@ import type { ColumnData } from "@macrostrat/data-provider";
 import { BaseUnit } from "@macrostrat/api-types";
 import { ScaleContinuousNumeric } from "d3-scale";
 import { ExtUnit } from "../prepare-units/types";
-import type { TimescaleClickHandler } from "@macrostrat/timescale";
+import type {
+  IntervalStyleBuilder,
+  TimescaleClickHandler,
+} from "@macrostrat/timescale";
 import { useMacrostratColumnInfo } from "@macrostrat/data-provider";
 
 /** Standard props passed to a `columnHeaderComponent`. Everything a header
@@ -122,6 +125,7 @@ export function CorrelationChart({
   columnHeaderComponent,
   axisTopContent,
   onClickTimescaleInterval,
+  timescaleIntervalStyle,
   onColumnMouseOver,
   onColumnClick,
   isTransitioning = false,
@@ -166,6 +170,7 @@ export function CorrelationChart({
           scaleInfo,
           unconformityLabels,
           onClickInterval: onClickTimescaleInterval,
+          intervalStyle: timescaleIntervalStyle,
         }),
         h(MainChartArea, [
           h(
@@ -515,16 +520,23 @@ interface TimescaleColumnProps {
   showLabels?: boolean;
   unconformityLabels?: boolean;
   onClickInterval?: TimescaleClickHandler;
+  intervalStyle?: IntervalStyleBuilder;
 }
 
 function TimescaleColumn(props: TimescaleColumnProps) {
-  const { scaleInfo, unconformityLabels = true, onClickInterval } = props;
+  const {
+    scaleInfo,
+    unconformityLabels = true,
+    onClickInterval,
+    intervalStyle,
+  } = props;
   return h("div.column-container.age-axis-container", [
     h(CompositeAgeAxisCore, { ...scaleInfo }),
     h(CompositeTimescaleCore, {
       ...scaleInfo,
       unconformityLabels,
       onClickInterval,
+      intervalStyle,
     }),
   ]);
 }
