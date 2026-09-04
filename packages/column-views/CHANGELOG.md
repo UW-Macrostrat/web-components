@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.11.0] - 2026-09-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.10.0...@macrostrat/column-views-v3.11.0)
+
+### Minor Changes
+
+- Add `AgeWindowTag`, a compact, clearable indicator of the age window a column
+  or
+  [0dfa4399](https://github.com/UW-Macrostrat/web-components/commit/0dfa4399e47298a2cb37aafa5785149a5f5b994d)
+  correlation chart is focused on — an interval tag with its range (or the
+  refined range when the window is narrower than the interval), or a bare age
+  range — for use in a chart's `axisTopContent` or page chrome.
+
+  Add `intervalShortFromTimescale`, adapting the `Interval` delivered by a
+  `Timescale` click (`eag`/`lag`/`nam`/`col`) to the `IntervalShort` shape the
+  `@macrostrat/data-components` tags take.
+
+  Add `timescaleIntervalStyle` to `CorrelationChart`, forwarding a per-interval
+  style to its timescale so the selected interval can be highlighted, matching
+  the existing `Column` prop.
+
 ## [3.10.0] - 2026-09-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.9.0...@macrostrat/column-views-v3.10.0)
 
 ### Minor Changes
