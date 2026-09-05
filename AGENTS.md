@@ -79,6 +79,32 @@ methods at the bottom.
   `"div.foo" + (active ? ".bar" : "")`): use the `classnames` library and pass a
   `className` prop instead — `h("div.foo", { className: classNames({ bar: active }) })`.
 
+### State management
+
+Component-family state lives in a `@macrostrat/scoped-store` isolation
+(`createScopedStore()`). Two idioms, both used by `data-sheet`, `data-provider`
+and `mapbox-react`:
+
+- **Atoms** for small, independent pieces of state: `scope.Provider({ atoms })`,
+  `scope.useValue`, `scope.useSet`, derived values as read-only atoms, actions
+  as write-only atoms.
+- **A plain `zustand` store for a larger state object**, mounted through
+  `ZustandStoreProvider({ ctx, initializeStore })`, read with
+  `useZustandSelector(ctx, selector)` / `useZustandStoreAPI(ctx)` — and reached
+  from jotai through `zustandStoreAtom`, so **derived values are selection
+  atoms** over the store (`atom((get) => get(zustandStoreAtom).field)` chains)
+  that recompute only when their inputs change. The correlation map store
+  (`map-views/src/column-maps/column-correlation/state.ts`) is the reference.
+
+**`zustand-computed` is deprecated here — don't add new uses, and migrate the
+remaining one** (`column-creator/src/store.ts`) **to selection atoms.** Its
+2.1.1 release mutates the state object in place inside `setState`, which
+defeats zustand's identity check and silently stops notifying subscribers;
+consumers had to pin 2.1.0. Note `ZustandStoreProvider`'s `inherit` default:
+without an enclosing scope it resolves to jotai's default store and hydrates
+once per document, so a store that must be fresh per mount needs
+`inherit: false`.
+
 ### Workspace Dependencies
 
 Use `workspace:^` protocol for inter-package dependencies:
