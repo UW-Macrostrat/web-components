@@ -7,12 +7,17 @@ import {
 import { LngLatBounds, Style } from "mapbox-gl";
 import h from "@macrostrat/hyper";
 import { Feature, FeatureCollection } from "geojson";
-import { ReactNode, useMemo, useRef } from "react";
+import { ReactNode, useEffect, useMemo, useRef } from "react";
 import { setGeoJSON, buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 
-import { useCorrelationMapStore } from "./state";
+import {
+  useCorrelationMapStore,
+  useFocusedColumns,
+  useSelectionMode,
+} from "./state";
 import { InsetMap, type InsetMapProps } from "../inset-map";
 import { BaseColumnsLayer } from "../layers";
+import { useColumnMapColors } from "../theme";
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
 
 export interface CorrelationMapProps extends InsetMapProps {
@@ -100,9 +105,7 @@ function ColumnInteractionHandler() {
   const setHoveredColumn = useCorrelationMapStore(
     (state) => state.setHoveredColumn,
   );
-  const isManual = useCorrelationMapStore(
-    (state) => state.selectionMode === "manual",
-  );
+  const isManual = useSelectionMode() === "manual";
   const hoveredRef = useRef<number | string | null>(null);
 
   // Click a column to toggle it in/out of the selection (manual mode only)
@@ -191,11 +194,11 @@ function HoveredColumnHighlight() {
 }
 
 function SelectedColumnsLayer() {
-  useOverlayStyle(() => selectedColumnsStyle, []);
+  // The focused columns and their order line, in the theme's focus color
+  const { focus } = useColumnMapColors();
+  useOverlayStyle(() => buildSelectedColumnsStyle(focus), [focus]);
 
-  const focusedColumns = useCorrelationMapStore(
-    (state) => state.focusedColumns,
-  );
+  const focusedColumns = useFocusedColumns();
 
   useMapStyleOperator(
     (map) => {
@@ -233,42 +236,47 @@ function ColumnsLayer({ enabled = true, color }) {
   return h(BaseColumnsLayer, { enabled, color, columns });
 }
 
-const selectedColumnsStyle: Style = {
-  version: 8,
-  sources: {
-    "selected-columns": buildGeoJSONSource(),
-    "selected-column-centroids": buildGeoJSONSource(),
-  },
-  layers: [
-    {
-      id: "selected-columns-fill",
-      type: "fill",
-      source: "selected-columns",
-      paint: {
-        "fill-color": "rgba(255, 0, 0, 0.1)",
-      },
+function buildSelectedColumnsStyle(color: string): Style {
+  return {
+    version: 8,
+    sources: {
+      "selected-columns": buildGeoJSONSource(),
+      "selected-column-centroids": buildGeoJSONSource(),
     },
-    {
-      id: "selected-column-centroids-line",
-      type: "line",
-      source: "selected-column-centroids",
-      paint: {
-        "line-color": "rgba(255, 0, 0, 0.8)",
-        "line-width": 2,
-        "line-dasharray": [2, 2],
+    layers: [
+      {
+        id: "selected-columns-fill",
+        type: "fill",
+        source: "selected-columns",
+        paint: {
+          "fill-color": color,
+          "fill-opacity": 0.1,
+        },
       },
-    },
-    {
-      id: "selected-column-centroids-points",
-      type: "circle",
-      source: "selected-column-centroids",
-      paint: {
-        "circle-radius": 4,
-        "circle-color": "rgba(255, 0, 0, 0.8)",
+      {
+        id: "selected-column-centroids-line",
+        type: "line",
+        source: "selected-column-centroids",
+        paint: {
+          "line-color": color,
+          "line-opacity": 0.8,
+          "line-width": 2,
+          "line-dasharray": [2, 2],
+        },
       },
-    },
-  ],
-};
+      {
+        id: "selected-column-centroids-points",
+        type: "circle",
+        source: "selected-column-centroids",
+        paint: {
+          "circle-radius": 4,
+          "circle-color": color,
+          "circle-opacity": 0.8,
+        },
+      },
+    ],
+  };
+}
 
 const lineOfSectionStyle: Style = {
   version: 8,
@@ -283,9 +291,7 @@ const lineOfSectionStyle: Style = {
 function SectionLine({ padding }: { padding: number }) {
   useOverlayStyle(() => lineOfSectionStyle, []);
   const focusedLine = useCorrelationMapStore((state) => state.focusedLine);
-  const focusedColumns = useCorrelationMapStore(
-    (state) => state.focusedColumns,
-  );
+  const focusedColumns = useFocusedColumns();
 
   // Setup focused line (only drawn in line-of-section mode)
   useMapStyleOperator(
@@ -320,21 +326,41 @@ function SectionLine({ padding }: { padding: number }) {
     [focusedLine],
   );
 
+  // Keyed on the *content* of the line and selection, not their identity: a
+  // store update that leaves them unchanged (a hover, a zoom request) must not
+  // produce a fresh bounds object, or the map re-fits on every interaction.
+  const lineKey = JSON.stringify(focusedLine?.coordinates ?? null);
+  const idsKey = focusedColumns.map((c) => c.properties.col_id).join(",");
   const bounds = useMemo(() => {
     // In line mode, frame the line; in manual mode, frame the selected columns
-    const coords: number[][] =
-      focusedLine != null && focusedLine.coordinates.length >= 2
-        ? focusedLine.coordinates
-        : focusedColumns.map((c) => c.properties.centroid.geometry.coordinates);
+    let coords: number[][];
+    if (focusedLine != null && focusedLine.coordinates.length >= 2) {
+      coords = focusedLine.coordinates;
+    } else {
+      coords = focusedColumns.map(
+        (c) => c.properties.centroid.geometry.coordinates,
+      );
+    }
     if (coords.length < 2) return null;
     const bounds = new LngLatBounds();
     for (const coord of coords) {
       bounds.extend(coord as [number, number]);
     }
     return bounds;
-  }, [focusedLine, focusedColumns]);
+  }, [lineKey, idsKey]);
 
-  useMapEaseTo({ bounds, padding, trackResize: true });
+  // The first fit (a page opened on an existing section) is a jump, not an
+  // animation; later changes to the selection ease.
+  const hasFitted = useRef(false);
+  let duration = 800;
+  if (!hasFitted.current) {
+    duration = 0;
+  }
+  useEffect(() => {
+    if (bounds != null) hasFitted.current = true;
+  }, [bounds]);
+
+  useMapEaseTo({ bounds, padding, duration });
 
   return null;
 }

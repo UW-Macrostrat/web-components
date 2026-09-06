@@ -5,6 +5,7 @@ import { GeoJSONFeature } from "mapbox-gl";
 import { getCSSVariable } from "@macrostrat/color-utils";
 import { buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 import { StyleFragment } from "@macrostrat/mapbox-react";
+import { useColumnMapColors } from "../theme";
 
 export interface ColumnsStyleOptions {
   color?: string | any[];
@@ -26,7 +27,17 @@ export function BaseColumnsLayer({
   columns,
   ...rest
 }: ColumnLayerOptions) {
-  useOverlayStyle(() => (enabled ? buildColumnsStyle(rest) : null), [enabled]);
+  // Themed through the `--column-map-*` variables unless given explicitly
+  const colors = useColumnMapColors();
+  const color = rest.color ?? colors.column;
+  const selectedColor = rest.selectedColor ?? colors.hover;
+  useOverlayStyle(
+    () => {
+      if (!enabled) return null;
+      return buildColumnsStyle({ ...rest, color, selectedColor });
+    },
+    [enabled, color, selectedColor],
+  );
 
   useMapStyleOperator(
     (map) => {
@@ -147,7 +158,9 @@ export function SelectedColumnOverlay({
   selectedColumn,
   ...styleOpts
 }: { selectedColumn: ColumnFeature | null } & SelectedColumnStyleOpts) {
-  useOverlayStyle(() => buildSelectedColumnStyle(styleOpts), []);
+  const colors = useColumnMapColors();
+  const color = styleOpts.color ?? colors.selection;
+  useOverlayStyle(() => buildSelectedColumnStyle({ color }), [color]);
 
   useMapStyleOperator(
     (map) => {
