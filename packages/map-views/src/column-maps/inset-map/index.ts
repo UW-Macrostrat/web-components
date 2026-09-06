@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import {
   MapView,
   getBasicMapStyle,
@@ -12,6 +12,7 @@ import {
   removeSourceFromStyle,
 } from "@macrostrat/mapbox-utils";
 import type { ReactNode, CSSProperties } from "react";
+import { ColumnMapThemeProvider, type ColumnMapColors } from "../theme";
 
 export interface InsetMapProps extends Omit<MapViewProps, "style"> {
   controls?: ReactNode;
@@ -22,6 +23,9 @@ export interface InsetMapProps extends Omit<MapViewProps, "style"> {
   showLabels?: boolean;
   showAdmin?: boolean;
   showRoads?: boolean;
+  /** Explicit layer colors, overriding the `--column-map-*` CSS variables read
+   * from the map's container (see `theme.ts`). */
+  mapColors?: Partial<ColumnMapColors>;
 }
 
 export function InsetMap({
@@ -34,9 +38,11 @@ export function InsetMap({
   showLabels = false,
   showAdmin = false,
   showRoads = false,
+  mapColors,
   ...rest
 }: InsetMapProps) {
   const inDarkMode = useInDarkMode();
+  const containerRef = useRef<HTMLDivElement>(null);
   const _style = useMemo((): mapboxgl.Style | string => {
     return mapStyle ?? getBasicMapStyle({ inDarkMode });
   }, [mapStyle, inDarkMode]);
@@ -59,29 +65,35 @@ export function InsetMap({
     [mapStyle, showLabels, showRoads, showAdmin],
   );
 
-  return h("div.inset-map", { className, style }, [
-    h(MapboxMapProvider, [
-      controls,
-      h(
-        MapView,
-        {
-          style: _style,
-          accessToken,
-          standalone: true,
-          /* Default map position that centers on the bulk of Macrostrat columns
-           */
-          mapPosition: {
-            camera: {
-              lng: -100,
-              lat: 38,
-              altitude: 5000000,
+  return h(
+    "div.inset-map",
+    { className, style, ref: containerRef },
+    h(
+      ColumnMapThemeProvider,
+      { containerRef, overrides: mapColors },
+      h(MapboxMapProvider, [
+        controls,
+        h(
+          MapView,
+          {
+            style: _style,
+            accessToken,
+            standalone: true,
+            /* Default map position that centers on the bulk of Macrostrat columns
+             */
+            mapPosition: {
+              camera: {
+                lng: -100,
+                lat: 38,
+                altitude: 5000000,
+              },
             },
+            transformStyle,
+            ...rest,
           },
-          transformStyle,
-          ...rest,
-        },
-        children,
-      ),
-    ]),
-  ]);
+          children,
+        ),
+      ]),
+    ),
+  );
 }

@@ -11,6 +11,7 @@ import {
   buildKeyMapping,
 } from "../utils/keyboard-navigation";
 import { StyleSpecification } from "mapbox-gl";
+import { useColumnMapColors } from "../../theme";
 
 interface KeyboardNavProps {
   showTriangulation: boolean;
@@ -32,13 +33,16 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
   const mapRef = useMapRef();
   const map = mapRef.current;
 
-  // Set up overlay style for triangulation
+  // Set up overlay style for triangulation, in the theme's selection color
+  // unless given explicitly
+  const colors = useColumnMapColors();
+  const linkColor = triangulationColor ?? colors.selection;
   useOverlayStyle(() => {
     if (!showTriangulation) return null;
     return buildKeyboardNavigationStyle(
-      triangulationColor,
+      linkColor,
     ) as Partial<StyleSpecification>;
-  }, [triangulationColor, showTriangulation]);
+  }, [linkColor, showTriangulation]);
 
   const keyMapping = useMemo(() => {
     if (columns == null || voronoi == null || map == null) return null;

@@ -31,3 +31,13 @@ a jump rather than an animation.
 
 `zustand-computed` is deprecated across the library; see the State management
 section of `AGENTS.md`.
+
+Column map colors are now themeable with CSS custom properties, read from the
+map's container when it mounts: `--column-map-color` (footprints),
+`--column-map-hover-color` (hovered / highlighted column),
+`--column-map-selection-color` (the navigation map's selected column and
+keyboard-navigation links) and `--column-map-focus-color` (the correlation
+map's focused columns and their order line). Defaults are unchanged (subtle
+text color, purple, purple, red). `InsetMap` and the maps built on it also take
+explicit `mapColors`; `useColumnMapColors` exposes the resolved set to custom
+layers. See the "Theming / Selection colors" story in column-views.
