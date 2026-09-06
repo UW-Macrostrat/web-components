@@ -70,13 +70,26 @@ export function seededLoaderCore<T>(
   };
 }
 
+/** The identity of the row the current view starts after (`startAfter`), or
+ * `null` for a view that starts at the top. Set at store creation so a server
+ * render shows the "Return to top" link; the loader clears it on the first view
+ * change. */
+export const startAfterAtom = atom<string | number | null>(null);
+
 /** Scoped-store atoms that make a store start out seeded. The store's own
  * `data` is seeded alongside (see `DataSheetStoreWrapper`). Empty when there is
  * no seed. */
 export function loaderSeedAtoms<T>(
   initialData: FetchDataOptions<T>["initialData"],
+  startAfter: FetchDataOptions<T>["startAfter"] = null,
 ): AtomMap {
+  const atoms: AtomMap = [];
+  if (startAfter != null) {
+    atoms.push([startAfterAtom, startAfter]);
+  }
   const seed = resolveInitialData(initialData);
-  if (seed == null) return [];
-  return [[lazyLoaderCoreStateAtom, seededLoaderCore(seed)]];
+  if (seed != null) {
+    atoms.push([lazyLoaderCoreStateAtom, seededLoaderCore(seed)]);
+  }
+  return atoms;
 }

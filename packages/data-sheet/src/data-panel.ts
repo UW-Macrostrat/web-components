@@ -35,7 +35,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { Classes, Icon, NonIdealState, Spinner } from "@blueprintjs/core";
+import {
+  AnchorButton,
+  Classes,
+  Icon,
+  NonIdealState,
+  Spinner,
+} from "@blueprintjs/core";
+import { startAfterAtom } from "./provider/loader-state.ts";
 import {
   anchorRefAtom,
   ctx,
@@ -205,6 +212,7 @@ export function DataPanelRenderer<T>({
   contentFooter,
   autoLoadPages,
   scrollBody,
+  pageLinks,
   className,
   toolbarStyle = DataPanelToolbarStyle.BORDERED,
   viewControls = "inline",
@@ -412,6 +420,45 @@ export function DataPanelRenderer<T>({
     contentFooter ?? defaultFooter,
   );
 
+  // Crawlable paging (see `PageLinks`). Both are plain links, so they work in
+  // the server-rendered HTML with no script: the next-page link is visually
+  // hidden after the loaded rows and points past the last loaded row; the
+  // "Return to top" notice heads the content while the view starts mid-list.
+  const startAfter = ctx.useValue(startAfterAtom);
+  const lastLoadedRow = useMemo(() => {
+    for (let i = data.length - 1; i >= 0; i--) {
+      if (data[i] != null) return data[i];
+    }
+    return null;
+  }, [data]);
+  // Gated on the counts rather than `hasMore`, which reads the resolved
+  // provider — synced after mount, so absent in a server render.
+  const moreToCome = total == null || loadedCount < total;
+  let nextPageLink: ReactNode = null;
+  if (pageLinks != null && lastLoadedRow != null && moreToCome) {
+    nextPageLink = h(
+      "a.crawl-next-link",
+      {
+        href: pageLinks.after(lastLoadedRow),
+        rel: "next",
+        tabIndex: -1,
+        "aria-hidden": true,
+      },
+      "Next page",
+    );
+  }
+  let viewStartNotice: ReactNode = null;
+  if (startAfter != null && pageLinks?.top != null) {
+    viewStartNotice = h("div.view-start-notice", [
+      h("span.view-start-text", `Continued after #${startAfter}`),
+      h(
+        AnchorButton,
+        { href: pageLinks.top, minimal: true, small: true, icon: "arrow-up" },
+        pageLinks.topLabel ?? "Return to top",
+      ),
+    ]);
+  }
+
   // Body + optional filter/detail sidebar share a horizontal row so each
   // scrolls independently.
 
@@ -461,7 +508,9 @@ export function DataPanelRenderer<T>({
           },
           [
             h("div.data-panel-body-content", [
+              viewStartNotice,
               emptyState ?? h(ScrollBody, { placeholders }, cards),
+              nextPageLink,
               _contentFooter,
             ]),
           ],
