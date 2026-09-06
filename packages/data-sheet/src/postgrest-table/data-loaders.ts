@@ -27,6 +27,7 @@ import {
   lazyLoaderCoreStateAtom,
   resolveInitialData,
   seededRows,
+  startAfterAtom,
   type LazyLoaderStateCore,
 } from "../provider/loader-state.ts";
 
@@ -677,6 +678,10 @@ export function useDataLoader<T = any>(
   const page = ctx.useValue(chunkPageAtom);
   const setPage = ctx.useSet(chunkPageAtom);
   const refreshToken = ctx.useValue(dataRefreshTokenAtom);
+  // The keyset cursor of a view that starts mid-list. Seeded at store creation
+  // (`startAfter`); cleared below on the first view change, since it describes
+  // only the view it arrived with.
+  const [startAfter, setStartAfter] = ctx.use(startAfterAtom);
   const columnSorts = useSelector((s) => s.columnSorts);
   const activeFilters = useSelector((s) => s.activeFilters);
   const abortRef = useRef<AbortController | null>(null);
@@ -729,9 +734,16 @@ export function useDataLoader<T = any>(
   const seedRef = useRef(resolveInitialData(initialData));
   // Gate on the seed until it's actually in state (see the fetch effect).
   const awaitingSeedRef = useRef(seedRef.current != null);
+  const firstResetRef = useRef(true);
   useEffect(() => {
     const seed = seedRef.current;
     seedRef.current = null;
+    // A view change (not the mount) ends a mid-list start: the cursor only
+    // described the view it arrived with.
+    if (!firstResetRef.current) {
+      setStartAfter(null);
+    }
+    firstResetRef.current = false;
     if (seed != null) {
       if (!state.initialized) {
         dispatch({
@@ -798,6 +810,7 @@ export function useDataLoader<T = any>(
         sorts: columnSorts,
         filters,
         cursor,
+        after: startAfter,
       });
       if (controller.signal.aborted) return;
       const rows = result.rows ?? [];

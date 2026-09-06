@@ -32,6 +32,12 @@ export interface FetchDataParams {
    * sources can page from this cursor (e.g. `WHERE key > cursor`) instead of a
    * slow `OFFSET`; offset-based sources can ignore it. */
   cursor?: { row: any; index: number } | null;
+  /** Identity of the row the view is counted from: `offset` 0 is the first
+   * row *after* it. Set while a view starts mid-list (see `startAfter` in
+   * `FetchDataOptions`); absent or `null` when it starts at the top. Keyset
+   * sources translate it to `WHERE key > after`; the local provider slices past
+   * the row. `totalCount` then reports the rows after it. */
+  after?: string | number | null;
 }
 
 /** Result of a `fetchChunk` call. `totalCount` reports the source length when
@@ -125,7 +131,7 @@ export function createLocalProvider<T = any>(
 
   return {
     identity,
-    async fetchData({ offset, limit, sorts, filters }) {
+    async fetchData({ offset, limit, sorts, filters, after }) {
       let rows = data;
       if (filters != null && filters.length > 0) {
         rows = rows.filter((row) =>
@@ -137,6 +143,7 @@ export function createLocalProvider<T = any>(
       if (sorts != null && sorts.length > 0) {
         rows = [...rows].sort(compareRowsBySorts(sorts));
       }
+      rows = rowsAfter(rows, after, identity);
       return {
         rows: rows.slice(offset, offset + limit),
         totalCount: rows.length,
@@ -146,6 +153,21 @@ export function createLocalProvider<T = any>(
       return distinctValuesOf(data, columnKey, opts);
     },
   };
+}
+
+/** The rows past the one with identity `after` in the (filtered, sorted) view;
+ * the whole view when `after` is absent or names no row. Identities are compared
+ * as strings, since a cursor read from a URL arrives as one. */
+export function rowsAfter<T>(
+  rows: T[],
+  after: string | number | null | undefined,
+  identity: (row: T) => string | number | null | undefined,
+): T[] {
+  if (after == null) return rows;
+  const key = String(after);
+  const index = rows.findIndex((row) => String(identity(row)) === key);
+  if (index < 0) return rows;
+  return rows.slice(index + 1);
 }
 
 // Stable synthetic identity for in-memory rows lacking a natural `id`. Keyed by

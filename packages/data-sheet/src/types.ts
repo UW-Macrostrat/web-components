@@ -39,6 +39,14 @@ export interface FetchDataOptions<T = any> {
    * Pass `totalCount` when it's known — the array is pre-sized to it, so the
    * scrollbar and the counter are right from the first paint. */
   initialData?: T[] | InitialDataChunk<T>;
+  /** Identity of the row the view starts after — the keyset cursor of a view
+   * that begins mid-list, as reached through a page link (`?after=<id>`). It is
+   * passed to the provider as `after` on every chunk of the view it was created
+   * for, and dropped on the first view change (sorts, filters, a refresh), since
+   * it only describes that view. Read from the URL when the page loads; the
+   * client never writes it back while scrolling. Pair it with an `initialData`
+   * seed of the rows after it for a complete server render. */
+  startAfter?: string | number | null;
   /** Debounce (ms) applied to view-state → refetch, so rapid changes (typing a
    * text filter) collapse into one fetch once the view settles. The input stays
    * instant; only the fetch waits. `0` (default) keeps immediate refetching. */
@@ -88,8 +96,26 @@ export interface DataViewCoreProps<T> extends InteractionOptions {
   initialSorts?: ColumnSort[];
 }
 
+/** Links that make a paged view reachable without JavaScript. */
+export interface PageLinks<T = any> {
+  /** The href of the view that starts after `row` (`?after=<id>`). Rendered as
+   * a visually hidden `rel="next"` link after the loaded rows, so a crawler
+   * following the server-rendered HTML reaches every page of the list while
+   * readers keep the infinite scroll. */
+  after: (row: T) => string;
+  /** The href of the view's first page. Shown as a "Return to top" link at the
+   * head of the content while the view starts mid-list (`startAfter`). */
+  top?: string;
+  /** Label for that link (default "Return to top"). */
+  topLabel?: ReactNode;
+}
+
 export interface DataViewSharedProps<T = any>
   extends FetchDataOptions<T>, DataViewCoreProps<T> {
+  /** Crawlable page links (see `PageLinks`). Neither link is written to the
+   * browser's URL as the list is scrolled — deep pages are for crawlers and
+   * for whoever follows such a link, not a state the page keeps. */
+  pageLinks?: PageLinks<T>;
   /** Configurable table actions shown in a selection-aware toolbar.
    * When provided, the actions toolbar renders alongside the existing
    * edit toolbar. Actions are filtered by the current selection cardinality. */

@@ -65,6 +65,31 @@
   align-items: center
   justify-content: center
 
+// Crawlable next-page link: in the HTML for crawlers, out of the way for
+// readers. Visually hidden rather than `display: none`, which crawlers may
+// discount.
+.crawl-next-link
+  position: absolute
+  width: 1px
+  height: 1px
+  overflow: hidden
+  clip-path: inset(50%)
+  white-space: nowrap
+
+// Heads the content while the view starts mid-list (a `?after=` page).
+.view-start-notice
+  flex: 0 0 auto
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: var(--data-panel-item-gap, 8px)
+  padding: 6px 12px
+  margin-bottom: var(--data-panel-item-gap, 8px)
+  border-radius: 4px
+  background: var(--panel-background-color, rgba(128, 128, 128, 0.08))
+  color: var(--text-subtle, #738091)
+  font-size: 13px
+
 // Skeleton placeholder shown where a loading page's rows will land — sized like
 // a card so the body height stays stable (no blank flash, no footer ping). The
 // shimmer comes from Blueprint's `.bp6-skeleton`.

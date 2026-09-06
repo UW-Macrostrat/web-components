@@ -162,7 +162,14 @@ export function useResolvedProvider<T>(props: {
 }
 
 function DataSheetStoreWrapper<T>(props: DataSheetProviderProps<T>) {
-  const { toaster, initialFilters, initialSorts, initialData, ...rest } = props;
+  const {
+    toaster,
+    initialFilters,
+    initialSorts,
+    initialData,
+    startAfter,
+    ...rest
+  } = props;
 
   // Initial view state is folded into the store's *creation*, not applied in an
   // effect: the loader mounts below this and its effects run first, so an
@@ -186,7 +193,10 @@ function DataSheetStoreWrapper<T>(props: DataSheetProviderProps<T>) {
     {
       ctx,
       initializeStore,
-      atoms: [[toasterAtom, toaster], ...loaderSeedAtoms(initialData)],
+      atoms: [
+        [toasterAtom, toaster],
+        ...loaderSeedAtoms(initialData, startAfter),
+      ],
       debugName: "DataSheetProvider",
     },
     h(DataSheetProviderInner, rest),
@@ -258,11 +268,18 @@ export function splitDataProviderProps<T>(props: AnyDataSheetProps<T>) {
       .union(interactionOptionsKeys)
       .union(tableDataProviderKeys) as Set<keyof DataSheetProviderProps<T>>,
   );
-  // `initialData` goes to both sides: the provider creates the store seeded
-  // with it, and the loader takes it as the first window it needn't fetch.
-  const initialData = (props as { initialData?: any }).initialData;
+  // `initialData` and `startAfter` go to both sides: the provider creates the
+  // store seeded with them, and the loader takes them as the first window it
+  // needn't fetch and the cursor its chunks are counted from.
+  const { initialData, startAfter } = props as {
+    initialData?: any;
+    startAfter?: string | number | null;
+  };
   if (initialData != null) {
     providerProps.initialData = initialData;
+  }
+  if (startAfter != null) {
+    providerProps.startAfter = startAfter;
   }
   return [providerProps, rendererProps] as const;
 }

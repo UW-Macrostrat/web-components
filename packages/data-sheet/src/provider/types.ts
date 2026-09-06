@@ -255,6 +255,9 @@ export type DataSheetProviderProps<T> = DataViewCoreProps<T> & {
    * The provider creates the store seeded with it, so the rows are in the very
    * first render — a server render included. */
   initialData?: FetchDataOptions<T>["initialData"];
+  /** The row the view starts after (see `FetchDataOptions`). Seeded into the
+   * store at creation alongside `initialData`. */
+  startAfter?: FetchDataOptions<T>["startAfter"];
   viewType?: DataViewRendererType;
   children?: React.ReactNode;
 };

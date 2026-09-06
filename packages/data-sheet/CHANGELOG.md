@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.8.0] - 2026-09-06 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.7.0...@macrostrat/data-sheet-v4.8.0)
+
+### Minor Changes
+
+- - Keyset cursor in the provider contract: `FetchDataParams.after`;
+    `createLocalProvider` slices past it (`rowsAfter` exported)
+    [98e127f5](https://github.com/UW-Macrostrat/web-components/commit/98e127f51463a57bd2d1f93320a8d5e30c2cefdd)
+  - `startAfter` starts a view after a row (seeded into the store, passed to the
+    provider on every chunk, dropped on the first view change)
+  - `pageLinks` renders a visually hidden `rel="next"` link after the loaded
+    rows and a "Return to top" notice for a mid-list start, so a list is
+    crawlable from its server-rendered HTML
+  - Story: Data panel / Crawlable pages
+
 ## [4.7.0] - 2026-09-06 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.6.0...@macrostrat/data-sheet-v4.7.0)
 
 ### Minor Changes
