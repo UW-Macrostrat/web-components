@@ -31,6 +31,7 @@ and third-party usage are welcome!
 - [![@macrostrat/form-components](https://img.shields.io/npm/v/@macrostrat/form-components?label=%40macrostrat%2Fform-components)](https://www.npmjs.com/package/@macrostrat/form-components)
 - [![@macrostrat/map-interface](https://img.shields.io/npm/v/@macrostrat/map-interface?label=%40macrostrat%2Fmap-interface)](https://www.npmjs.com/package/@macrostrat/map-interface)
 - [![@macrostrat/map-styles](https://img.shields.io/npm/v/@macrostrat/map-styles?label=%40macrostrat%2Fmap-styles)](https://www.npmjs.com/package/@macrostrat/map-styles)
+- [![@macrostrat/map-views](https://img.shields.io/npm/v/@macrostrat/map-views?label=%40macrostrat%2Fmap-views)](https://www.npmjs.com/package/@macrostrat/map-views)
 - [![@macrostrat/mapbox-react](https://img.shields.io/npm/v/@macrostrat/mapbox-react?label=%40macrostrat%2Fmapbox-react)](https://www.npmjs.com/package/@macrostrat/mapbox-react)
 - [![@macrostrat/mapbox-utils](https://img.shields.io/npm/v/@macrostrat/mapbox-utils?label=%40macrostrat%2Fmapbox-utils)](https://www.npmjs.com/package/@macrostrat/mapbox-utils)
 - [![@macrostrat/static-map-utils](https://img.shields.io/npm/v/@macrostrat/static-map-utils?label=%40macrostrat%2Fstatic-map-utils)](https://www.npmjs.com/package/@macrostrat/static-map-utils)
