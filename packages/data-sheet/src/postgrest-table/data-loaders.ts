@@ -22,19 +22,13 @@ import {
   useSelector,
 } from "../provider";
 import { atom } from "jotai";
-import { FetchDataOptions, FetchMode, InitialDataChunk } from "../types.ts";
-
-interface LazyLoaderStateCore<T> {
-  loading: boolean;
-  error: Error | null;
-  initialized: boolean;
-  /** Reported source length when known (null = unknown / not reported). */
-  totalCount: number | null;
-  /** Windowing style: infinite-scroll windows, or one fixed page at a time. */
-  fetchMode: FetchMode;
-  /** Rows per chunk/page. */
-  pageSize: number;
-}
+import { FetchDataOptions, FetchMode } from "../types.ts";
+import {
+  lazyLoaderCoreStateAtom,
+  resolveInitialData,
+  seededRows,
+  type LazyLoaderStateCore,
+} from "../provider/loader-state.ts";
 
 interface LazyLoaderState<T> extends LazyLoaderStateCore<T> {
   data: (T | null)[];
@@ -205,10 +199,10 @@ function lazyLoadingReducer<T>(
       // completed first fetch: pre-size to the reported total so the scrollbar
       // and counter are right immediately, and mark the loader `initialized` so
       // it neither refetches the seeded window nor flashes an empty state.
-      const rows = action.data ?? [];
-      const size = Math.max(action.totalCount ?? rows.length, rows.length);
-      const data: (T | null)[] = new Array(size).fill(null);
-      for (let i = 0; i < rows.length; i++) data[i] = rows[i];
+      const data = seededRows({
+        rows: action.data ?? [],
+        totalCount: action.totalCount,
+      });
       return {
         visibleRegion: defaultVisibleRegion,
         data: data as T[],
@@ -373,14 +367,6 @@ const defaultVisibleRegion: RowRegion = {
 /** Atom to house the current visible region of the table */
 const visibleRegionAtom = atom<RowRegion>(defaultVisibleRegion);
 
-const lazyLoaderCoreStateAtom = atom<LazyLoaderStateCore<any>>({
-  loading: false,
-  error: null,
-  initialized: false,
-  totalCount: null,
-  fetchMode: "scroll",
-  pageSize: 100,
-});
 
 /** Current page index (0-based) for paged fetch mode. */
 export const chunkPageAtom = atom(0);
@@ -736,6 +722,10 @@ export function useDataLoader<T = any>(
   // A caller-supplied first window (`initialData`) stands in for the mount-time
   // reset+fetch. It's consumed once: any later view change resets normally,
   // since the seed only describes the view it was fetched for.
+  //
+  // The store is normally created already seeded (`DataSheetStoreWrapper`), so
+  // the rows are in the very first render — including a server render. The
+  // dispatch below is the fallback for a store that wasn't.
   const seedRef = useRef(resolveInitialData(initialData));
   // Gate on the seed until it's actually in state (see the fetch effect).
   const awaitingSeedRef = useRef(seedRef.current != null);
@@ -743,7 +733,13 @@ export function useDataLoader<T = any>(
     const seed = seedRef.current;
     seedRef.current = null;
     if (seed != null) {
-      dispatch({ type: "seed", data: seed.rows, totalCount: seed.totalCount });
+      if (!state.initialized) {
+        dispatch({
+          type: "seed",
+          data: seed.rows,
+          totalCount: seed.totalCount,
+        });
+      }
       setPage(0);
       // Paged mode tracks which (page, view) it has in hand separately from the
       // array; record the seed there too, or it would immediately re-fetch the
@@ -854,21 +850,6 @@ export function useDataLoader<T = any>(
 
 /** A value that trails `value` by `delay` ms of stability — the first value is
  * returned immediately, and `delay <= 0` disables debouncing entirely. */
-/** Normalize the two accepted `initialData` shapes (bare rows, or rows with a
- * total) to one. An empty seed is treated as no seed — there'd be nothing to
- * show and nothing saved. */
-function resolveInitialData<T>(
-  initialData: FetchDataOptions<T>["initialData"],
-): InitialDataChunk<T> | null {
-  if (initialData == null) return null;
-  if (Array.isArray(initialData)) {
-    if (initialData.length === 0) return null;
-    return { rows: initialData };
-  }
-  if ((initialData.rows ?? []).length === 0) return null;
-  return initialData;
-}
-
 function useDebouncedValue<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {

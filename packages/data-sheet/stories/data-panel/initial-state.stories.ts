@@ -24,7 +24,9 @@ import { useCallback, useState } from "react";
  *    Applying them in an effect instead — the only option before — meant the
  *    unfiltered first page always went out and was immediately superseded.
  *  - **`initialData`** seeds the first window from rows the caller already has,
- *    so a server-rendered page doesn't re-request what it just shipped.
+ *    so a server-rendered page doesn't re-request what it just shipped. The
+ *    store is created with the rows in place, so they are in the very first
+ *    render — a server render carries them rather than the empty state.
  *  - **`distinctValues`** on the provider (via `useDistinctValues`) lets a value
  *    picker offer only what the column actually holds — one small grouped query
  *    instead of paging the table to find out.
