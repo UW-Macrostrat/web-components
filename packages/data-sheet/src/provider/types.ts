@@ -6,7 +6,7 @@ import type {
 } from "@blueprintjs/table";
 import type { ColumnSpec, ColumnSpecOptions } from "./column-spec";
 import { OverlayToaster } from "@blueprintjs/core";
-import { DataViewCoreProps } from "../types";
+import { DataViewCoreProps, FetchDataOptions } from "../types";
 import { DataViewRendererType } from "./interactions.ts";
 
 /** A single column sort entry for client-side sorting.
@@ -251,6 +251,10 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
 
 export type DataSheetProviderProps<T> = DataViewCoreProps<T> & {
   toaster?: OverlayToaster;
+  /** A first window of rows the caller already has (see `FetchDataOptions`).
+   * The provider creates the store seeded with it, so the rows are in the very
+   * first render — a server render included. */
+  initialData?: FetchDataOptions<T>["initialData"];
   viewType?: DataViewRendererType;
   children?: React.ReactNode;
 };

@@ -41,7 +41,16 @@ import {
   resolveInteractionOptions,
 } from "./interactions.ts";
 import { DataViewProps } from "../data-view.ts";
-import { DataSheetProps, DataViewCoreProps } from "../types.ts";
+import {
+  DataSheetProps,
+  DataViewCoreProps,
+  InitialDataChunk,
+} from "../types.ts";
+import {
+  loaderSeedAtoms,
+  resolveInitialData,
+  seededRows,
+} from "./loader-state.ts";
 import { DataPanelProps } from "../data-panel.ts";
 
 /** Create a Jotai scoped store */
@@ -153,16 +162,23 @@ export function useResolvedProvider<T>(props: {
 }
 
 function DataSheetStoreWrapper<T>(props: DataSheetProviderProps<T>) {
-  const { toaster, initialFilters, initialSorts, ...rest } = props;
+  const { toaster, initialFilters, initialSorts, initialData, ...rest } = props;
 
   // Initial view state is folded into the store's *creation*, not applied in an
   // effect: the loader mounts below this and its effects run first, so an
   // effect-applied filter would arrive after the first (unfiltered) fetch had
   // already gone out — and be immediately superseded. Creating the store with
   // the view already set means the first fetch is the right one.
+  //
+  // A seeded first window (`initialData`) is folded in the same way, for the
+  // same reason and one more: rows placed at creation are in the first render,
+  // so a server render carries them instead of the empty state the loader
+  // shows until its first (asynchronous) page resolves.
+  const seed = resolveInitialData(initialData);
   const initializeStore = (set: any, get: any) => ({
     ...createZustandStore<T>(set, get),
     ...initialViewState({ initialFilters, initialSorts }),
+    ...initialDataState(seed),
   });
 
   return h(
@@ -170,11 +186,19 @@ function DataSheetStoreWrapper<T>(props: DataSheetProviderProps<T>) {
     {
       ctx,
       initializeStore,
-      atoms: [[toasterAtom, toaster]],
+      atoms: [[toasterAtom, toaster], ...loaderSeedAtoms(initialData)],
       debugName: "DataSheetProvider",
     },
     h(DataSheetProviderInner, rest),
   );
+}
+
+/** The store's `data` for a seeded first window; nothing without a seed. */
+function initialDataState<T>(
+  seed: InitialDataChunk<T> | null,
+): Partial<DataSheetState<T>> {
+  if (seed == null) return {};
+  return { data: seededRows(seed) as T[] };
 }
 
 /** The store fields that carry a caller-supplied starting view. Absent props
@@ -225,12 +249,22 @@ type AnyDataSheetProps<T> =
 
 export function splitDataProviderProps<T>(props: AnyDataSheetProps<T>) {
   /** Split provided props based on provider's needs */
-  return splitProps<AnyDataSheetProps<T>, DataSheetProviderProps<T>>(
+  const [providerProps, rendererProps] = splitProps<
+    AnyDataSheetProps<T>,
+    DataSheetProviderProps<T>
+  >(
     props,
     dataProviderKeys
       .union(interactionOptionsKeys)
       .union(tableDataProviderKeys) as Set<keyof DataSheetProviderProps<T>>,
   );
+  // `initialData` goes to both sides: the provider creates the store seeded
+  // with it, and the loader takes it as the first window it needn't fetch.
+  const initialData = (props as { initialData?: any }).initialData;
+  if (initialData != null) {
+    providerProps.initialData = initialData;
+  }
+  return [providerProps, rendererProps] as const;
 }
 
 export function DataSheetProvider<T>(
@@ -272,7 +306,8 @@ export function DataSheetProviderInner<T>(
     identity,
   } = providerProps;
 
-  const { data, dataProvider } = useResolvedProvider<T>(providerProps);
+  const { data, dataProvider, isLocalProvider } =
+    useResolvedProvider<T>(providerProps);
 
   const initializeStore = ctx.useSet(initializeStoreAtom);
   const storeAPI = useStoreAPI<T>();
@@ -303,7 +338,15 @@ export function DataSheetProviderInner<T>(
   const baseSpec = staticSpec ?? generateColumnSpec(data, columnSpecOptions);
 
   useEffect(() => {
+    // The store's `data` is the loader's for any fetched source (and may hold a
+    // seeded first window from creation); only an in-memory `data` prop is
+    // placed here.
+    let localRows: Partial<DataSheetStore<T>> = {};
+    if (isLocalProvider) {
+      localRows = { data };
+    }
     initializeStore({
+      ...localRows,
       columnSpec: postprocessColumnSpec(baseSpec),
       // Suppress the loader's first-chunk auto-generation whenever the consumer
       // provided a spec at all — a function (derived later in `_DataSheet`) OR
@@ -314,7 +357,6 @@ export function DataSheetProviderInner<T>(
       deferColumnSpec: columnSpec != null,
       editable: interactionOptions.enableEditing,
       enableColumnReordering,
-      data,
       defaultColumnWidth,
       tableRef,
     });

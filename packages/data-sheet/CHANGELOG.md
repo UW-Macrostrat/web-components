@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.7.0] - 2026-09-06 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.6.0...@macrostrat/data-sheet-v4.7.0)
+
+### Minor Changes
+
+- - `initialData` now seeds the store at creation, so the first window is in the
+    first render (server renders included) instead of arriving in an effect
+    [7baab3c0](https://github.com/UW-Macrostrat/web-components/commit/7baab3c00362e92f1d2621c45ebdde4811fd73b0)
+  - Provider-backed views no longer have their `data` reset by the provider's
+    init effect; only an in-memory `data` prop is placed there
+
 ## [4.6.0] - 2026-09-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.5.2...@macrostrat/data-sheet-v4.6.0)
 
 ### Minor Changes
