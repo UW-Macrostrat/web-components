@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.1] - 2026-09-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.2.0...@macrostrat/data-provider-v1.2.1)
+
+### Patch Changes
+
+- Don't mangle point column geometries in `convertSmallAreasToPoints`.
+  Point-located
+  [39d6dba1](https://github.com/UW-Macrostrat/web-components/commit/39d6dba11383f8cbd9657a459c4e48003e152fac)
+  columns (`col_type = 'section'`) have zero area, so they passed the zero-area
+  test and were rewritten as `{ type: "Point", coordinates: undefined }`,
+  crashing any consumer that streams the geometry.
+
 ## [1.2.0] - 2026-07-30 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.1.0...@macrostrat/data-provider-v1.2.0)
 
 ### Minor Changes
