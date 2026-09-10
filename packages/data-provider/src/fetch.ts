@@ -127,6 +127,15 @@ function removeFeaturesWithoutGeometry(features) {
 
 function convertSmallAreasToPoints(features) {
   return features.map((f) => {
+    // Point-located columns (`col_type = 'section'`) arrive from the API as
+    // Points already, and there is no area to collapse. Without this guard the
+    // zero-area test below passes and the ring indexing produces
+    // `{ type: "Point", coordinates: undefined }`, which crashes anything that
+    // streams the geometry — `geoCentroid` in the keyboard-navigation
+    // triangulation, for one.
+    if (f.geometry.type === "Point" || f.geometry.type === "MultiPoint") {
+      return f;
+    }
     // GeoArea takes a long time to run. We are really more worried about points that are zero-area
     if (geoArea(f.geometry) < 1e-8) {
       const centroid = f.geometry.coordinates[0][0];
