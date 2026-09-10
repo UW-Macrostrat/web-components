@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1] - 2026-09-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/stratigraphy-utils-v1.4.0...@macrostrat/stratigraphy-utils-v1.4.1)
+
+### Patch Changes
+
+- Updated dependencies
+  [0f538d1c](https://github.com/UW-Macrostrat/web-components/commit/0f538d1c0edc5fa9f148f7ff6be3457a38a66132)
+  - @macrostrat/api-types@1.3.1
+
 ## [1.4.0] - 2026-09-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/stratigraphy-utils-v1.3.0...@macrostrat/stratigraphy-utils-v1.4.0)
 
 ### Minor Changes

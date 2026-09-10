@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.3.0] - 2026-09-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.2.1...@macrostrat/data-provider-v1.3.0)
+
+### Minor Changes
+
+- Require an explicit project scope for column requests. `fetchAllColumns` used
+  to
+  [0f538d1c](https://github.com/UW-Macrostrat/web-components/commit/0f538d1c0edc5fa9f148f7ff6be3457a38a66132)
+  send `all=true` when no project was given, which `/columns` silently ignores —
+  the request fell through to the API's core-projects default, so entire
+  projects (GBDB's 28,951 columns among them) were absent with nothing to
+  indicate it. `projectID` is now required and accepts an id, a list, a
+  comma-joined string, or `"all"`; `CORE_COLUMNS_PROJECT_ID` names the API's old
+  implicit default, and the map components pass it when given no project.
+
+  Also fixes the in-process filter in `useMacrostratColumns`, which assigned to
+  `.features` on what is already an array — so it never filtered, and mutated
+  the cache while not doing it. Column features now carry `status`, added to the
+  `/columns` response in API v2 2.3.10.
+
+### Patch Changes
+
+- Updated dependencies
+  [0f538d1c](https://github.com/UW-Macrostrat/web-components/commit/0f538d1c0edc5fa9f148f7ff6be3457a38a66132)
+  - @macrostrat/api-types@1.3.1
+
 ## [1.2.1] - 2026-09-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.2.0...@macrostrat/data-provider-v1.2.1)
 
 ### Patch Changes

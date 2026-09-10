@@ -10,6 +10,8 @@ import {
 } from "react";
 import h from "@macrostrat/hyper";
 import {
+  CORE_COLUMNS_PROJECT_ID,
+  ColumnProjectScope,
   useMacrostratColumns,
   useMacrostratStore,
 } from "@macrostrat/data-provider";
@@ -23,7 +25,9 @@ export interface NavigationStore {
 }
 
 export interface NavigationProviderProps {
-  projectID?: number;
+  /** Which projects' columns the map covers. Defaults to the "Core columns"
+   * composite, the set the API used to apply implicitly. */
+  projectID?: ColumnProjectScope;
   inProcess?: boolean;
   selectedColumn?: number | null;
   hoveredColumn?: number | null;
@@ -79,7 +83,9 @@ export function ColumnNavigationProvider({
   //   store.setState({ columns: _columns, selectedColumn });
   // }, [projectID, inProcess, columns, getColumns]);
 
-  let _columns = columns ?? useMacrostratColumns(projectID, inProcess);
+  let _columns =
+    columns ??
+    useMacrostratColumns(projectID ?? CORE_COLUMNS_PROJECT_ID, inProcess);
 
   // filter columns if specified
   if (columnIDs?.length > 0) {

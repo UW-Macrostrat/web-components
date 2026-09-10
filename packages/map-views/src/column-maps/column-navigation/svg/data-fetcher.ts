@@ -1,4 +1,6 @@
 import {
+  CORE_COLUMNS_PROJECT_ID,
+  ColumnProjectScope,
   ColumnStatusCode,
   fetchAllColumns,
   useMacrostratFetch,
@@ -12,7 +14,9 @@ export function useColumnFeatures({
 }: {
   apiRoute?: string;
   status_code?: string;
-  project_id?: number;
+  /** Which projects to fetch. Defaults to the "Core columns" composite, which
+   * is what the API used to apply implicitly. */
+  project_id?: ColumnProjectScope;
   format?: "geojson" | "topojson" | "geojson_bare";
 }) {
   /** Legacy fetcher for column features */
@@ -25,7 +29,7 @@ export function useColumnFeatures({
 
   return useAsyncMemo(async () => {
     return await fetchAllColumns({
-      projectID: project_id,
+      projectID: project_id ?? CORE_COLUMNS_PROJECT_ID,
       statusCode: statusCode,
       format,
       fetch,

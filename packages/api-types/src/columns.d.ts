@@ -14,7 +14,13 @@ export type ColumnProperties = {
   col_group_id?: number;
   project_id: number;
   group_col_id?: number;
+  col_type?: "column" | "section";
+  /** The column's editorial state. Added to `/columns` in API v2 2.3.10, so it
+   * is absent from older API deployments. */
+  status?: ColumnStatusCode;
 };
+
+export type ColumnStatusCode = "in process" | "active" | "obsolete";
 
 export interface ColumnGeoJSONRecord {
   type: "Feature";
