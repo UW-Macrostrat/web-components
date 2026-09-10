@@ -20,6 +20,7 @@ import {
   Interval,
 } from "@macrostrat/api-types";
 import {
+  type ColumnProjectScope,
   fetchAllColumns,
   fetchEnvironments,
   fetchIntervals,
@@ -39,7 +40,7 @@ export interface MacrostratDataProviderProps {
 }
 
 interface ColumnFootprintsStorage {
-  project_id: number;
+  project_id: ColumnProjectScope;
   // Whether the "in process" flag was used
   inProcess: boolean;
   // The column footprints
@@ -64,9 +65,10 @@ interface MacrostratStore extends RefsSlice {
   ): Promise<Interval[]>;
   environments: Map<number, Environment> | null;
   getEnvironments(ids: number[] | null): Promise<Environment[]>;
-  columnFootprints: Map<number, ColumnFootprintsStorage>;
+  /** Keyed by `columnScopeKey(projectID)`, not by a raw project id. */
+  columnFootprints: Map<string, ColumnFootprintsStorage>;
   getColumns(
-    projectID: number | null,
+    projectID: ColumnProjectScope,
     inProcess: boolean,
   ): Promise<ColumnGeoJSONRecord[]>;
   // Strat names unify both "strat names" and "concepts"
@@ -135,20 +137,32 @@ function createRefsSlice(set: any, get: any) {
   };
 }
 
+/** Cache key for a project scope. A list is order-insensitive so that
+ * `[3, 1]` and `[1, 3]` share one entry. */
+export function columnScopeKey(projectID: ColumnProjectScope): string {
+  if (Array.isArray(projectID)) {
+    return [...projectID].sort((a, b) => a - b).join(",");
+  }
+  return String(projectID);
+}
+
+/** Re-exported so consumers get the scope type from the same module as the
+ * hooks that take it. */
+export type { ColumnProjectScope };
+
 function createColumnsSlice(set, get) {
-  // Column footprints separated by project
+  // Column footprints separated by project scope
   return {
     columnFootprints: new Map(),
-    async getColumns(projectID: number | null, inProcess: boolean) {
-      const { columnFootprints, baseURL, fetch } = get();
-      const key = projectID ?? -1;
-      let _inProcess = inProcess;
+    async getColumns(projectID: ColumnProjectScope, inProcess: boolean) {
+      const { columnFootprints, fetch } = get();
+      const key = columnScopeKey(projectID);
 
       let footprints = columnFootprints.get(key);
-      if (footprints == null || footprints.inProcess != _inProcess) {
+      if (footprints == null || footprints.inProcess != inProcess) {
         // Fetch the columns
         const statusCode: ColumnStatusCode[] = ["active"];
-        if (_inProcess) {
+        if (inProcess) {
           statusCode.push("in process");
         }
         const columns = await fetchAllColumns({
@@ -389,12 +403,12 @@ export function useMacrostratDefs(
 }
 
 export function useMacrostratColumns(
-  projectID: number | null,
+  projectID: ColumnProjectScope,
   inProcess: boolean,
 ) {
   const getColumns = useMacrostratStore((s) => s.getColumns);
   const columnsMap = useMacrostratStore((s) => s.columnFootprints);
-  const key = projectID ?? -1;
+  const key = columnScopeKey(projectID);
   const colData = columnsMap?.get(key);
   useEffect(() => {
     // Refetch if the columns are not available, or if we have requested inProcess columns where we didn't before
@@ -402,18 +416,17 @@ export function useMacrostratColumns(
       getColumns(projectID, inProcess);
     }
     // If we've already fetched the columns there's nothing to do...
-  }, [colData, inProcess, getColumns]);
+  }, [colData, inProcess, getColumns, key]);
 
   return useMemo(() => {
     if (colData == null) return null;
-    let columns = colData.columns;
-    if (!inProcess && colData.inProcess) {
-      // Our available set of columns includes 'in process' columns, but we don't want them
-      columns.features = columns.features?.filter(
-        (d) => d.properties.status != "in process",
-      );
-    }
-    return columns;
+    const columns = colData.columns;
+    if (inProcess || !colData.inProcess) return columns;
+    // The cached set includes 'in process' columns but this caller doesn't want
+    // them. `columns` is an array of features, so filter it and return a new
+    // array — the previous version assigned to `columns.features`, which is
+    // undefined on an array, so it both did nothing and mutated the cache.
+    return columns.filter((d) => d.properties.status !== "in process");
   }, [colData, inProcess]);
 }
 

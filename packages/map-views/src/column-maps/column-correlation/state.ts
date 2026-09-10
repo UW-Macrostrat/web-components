@@ -19,7 +19,11 @@ import { nearestPointOnLine } from "@turf/nearest-point-on-line";
 import { centroid } from "@turf/centroid";
 import { ReactNode, useEffect } from "react";
 import h from "@macrostrat/hyper";
-import { useMacrostratColumns } from "@macrostrat/data-provider";
+import {
+  CORE_COLUMNS_PROJECT_ID,
+  ColumnProjectScope,
+  useMacrostratColumns,
+} from "@macrostrat/data-provider";
 import { buffer } from "@turf/buffer";
 import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
 import {
@@ -65,7 +69,9 @@ export interface CorrelationMapStore extends CorrelationMapInput {
   zoomColumn: number | null;
   /** Incremented on each zoom request so repeat clicks re-frame the column. */
   zoomNonce: number;
-  projectID?: number;
+  /** Which projects' columns the map covers. Defaults to the "Core columns"
+   * composite, the set the API used to apply implicitly. */
+  projectID?: ColumnProjectScope;
 }
 
 /** Values derived from the store, available through atoms and the selector
@@ -76,7 +82,9 @@ export interface CorrelationMapDerived {
 }
 
 export interface CorrelationProviderProps extends CorrelationMapInput {
-  projectID?: number;
+  /** Which projects' columns the map covers. Defaults to the "Core columns"
+   * composite, the set the API used to apply implicitly. */
+  projectID?: ColumnProjectScope;
   inProcess?: boolean;
   columns: ColumnGeoJSONRecord[] | null;
   children: ReactNode;
@@ -224,7 +232,10 @@ function _StoreEffects({ projectID, inProcess, onSelectColumns }) {
   const store = useZustandStoreAPI<CorrelationMapStore>(ctx);
 
   /** TODO: move the fetching of all columns to within the map */
-  const _columns = useMacrostratColumns(projectID, inProcess);
+  const _columns = useMacrostratColumns(
+    projectID ?? CORE_COLUMNS_PROJECT_ID,
+    inProcess,
+  );
   useEffect(() => {
     if (_columns != null) {
       store.setState({ columns: _columns });

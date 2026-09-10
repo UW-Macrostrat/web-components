@@ -1,10 +1,12 @@
 import {
   ColumnGeoJSONRecord,
   ColumnGeoJSONRecordWithID,
+  type ColumnStatusCode,
   MacrostratRef,
   StratName,
   UnitLong,
 } from "@macrostrat/api-types";
+
 import { addQueryString, joinURL } from "@macrostrat/ui-components";
 import crossFetch from "cross-fetch";
 import { feature } from "topojson-client";
@@ -18,7 +20,21 @@ function createScopedFetch(baseURL: string) {
 
 const defaultFetch = createScopedFetch("https://macrostrat.org/api/v2");
 
-export type ColumnStatusCode = "in process" | "active" | "obsolete";
+/** Re-exported from `@macrostrat/api-types`, which owns the column shape, so
+ * the two can't drift. */
+export type { ColumnStatusCode };
+
+/** Which projects a column request covers: one project id, several, a
+ * comma-joined string of ids (the form the API itself takes, and the form the
+ * web app's project filter produces), or the literal `"all"`. There is no
+ * implicit default — see `ColumnFetchOptions`. */
+export type ColumnProjectScope = number | number[] | string;
+
+/** The "Core columns" composite — the curated set the `/columns` API falls back
+ * to when no project is named. Its flattened membership is exactly
+ * `macrostrat.core_project_ids()`, so passing it reproduces the old implicit
+ * default while saying so on the wire. */
+export const CORE_COLUMNS_PROJECT_ID = 14;
 
 interface FetchBaseOptions {
   // The fetch implementation to use
@@ -27,13 +43,22 @@ interface FetchBaseOptions {
 
 export interface ColumnFetchOptions extends FetchBaseOptions {
   apiBaseURL?: string;
-  projectID?: number | null;
+  /** Which projects to fetch: one numeric id, several, a comma-joined string of
+   * ids, or the literal `"all"`. Required — there is no implicit default. The
+   * API's own default, the "Core columns" composite, is
+   * `CORE_COLUMNS_PROJECT_ID`; pass that to ask for it.
+   *
+   * This used to send `all=true` when no project was given, which `/columns`
+   * silently ignores: the request fell through to the API's core-projects
+   * default, so whole projects (GBDB's 28,951 columns among them) were absent
+   * with nothing to indicate it. Callers now say what they mean. */
+  projectID: ColumnProjectScope;
   statusCode?: ColumnStatusCode | ColumnStatusCode[];
   format?: "geojson" | "topojson" | "geojson_bare";
 }
 
 export async function fetchAllColumns(
-  options: ColumnFetchOptions = {},
+  options: ColumnFetchOptions,
 ): Promise<ColumnGeoJSONRecord[]> {
   const {
     apiBaseURL,
@@ -43,10 +68,16 @@ export async function fetchAllColumns(
     fetch = crossFetch,
   } = options;
 
-  let args: any = { format };
-  if (projectID != null) {
-    args = { ...args, project_id: projectID };
+  if (projectID == null) {
+    throw new Error(
+      "fetchAllColumns requires an explicit projectID (a project id, a list of them, or \"all\")",
+    );
   }
+
+  let args: any = {
+    format,
+    project_id: Array.isArray(projectID) ? projectID.join(",") : projectID,
+  };
   let _statusCode: string | undefined = undefined;
   if (Array.isArray(statusCode)) {
     _statusCode = statusCode.join(",");
@@ -55,10 +86,6 @@ export async function fetchAllColumns(
   }
   if (_statusCode != null) {
     args.status_code = _statusCode;
-  }
-
-  if (projectID == null) {
-    args = { ...args, all: true };
   }
 
   let url = "/columns";

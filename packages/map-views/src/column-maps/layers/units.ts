@@ -1,4 +1,5 @@
 import {
+  CORE_COLUMNS_PROJECT_ID,
   useLithologies,
   useMacrostratColumns,
 } from "@macrostrat/data-provider";
@@ -67,7 +68,10 @@ export function MacrostratUnitsOverlay(props: UnitsOverlayProps) {
   }, [time, ageSpan, props.project]);
 
   const units: UnitLong[] = useAPIResult("/units", params);
-  const columns = useMacrostratColumns(params.project, false);
+  const columns = useMacrostratColumns(
+    params.project ?? CORE_COLUMNS_PROJECT_ID,
+    false,
+  );
 
   useMapStyleOperator(
     (map) => {
