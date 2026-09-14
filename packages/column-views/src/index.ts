@@ -5,7 +5,7 @@ export * from "./prepare-units";
 export * from "./animated-age-window";
 export * from "./column";
 export * from "./unit-details";
-export * from "./age-model-overlay";
+export * from "./age-model";
 export * from "./correlation-chart";
 export * from "./notes";
 export * from "./facets";

@@ -1,0 +1,97 @@
+.surface-details-panel
+  display: flex
+  flex-direction: column
+  min-width: 0
+
+.surface-details-header
+  display: flex
+  flex-direction: row
+  align-items: center
+  flex-wrap: wrap
+  gap: 0.5em
+  padding: 0.5em 0
+  border-bottom: 1px solid var(--pz-panel-rule-color, var(--panel-rule-color, #ddd))
+  .spacer
+    flex: 1
+
+.surface-details-title
+  margin: 0
+  font-size: 1.1em
+  .surface-id
+    font-size: 0.85em
+    color: var(--text-subtle-color, var(--pz-text-subtle-color))
+
+.surface-details-tags
+  display: flex
+  gap: 0.3em
+
+.surface-details-content
+  padding: 0.5em 0
+
+.surface-tag
+  // A colored dot leading the status label
+  &:before
+    content: ''
+    display: inline-block
+    width: 0.6em
+    height: 0.6em
+    border-radius: 50%
+    margin-right: 0.4em
+    background-color: var(--surface-color, currentColor)
+  &.surface-type-tag:before
+    display: none
+
+.calibration-interval
+  display: flex
+  align-items: baseline
+  gap: 0.5em
+  flex-wrap: wrap
+
+.calibration-range
+  color: var(--text-subtle-color, var(--pz-text-subtle-color))
+  font-size: 0.9em
+
+.calibration-proportion
+  margin-top: 0.2em
+
+.surface-units-list
+  list-style: none
+  margin: 0
+  padding: 0
+  li
+    display: inline
+    &:after
+      content: ', '
+    &:last-child:after
+      content: ''
+
+.no-units, .no-calibration
+  color: var(--text-subtle-color, var(--pz-text-subtle-color))
+
+.surface-status-legend
+  list-style: none
+  margin: 0
+  padding: 0
+  display: flex
+  flex-direction: column
+  gap: 0.3em
+  font-size: 0.85em
+  &.with-descriptions
+    gap: 0.6em
+
+.legend-item
+  display: flex
+  flex-direction: row
+  align-items: baseline
+  gap: 0.6em
+  .surface-label-marker
+    flex: none
+    width: 24px
+    align-self: center
+
+.legend-label
+  font-weight: 500
+
+.legend-description
+  color: var(--text-subtle-color, var(--pz-text-subtle-color))
+  font-size: 0.9em
