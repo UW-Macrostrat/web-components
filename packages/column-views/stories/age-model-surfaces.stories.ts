@@ -37,6 +37,8 @@ interface SurfacesStoryProps extends Omit<
   title?: string;
   description?: string;
   statusFilter?: SurfaceStatus[] | null;
+  /** Which surfaces are labeled; `null` labels them all */
+  labelStatuses?: SurfaceStatus[] | null;
 }
 
 /** Column on the left, legend and inspector on the right. */
@@ -47,6 +49,7 @@ function SurfacesStoryUI(props: SurfacesStoryProps) {
     title,
     description,
     statusFilter,
+    labelStatuses,
     ...surfaceProps
   } = props;
   // Only fetch when no static units were given
@@ -94,6 +97,7 @@ function SurfacesStoryUI(props: SurfacesStoryProps) {
         h(ColumnSurfaces, {
           ...surfaceProps,
           statuses: statusFilter,
+          labelStatuses,
           selectedSurface: selected?.id ?? null,
           onSelectSurface: setSelected,
         }),
@@ -138,12 +142,16 @@ const meta: Meta<SurfacesStoryProps> = {
     showLabels: true,
     extent: "units",
     fallbackToUnits: true,
-    labelWidth: 170,
+    labelWidth: 200,
   },
   argTypes: {
     columnID: { control: { type: "number" } },
     extent: { options: ["units", "column"], control: { type: "radio" } },
     statusFilter: {
+      options: surfaceStatuses,
+      control: { type: "check" },
+    },
+    labelStatuses: {
       options: surfaceStatuses,
       control: { type: "check" },
     },
@@ -154,9 +162,12 @@ const meta: Meta<SurfacesStoryProps> = {
         component:
           "Age-model calibration surfaces from the `/age_model` route, drawn on a column. " +
           "Lines are styled by `boundary_status` (how the age is constrained) and " +
-          "`boundary_type` (the nature of the contact); labels give the calibration " +
-          "interval, the position within it, and the modeled age. Columns without " +
-          "`unit_boundaries` fall back to surfaces derived from unit tops and bottoms.",
+          "`boundary_type` (the nature of the contact). Labels — the calibration " +
+          "interval as the standard interval tag with the position within it, and the " +
+          "modeled age — are drawn only for the tie points (absolute, relative, spike, " +
+          "imposed) by default, and take the label column over from the unit labels. " +
+          "Columns without `unit_boundaries` fall back to surfaces derived from unit " +
+          "tops and bottoms, drawn as lines only.",
       },
     },
   },
@@ -181,6 +192,11 @@ export const CalibratedSurfacesOnly: Story = {
   args: { statusFilter: ["absolute", "relative", "spike", "imposed"] },
 };
 
+/** Every surface labeled, modeled and unspecified ones included. */
+export const AllSurfacesLabeled: Story = {
+  args: { labelStatuses: null },
+};
+
 /** The fallback path, on a static fixture so it renders offline: no age
  * model is fetched, every distinct unit top and bottom becomes a surface. */
 export function DerivedFromUnits() {
@@ -190,9 +206,10 @@ export function DerivedFromUnits() {
     columnID: 432,
     units,
     surfaces,
+    labelStatuses: null,
     title: "Illinois (static fixture)",
     description:
-      "Surfaces derived from unit tops and bottoms — the fallback for a column without age-model boundaries.",
+      "Surfaces derived from unit tops and bottoms — the fallback for a column without age-model boundaries. Derived surfaces are lines only by default; here every one is labeled.",
   });
 }
 

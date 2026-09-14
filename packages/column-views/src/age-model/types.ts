@@ -58,6 +58,17 @@ export const surfaceStatuses: SurfaceStatus[] = [
   "derived",
 ];
 
+/** The statuses at which the age model was actually constrained — the tie
+ * points — as opposed to surfaces whose age falls out of the model
+ * (`modeled`), carries no status, or is merely derived from units. These are
+ * the surfaces worth labeling by default. */
+export const TIE_POINT_STATUSES: SurfaceStatus[] = [
+  "absolute",
+  "relative",
+  "spike",
+  "imposed",
+];
+
 export const surfaceStatusLabels: Record<SurfaceStatus, string> = {
   absolute: "Absolute",
   relative: "Relative",

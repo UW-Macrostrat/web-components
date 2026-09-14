@@ -30,6 +30,7 @@ import {
 import {
   MacrostratColumnDataProvider,
   useCompositeScale,
+  useLabelColumnClaimed,
   useMacrostratColumnData,
 } from "./data-provider";
 import {
@@ -244,6 +245,9 @@ function ColumnInner(props: ColumnInnerProps) {
   } = props;
 
   const { axisType } = useMacrostratColumnData();
+  // A child layer drawing its own labels (the surfaces view) takes the label
+  // column over from the unit labels
+  const labelColumnClaimed = useLabelColumnClaimed();
 
   const columnRef = useColumnRef();
 
@@ -262,7 +266,7 @@ function ColumnInner(props: ColumnInnerProps) {
     columnWidth = width;
   }
   let showLabelColumn = _showLabelColumn;
-  if (columnWidth > width - 10) {
+  if (columnWidth > width - 10 || labelColumnClaimed) {
     showLabelColumn = false;
   }
 

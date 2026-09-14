@@ -16,6 +16,8 @@ interface ColumnNotesProps {
   focusedNoteComponent?: ComponentType<any> | null;
   /** Called when a note is clicked */
   onClickNote?: (note: NoteData) => void;
+  /** Options for the label force layout (e.g. `nodeSpacing`) */
+  forceOptions?: object;
   className?: string;
 }
 
@@ -27,6 +29,7 @@ export function ColumnNotes({
   deltaConnectorAttachment,
   focusedNoteComponent,
   onClickNote,
+  forceOptions,
   className,
   children,
 }: ColumnNotesProps) {
@@ -50,6 +53,7 @@ export function ColumnNotes({
           deltaConnectorAttachment,
           focusedNoteComponent,
           onClickNote,
+          forceOptions,
         }),
       ]),
       children,

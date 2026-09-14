@@ -257,8 +257,11 @@ class NoteLayoutProvider extends StatefulComponent<
       return;
     }
     const { elementHeights } = this.state;
-    elementHeights[id] = height;
-    return this.updateState({ elementHeights: { $set: elementHeights } });
+    if (elementHeights[id] === height) return;
+    // A new object, so `componentDidUpdate` can see that heights changed and
+    // re-run the force layout with the measured sizes
+    const nextHeights = { ...elementHeights, [id]: height };
+    return this.updateState({ elementHeights: { $set: nextHeights } });
   }
 
   updateNotes() {
@@ -300,8 +303,12 @@ class NoteLayoutProvider extends StatefulComponent<
     // As before, compute node positions once per note set (the guard inside
     // skips when already computed); additionally force a recompute when the
     // scale changed — the old code skipped that, leaving a "forest" of
-    // overlapping notes when zoomed out.
-    this.computeForceLayout(scaleChanged);
+    // overlapping notes when zoomed out — or when a note's rendered height
+    // was measured, since the first layout ran on a 10px guess and notes
+    // taller than that (tags, multi-line labels) would otherwise overlap.
+    const heightsChanged =
+      this.state.elementHeights !== prevState.elementHeights;
+    this.computeForceLayout(scaleChanged || heightsChanged);
 
     if (scaleChanged) {
       this.computeContextValue();

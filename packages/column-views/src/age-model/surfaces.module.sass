@@ -135,14 +135,25 @@
 
 .surface-label-text
   min-width: 0
+  display: flex
+  flex-direction: row
+  align-items: baseline
+  gap: 6px
+  white-space: nowrap
 
 .surface-label-primary
   font-size: 0.75rem
   font-weight: 500
   white-space: nowrap
-  overflow: hidden
-  text-overflow: ellipsis
+  // The tag keeps its name and detail on one line
+  :global(.bp6-tag), .surface-interval-tag
+    white-space: nowrap
+    vertical-align: middle
+
+.surface-label-status
+  font-style: italic
 
 .surface-label-secondary
   font-size: 0.7rem
+  white-space: nowrap
   color: var(--text-subtle-color, var(--pz-text-subtle-color, #5f6b7c))

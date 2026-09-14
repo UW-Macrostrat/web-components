@@ -17,7 +17,17 @@ import {
   useState,
 } from "react";
 import type { NoteData } from "@macrostrat/column-components";
-import { useCompositeScale, useMacrostratColumnData } from "../data-provider";
+import {
+  type IntervalShort,
+  IntervalTag,
+  TagSize,
+} from "@macrostrat/data-components";
+import { useMacrostratDefs } from "@macrostrat/data-provider";
+import {
+  useClaimLabelColumn,
+  useCompositeScale,
+  useMacrostratColumnData,
+} from "../data-provider";
 import { ColumnNotes } from "../notes";
 import { AgeLabel } from "../unit-details/age-range";
 import columnStyles from "../column.module.sass";
@@ -30,6 +40,7 @@ import {
   surfacePosition,
   surfaceStatusLabels,
   surfaceToken,
+  TIE_POINT_STATUSES,
 } from "./types";
 import { type UseColumnSurfacesOptions, useColumnSurfaces } from "./data";
 
@@ -53,11 +64,19 @@ export interface ColumnSurfacesProps
   showLines?: boolean;
   showLabels?: boolean;
   extent?: SurfaceLinesExtent;
-  /** Width of the labels column, connector included */
+  /** Width of the labels column, connector included (default 200) */
   labelWidth?: number;
   labelPaddingLeft?: number;
   /** Only show surfaces with these statuses */
   statuses?: SurfaceStatus[] | null;
+  /** Which surfaces get a label. Defaults to the tie points — the statuses
+   * at which the age model was constrained — so interpolated (`modeled`),
+   * unspecified and unit-derived surfaces are drawn as lines only. Pass
+   * `null` to label every surface shown. */
+  labelStatuses?: SurfaceStatus[] | null;
+  /** Labels closer than this (in pixels) are thinned out, since the column
+   * has finite room; the selected surface's label is always kept. */
+  minLabelSpacing?: number;
   className?: string;
 }
 
@@ -69,6 +88,8 @@ export function ColumnSurfaces(props: ColumnSurfacesProps) {
     labelWidth,
     labelPaddingLeft,
     statuses,
+    labelStatuses = TIE_POINT_STATUSES,
+    minLabelSpacing,
     selectedSurface,
     onSelectSurface,
     className,
@@ -96,6 +117,8 @@ export function ColumnSurfaces(props: ColumnSurfacesProps) {
     }),
     h.if(showLabels)(ColumnSurfaceLabels, {
       surfaces,
+      labelStatuses,
+      minLabelSpacing,
       width: labelWidth,
       paddingLeft: labelPaddingLeft,
       selectedSurface: selectedID,
@@ -193,6 +216,10 @@ function SurfaceLine({
 
 export interface ColumnSurfaceLabelsProps extends SurfaceSelectionProps {
   surfaces: ColumnSurface[];
+  /** Which surfaces get a label (see `ColumnSurfacesProps.labelStatuses`) */
+  labelStatuses?: SurfaceStatus[] | null;
+  /** Minimum pixel spacing between labels (see `ColumnSurfacesProps`) */
+  minLabelSpacing?: number;
   /** Total width, connector included */
   width?: number;
   paddingLeft?: number;
@@ -201,25 +228,60 @@ export interface ColumnSurfaceLabelsProps extends SurfaceSelectionProps {
 
 interface SurfaceNote extends NoteData {
   surface: ColumnSurface;
+  /** The calibration interval, with color and rank from the definitions */
+  interval: IntervalShort | null;
   selected: boolean;
 }
 
 /** A notes column of surface labels, laid out beside the units with the
- * collision avoidance of `NotesColumn`. */
+ * collision avoidance of `NotesColumn`. It takes the label column over from
+ * the unit labels while mounted: labels are one or the other. */
 export function ColumnSurfaceLabels(props: ColumnSurfaceLabelsProps) {
   const {
     surfaces,
-    width = 170,
+    labelStatuses = TIE_POINT_STATUSES,
+    minLabelSpacing = 22,
+    width = 200,
     paddingLeft = 24,
     selectedSurface,
     onSelectSurface,
     className,
   } = props;
   const { axisType } = useMacrostratColumnData();
+  const scale = useCompositeScale();
+  useClaimLabelColumn();
+
+  const labeled = useMemo(() => {
+    const byStatus = filterByStatus(surfaces, labelStatuses);
+    return thinByPixelSpacing(
+      byStatus,
+      (s) => scale(surfacePosition(s, axisType) ?? NaN),
+      minLabelSpacing,
+      selectedSurface,
+    );
+  }, [
+    surfaces,
+    labelStatuses,
+    minLabelSpacing,
+    selectedSurface,
+    scale,
+    axisType,
+  ]);
+
+  // Interval colors come from the definitions table; the age model itself
+  // doesn't carry them
+  const intervalIDs = useMemo(() => {
+    const ids = new Set<number>();
+    for (const s of labeled) {
+      if (s.calibration != null) ids.add(s.calibration.id);
+    }
+    return Array.from(ids);
+  }, [labeled]);
+  const intervalMap = useMacrostratDefs("intervals", intervalIDs, null);
 
   const notes: SurfaceNote[] = useMemo(() => {
     const _notes: SurfaceNote[] = [];
-    for (const surface of surfaces) {
+    for (const surface of labeled) {
       const position = surfacePosition(surface, axisType);
       if (position == null) continue;
       _notes.push({
@@ -227,11 +289,12 @@ export function ColumnSurfaceLabels(props: ColumnSurfaceLabelsProps) {
         height: position,
         note: surfaceLabel(surface),
         surface,
+        interval: calibrationInterval(surface, intervalMap),
         selected: surface.id === selectedSurface,
       });
     }
     return _notes;
-  }, [surfaces, axisType, selectedSurface]);
+  }, [labeled, axisType, selectedSurface, intervalMap]);
 
   const onClickNote = useCallback(
     (note: NoteData) => {
@@ -254,22 +317,33 @@ export function ColumnSurfaceLabels(props: ColumnSurfaceLabelsProps) {
       paddingLeft,
       noteComponent: SurfaceNoteLabel,
       onClickNote,
+      forceOptions: LABEL_FORCE_OPTIONS,
     }),
   );
 }
 
-function SurfaceNoteLabel({ note }: { note: SurfaceNote }) {
-  const { surface, selected } = note;
-  const { calibration } = surface;
+/** Breathing room between stacked labels, in pixels */
+const LABEL_FORCE_OPTIONS = { nodeSpacing: 2 };
 
-  let primary: string = surfaceStatusLabels[surface.status] + " surface";
-  let secondary: any = h(AgeLabel, { age: surface.age });
-  if (calibration != null) {
-    primary = calibration.name;
-    const prop = formatProportion(surface.proportion);
-    if (prop != null) {
-      primary += ` · ${prop}`;
-    }
+/** A surface's label: its calibration interval as the standard interval tag
+ * (with the position within the interval as the tag's detail), and the
+ * modeled age beneath. Surfaces without a calibration show their status. */
+function SurfaceNoteLabel({ note }: { note: SurfaceNote }) {
+  const { surface, interval, selected } = note;
+
+  let primary: any;
+  if (interval != null) {
+    primary = h(IntervalTag, {
+      interval,
+      size: TagSize.Small,
+      details: formatProportion(surface.proportion),
+      className: "surface-interval-tag",
+    });
+  } else {
+    primary = h(
+      "span.surface-label-status",
+      `${surfaceStatusLabels[surface.status]} surface`,
+    );
   }
 
   return h(
@@ -279,10 +353,29 @@ function SurfaceNoteLabel({ note }: { note: SurfaceNote }) {
       h("div.surface-label-marker"),
       h("div.surface-label-text", [
         h("div.surface-label-primary", primary),
-        h("div.surface-label-secondary", secondary),
+        h("div.surface-label-secondary", h(AgeLabel, { age: surface.age })),
       ]),
     ],
   );
+}
+
+/** The calibration interval in the shape the interval tag takes, colored
+ * from the definitions when they have loaded. */
+function calibrationInterval(
+  surface: ColumnSurface,
+  intervalMap: Map<number, any> | null,
+): IntervalShort | null {
+  const { calibration } = surface;
+  if (calibration == null) return null;
+  const def = intervalMap?.get(calibration.id);
+  return {
+    id: calibration.id,
+    name: calibration.name,
+    b_age: calibration.b_age,
+    t_age: calibration.t_age,
+    color: def?.color,
+    rank: def?.rank,
+  };
 }
 
 /** Class names shared by the lines, labels, legend and tags, so a status or
@@ -295,6 +388,35 @@ export function surfaceClasses(surface: {
     `status-${surfaceToken(surface.status)}`,
     `type-${surfaceToken(surface.type)}`,
   );
+}
+
+/** Walk the surfaces down the column and drop any whose label would sit
+ * within `minSpacing` pixels of the last one kept. The selected surface is
+ * always kept (and displaces a neighbor if need be). */
+function thinByPixelSpacing(
+  surfaces: ColumnSurface[],
+  pixelPosition: (s: ColumnSurface) => number | null,
+  minSpacing: number,
+  selectedSurface: ColumnSurface["id"] | null | undefined,
+): ColumnSurface[] {
+  if (minSpacing <= 0) return surfaces;
+  const positioned = surfaces
+    .map((surface) => ({ surface, y: pixelPosition(surface) }))
+    .filter((d) => d.y != null && !Number.isNaN(d.y))
+    .sort((a, b) => a.y - b.y);
+
+  const kept: { surface: ColumnSurface; y: number }[] = [];
+  for (const item of positioned) {
+    const selected = item.surface.id === selectedSurface;
+    const last = kept[kept.length - 1];
+    if (last == null || item.y - last.y >= minSpacing) {
+      kept.push(item);
+    } else if (selected) {
+      // The selection wins its slot
+      kept[kept.length - 1] = item;
+    }
+  }
+  return kept.map((d) => d.surface);
 }
 
 function filterByStatus(
