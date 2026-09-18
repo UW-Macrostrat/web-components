@@ -32,19 +32,19 @@
 // ones dotted, imposed ones dashed.
 .status-absolute
   --surface-line-style: solid
-  --surface-line-width: 2px
+  --surface-line-width: 2.5px
 .status-relative, .status-spike
   --surface-line-style: solid
-  --surface-line-width: 1.5px
+  --surface-line-width: 2px
 .status-imposed
   --surface-line-style: dashed
-  --surface-line-width: 1.5px
+  --surface-line-width: 2px
 .status-modeled, .status-unspecified
   --surface-line-style: dotted
-  --surface-line-width: 1.5px
+  --surface-line-width: 2px
 .status-derived
   --surface-line-style: dotted
-  --surface-line-width: 1px
+  --surface-line-width: 1.5px
 
 // Unconformable contacts are drawn as a double rule
 .type-unconformity, .type-disconformity, .type-non-conformity, .type-angular-unconformity
@@ -105,8 +105,13 @@
     display: none
   :global(.note-inner)
     margin: 2px 5px
-  :global(.note-connector)
-    stroke: var(--surface-color, var(--note-color))
+  // The leader line carries the surface's color (set per note as
+  // `--note-color`) and the weight of the line it points at
+  :global(.link)
+    stroke-width: 1.5
+  // No endpoint marker: the leader runs into the surface line itself
+  :global(.height-range) circle
+    display: none
 
 .surface-label
   display: flex

@@ -1,8 +1,9 @@
 /** The surfaces view wired for navigation: a column-selection map beside the
  * column, and a modal selection mode — units or surfaces — that the arrow
- * keys drive. The units lose their lithology colors in surfaces mode, so the
- * active layer is always obvious. No legend here; the focus is on moving
- * around. */
+ * keys drive. The mode is legible in the column itself: in surfaces mode the
+ * units lose their lithology colors and the surface lines are drawn across
+ * them; in units mode the lines go away and the colors come back. No legend
+ * here; the focus is on moving around. */
 import { Meta, StoryObj } from "@storybook/react-vite";
 import {
   type ComponentType,
@@ -291,6 +292,13 @@ function ColumnPane(props: ColumnPaneProps) {
     unitComponent = UnitComponent;
   }
 
+  // Lines only while the surfaces are selectable; in units mode the labels
+  // alone mark where the surfaces are
+  let showSurfaceLines = false;
+  if (showLines !== false && mode === "surfaces") {
+    showSurfaceLines = true;
+  }
+
   return h([
     h("h2", columnName ?? `Column ${columnID}`),
     h(
@@ -313,7 +321,7 @@ function ColumnPane(props: ColumnPaneProps) {
       h(ColumnSurfaces, {
         surfaces,
         extent,
-        showLines,
+        showLines: showSurfaceLines,
         showLabels,
         labelStatuses,
         selectedSurface: selectedSurface?.id ?? null,

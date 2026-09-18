@@ -1,4 +1,11 @@
-import { useContext, useMemo, useEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  useContext,
+  useMemo,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import h from "../hyper";
 import { useNoteLayout } from "./layout";
 import { NoteEditorContext } from "./editor";
@@ -138,7 +145,15 @@ function Note(props: NoteProps) {
   if (editingNote === note) {
     return null;
   }
-  return h("g.note", [
+
+  // A note can carry its own color — the connector, its endpoint and anything
+  // else keyed on `--note-color` follow it
+  let style: CSSProperties | undefined = undefined;
+  if (note.color != null) {
+    style = { "--note-color": note.color } as CSSProperties;
+  }
+
+  return h("g.note", { style }, [
     h(NoteConnector, { note, deltaConnectorAttachment }),
     h(
       NotePositioner,

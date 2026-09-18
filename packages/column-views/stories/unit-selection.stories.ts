@@ -2,6 +2,7 @@ import hyper from "@macrostrat/hyper";
 import styles from "./column.stories.module.sass";
 import { Meta, StoryObj } from "@storybook/react-vite";
 import { FlexRow, JSONView } from "@macrostrat/ui-components";
+import { ColumnAxisType } from "@macrostrat/column-components";
 
 import "@macrostrat/style-system";
 import { useState } from "react";
@@ -67,5 +68,17 @@ export const WithUnitPopover: Story = {
     b_age: 390,
     pixelScale: 20,
     showUnitPopover: true,
+  },
+};
+
+/** An eODP drill core (IODP Site U1499, Hole B): a `section`-type column on a
+ * depth axis, where selection has to work against measured positions rather
+ * than ages, and the units are many and thin. */
+export const eODP: Story = {
+  args: {
+    id: 5576,
+    axisType: ColumnAxisType.DEPTH,
+    showLabelColumn: true,
+    maxInternalColumns: 1,
   },
 };

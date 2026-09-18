@@ -34,7 +34,8 @@ import {
 const h = hyper.styled({ ...surfaceStyles, ...styles });
 
 export interface SurfaceDetailsPanelProps {
-  surface: ColumnSurface;
+  /** The surface to inspect; `null` renders the panel's empty state */
+  surface: ColumnSurface | null;
   onClose?: () => void;
   /** Called when a unit above or below the surface is clicked */
   onSelectUnit?: (unitID: number) => void;
@@ -56,6 +57,16 @@ export function SurfaceDetailsPanel(props: SurfaceDetailsPanelProps) {
     positionLabel = "Position",
     className,
   } = props;
+
+  // A selection that hasn't been made yet is an ordinary state for a panel
+  // bound to one, not a caller error
+  if (surface == null) {
+    return h(
+      "div.surface-details-panel.no-surface",
+      { className },
+      h("p.placeholder", "No surface selected."),
+    );
+  }
 
   let closeButton: ReactNode = null;
   if (onClose != null) {

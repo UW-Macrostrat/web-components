@@ -147,6 +147,7 @@ export function ColumnSurfaceLines(props: ColumnSurfaceLinesProps) {
   } = props;
   const scale = useCompositeScale();
   const { axisType, totalHeight } = useMacrostratColumnData();
+  const intervalMap = useSurfaceIntervalDefs(surfaces);
 
   const ref = useRef<HTMLDivElement>(null);
   const unitsExtent = useUnitsColumnExtent(ref, extent === "units");
@@ -169,6 +170,7 @@ export function ColumnSurfaceLines(props: ColumnSurfaceLinesProps) {
         key: surface.id,
         surface,
         y,
+        color: surfaceIntervalColor(surface, intervalMap),
         selected: surface.id === selectedSurface,
         onSelect: onSelectSurface,
       });
@@ -179,11 +181,14 @@ export function ColumnSurfaceLines(props: ColumnSurfaceLinesProps) {
 function SurfaceLine({
   surface,
   y,
+  color,
   selected,
   onSelect,
 }: {
   surface: ColumnSurface;
   y: number;
+  /** The interval color, when known; otherwise the status color is used */
+  color?: string | null;
   selected: boolean;
   onSelect?: SurfaceSelectionHandler;
 }) {
@@ -200,10 +205,15 @@ function SurfaceLine({
     [surface, selected, onSelect],
   );
 
+  let style: CSSProperties = { top: y };
+  if (color != null) {
+    style = { ...style, "--surface-color": color } as CSSProperties;
+  }
+
   return h(
     "div.surface-line",
     {
-      style: { top: y },
+      style,
       className: classNames(surfaceClasses(surface), {
         selected,
         interactive: onSelect != null,
@@ -228,6 +238,8 @@ export interface ColumnSurfaceLabelsProps extends SurfaceSelectionProps {
 }
 
 interface SurfaceNote extends NoteData {
+  /** The interval color, which the note's connector picks up */
+  color?: string;
   surface: ColumnSurface;
   /** The calibration interval, with color and rank from the definitions */
   interval: IntervalShort | null;
@@ -250,6 +262,7 @@ export function ColumnSurfaceLabels(props: ColumnSurfaceLabelsProps) {
   } = props;
   const { axisType } = useMacrostratColumnData();
   const scale = useCompositeScale();
+  const intervalMap = useSurfaceIntervalDefs(surfaces);
   useClaimLabelColumn();
 
   const labeled = useMemo(() => {
@@ -269,17 +282,6 @@ export function ColumnSurfaceLabels(props: ColumnSurfaceLabelsProps) {
     axisType,
   ]);
 
-  // Interval colors come from the definitions table; the age model itself
-  // doesn't carry them
-  const intervalIDs = useMemo(() => {
-    const ids = new Set<number>();
-    for (const s of labeled) {
-      if (s.calibration != null) ids.add(s.calibration.id);
-    }
-    return Array.from(ids);
-  }, [labeled]);
-  const intervalMap = useMacrostratDefs("intervals", intervalIDs, null);
-
   const notes: SurfaceNote[] = useMemo(() => {
     const _notes: SurfaceNote[] = [];
     for (const surface of labeled) {
@@ -289,6 +291,9 @@ export function ColumnSurfaceLabels(props: ColumnSurfaceLabelsProps) {
         id: surface.id,
         height: position,
         note: surfaceLabel(surface),
+        // The note's color reaches its connector, so a label's leader line
+        // matches the surface line it points at
+        color: surfaceIntervalColor(surface, intervalMap) ?? undefined,
         surface,
         interval: calibrationInterval(surface, intervalMap),
         selected: surface.id === selectedSurface,
@@ -352,6 +357,35 @@ function SurfaceNoteLabel({ note }: { note: SurfaceNote }) {
     { className: classNames(surfaceClasses(surface), { selected }) },
     h("div.surface-label-primary", primary),
   );
+}
+
+/** The interval definitions for the surfaces' calibration intervals. The age
+ * model carries interval ids and names but no colors, so they come from the
+ * definitions store (which holds them all, and fetches once). */
+function useSurfaceIntervalDefs(
+  surfaces: ColumnSurface[],
+): Map<number, any> | null {
+  const intervalIDs = useMemo(() => {
+    const ids = new Set<number>();
+    for (const surface of surfaces) {
+      if (surface.calibration != null) ids.add(surface.calibration.id);
+    }
+    return Array.from(ids);
+  }, [surfaces]);
+  return useMacrostratDefs("intervals", intervalIDs, null);
+}
+
+/** The color a surface is drawn in: its calibration interval's, so the line
+ * and its label's leader read as the interval the surface is tied to. `null`
+ * for an uncalibrated surface, or before the definitions load — the status
+ * color stands in. */
+function surfaceIntervalColor(
+  surface: ColumnSurface,
+  intervalMap: Map<number, any> | null,
+): string | null {
+  const id = surface.calibration?.id;
+  if (id == null) return null;
+  return intervalMap?.get(id)?.color ?? null;
 }
 
 /** The calibration interval in the shape the interval tag takes, colored
