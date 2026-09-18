@@ -12,6 +12,7 @@ import {
   type RefObject,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -457,47 +458,63 @@ interface HorizontalExtent {
   width: number;
 }
 
+/** `useLayoutEffect` in the browser, `useEffect` on the server — where it
+ * would warn and has nothing to measure anyway. */
+const useMeasureEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
+
 /** Measure where the units column sits within the `Column`, so an overlay
- * can cover exactly the units rather than the axes. Re-measures on resize.
- * `null` while unmeasured, when disabled, or when the units column can't be
- * found. */
+ * can cover exactly the units rather than the axes. `null` while unmeasured,
+ * when disabled, or when the units column can't be found. */
 function useUnitsColumnExtent(
   ref: RefObject<HTMLDivElement | null>,
   enabled: boolean,
 ): HorizontalExtent | null {
   const [extent, setExtent] = useState<HorizontalExtent | null>(null);
 
-  useEffect(() => {
+  const measure = useCallback(() => {
+    if (!enabled) return;
+    const parent = ref.current?.parentElement;
+    const target = parent?.querySelector<HTMLElement>(
+      `.${unitsContainerClass()}`,
+    );
+    if (parent == null || target == null) return;
+
+    const p = parent.getBoundingClientRect();
+    const t = target.getBoundingClientRect();
+    const next = { left: t.left - p.left, width: t.width };
+    setExtent((prev) => {
+      if (prev?.left === next.left && prev?.width === next.width) {
+        return prev;
+      }
+      return next;
+    });
+  }, [enabled]);
+
+  // Re-measure on every render as a backstop: cheap, and it catches layout
+  // changes that no observer reports.
+  useMeasureEffect(measure);
+
+  useMeasureEffect(() => {
     if (!enabled) {
       setExtent(null);
       return;
     }
     const parent = ref.current?.parentElement;
     if (parent == null) return;
-    const target = parent.querySelector<HTMLElement>(
-      `.${unitsContainerClass()}`,
-    );
-    if (target == null) return;
-
-    function measure() {
-      const p = parent.getBoundingClientRect();
-      const t = target.getBoundingClientRect();
-      const next = { left: t.left - p.left, width: t.width };
-      setExtent((prev) => {
-        if (prev?.left === next.left && prev?.width === next.width) {
-          return prev;
-        }
-        return next;
-      });
-    }
-
-    measure();
     if (typeof ResizeObserver === "undefined") return;
+
     const observer = new ResizeObserver(measure);
+    // The units column *moves* when a sibling changes width — the timescale
+    // widening once its intervals load, or its level count changing — and
+    // that is not a resize of the units column or of the column itself, so
+    // the siblings have to be watched too.
     observer.observe(parent);
-    observer.observe(target);
+    for (const child of Array.from(parent.children)) {
+      observer.observe(child);
+    }
     return () => observer.disconnect();
-  }, [enabled]);
+  }, [enabled, measure]);
 
   return extent;
 }

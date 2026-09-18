@@ -1,0 +1,53 @@
+.surface-navigation
+  display: flex
+  flex-direction: row
+  gap: 2em
+  justify-content: center
+  align-items: flex-start
+
+.column-pane
+  flex: none
+
+.side-pane
+  width: 340px
+  position: sticky
+  top: 0
+  max-height: 100vh
+  overflow-y: auto
+  padding: 1em 0
+  display: flex
+  flex-direction: column
+  gap: 1em
+  .placeholder
+    color: var(--text-subtle-color)
+
+.column-selector-map
+  height: 300px
+  flex: none
+
+.mode-selector
+  flex: none
+
+.hint
+  margin: 0
+  font-size: 0.85em
+  color: var(--text-subtle-color)
+  code
+    font-size: 0.9em
+
+.zoom-controls
+  flex: none
+  display: flex
+  flex-direction: column
+  gap: 0.4em
+  align-items: flex-start
+
+.zoom-range
+  display: flex
+  align-items: baseline
+  gap: 0.5em
+  .interval-name
+    font-weight: 600
+  code
+    font-size: 0.85em
+    color: var(--text-subtle-color)

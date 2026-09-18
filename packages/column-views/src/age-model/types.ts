@@ -40,6 +40,9 @@ export interface ColumnSurface {
    * (0 at the interval's base, 1 at its top) */
   calibration?: SurfaceCalibration | null;
   proportion?: number | null;
+  /** True when `status` was inferred rather than read from the data — see
+   * `inferTiePointStatuses`. */
+  statusInferred?: boolean;
   unitsAbove: number[];
   unitsBelow: number[];
   section_id?: number | null;
@@ -106,6 +109,93 @@ export function nullifyUnitID(id: number | null | undefined): number | null {
   return id;
 }
 
+/** How close to an interval's base or top a surface must sit to count as
+ * bounding it (as a fraction of the interval). */
+export const INTERVAL_BOUND_TOLERANCE = 0.001;
+
+/** Promote the `modeled` surfaces that cannot in fact have been interpolated
+ * to `relative`.
+ *
+ * This is a client-side affordance over a known gap in the data. An age model
+ * interpolates *between* tie points, so a surface with no constraint to
+ * interpolate from has to be one itself, whatever `boundary_status` says. Two
+ * cases are recognizable from the boundaries alone:
+ *
+ * - **It sits on the base or top of its calibration interval** (proportion 0
+ *   or 1). A height referred directly to an interval bounds the model rather
+ *   than falling out of it.
+ * - **It is the edge of a gap-bound package** — the youngest surface in its
+ *   section with no unit above, or the oldest with none below. There is
+ *   nothing beyond it to interpolate against.
+ *
+ * Both are common in columns whose age model was built by assigning positions
+ * within intervals, where the importer recorded everything as `modeled`;
+ * filtering to the tie-point statuses would otherwise hide real ones. Promoted
+ * surfaces are marked `statusInferred`, so views can say where the status came
+ * from; nothing about the underlying record changes.
+ *
+ * Two cases are deliberately left alone. A *mid-interval* position is
+ * ambiguous: an assigned position and an interpolated one are the same record
+ * there, and only the data can settle it. And an open side in the *interior*
+ * of a section is a lateral relationship, not a package edge — a unit that
+ * pinches out while others span past it — which the model can interpolate
+ * normally.
+ */
+export function inferTiePointStatuses(
+  surfaces: ColumnSurface[],
+  tolerance: number = INTERVAL_BOUND_TOLERANCE,
+): ColumnSurface[] {
+  const extents = sectionAgeExtents(surfaces);
+
+  return surfaces.map((surface) => {
+    if (surface.status !== "modeled") return surface;
+    if (surface.calibration == null) return surface;
+
+    const { proportion } = surface;
+    const onIntervalBound =
+      proportion != null &&
+      (Math.abs(proportion) <= tolerance ||
+        Math.abs(proportion - 1) <= tolerance);
+
+    if (!onIntervalBound && !boundsPackage(surface, extents)) {
+      return surface;
+    }
+    return { ...surface, status: "relative", statusInferred: true };
+  });
+}
+
+/** An open side only means a package edge at the ends of the section. In its
+ * interior it means a unit pinching out while others span past it, which the
+ * age model interpolates like any other surface. */
+function boundsPackage(
+  surface: ColumnSurface,
+  extents: Map<ColumnSurface["section_id"], [number, number]>,
+): boolean {
+  const extent = extents.get(surface.section_id ?? null);
+  if (extent == null) return false;
+  const [youngest, oldest] = extent;
+  if (surface.unitsAbove.length === 0 && surface.age === youngest) return true;
+  return surface.unitsBelow.length === 0 && surface.age === oldest;
+}
+
+/** The youngest and oldest surface age in each section. */
+function sectionAgeExtents(
+  surfaces: ColumnSurface[],
+): Map<ColumnSurface["section_id"], [number, number]> {
+  const extents = new Map<ColumnSurface["section_id"], [number, number]>();
+  for (const surface of surfaces) {
+    const key = surface.section_id ?? null;
+    const extent = extents.get(key);
+    if (extent == null) {
+      extents.set(key, [surface.age, surface.age]);
+      continue;
+    }
+    extent[0] = Math.min(extent[0], surface.age);
+    extent[1] = Math.max(extent[1], surface.age);
+  }
+  return extents;
+}
+
 export function boundaryToSurface(boundary: AgeModelBoundary): ColumnSurface {
   const above = nullifyUnitID(boundary.unit_above);
   const below = nullifyUnitID(boundary.unit_below);
@@ -134,12 +224,24 @@ export function boundaryToSurface(boundary: AgeModelBoundary): ColumnSurface {
   };
 }
 
+export interface SurfacesFromBoundariesOptions {
+  /** Promote `modeled` surfaces that must in fact constrain the age model to
+   * `relative` (default `true`) — see `inferTiePointStatuses`. */
+  inferTiePoints?: boolean;
+}
+
 /** Surfaces for a column's age-model boundaries, youngest first. */
 export function surfacesFromBoundaries(
   boundaries: AgeModelBoundary[] | null | undefined,
+  options: SurfacesFromBoundariesOptions = {},
 ): ColumnSurface[] {
+  const { inferTiePoints = true } = options;
   if (boundaries == null) return [];
-  return boundaries.map(boundaryToSurface).sort((a, b) => a.age - b.age);
+  let surfaces = boundaries.map(boundaryToSurface);
+  if (inferTiePoints) {
+    surfaces = inferTiePointStatuses(surfaces);
+  }
+  return surfaces.sort((a, b) => a.age - b.age);
 }
 
 export interface SurfacesFromUnitsOptions {

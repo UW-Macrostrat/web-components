@@ -40,6 +40,13 @@
     background-color: var(--surface-color, currentColor)
   &.surface-type-tag:before
     display: none
+  // An inferred status is marked, so the tag doesn't pass for a recorded one
+  &.inferred
+    font-style: italic
+
+.inferred-marker
+  margin-left: 0.15em
+  opacity: 0.7
 
 .calibration-interval
   display: flex

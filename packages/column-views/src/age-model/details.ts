@@ -103,7 +103,10 @@ export function SurfaceDetailsPanel(props: SurfaceDetailsPanelProps) {
           h(SurfaceIdentifier, { id: surface.id }),
         ]),
         h("div.surface-details-tags", [
-          h(SurfaceStatusTag, { status: surface.status }),
+          h(SurfaceStatusTag, {
+            status: surface.status,
+            inferred: surface.statusInferred,
+          }),
           h(SurfaceTypeTag, { type: surface.type }),
         ]),
         h("div.spacer"),
@@ -230,11 +233,22 @@ function SurfaceUnitsField({
 
 export function SurfaceStatusTag({
   status,
+  inferred = false,
   className,
 }: {
   status: SurfaceStatus;
+  /** The status was inferred rather than recorded (see
+   * `inferTiePointStatuses`); the tag says so. */
+  inferred?: boolean;
   className?: string;
 }) {
+  let label: ReactNode = surfaceStatusLabels[status] ?? status;
+  let title = surfaceStatusDescriptions[status];
+  if (inferred) {
+    label = [label, h("span.inferred-marker", "*")];
+    title = INFERRED_STATUS_DESCRIPTION;
+  }
+
   return h(
     Tag,
     {
@@ -243,12 +257,18 @@ export function SurfaceStatusTag({
         "surface-tag",
         className,
         surfaceClasses({ status }),
+        { inferred },
       ),
-      title: surfaceStatusDescriptions[status],
+      title,
     },
-    surfaceStatusLabels[status] ?? status,
+    label,
   );
 }
+
+const INFERRED_STATUS_DESCRIPTION =
+  "Recorded as modeled, but this surface cannot have been interpolated — it " +
+  "sits on the base or top of its interval, or is the edge of a gap-bound " +
+  "package — so it constrains the age model rather than falling out of it";
 
 export function SurfaceTypeTag({
   type,

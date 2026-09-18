@@ -44,6 +44,9 @@ export interface UseColumnSurfacesOptions {
   /** When the age model has no boundaries, derive surfaces from the units
    * instead (default `true`). */
   fallbackToUnits?: boolean;
+  /** Promote `modeled` surfaces that must in fact constrain the age model to
+   * `relative` (default `true`) — see `inferTiePointStatuses`. */
+  inferTiePoints?: boolean;
 }
 
 export interface ColumnSurfacesData {
@@ -57,7 +60,12 @@ export interface ColumnSurfacesData {
 export function useColumnSurfaces(
   options: UseColumnSurfacesOptions = {},
 ): ColumnSurfacesData {
-  const { surfaces: provided, col_id, fallbackToUnits = true } = options;
+  const {
+    surfaces: provided,
+    col_id,
+    fallbackToUnits = true,
+    inferTiePoints = true,
+  } = options;
   const units = useMacrostratUnits() as UnitLong[] | undefined;
   const { axisType } = useMacrostratColumnData();
 
@@ -68,8 +76,8 @@ export function useColumnSurfaces(
   const boundaries = useColumnAgeModel(fetchID);
 
   const fromAgeModel = useMemo(
-    () => surfacesFromBoundaries(boundaries),
-    [boundaries],
+    () => surfacesFromBoundaries(boundaries, { inferTiePoints }),
+    [boundaries, inferTiePoints],
   );
 
   const derived = useMemo(() => {

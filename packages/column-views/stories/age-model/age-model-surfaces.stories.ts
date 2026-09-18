@@ -1,6 +1,5 @@
 /** Stories for the surfaces view: a column's age-model calibration surfaces
  * drawn as lines and labels, with an inspector for the selected surface. */
-import hyper from "@macrostrat/hyper";
 import { Meta, StoryObj } from "@storybook/react-vite";
 import { useMemo, useState } from "react";
 import { Spinner } from "@blueprintjs/core";
@@ -19,13 +18,11 @@ import {
   surfacesFromBoundaries,
   surfacesFromUnits,
   surfaceStatuses,
-} from "../src";
+} from "../../src";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { useMacrostratBaseURL } from "@macrostrat/data-provider";
-import illinois from "./data/illinois-432.json";
-import styles from "./age-model-surfaces.stories.module.sass";
-
-const h = hyper.styled(styles);
+import illinois from "../data/illinois-432.json";
+import h from "./age-model-surfaces.stories.module.sass";
 
 interface SurfacesStoryProps extends Omit<
   ColumnSurfacesProps,
@@ -134,7 +131,7 @@ function useStoryColumnInfo(col_id: number | null) {
 }
 
 const meta: Meta<SurfacesStoryProps> = {
-  title: "Column views/Age model surfaces",
+  title: "Column views/Age model/Surfaces UI",
   component: SurfacesStoryUI,
   args: {
     columnID: 432,
