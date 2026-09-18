@@ -3,6 +3,7 @@ export * from "./data-provider";
 export * from "./age-axis";
 export * from "./prepare-units";
 export * from "./animated-age-window";
+export * from "./timescale-zoom";
 export * from "./column";
 export * from "./unit-details";
 export * from "./age-model";

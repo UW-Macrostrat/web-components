@@ -1,14 +1,22 @@
 /** The surfaces view wired for navigation: a column-selection map beside the
  * column, and a modal selection mode — units or surfaces — that the arrow
- * keys drive. No legend here; the focus is on moving around. */
+ * keys drive. The units lose their lithology colors in surfaces mode, so the
+ * active layer is always obvious. No legend here; the focus is on moving
+ * around. */
 import { Meta, StoryObj } from "@storybook/react-vite";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type ComponentType,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Button, SegmentedControl, Spinner } from "@blueprintjs/core";
 import { useKeyHandler } from "@macrostrat/ui-components";
 import { MacrostratDataProvider } from "@macrostrat/data-provider";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import type { UnitLong } from "@macrostrat/api-types";
-import type { Interval, TimescaleClickData } from "@macrostrat/timescale";
 import "@macrostrat/style-system";
 
 import {
@@ -16,18 +24,21 @@ import {
   Column,
   ColumnNavigationMap,
   ColumnSurfaces,
+  UnitComponent,
   type AgeWindow,
   type ColumnSurface,
   type SurfaceLinesExtent,
   type SurfaceStatus,
   SurfaceDetailsPanel,
   UnitDetailsPanel,
+  type TimescaleZoom,
   compareAlongAxis,
   surfaceStatuses,
   surfacesFromBoundaries,
   surfacesFromUnits,
-  useAnimatedAgeWindow,
+  unitsAgeExtent,
   useColumnAgeModel,
+  useTimescaleZoom,
 } from "../../src";
 import {
   useColumnBasicInfo,
@@ -90,7 +101,11 @@ function SurfaceNavigation(props: SurfaceNavigationProps) {
 
   const units = useColumnUnits(columnID) as any as UnitLong[] | null;
   const info = useColumnBasicInfo(columnID);
-  const zoom = useTimescaleZoom(units, zoomableTimescale);
+  const fullExtent = useMemo(() => unitsAgeExtent(units), [units]);
+  const zoom = useTimescaleZoom({
+    fullExtent,
+    enabled: zoomableTimescale,
+  });
   // Resolved here rather than inside `ColumnSurfaces`, so the mode switch and
   // the keyboard handler address exactly the surfaces that are drawn — which,
   // zoomed in, is only the surfaces the window still shows
@@ -268,13 +283,21 @@ function ColumnPane(props: ColumnPaneProps) {
     return h(Spinner);
   }
 
+  // Plain unit boxes while the surfaces are the active layer: without their
+  // lithology colors the units read as context, and the surface lines and
+  // labels carry the color
+  let unitComponent: ComponentType<any> = ColoredUnitComponent;
+  if (mode === "surfaces") {
+    unitComponent = UnitComponent;
+  }
+
   return h([
     h("h2", columnName ?? `Column ${columnID}`),
     h(
       Column,
       {
         units,
-        unitComponent: ColoredUnitComponent,
+        unitComponent,
         unconformityLabels: true,
         allowUnitSelection: true,
         keyboardNavigation: mode === "units",
@@ -370,9 +393,6 @@ function DetailsPane(props: DetailsPaneProps) {
   } = props;
 
   if (mode === "surfaces") {
-    if (selectedSurface == null) {
-      return h("p.placeholder", "Select a surface — a line or a label.");
-    }
     return h(SurfaceDetailsPanel, {
       surface: selectedSurface,
       onClose: () => onSelectSurface(null),
@@ -407,141 +427,6 @@ function useModeKeys(
   );
 }
 
-/** Deepest timescale level to show (age/stage) */
-const MAX_TIMESCALE_LEVEL = 5;
-/** Coarsest level worth showing; level 0 is "all of geologic time" */
-const MIN_TIMESCALE_LEVEL = 1;
-/** How many levels the timescale shows at once */
-const LEVEL_WINDOW = 3;
-/** The level to anchor on before anything is picked. 3 (period) puts the
- * starting window at era–epoch, the same levels a `Column` shows by default;
- * drilling from there slides it down to period–age. */
-const DEFAULT_SELECTED_LEVEL = 3;
-
-interface TimescaleZoom {
-  enabled: boolean;
-  /** The rendered age window, or `null` when zooming is off or the extent
-   * isn't known yet */
-  window: AgeWindow | null;
-  selectedInterval: Interval | null;
-  isFullExtent: boolean;
-  reset(): void;
-  /** Timescale and age-window props to spread onto the `Column` */
-  columnProps: Record<string, any>;
-}
-
-/** Click-to-zoom over geologic time, in the compact form this story needs:
- * clicking an interval zooms the rendered window to it, clicking the interval
- * you are already in zooms back out a level, and the timescale shows a
- * three-level window that follows the selection. The full treatment — drill
- * paths across parents, padding, density — is the "Interval zoom" story. */
-function useTimescaleZoom(
-  units: UnitLong[] | null,
-  enabled: boolean,
-): TimescaleZoom {
-  const fullExtent = useMemo<AgeWindow | null>(() => {
-    if (units == null || units.length === 0) return null;
-    return {
-      t_age: Math.min(...units.map((d) => d.t_age)),
-      b_age: Math.max(...units.map((d) => d.b_age)),
-    };
-  }, [units]);
-
-  const anim = useAnimatedAgeWindow({ fullExtent });
-  // The intervals drilled through; the last one is the current selection
-  const [stack, setStack] = useState<Interval[]>([]);
-  const selectedInterval = stack[stack.length - 1] ?? null;
-
-  const reset = useCallback(() => {
-    setStack([]);
-    anim.reset();
-  }, [anim.reset]);
-
-  const onClickTimescaleInterval = useCallback(
-    (_evt: Event, data: TimescaleClickData) => {
-      const interval = data?.interval;
-      if (interval == null || interval.lvl == null) return;
-
-      // Clicking the interval you are in is how you zoom out
-      if (interval.oid === selectedInterval?.oid) {
-        const next = stack.slice(0, -1);
-        setStack(next);
-        const parent = next[next.length - 1] ?? null;
-        if (parent == null) {
-          anim.reset();
-        } else {
-          anim.zoomToInterval(parent);
-        }
-        return;
-      }
-
-      // Anything else navigates to the interval clicked, keeping only the
-      // coarser intervals that actually contain it
-      const containing = stack.filter(
-        (d) =>
-          d.lvl < interval.lvl &&
-          d.eag >= interval.eag &&
-          d.lag <= interval.lag,
-      );
-      setStack([...containing, interval]);
-      anim.zoomToInterval(interval);
-    },
-    [stack, selectedInterval, anim.reset, anim.zoomToInterval],
-  );
-
-  // Bold the selected interval — the one whose click zooms out
-  const intervalStyle = useCallback(
-    (interval: Interval) => {
-      if (interval.oid === selectedInterval?.oid) {
-        return { fontWeight: "bold" };
-      }
-      return {};
-    },
-    [selectedInterval],
-  );
-
-  if (!enabled) {
-    return {
-      enabled: false,
-      window: null,
-      selectedInterval: null,
-      isFullExtent: true,
-      reset: noop,
-      columnProps: {},
-    };
-  }
-
-  const window = anim.window ?? fullExtent;
-  const level = selectedInterval?.lvl ?? DEFAULT_SELECTED_LEVEL;
-
-  return {
-    enabled: true,
-    window,
-    selectedInterval,
-    isFullExtent: anim.isFullExtent,
-    reset,
-    columnProps: {
-      showTimescale: true,
-      timescaleLevels: timescaleLevels(level),
-      timescaleIntervalStyle: intervalStyle,
-      onClickTimescaleInterval,
-      t_age: window?.t_age,
-      b_age: window?.b_age,
-      isTransitioning: anim.isAnimating,
-    },
-  };
-}
-
-/** A fixed window of timescale levels that slides with the selected level —
- * one coarser for context, one finer to drill into. */
-function timescaleLevels(selectedLevel: number): [number, number] {
-  const lo = Math.min(
-    Math.max(selectedLevel - 1, MIN_TIMESCALE_LEVEL),
-    MAX_TIMESCALE_LEVEL - (LEVEL_WINDOW - 1),
-  );
-  return [lo, lo + (LEVEL_WINDOW - 1)];
-}
-
 /** The rendered window, and a way back out to the whole column. */
 function ZoomControls({ zoom }: { zoom: TimescaleZoom }) {
   const { window, selectedInterval, isFullExtent } = zoom;
@@ -573,8 +458,6 @@ function ZoomControls({ zoom }: { zoom: TimescaleZoom }) {
     ),
   ]);
 }
-
-function noop() {}
 
 /** The column's surfaces — its age model, or surfaces derived from unit tops
  * and bottoms when it has none — filtered to the statuses on show and

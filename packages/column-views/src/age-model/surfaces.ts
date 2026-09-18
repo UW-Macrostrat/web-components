@@ -30,7 +30,7 @@ import {
   useMacrostratColumnData,
 } from "../data-provider";
 import { ColumnNotes } from "../notes";
-import { AgeLabel } from "../unit-details/age-range";
+import { AgeLabel, Proportion } from "../unit-details/age-range";
 import columnStyles from "../column.module.sass";
 import styles from "./surfaces.module.sass";
 import {
@@ -337,7 +337,7 @@ function SurfaceNoteLabel({ note }: { note: SurfaceNote }) {
     primary = h(IntervalTag, {
       interval,
       size: TagSize.Small,
-      details: formatProportion(surface.proportion),
+      prefix: h(Proportion, { value: surface.proportion }),
       className: "surface-interval-tag",
     });
   } else {
@@ -350,13 +350,7 @@ function SurfaceNoteLabel({ note }: { note: SurfaceNote }) {
   return h(
     "div.surface-label",
     { className: classNames(surfaceClasses(surface), { selected }) },
-    [
-      h("div.surface-label-marker"),
-      h("div.surface-label-text", [
-        h("div.surface-label-primary", primary),
-        h("div.surface-label-secondary", h(AgeLabel, { age: surface.age })),
-      ]),
-    ],
+    h("div.surface-label-primary", primary),
   );
 }
 

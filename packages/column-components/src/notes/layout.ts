@@ -107,6 +107,8 @@ class NoteLayoutProvider extends StatefulComponent<
   declare context: ColumnCtx<ColumnDivision>;
   _previousScale: any;
   _rendererIndex: object;
+  /** The note set `nodes` was laid out for */
+  _layoutNotes: any[] | null;
 
   constructor(props) {
     super(props);
@@ -223,10 +225,13 @@ class NoteLayoutProvider extends StatefulComponent<
     if (notes.length === 0) {
       return;
     }
-    // Skip if node positions are already computed for this note set — unless
+    // Skip if node positions are already computed for *this* note set — unless
     // `force` is set (e.g. the scale changed on zoom and positions, which
-    // derive from `scale(note.height)`, must be recomputed).
-    const alreadyComputed = Object.keys(nodes).length === notes.length;
+    // derive from `scale(note.height)`, must be recomputed). The note set is
+    // identified by the array itself: counting nodes can't tell one column's
+    // notes from another's when both have the same number.
+    const alreadyComputed =
+      this._layoutNotes === notes && Object.keys(nodes).length === notes.length;
     if (!force && alreadyComputed) {
       return;
     }
@@ -240,6 +245,7 @@ class NoteLayoutProvider extends StatefulComponent<
 
     const dataNodes = notes.map(this.createNodeForNote);
 
+    this._layoutNotes = notes;
     force_.nodes(dataNodes).compute();
     const _nodes = force_.nodes() ?? [];
     const nodesObj = {};
@@ -265,12 +271,16 @@ class NoteLayoutProvider extends StatefulComponent<
   }
 
   updateNotes() {
-    // We received a new set of notes from props
+    // We received a new set of notes from props, or the scale changed under
+    // the ones we have
     const { scaleClamped } = this.context;
     const notes = this.props.notes
       .filter(withinDomain(scaleClamped))
       .sort((a, b) => a.height - b.height);
     const columnIndex = notes.map(buildColumnIndex());
+    // `computeForceLayout` reads the notes from state, so the layout can only
+    // run once this has landed — on the next update, where the note set's new
+    // identity makes the guard recompute it
     return this.setState({ notes, columnIndex });
   }
 
@@ -279,6 +289,7 @@ class NoteLayoutProvider extends StatefulComponent<
    */
   componentDidMount() {
     this._previousScale = null;
+    this._layoutNotes = null;
     this.updateNotes();
     return this.computeContextValue();
   }
@@ -291,24 +302,28 @@ class NoteLayoutProvider extends StatefulComponent<
     const scale = this.context?.scaleClamped;
     const scaleChanged = scale !== this._previousScale;
 
-    if (notesChanged || scaleChanged) {
-      this.updateNotes();
-    }
-
     const { noteComponent } = this.props;
     if (noteComponent !== prevProps.noteComponent) {
       this.setState({ noteComponent });
     }
 
-    // As before, compute node positions once per note set (the guard inside
-    // skips when already computed); additionally force a recompute when the
-    // scale changed — the old code skipped that, leaving a "forest" of
-    // overlapping notes when zoomed out — or when a note's rendered height
-    // was measured, since the first layout ran on a 10px guess and notes
-    // taller than that (tags, multi-line labels) would otherwise overlap.
+    // Node positions are computed once per note set (the guard inside skips
+    // when they already are); they must be recomputed when the scale changed —
+    // the old code skipped that, leaving a "forest" of overlapping notes when
+    // zoomed out — and when a note's rendered height was measured, since the
+    // first layout runs on a 10px guess and notes taller than that (tags,
+    // multi-line labels) would otherwise overlap.
     const heightsChanged =
       this.state.elementHeights !== prevState.elementHeights;
-    this.computeForceLayout(scaleChanged || heightsChanged);
+
+    if (notesChanged || scaleChanged) {
+      // Re-filter to the visible domain. Laying out here would use the note
+      // set this replaces, so it waits for the next update — which this
+      // `setState` guarantees.
+      this.updateNotes();
+    } else {
+      this.computeForceLayout(heightsChanged);
+    }
 
     if (scaleChanged) {
       this.computeContextValue();

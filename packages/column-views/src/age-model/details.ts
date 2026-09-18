@@ -15,7 +15,7 @@ import {
 import { useMacrostratDefs } from "@macrostrat/data-provider";
 import type { UnitLong } from "@macrostrat/api-types";
 import { useColumnUnitsMap } from "../data-provider";
-import { AgeLabel } from "../unit-details/age-range";
+import { AgeLabel, Proportion } from "../unit-details/age-range";
 import { formatRange } from "../unit-details/utils";
 import { ReferencesField } from "../unit-details/panel";
 import { surfaceClasses } from "./surfaces";
@@ -171,24 +171,14 @@ function SurfaceCalibrationField({ surface }: { surface: ColumnSurface }) {
     rank: def?.rank,
   };
 
-  let proportionText: ReactNode = null;
-  const prop = formatProportion(proportion);
-  if (prop != null) {
-    proportionText = h("div.calibration-proportion", [
-      h(Value, { value: prop }),
-      " above the base of the interval",
-    ]);
-  }
-
   return h(DataField, { label: "Calibration" }, [
-    h("div.calibration-interval", [
-      h(IntervalTag, { interval }),
-      h("span.calibration-range", [
-        formatRange(calibration.b_age, calibration.t_age),
-        " Ma",
-      ]),
-    ]),
-    proportionText,
+    h(
+      "div.calibration-interval",
+      h(IntervalTag, {
+        interval,
+        prefix: h(Proportion, { value: proportion }),
+      }),
+    ),
   ]);
 }
 
