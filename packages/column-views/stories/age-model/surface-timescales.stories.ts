@@ -50,8 +50,13 @@ const INTERNATIONAL_TIMESCALES = new Set([
  * follow the selection, so the levels aren't fixed here. */
 const LEVEL_WINDOW = 3;
 
+/** Macrostrat's international timescale, the one a column is leveled against */
+const INTERNATIONAL_TIMESCALE_ID = 11;
+
 interface SurfaceTimescalesProps {
   columnID: number;
+  /** Name each timescale column above it */
+  showTimescaleLabels?: boolean;
   /** How many of the column's referenced timescales to draw, most-used first */
   maxTimescales?: number;
   /** Draw only the selected surface's timescale, rather than the ranked set */
@@ -63,7 +68,12 @@ function SurfaceTimescalesUI(props: SurfaceTimescalesProps) {
 }
 
 function SurfaceTimescalesColumn(props: SurfaceTimescalesProps) {
-  const { columnID, maxTimescales = 2, followSelection = false } = props;
+  const {
+    columnID,
+    maxTimescales = 2,
+    followSelection = false,
+    showTimescaleLabels = false,
+  } = props;
 
   const units = useColumnUnits(columnID) as any as UnitLong[] | null;
   const info = useColumnBasicInfo(columnID);
@@ -91,14 +101,22 @@ function SurfaceTimescalesColumn(props: SurfaceTimescalesProps) {
 
   const selectSurface = useCallback((surface: ColumnSurface | null) => {
     setSelected(surface);
+    // A surface names an interval but not which timescale it was read from,
+    // so the anchor's column is resolved from what ends up on screen
     setAnchor(surface?.calibration ?? null);
   }, []);
 
   const onClickTimescaleInterval = useCallback(
-    (event: Event, data: { interval?: Interval }) => {
+    (event: Event, data: { interval?: Interval; timescaleID?: number }) => {
       const interval = data?.interval;
       if (interval != null) {
-        setAnchor({ id: interval.int_id ?? interval.oid, name: interval.nam });
+        setAnchor({
+          id: interval.int_id ?? interval.oid,
+          name: interval.nam,
+          // Which column it was clicked in: the same interval is drawn in
+          // several of them, but only this one is the selection
+          timescaleID: data.timescaleID,
+        });
       }
       zoom.onClickTimescaleInterval(event, data as any);
     },
@@ -134,21 +152,58 @@ function SurfaceTimescalesColumn(props: SurfaceTimescalesProps) {
     setPinned(bestRanked(candidates, ranked));
   }, [anchor, timescalesOf, ranked, anchorIsShown]);
 
-  const additionalTimescales = shown.map((d) => d.timescale_id);
+  // The column the anchoring interval was picked in. A click says so outright;
+  // a surface only names the interval, so take the drawn timescale that has
+  // it, and fall back to the international one it is always leveled against.
+  const anchorTimescaleID = useMemo(() => {
+    if (anchor == null) return null;
+    if (anchor.timescaleID != null) return anchor.timescaleID;
+    const candidates = timescalesOf(anchor.id);
+    const drawn = shown.find((d) =>
+      candidates.some((c) => c.timescale_id === d.timescale_id),
+    );
+    return drawn?.timescale_id ?? INTERNATIONAL_TIMESCALE_ID;
+  }, [anchor, timescalesOf, shown]);
 
-  // Two marks on the timescales: the interval the view is anchored to, and
-  // whatever the zoom considers selected
+  // Three tiers, because the same interval is drawn in every timescale that
+  // contains it and only one of those is the selection: the anchor in its own
+  // column is outlined, its counterparts elsewhere are left alone so they can
+  // be read against it, and everything else recedes.
   const intervalStyle = useCallback(
-    (interval: Interval) => {
+    (interval: Interval, timescaleID: number) => {
       const style = zoom.timescaleIntervalStyle(interval);
+      if (anchor == null) return style;
+
       const id = interval.int_id ?? interval.oid;
-      if (anchor?.id === id) {
+      if (id !== anchor.id) {
+        return { ...style, ...UNRELATED_INTERVAL_STYLE };
+      }
+      if (timescaleID === anchorTimescaleID) {
         return { ...style, ...ANCHOR_INTERVAL_STYLE };
       }
       return style;
     },
-    [anchor, zoom.timescaleIntervalStyle],
+    [anchor, anchorTimescaleID, zoom.timescaleIntervalStyle],
   );
+
+  // Every timescale the column draws, the international one included: it is
+  // the one that happens to be nested, not a separate kind of thing.
+  const timescales = useMemo(
+    () => [
+      {
+        id: INTERNATIONAL_TIMESCALE_ID,
+        name: "International",
+        levels: zoom.timescaleLevels,
+      },
+      ...shown.map((d) => ({ id: d.timescale_id, name: d.name })),
+    ],
+    [zoom.timescaleLevels, shown],
+  );
+
+  let labelPadding = 10;
+  if (showTimescaleLabels) {
+    labelPadding = 150;
+  }
 
   if (units == null) {
     return h(Spinner);
@@ -175,12 +230,15 @@ function SurfaceTimescalesColumn(props: SurfaceTimescalesProps) {
         unitComponent: ColoredUnitComponent,
         unconformityLabels: true,
         ...zoom.columnProps,
-        additionalTimescales,
+        timescales,
+        showTimescaleLabels,
         timescaleIntervalStyle: intervalStyle,
         onClickTimescaleInterval,
         heightMultiplier: verticalZoom.heightMultiplier,
         columnWidth: 180,
         width: 350,
+        // Room above the column for the timescale names
+        paddingTop: labelPadding,
         windowPadding: 20,
       },
       h(ColumnSurfaces, {
@@ -198,6 +256,8 @@ function SurfaceTimescalesColumn(props: SurfaceTimescalesProps) {
 interface AnchorInterval {
   id: number;
   name?: string;
+  /** The timescale it was picked in, when that is known */
+  timescaleID?: number;
 }
 
 /** The first of `candidates` in ranked order — the column's own usage decides
@@ -249,6 +309,10 @@ function withTimescale(
 
 /** How the anchoring interval is marked: the column's selection color, the
  * same outline a selected surface or unit gets. */
+const UNRELATED_INTERVAL_STYLE = {
+  opacity: 0.6,
+};
+
 const ANCHOR_INTERVAL_STYLE = {
   outline: "2px solid var(--column-selection-color)",
   outlineOffset: "-2px",
@@ -394,11 +458,13 @@ const meta: Meta<SurfaceTimescalesProps> = {
     columnID: 432,
     maxTimescales: 2,
     followSelection: false,
+    showTimescaleLabels: false,
   },
   argTypes: {
     columnID: { control: { type: "number" } },
     maxTimescales: { control: { type: "number" } },
     followSelection: { control: { type: "boolean" } },
+    showTimescaleLabels: { control: { type: "boolean" } },
   },
   parameters: {
     docs: {
@@ -408,7 +474,7 @@ const meta: Meta<SurfaceTimescalesProps> = {
           "compiler used, and those belong to timescales besides the " +
           "international one — COSUNA, North American Regional, and so on. " +
           "Each is drawn as one more column against the same section scales " +
-          "by `additionalTimescales`, so they can be read against each other " +
+          "by `timescales`, so they can be read against each other " +
           "and against the units. Column 432 (Illinois) references eleven " +
           "timescales in all and works mostly in COSUNA.",
       },
@@ -435,5 +501,5 @@ export const FollowSelection: Story = {
  * several of which are incidental — an interval belongs to every timescale it
  * appears in, so a global stage drags in the regional sets that adopted it. */
 export const AllReferencedTimescales: Story = {
-  args: { maxTimescales: 11 },
+  args: { maxTimescales: 11, showTimescaleLabels: true },
 };

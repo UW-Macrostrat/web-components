@@ -36,6 +36,9 @@ import {
 import {
   SectionSharedProps,
   CompositeTimescale,
+  type ColumnIntervalStyleBuilder,
+  type ColumnTimescaleClickHandler,
+  type ColumnTimescaleLike,
   SectionsColumn,
 } from "./section";
 import { ApproximateHeightAxis, CompositeAgeAxis } from "./age-axis";
@@ -70,10 +73,19 @@ interface BaseColumnProps extends Omit<
    * international one (see `CompositeTimescale`). Narrow `timescaleLevels` by
    * as many to swap the finest level for them rather than widen the column. */
   additionalTimescales?: number[];
-  /** Called when a timescale interval is clicked (e.g. to zoom the age range). */
-  onClickTimescaleInterval?: TimescaleClickHandler;
-  /** Per-interval style for the timescale (e.g. to bold the selected interval). */
-  timescaleIntervalStyle?: IntervalStyleBuilder;
+  /** Every timescale to draw beside the column, in order: a Macrostrat
+   * timescale ID, or a timescale with its own intervals (see
+   * `CompositeTimescale`). Supersedes `timescaleLevels` and
+   * `additionalTimescales`. */
+  timescales?: ColumnTimescaleLike[];
+  /** Draw each timescale's name above it */
+  showTimescaleLabels?: boolean;
+  /** Called when a timescale interval is clicked (e.g. to zoom the age range).
+   * The data says which timescale it was clicked in. */
+  onClickTimescaleInterval?: ColumnTimescaleClickHandler;
+  /** Per-interval style for the timescale (e.g. to bold the selected
+   * interval), by interval and the timescale it was drawn from. */
+  timescaleIntervalStyle?: ColumnIntervalStyleBuilder;
   unconformityLabels?: boolean | UnconformityLabelPlacement;
   onMouseOver?: (
     unit: UnitLong | null,
@@ -244,6 +256,8 @@ function ColumnInner(props: ColumnInnerProps) {
     showTimescale,
     timescaleLevels,
     additionalTimescales,
+    timescales,
+    showTimescaleLabels,
     maxInternalColumns,
     onMouseOver,
     onClickTimescaleInterval,
@@ -278,7 +292,7 @@ function ColumnInner(props: ColumnInnerProps) {
   }
 
   let _showTimescale = showTimescale ?? true;
-  if (timescaleLevels != null) {
+  if (timescaleLevels != null || timescales != null) {
     _showTimescale = true;
   }
   _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;
@@ -295,6 +309,8 @@ function ColumnInner(props: ColumnInnerProps) {
       h.if(_showTimescale)(CompositeTimescale, {
         levels: timescaleLevels,
         additionalTimescales,
+        timescales,
+        showLabels: showTimescaleLabels,
         unconformityLabels: _timescaleUnconformityLabels,
         onClickInterval: onClickTimescaleInterval,
         intervalStyle: timescaleIntervalStyle,

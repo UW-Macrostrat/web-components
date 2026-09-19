@@ -67,6 +67,8 @@ export interface TimescaleZoom {
   /** The drill path: coarse to fine, the last entry being the selection */
   intervals: Interval[];
   selectedInterval: Interval | null;
+  /** The timescale the selection was made in, when the click said so */
+  selectedTimescaleID: number | null;
   /** Every interval in the selection: the one drilled to, plus any added by
    * shift-clicking. The window spans all of them. */
   selectedIntervals: Interval[];
@@ -102,6 +104,12 @@ export function useTimescaleZoom(
   const [intervals, setIntervals] = useState<Interval[]>([]);
   // Intervals shift-clicked into the selection alongside it
   const [addedIntervals, setAddedIntervals] = useState<Interval[]>([]);
+  // Which timescale the selection was made in. The same interval is drawn in
+  // every timescale that contains it, and those copies are not the same
+  // selection: clicking one in another column moves the selection there.
+  const [selectedTimescaleID, setSelectedTimescaleID] = useState<number | null>(
+    null,
+  );
   const selectedInterval = intervals[intervals.length - 1] ?? null;
 
   const selectedIntervals = useMemo(() => {
@@ -112,6 +120,7 @@ export function useTimescaleZoom(
   const reset = useCallback(() => {
     setIntervals([]);
     setAddedIntervals([]);
+    setSelectedTimescaleID(null);
     anim.reset();
   }, [anim.reset]);
 
@@ -140,7 +149,7 @@ export function useTimescaleZoom(
   );
 
   const zoomToInterval = useCallback(
-    (interval: Interval) => {
+    (interval: Interval, timescaleID: number | null = null) => {
       // Keep only the coarser intervals that actually contain this one, so
       // stepping sideways into a different parent (the last stage of the
       // Cambrian → the first of the Ordovician) doesn't strand the old one
@@ -152,15 +161,24 @@ export function useTimescaleZoom(
       );
       setIntervals([...containing, interval]);
       setAddedIntervals([]);
+      setSelectedTimescaleID(timescaleID);
       anim.zoomToInterval(interval);
     },
     [intervals, anim.zoomToInterval],
   );
 
   const onClickTimescaleInterval = useCallback<TimescaleClickHandler>(
-    (event: Event, data: TimescaleClickData) => {
+    (event: Event, data: TimescaleClickData & { timescaleID?: number }) => {
       const interval = data?.interval;
       if (interval == null || interval.lvl == null) return;
+
+      const timescaleID = data.timescaleID ?? null;
+      // A click in a different timescale is a different selection, even on the
+      // same interval: it moves to that column rather than zooming back out
+      const sameTimescale =
+        timescaleID == null ||
+        selectedTimescaleID == null ||
+        timescaleID === selectedTimescaleID;
 
       // Shift-click widens the window instead of moving it, so a selection can
       // grow into the interval next door
@@ -174,6 +192,7 @@ export function useTimescaleZoom(
       if (interval.oid === selectedInterval?.oid && addedIntervals.length === 0) {
         const next = intervals.slice(0, -1);
         setIntervals(next);
+        setSelectedTimescaleID(null);
         const parent = next[next.length - 1] ?? null;
         if (parent == null) {
           anim.reset();
@@ -186,11 +205,12 @@ export function useTimescaleZoom(
       // Every other click navigates *to* the interval clicked, whatever its
       // rank: a finer one drills in, a neighbor moves along the timescale, a
       // coarser one zooms out to it
-      zoomToInterval(interval);
+      zoomToInterval(interval, timescaleID);
     },
     [
       intervals,
       selectedInterval,
+      selectedTimescaleID,
       addedIntervals,
       extendToInterval,
       zoomToInterval,
@@ -219,6 +239,7 @@ export function useTimescaleZoom(
   if (!enabled) {
     return {
       ...disabledZoom,
+      selectedTimescaleID: null,
       selectedIntervals: [],
       timescaleLevels: levels,
       reset,
@@ -235,6 +256,7 @@ export function useTimescaleZoom(
     window,
     intervals,
     selectedInterval,
+    selectedTimescaleID,
     selectedIntervals,
     timescaleLevels: levels,
     isFullExtent: anim.isFullExtent,

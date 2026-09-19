@@ -12,10 +12,10 @@ import {
 import {
   Timescale,
   TimescaleOrientation,
-  TimescaleClickHandler,
   useMacrostratTimescales,
   type Interval,
   type IntervalStyleBuilder,
+  type TimescaleClickData,
 } from "@macrostrat/timescale";
 
 /** Macrostrat's international timescale, the default for a column */
@@ -206,22 +206,76 @@ function SectionUnits(props: SectionProps) {
   );
 }
 
+/** A per-interval style that also knows which timescale the interval was
+ * drawn from. The same interval often appears in several of the timescales
+ * beside each other, and they aren't interchangeable — only one of them is
+ * the one a selection was made in. */
+export type ColumnIntervalStyleBuilder =
+  | CSSProperties
+  | ((interval: Interval, timescaleID: number) => CSSProperties)
+  | null;
+
+/** A timescale click, reporting which timescale was clicked in */
+export type ColumnTimescaleClickHandler = (
+  event: Event,
+  data: TimescaleClickData & { timescaleID: number },
+) => void;
+
+/** A timescale to draw beside a column.
+ *
+ * The international timescale is one of these, not a special case: it is the
+ * one that happens to be nested several levels deep. Anything with the same
+ * shape can take its place or sit beside it — a regional set from the API, a
+ * zonation assembled locally, or a hierarchy that isn't a timescale at all,
+ * so long as its "intervals" carry ages.
+ */
+export interface ColumnTimescale {
+  /** Integer identifier. Clicks and per-interval styles report it, so a
+   * consumer can tell one column's copy of an interval from another's. For a
+   * Macrostrat timescale it is the `timescale_id`. */
+  id: number;
+  /** Shown above the column, unless `label` says otherwise */
+  name?: string;
+  /** The intervals themselves, flat or already nested by `pid`. Left out,
+   * the timescale `id` is fetched from the Macrostrat API. */
+  intervals?: Interval[];
+  /** Levels to draw, and so how many slots wide the column is (default
+   * `[1, 1]`: one level, which is what a flat timescale has) */
+  levels?: [number, number];
+  /** `oid` of the interval the tree hangs from (default 0) */
+  rootInterval?: number;
+  /** Drawn above the column in place of the name — any node, so a consumer
+   * can put a control or a legend there instead of text */
+  label?: ReactNode;
+}
+
+export type ColumnTimescaleLike = number | ColumnTimescale;
+
 interface CompositeTimescaleProps {
+  /** Every timescale to draw, in order. A bare number is a Macrostrat
+   * timescale to fetch and draw as a single level.
+   *
+   * Given this, `levels`, `timescaleID` and `additionalTimescales` are
+   * ignored: it says what they say and more. */
+  timescales?: ColumnTimescaleLike[];
+  /** Levels of the ICS hierarchy to show. If a number, the finest level is
+   * `levels[0]`, the second-finest is `levels[1]`, etc. If an array, the
+   * first element is the starting level, the second is the ending level. */
   levels?: [number, number] | number;
   unconformityLabels?: boolean;
-  onClickInterval?: TimescaleClickHandler;
+  onClickInterval?: ColumnTimescaleClickHandler;
   /** Per-interval style (e.g. to highlight the currently selected interval). */
-  intervalStyle?: IntervalStyleBuilder;
+  intervalStyle?: ColumnIntervalStyleBuilder;
   /** The timescale to draw. Defaults to the international one; any other
    * Macrostrat timescale (a regional or project-specific set of intervals)
    * can be drawn in its place. */
   timescaleID?: number;
   /** Further timescales drawn as extra level columns beside the main one,
-   * against the same scale. Regional and project timescales are flat — one
-   * level of intervals — so each adds a single column. Pair this with a
-   * narrower `levels` window to *replace* the finest level rather than widen
-   * the timescale. */
+   * against the same scale. Shorthand for listing them in `timescales`. */
   additionalTimescales?: number[];
+  /** Draw the names above the columns. They sit above the column proper, so
+   * leave top padding for them. */
+  showLabels?: boolean;
   className?: string;
 }
 
@@ -239,34 +293,21 @@ export function CompositeTimescale(props: CompositeTimescaleProps) {
 
 type CompositeTimescaleCoreProps = CompositeTimescaleProps & {
   packages: PackageScaleLayoutData[];
-  onClickInterval?: TimescaleClickHandler;
 };
 
-/** One more timescale beside the leveled one, sharing its scale so the two
- * line up. Regional and project timescales come back flat, so this draws a
- * single column of intervals. */
-function AdditionalTimescale(props: {
-  intervals: Interval[];
-  length: number;
-  scale: any;
-  onClickInterval?: TimescaleClickHandler;
-  intervalStyle?: IntervalStyleBuilder;
-}) {
-  const { intervals, length, scale, onClickInterval, intervalStyle } = props;
+/** What is drawn above a timescale: its name, reading up the page, or
+ * whatever node the consumer gave instead. */
+function TimescaleLabel({ timescale }: { timescale: ColumnTimescale }) {
+  const { label, name } = timescale;
+  const style = levelCountStyle(levelCount(timescale));
 
-  return h(Timescale, {
-    orientation: TimescaleOrientation.VERTICAL,
-    length,
-    levels: [1, 1],
-    absoluteAgeScale: true,
-    showAgeAxis: false,
-    scale,
-    intervals,
-    onClick: onClickInterval,
-    intervalStyle,
-    // A flat timescale is one column wide
-    style: levelCountStyle(1),
-  });
+  let content: ReactNode = label;
+  if (label == null && name != null) {
+    content = h("span.timescale-label-text", name);
+  }
+  if (content == null) return h("div.timescale-label", { style });
+
+  return h("div.timescale-label", { style }, content);
 }
 
 /** How wide a timescale draws: one slot per level it shows. */
@@ -276,41 +317,39 @@ function levelCountStyle(levelCount: number): CSSProperties {
 
 export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
   const {
-    levels = 3,
     packages,
     unconformityLabels = false,
     onClickInterval,
     intervalStyle,
-    timescaleID,
-    additionalTimescales = [],
+    showLabels = false,
     className,
   } = props;
 
-  // Every timescale drawn here is fetched in one place: a column is split into
-  // sections, and fetching per section would ask for the same timescale once
-  // per section per extra timescale.
-  const mainTimescaleID = timescaleID ?? INTERNATIONAL_TIMESCALE_ID;
-  const timescaleIDs = useMemo(
-    () => [mainTimescaleID, ...additionalTimescales],
-    [mainTimescaleID, additionalTimescales.join(",")],
-  );
-  const intervalSets = useMacrostratTimescales(timescaleIDs);
-  const intervals = intervalSets.get(mainTimescaleID) ?? [];
+  const timescales = useColumnTimescales(props);
 
-  let _levels: [number, number];
-  if (typeof levels === "number") {
-    // If levels is a number, use the most common starting level
-    _levels = [2, Math.max(2 + Math.min(levels, 5) - 1, 1)];
-  } else {
-    _levels = levels;
+  /** Clicks and styles carry the timescale they came from, so a consumer can
+   * tell one column's copy of an interval from another's. */
+  function forTimescale(id: number) {
+    let onClick = null;
+    if (onClickInterval != null) {
+      onClick = (event: Event, data: TimescaleClickData) => {
+        onClickInterval(event, { ...data, timescaleID: id });
+      };
+    }
+    let style = intervalStyle as IntervalStyleBuilder;
+    if (typeof intervalStyle === "function") {
+      style = (interval: Interval) => intervalStyle(interval, id);
+    }
+    return { onClick, intervalStyle: style };
   }
 
-  // Each timescale sizes itself from its own level count. The count can't live
-  // on the container they share, because custom properties inherit: set there,
-  // every timescale inside would take the full width of all of them.
-  const mainLevelCount = _levels[1] - _levels[0] + 1;
-
   return h("div.timescale-column", { className }, [
+    h.if(showLabels)(
+      "div.timescale-labels",
+      timescales.map((timescale) =>
+        h(TimescaleLabel, { key: timescale.id, timescale }),
+      ),
+    ),
     h(
       "div.timescales",
       packages.map((group) => {
@@ -318,30 +357,21 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
         return h(
           "div.section-timescales",
           { style: { paddingTop }, key },
-          [
+          timescales.map((timescale) =>
             h(Timescale, {
+              key: timescale.id,
               orientation: TimescaleOrientation.VERTICAL,
               length: pixelHeight,
-              levels: _levels,
+              levels: timescale.levels,
+              rootInterval: timescale.rootInterval,
               absoluteAgeScale: true,
               showAgeAxis: false,
               scale,
-              intervals,
-              onClick: onClickInterval,
-              intervalStyle,
-              style: levelCountStyle(mainLevelCount),
+              intervals: timescale.intervals,
+              style: levelCountStyle(levelCount(timescale)),
+              ...forTimescale(timescale.id),
             }),
-            ...additionalTimescales.map((id) =>
-              h(AdditionalTimescale, {
-                key: id,
-                intervals: intervalSets.get(id) ?? [],
-                length: pixelHeight,
-                scale,
-                onClickInterval,
-                intervalStyle,
-              }),
-            ),
-          ],
+          ),
         );
       }),
     ),
@@ -352,6 +382,82 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
       axisType: ColumnAxisType.AGE,
     }),
   ]);
+}
+
+/** The timescales to draw, with their intervals.
+ *
+ * Every timescale a column draws is fetched in one place: a column is split
+ * into sections, and fetching per section would ask for the same timescale
+ * once per section per timescale.
+ */
+function useColumnTimescales(props: CompositeTimescaleProps): ColumnTimescale[] {
+  const { timescales, levels = 3, timescaleID, additionalTimescales } = props;
+
+  const specs = useMemo(
+    () => timescaleSpecs({ timescales, levels, timescaleID, additionalTimescales }),
+    [
+      timescales,
+      levels,
+      timescaleID,
+      additionalTimescales?.join(","),
+    ],
+  );
+
+  // Only the ones that didn't come with their own intervals need fetching
+  const fetchIDs = useMemo(
+    () => specs.filter((d) => d.intervals == null).map((d) => d.id),
+    [specs],
+  );
+  const intervalSets = useMacrostratTimescales(fetchIDs);
+
+  return useMemo(
+    () =>
+      specs.map((spec) => ({
+        ...spec,
+        intervals: spec.intervals ?? intervalSets.get(spec.id) ?? [],
+      })),
+    [specs, intervalSets],
+  );
+}
+
+/** The `timescales` list, or one built from the older props that name the
+ * leveled timescale and the flat ones beside it. */
+function timescaleSpecs(props: CompositeTimescaleProps): ColumnTimescale[] {
+  const { timescales, levels = 3, timescaleID, additionalTimescales = [] } = props;
+
+  if (timescales != null) {
+    return timescales.map(normalizeTimescale);
+  }
+
+  return [
+    {
+      id: timescaleID ?? INTERNATIONAL_TIMESCALE_ID,
+      levels: levelRange(levels),
+    },
+    ...additionalTimescales.map(normalizeTimescale),
+  ];
+}
+
+function normalizeTimescale(timescale: ColumnTimescaleLike): ColumnTimescale {
+  if (typeof timescale === "number") {
+    return { id: timescale, levels: FLAT_TIMESCALE_LEVELS };
+  }
+  return { levels: FLAT_TIMESCALE_LEVELS, ...timescale };
+}
+
+/** Regional and project timescales come back flat: one level of intervals. */
+const FLAT_TIMESCALE_LEVELS: [number, number] = [1, 1];
+
+function levelRange(levels: [number, number] | number): [number, number] {
+  if (typeof levels !== "number") return levels;
+  // A count, rather than a range: start at the level most columns start at
+  return [2, Math.max(2 + Math.min(levels, 5) - 1, 1)];
+}
+
+/** How many slots wide a timescale draws: one per level it shows. */
+function levelCount(timescale: ColumnTimescale): number {
+  const [min, max] = timescale.levels ?? FLAT_TIMESCALE_LEVELS;
+  return Math.max(max - min + 1, 1);
 }
 
 export function UnconformityLabels(props: {
