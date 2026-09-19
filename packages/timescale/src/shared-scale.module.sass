@@ -1,0 +1,29 @@
+.shared-scale
+  display: flex
+  flex-direction: row
+  align-items: flex-start
+  gap: 1em
+
+.column
+  display: flex
+  flex-direction: column
+  align-items: flex-start
+
+  // Zone names are far too long to run along a box a few pixels tall, so a
+  // named-zone column can read horizontally in a wide box instead. The
+  // `.timescale.vertical` in the middle is there for specificity: it has to
+  // outrank the rule that sets vertical writing for every vertical timescale.
+  &.wide-labels :global(.timescale.vertical) :global(.interval-label .label-text)
+    writing-mode: horizontal-tb
+    transform: none
+
+.column-label
+  // A fixed px height, rather than `em`: this has its own font size, and the
+  // consumers that position overlays against the columns below it don't.
+  height: 40px
+  max-width: 12em
+  overflow: hidden
+  font-size: 12px
+  font-weight: 600
+  line-height: 1.2
+  color: var(--text-subtle-color, var(--text-color))

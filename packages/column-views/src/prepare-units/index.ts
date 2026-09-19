@@ -27,7 +27,7 @@ import {
   PreparedColumnData,
   unitsOverlap,
 } from "./utils";
-import { SectionInfo } from "./types";
+import { type ColumnHeightScaleOptions, SectionInfo } from "./types";
 
 export * from "./utils";
 export * from "./types";
@@ -46,6 +46,40 @@ export function usePreparedColumnUnits(
   }, [data, ...Object.values(options)]);
 }
 
+/** Apply `heightMultiplier` to the options that set how tall a section is
+ * drawn. Multiplying all of them together scales the output heights exactly —
+ * the density heuristic, the explicit scale, and both floors move as one, so
+ * nothing changes but the size. Values the caller left unset stay unset (a
+ * `null` `targetUnitHeight` means "a fixed pixel scale is in charge"), except
+ * that a column relying on the default unit height still stretches. */
+function stretchHeights(
+  options: PrepareColumnOptions,
+  multiplier: number,
+): Partial<ColumnHeightScaleOptions> {
+  if (multiplier === 1) return {};
+
+  const stretched: Partial<ColumnHeightScaleOptions> = {};
+  const keys = [
+    "pixelScale",
+    "targetUnitHeight",
+    "minPixelScale",
+    "minSectionHeight",
+  ] as const;
+  for (const key of keys) {
+    const value = options[key];
+    if (value != null) stretched[key] = value * multiplier;
+  }
+
+  // Nothing set the density, so the default unit height is what's in charge
+  if (options.targetUnitHeight === undefined && options.pixelScale == null) {
+    stretched.targetUnitHeight = DEFAULT_TARGET_UNIT_HEIGHT * multiplier;
+  }
+  return stretched;
+}
+
+/** Mirrors the default in `buildSectionScale` */
+const DEFAULT_TARGET_UNIT_HEIGHT = 20;
+
 export function prepareColumnUnits(
   units: UnitWithLayoutHints<UnitLong>[],
   options: PrepareColumnOptions,
@@ -62,6 +96,7 @@ export function prepareColumnUnits(
     hybridScale,
     scale,
     windowPadding = 0,
+    heightMultiplier = 1,
   } = options;
 
   let _totalHeight: number | null = null;
@@ -174,7 +209,11 @@ export function prepareColumnUnits(
     ? null
     : [b_age ?? Infinity, t_age ?? -Infinity];
 
-  const layoutOptions = { ...options, visibleWindow: focalWindow };
+  const layoutOptions = {
+    ...options,
+    ...stretchHeights(options, heightMultiplier),
+    visibleWindow: focalWindow,
+  };
 
   /* Compute pixel scales etc. for sections
    * We need to do this now to determine which unconformities
@@ -207,7 +246,8 @@ export function prepareColumnUnits(
     // stretched to `minSectionHeight`), then spend the padding budget against
     // them, so a margin is the pixels asked for rather than those pixels times
     // whatever stretch its neighbor happened to need.
-    const floor = options.minSectionHeight ?? options.targetUnitHeight ?? 0;
+    const floor =
+      layoutOptions.minSectionHeight ?? layoutOptions.targetUnitHeight ?? 0;
     const scales = resolveWindowScales(sectionsWithScales, focalWindow, floor);
     const scaleFor = (section) =>
       scales.get(section) ?? section.scaleInfo.pixelScale;

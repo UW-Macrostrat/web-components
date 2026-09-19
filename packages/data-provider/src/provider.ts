@@ -49,7 +49,8 @@ interface ColumnFootprintsStorage {
 
 interface RefsSlice {
   refs: Map<number, MacrostratRef>;
-  inFlightRequests: Set<string>; // Track requests to avoid duplicates
+  /** Requests in flight, so duplicates can share one response */
+  inFlightRequests: Map<string, Promise<Response>>;
   getRefs(ids: number[]): Promise<MacrostratRef[]>;
 }
 
@@ -89,23 +90,36 @@ export function createMacrostratStore(
   return createStore<MacrostratStore>((set, get): MacrostratStore => {
     return {
       baseURL,
-      inFlightRequests: new Set(),
+      inFlightRequests: new Map(),
       async fetch(url: string, options?: RequestInit) {
-        /** Fetch function that tracks in-flight requests */
+        /** Fetch function that shares a request already in flight */
         let url1 = url;
         if (!(url.startsWith("http://") || url.startsWith("https://"))) {
           url1 = baseURL + url;
         }
-        // Avoid duplicate requests
+
+        // A duplicate request waits on the one in flight and reads a copy of
+        // its response. Returning nothing instead — as this did — looks to the
+        // caller exactly like a request that came back empty, and callers
+        // cache that: a second ask for the same data while the first is still
+        // open would leave whatever needed it permanently blank.
         const { inFlightRequests } = get();
-        if (inFlightRequests.has(url1)) {
-          return null; // Return null if already in flight
+        const pending = inFlightRequests.get(url1);
+        if (pending != null) {
+          const res = await pending;
+          return res?.clone() ?? res;
         }
-        inFlightRequests.add(url1);
-        const res = await baseFetch(url1, options);
-        // Removing request
-        inFlightRequests.delete(url1);
-        return res;
+
+        // Every caller reads a clone, so the response this promise carries is
+        // never consumed and stays safe to clone again
+        const request = baseFetch(url1, options);
+        inFlightRequests.set(url1, request);
+        try {
+          const res = await request;
+          return res?.clone() ?? res;
+        } finally {
+          inFlightRequests.delete(url1);
+        }
       },
       ...createLithologiesSlice(set, get),
       ...createIntervalsSlice(set, get),
@@ -261,22 +275,28 @@ function createIntervalsSlice(set, get) {
         if (data == null) {
           return [];
         }
-        _intervals = new Map(_intervals); // Copy the original map
-        for (const d of data) {
-          _intervals.set(d.int_id, d);
-        }
-
-        let newFetchedTimescales = fetchedTimescales;
-        if (timescaleID != null) {
-          newFetchedTimescales = new Set(fetchedTimescales);
-          newFetchedTimescales.add(timescaleID);
-        }
-
-        set({
-          intervals: _intervals,
-          fetchedAll: newFetchedAll,
-          fetchedTimescales: newFetchedTimescales,
+        // Merge into whatever is in the store *now*, not into the snapshot
+        // taken before the fetch. Several timescales are often requested at
+        // once, and each request would otherwise start from the map as it was
+        // before any of them resolved — so the last one to land drops the
+        // others' intervals, and the timescales they recorded as fetched.
+        set((state) => {
+          const merged = new Map(state.intervals ?? []);
+          for (const d of data) {
+            merged.set(d.int_id, mergeInterval(merged.get(d.int_id), d));
+          }
+          let newFetchedTimescales = state.fetchedTimescales;
+          if (timescaleID != null) {
+            newFetchedTimescales = new Set(state.fetchedTimescales);
+            newFetchedTimescales.add(timescaleID);
+          }
+          return {
+            intervals: merged,
+            fetchedAll: newFetchedAll || state.fetchedAll,
+            fetchedTimescales: newFetchedTimescales,
+          };
         });
+        _intervals = get().intervals;
       }
 
       // Now, get the intervals
@@ -291,6 +311,27 @@ function createIntervalsSlice(set, get) {
       }
     },
   };
+}
+
+/** Combine two records of the same interval.
+ *
+ * A request for one timescale reports only *that* timescale in each
+ * interval's `timescales`, so records from different requests each know a
+ * different part of the answer. Overwriting loses the rest: fetching the
+ * Russian stages would quietly take the ICS ages that are also Russian stages
+ * out of the international timescale, and the timescale drawn from it would
+ * lose whole levels.
+ */
+function mergeInterval(existing: any, incoming: any) {
+  if (existing == null) return incoming;
+  const timescales = [...(existing.timescales ?? [])];
+  for (const timescale of incoming.timescales ?? []) {
+    const known = timescales.some(
+      (d) => d.timescale_id === timescale.timescale_id,
+    );
+    if (!known) timescales.push(timescale);
+  }
+  return { ...existing, ...incoming, timescales };
 }
 
 function intervalIsInTimescale(interval: Interval, timescaleID: number) {

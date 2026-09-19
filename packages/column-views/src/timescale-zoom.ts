@@ -67,6 +67,9 @@ export interface TimescaleZoom {
   /** The drill path: coarse to fine, the last entry being the selection */
   intervals: Interval[];
   selectedInterval: Interval | null;
+  /** Every interval in the selection: the one drilled to, plus any added by
+   * shift-clicking. The window spans all of them. */
+  selectedIntervals: Interval[];
   /** The levels the timescale should show, following the selection */
   timescaleLevels: [number, number];
   isFullExtent: boolean;
@@ -97,12 +100,44 @@ export function useTimescaleZoom(
 
   // The intervals drilled through; the last one is the current selection
   const [intervals, setIntervals] = useState<Interval[]>([]);
+  // Intervals shift-clicked into the selection alongside it
+  const [addedIntervals, setAddedIntervals] = useState<Interval[]>([]);
   const selectedInterval = intervals[intervals.length - 1] ?? null;
+
+  const selectedIntervals = useMemo(() => {
+    if (selectedInterval == null) return addedIntervals;
+    return [selectedInterval, ...addedIntervals];
+  }, [selectedInterval, addedIntervals]);
 
   const reset = useCallback(() => {
     setIntervals([]);
+    setAddedIntervals([]);
     anim.reset();
   }, [anim.reset]);
+
+  /** Take the interval clicked into (or out of) the selection, and span the
+   * result — how you widen a window to the interval next door. */
+  const extendToInterval = useCallback(
+    (interval: Interval) => {
+      let added = addedIntervals.filter((d) => d.oid !== interval.oid);
+      const wasSelected = added.length !== addedIntervals.length;
+      if (!wasSelected && interval.oid !== selectedInterval?.oid) {
+        added = [...addedIntervals, interval];
+      }
+      setAddedIntervals(added);
+
+      let selection = added;
+      if (selectedInterval != null) {
+        selection = [selectedInterval, ...added];
+      }
+      if (selection.length === 0) {
+        anim.reset();
+        return;
+      }
+      anim.zoomToWindow(intervalsWindow(selection));
+    },
+    [addedIntervals, selectedInterval, anim.zoomToWindow, anim.reset],
+  );
 
   const zoomToInterval = useCallback(
     (interval: Interval) => {
@@ -116,19 +151,27 @@ export function useTimescaleZoom(
           d.lag <= interval.lag,
       );
       setIntervals([...containing, interval]);
+      setAddedIntervals([]);
       anim.zoomToInterval(interval);
     },
     [intervals, anim.zoomToInterval],
   );
 
   const onClickTimescaleInterval = useCallback<TimescaleClickHandler>(
-    (_event: Event, data: TimescaleClickData) => {
+    (event: Event, data: TimescaleClickData) => {
       const interval = data?.interval;
       if (interval == null || interval.lvl == null) return;
 
+      // Shift-click widens the window instead of moving it, so a selection can
+      // grow into the interval next door
+      if ((event as MouseEvent)?.shiftKey) {
+        extendToInterval(interval);
+        return;
+      }
+
       // Clicking the interval you are in is the way back out: pop a level, or
       // return to the full extent past the root
-      if (interval.oid === selectedInterval?.oid) {
+      if (interval.oid === selectedInterval?.oid && addedIntervals.length === 0) {
         const next = intervals.slice(0, -1);
         setIntervals(next);
         const parent = next[next.length - 1] ?? null;
@@ -145,32 +188,38 @@ export function useTimescaleZoom(
       // coarser one zooms out to it
       zoomToInterval(interval);
     },
-    [intervals, selectedInterval, zoomToInterval, anim.reset],
+    [
+      intervals,
+      selectedInterval,
+      addedIntervals,
+      extendToInterval,
+      zoomToInterval,
+      anim.reset,
+    ],
   );
 
   const timescaleIntervalStyle = useCallback(
     (interval: Interval): CSSProperties => {
-      if (interval.oid === selectedInterval?.oid) {
+      if (selectedIntervals.some((d) => d.oid === interval.oid)) {
         return selectedIntervalStyle;
       }
       return {};
     },
-    [selectedInterval, selectedIntervalStyle],
+    [selectedIntervals, selectedIntervalStyle],
   );
 
-  const levels = useMemo(
-    () =>
-      levelsForSelected(selectedInterval?.lvl ?? defaultLevel, {
-        levelWindow,
-        minLevel,
-        maxLevel,
-      }),
-    [selectedInterval, defaultLevel, levelWindow, minLevel, maxLevel],
-  );
+  const levels = useMemo(() => {
+    let level = defaultLevel;
+    for (const interval of selectedIntervals) {
+      if (interval.lvl != null) level = Math.max(level, interval.lvl);
+    }
+    return levelsForSelected(level, { levelWindow, minLevel, maxLevel });
+  }, [selectedIntervals, defaultLevel, levelWindow, minLevel, maxLevel]);
 
   if (!enabled) {
     return {
       ...disabledZoom,
+      selectedIntervals: [],
       timescaleLevels: levels,
       reset,
       zoomToInterval,
@@ -186,6 +235,7 @@ export function useTimescaleZoom(
     window,
     intervals,
     selectedInterval,
+    selectedIntervals,
     timescaleLevels: levels,
     isFullExtent: anim.isFullExtent,
     isAnimating: anim.isAnimating,
@@ -246,6 +296,14 @@ export function levelsForSelected(
     Math.max(maxLevel - span, minLevel),
   );
   return [lo, lo + span];
+}
+
+/** The window spanning a set of intervals. */
+function intervalsWindow(intervals: Interval[]): AgeWindow {
+  return {
+    t_age: Math.min(...intervals.map((d) => d.lag)),
+    b_age: Math.max(...intervals.map((d) => d.eag)),
+  };
 }
 
 /** The age extent of a set of units, in the shape the age-window props take.

@@ -46,6 +46,7 @@ import {
   useColumnSelection,
   useColumnUnits,
 } from "../column-ui/utils";
+import { VerticalZoomControl, useVerticalZoom } from "./vertical-zoom";
 import h from "./surface-navigation.stories.module.sass";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
@@ -110,6 +111,8 @@ function SurfaceNavigation(props: SurfaceNavigationProps) {
   // Resolved here rather than inside `ColumnSurfaces`, so the mode switch and
   // the keyboard handler address exactly the surfaces that are drawn — which,
   // zoomed in, is only the surfaces the window still shows
+  // How much height the column is given — the other axis of the timescale zoom
+  const verticalZoom = useVerticalZoom();
   const surfaces = useColumnSurfaceList(columnID, units, zoom.window, {
     statuses: statusFilter,
     inferTiePoints,
@@ -198,6 +201,7 @@ function SurfaceNavigation(props: SurfaceNavigationProps) {
         units,
         surfaces,
         zoom,
+        heightMultiplier: verticalZoom.heightMultiplier,
         windowPadding,
         columnName: info?.col_name,
         mode,
@@ -220,6 +224,7 @@ function SurfaceNavigation(props: SurfaceNavigationProps) {
         className: "column-selector-map",
       }),
       h.if(zoom.enabled)(ZoomControls, { zoom }),
+      h(VerticalZoomControl, { zoom: verticalZoom }),
       h(SegmentedControl, {
         fill: true,
         small: true,
@@ -248,6 +253,8 @@ interface ColumnPaneProps {
   units: UnitLong[] | null;
   surfaces: ColumnSurface[];
   zoom: TimescaleZoom;
+  /** Fixed multiplier on the heights the layout works out */
+  heightMultiplier?: number;
   windowPadding?: number;
   columnName?: string;
   mode: SelectionMode;
@@ -267,6 +274,7 @@ function ColumnPane(props: ColumnPaneProps) {
     units,
     surfaces,
     zoom,
+    heightMultiplier,
     windowPadding,
     columnName,
     mode,
@@ -317,6 +325,7 @@ function ColumnPane(props: ColumnPaneProps) {
         // "Interval zoom" story for the mechanics
         ...zoom.columnProps,
         windowPadding,
+        heightMultiplier,
       },
       h(ColumnSurfaces, {
         surfaces,

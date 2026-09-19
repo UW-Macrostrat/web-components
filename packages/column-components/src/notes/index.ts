@@ -182,6 +182,8 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
     notes,
     noteComponent = NoteComponent,
     deltaConnectorAttachment,
+    connectorOverhang,
+    showPointMarker,
     onClickNote,
     forceOptions,
     children,
@@ -203,6 +205,8 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
         h(NoteDefs),
         h(NotesList, {
           deltaConnectorAttachment,
+          connectorOverhang,
+          showPointMarker,
           onClickNote,
         }),
         children,

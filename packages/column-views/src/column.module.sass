@@ -1,4 +1,7 @@
 .column-container, body:global(.light-mode) .column-container
+  // One selection color for everything a column can select — units, surfaces —
+  // so the highlight means the same thing wherever it appears
+  --column-selection-color: var(--column-cursor-color, var(--pz-accent-color, #7961db))
   --column-background-color: var(--background-color, #fff)
   --column-stroke-color: var(--text-emphasized-color, #000)
   --column-text-color: var(--text-emphasized-color, #000)
@@ -53,13 +56,18 @@ body:global(.dark-mode) .column-container
     stroke: var(--column-stroke-color)
     stroke-width: 1px
 
+  // A box around the selected unit: a light wash so its own color still
+  // reads, and an outline in the selection color
   .selection-overlay
-    fill: var(--selection-overlay-color, red)
-    fill-opacity: var(--selection-overlay-opacity, 0.5)
+    fill: var(--selection-overlay-color, var(--column-selection-color))
+    fill-opacity: var(--selection-overlay-opacity, 0.15)
+    stroke: var(--selection-overlay-color, var(--column-selection-color))
+    stroke-width: var(--selection-overlay-stroke-width, 2px)
+    vector-effect: non-scaling-stroke
 
   // Units sharing a stratigraphic name with the selection: a subtler highlight
   .linked-overlay
-    fill: var(--linked-overlay-color, var(--selection-overlay-color, red))
+    fill: var(--linked-overlay-color, var(--selection-overlay-color, var(--column-selection-color)))
     fill-opacity: var(--linked-overlay-opacity, 0.18)
     pointer-events: none
 
@@ -104,6 +112,19 @@ body:global(.dark-mode) .column-container
 
 .timescale-column
   position: relative
+
+// A section's timescales, drawn side by side against that section's scale.
+// The name is deliberately not `timescale-container`: that is also the class
+// on each `Timescale`'s own root, and the two were easy to confuse for one
+// another (this one went unstyled for a while, stacking the timescales).
+.section-timescales
+  display: flex
+  flex-direction: row
+  align-items: flex-start
+
+  // Set the timescale a column is leveled against apart from the others
+  > :first-child
+    margin-right: 5px
 
 .section-main
   position: relative

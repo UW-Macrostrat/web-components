@@ -14,6 +14,13 @@ export interface ColumnHeightScaleOptions {
    * needed because small sections (<1-2 units) don't necessarily have space to comfortably
    * render two axis labels */
   minPixelScale?: number;
+  /** Multiply the heights the layout works out by a fixed factor (default 1).
+   * The column is drawn that many times taller with the same proportions: every
+   * pixel quantity that sets a section's density scales together, so sections
+   * keep their relative heights and the floors keep meaning what they meant.
+   * The chrome doesn't scale — unconformity gaps and `windowPadding` are the
+   * same number of pixels at any stretch. */
+  heightMultiplier?: number;
   /** The requested render window, `[b_age, t_age]`, if there is one. Set
    * internally by `prepareColumnUnits`: unit density is derived from the units
    * this window actually shows, so `targetUnitHeight` describes the units you

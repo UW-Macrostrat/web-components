@@ -96,10 +96,9 @@ type NodeSpacing = {
   below: number;
 };
 
-interface NoteProps {
+interface NoteProps extends NodeConnectorOptions {
   note: NoteData;
   style?: object;
-  deltaConnectorAttachment?: number;
   pixelOffset?: number;
   pixelHeight?: number;
   updateHeight?: (id: string | number, height: number) => void;
@@ -115,6 +114,8 @@ function Note(props: NoteProps) {
     pixelHeight,
     updateHeight,
     deltaConnectorAttachment,
+    connectorOverhang,
+    showPointMarker,
     noteBodyComponent,
     spacing,
     onClick,
@@ -154,7 +155,12 @@ function Note(props: NoteProps) {
   }
 
   return h("g.note", { style }, [
-    h(NoteConnector, { note, deltaConnectorAttachment }),
+    h(NoteConnector, {
+      note,
+      deltaConnectorAttachment,
+      connectorOverhang,
+      showPointMarker,
+    }),
     h(
       NotePositioner,
       {

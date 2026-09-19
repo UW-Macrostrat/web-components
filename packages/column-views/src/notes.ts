@@ -16,6 +16,10 @@ interface ColumnNotesProps {
   focusedNoteComponent?: ComponentType<any> | null;
   /** Called when a note is clicked */
   onClickNote?: (note: NoteData) => void;
+  /** Px the connector continues past each end (see `NodeConnectorOptions`) */
+  connectorOverhang?: number | [number, number];
+  /** Draw the marker at a point note's height (default true) */
+  showPointMarker?: boolean;
   /** Options for the label force layout (e.g. `nodeSpacing`) */
   forceOptions?: object;
   className?: string;
@@ -30,6 +34,8 @@ export function ColumnNotes({
   focusedNoteComponent,
   onClickNote,
   forceOptions,
+  connectorOverhang,
+  showPointMarker,
   className,
   children,
 }: ColumnNotesProps) {
@@ -54,6 +60,8 @@ export function ColumnNotes({
           focusedNoteComponent,
           onClickNote,
           forceOptions,
+          connectorOverhang,
+          showPointMarker,
         }),
       ]),
       children,

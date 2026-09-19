@@ -324,12 +324,21 @@ export function ColumnSurfaceLabels(props: ColumnSurfaceLabelsProps) {
       noteComponent: SurfaceNoteLabel,
       onClickNote,
       forceOptions: LABEL_FORCE_OPTIONS,
+      // The leader runs from the surface line in the column to the tag body,
+      // continuing a little past both ends rather than stopping in the gap —
+      // so it needs no endpoint marker of its own
+      connectorOverhang: LABEL_CONNECTOR_OVERHANG,
+      showPointMarker: false,
     }),
   );
 }
 
 /** Breathing room between stacked labels, in pixels */
 const LABEL_FORCE_OPTIONS = { nodeSpacing: 2 };
+
+/** How far the label's leader line continues past each end, in pixels: left
+ * into the column to meet the surface line, right under the tag body. */
+const LABEL_CONNECTOR_OVERHANG: [number, number] = [8, 6];
 
 /** A surface's label: its calibration interval as the standard interval tag
  * (with the position within the interval as the tag's detail), and the

@@ -9,7 +9,16 @@
   --surface-color-modeled: var(--pz-neutral-500, #8f99a8)
   --surface-color-unspecified: var(--pz-neutral-400, #abb3bf)
   --surface-color-derived: var(--pz-intent-success, #238551)
-  --surface-selected-color: var(--column-cursor-color, var(--pz-accent-color, #f0b429))
+  // The selection color is the column's, so a selected surface and a selected
+  // unit read as the same act
+  --surface-selected-color: var(--column-selection-color, var(--pz-accent-color, #7961db))
+  // Surfaces are drawn at one weight — the status shows in the dash pattern
+  // and the color, not the thickness — and the label's leader line matches it,
+  // so the stroke reads as continuous from the column into the tag.
+  --surface-line-width: 2px
+  --surface-leader-width: var(--surface-line-width)
+  // The outline of the box around a selected surface line
+  --surface-selection-width: 2px
 
 // Map statuses to a single color token that the lines, markers and tags share
 .status-absolute
@@ -27,31 +36,21 @@
 .status-derived
   --surface-color: var(--surface-color-derived)
 
-// Line weight and pattern follow how the age is constrained: dated surfaces
-// are solid and heavy, interval-relative ones solid and lighter, interpolated
-// ones dotted, imposed ones dashed.
-.status-absolute
+// The dash pattern follows how the age is constrained: dated and
+// interval-relative surfaces are solid, interpolated and unspecified ones
+// dotted, imposed ones dashed. Weight is constant.
+.status-absolute, .status-relative, .status-spike
   --surface-line-style: solid
-  --surface-line-width: 2.5px
-.status-relative, .status-spike
-  --surface-line-style: solid
-  --surface-line-width: 2px
 .status-imposed
   --surface-line-style: dashed
-  --surface-line-width: 2px
-.status-modeled, .status-unspecified
+.status-modeled, .status-unspecified, .status-derived
   --surface-line-style: dotted
-  --surface-line-width: 2px
-.status-derived
-  --surface-line-style: dotted
-  --surface-line-width: 1.5px
 
 // Unconformable contacts are drawn as a double rule
 .type-unconformity, .type-disconformity, .type-non-conformity, .type-angular-unconformity
   --surface-line-double: 1
 .type-fault
   --surface-line-style: dashed
-  --surface-line-width: 2px
 
 .column-surface-lines
   position: absolute
@@ -85,11 +84,11 @@
     border-top-width: calc(var(--surface-line-width, 1px) + 1px)
     filter: brightness(0.8)
 
-  &.selected .surface-line-inner
-    border-top-color: var(--surface-selected-color)
-    border-top-style: solid
-    border-top-width: calc(var(--surface-line-width, 1px) + 1px)
-    box-shadow: 0 0 0 1px var(--column-background-color, #fff), 0 0 0 2px var(--surface-selected-color)
+  // Selection outlines the box around the line; the line inside keeps the
+  // color of the interval it marks
+  &.selected
+    outline: var(--surface-selection-width) solid var(--surface-selected-color)
+    background-color: var(--pz-selected-background-color, transparent)
 
 // Double rule for unconformable contacts
 .surface-line
@@ -105,13 +104,15 @@
     display: none
   :global(.note-inner)
     margin: 2px 5px
-  // The leader line carries the surface's color (set per note as
-  // `--note-color`) and the weight of the line it points at
+  // The leader continues past both of its ends (`connectorOverhang`), so it
+  // has to paint outside the notes SVG: left over the gap to the column, right
+  // under the tag body
+  svg
+    overflow: visible
+  // It carries the surface's color (set per note as `--note-color`) and the
+  // weight of the line it runs into
   :global(.link)
-    stroke-width: 1.5
-  // No endpoint marker: the leader runs into the surface line itself
-  :global(.height-range) circle
-    display: none
+    stroke-width: var(--surface-leader-width)
 
 .surface-label
   display: flex
@@ -125,9 +126,9 @@
   color: var(--column-text-color)
   &:hover
     background-color: var(--pz-hover-background-color, rgba(128, 128, 128, 0.12))
-  &.selected
-    background-color: var(--pz-active-background-color, rgba(128, 128, 128, 0.2))
-    box-shadow: inset 2px 0 0 var(--surface-selected-color)
+  // Selection reads in the text itself rather than as a card around it
+  &.selected .surface-label-primary
+    font-weight: 700
 
 .surface-label-marker
   flex: none

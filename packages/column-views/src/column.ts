@@ -66,6 +66,10 @@ interface BaseColumnProps extends Omit<
   // Timescale properties
   showTimescale?: boolean;
   timescaleLevels?: number | [number, number];
+  /** Regional or project timescales drawn as extra columns beside the
+   * international one (see `CompositeTimescale`). Narrow `timescaleLevels` by
+   * as many to swap the finest level for them rather than widen the column. */
+  additionalTimescales?: number[];
   /** Called when a timescale interval is clicked (e.g. to zoom the age range). */
   onClickTimescaleInterval?: TimescaleClickHandler;
   /** Per-interval style for the timescale (e.g. to bold the selected interval). */
@@ -121,6 +125,7 @@ export function Column(props: ColumnProps) {
     unconformityHeight = 30,
     targetUnitHeight = 20,
     pixelScale,
+    heightMultiplier,
     minPixelScale = 0.2,
     minSectionHeight = 50,
     windowPadding = 0,
@@ -168,6 +173,7 @@ export function Column(props: ColumnProps) {
     targetUnitHeight: _targetUnitHeight,
     unconformityHeight,
     pixelScale,
+    heightMultiplier,
     minPixelScale: _minPixelScale,
     minSectionHeight: _minSectionHeight,
     windowPadding,
@@ -237,6 +243,7 @@ function ColumnInner(props: ColumnInnerProps) {
     children,
     showTimescale,
     timescaleLevels,
+    additionalTimescales,
     maxInternalColumns,
     onMouseOver,
     onClickTimescaleInterval,
@@ -287,6 +294,7 @@ function ColumnInner(props: ColumnInnerProps) {
       h(ageAxisComponent),
       h.if(_showTimescale)(CompositeTimescale, {
         levels: timescaleLevels,
+        additionalTimescales,
         unconformityLabels: _timescaleUnconformityLabels,
         onClickInterval: onClickTimescaleInterval,
         intervalStyle: timescaleIntervalStyle,

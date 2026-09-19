@@ -3,14 +3,23 @@ import {
   LabelTrackerProvider,
   SectionLabelsColumn,
 } from "./units";
-import { ReactNode, FunctionComponent, useMemo } from "react";
+import {
+  type CSSProperties,
+  ReactNode,
+  FunctionComponent,
+  useMemo,
+} from "react";
 import {
   Timescale,
   TimescaleOrientation,
   TimescaleClickHandler,
-  useMacrostratIntervals,
+  useMacrostratTimescales,
+  type Interval,
   type IntervalStyleBuilder,
 } from "@macrostrat/timescale";
+
+/** Macrostrat's international timescale, the default for a column */
+const INTERNATIONAL_TIMESCALE_ID = 11;
 import { ColumnAxisType, SVG } from "@macrostrat/column-components";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
@@ -19,10 +28,6 @@ import {
   useMacrostratUnits,
   MacrostratColumnProvider,
 } from "./data-provider";
-import {
-  useMacrostratBaseURL,
-  useMacrostratData,
-} from "@macrostrat/data-provider";
 import { Duration } from "./unit-details";
 import { Value } from "@macrostrat/data-components";
 import type { ExtUnit, PackageScaleLayoutData } from "./prepare-units/types";
@@ -207,6 +212,17 @@ interface CompositeTimescaleProps {
   onClickInterval?: TimescaleClickHandler;
   /** Per-interval style (e.g. to highlight the currently selected interval). */
   intervalStyle?: IntervalStyleBuilder;
+  /** The timescale to draw. Defaults to the international one; any other
+   * Macrostrat timescale (a regional or project-specific set of intervals)
+   * can be drawn in its place. */
+  timescaleID?: number;
+  /** Further timescales drawn as extra level columns beside the main one,
+   * against the same scale. Regional and project timescales are flat — one
+   * level of intervals — so each adds a single column. Pair this with a
+   * narrower `levels` window to *replace* the finest level rather than widen
+   * the timescale. */
+  additionalTimescales?: number[];
+  className?: string;
 }
 
 export function CompositeTimescale(props: CompositeTimescaleProps) {
@@ -226,6 +242,38 @@ type CompositeTimescaleCoreProps = CompositeTimescaleProps & {
   onClickInterval?: TimescaleClickHandler;
 };
 
+/** One more timescale beside the leveled one, sharing its scale so the two
+ * line up. Regional and project timescales come back flat, so this draws a
+ * single column of intervals. */
+function AdditionalTimescale(props: {
+  intervals: Interval[];
+  length: number;
+  scale: any;
+  onClickInterval?: TimescaleClickHandler;
+  intervalStyle?: IntervalStyleBuilder;
+}) {
+  const { intervals, length, scale, onClickInterval, intervalStyle } = props;
+
+  return h(Timescale, {
+    orientation: TimescaleOrientation.VERTICAL,
+    length,
+    levels: [1, 1],
+    absoluteAgeScale: true,
+    showAgeAxis: false,
+    scale,
+    intervals,
+    onClick: onClickInterval,
+    intervalStyle,
+    // A flat timescale is one column wide
+    style: levelCountStyle(1),
+  });
+}
+
+/** How wide a timescale draws: one slot per level it shows. */
+function levelCountStyle(levelCount: number): CSSProperties {
+  return { "--timescale-level-count": levelCount } as CSSProperties;
+}
+
 export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
   const {
     levels = 3,
@@ -233,11 +281,21 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
     unconformityLabels = false,
     onClickInterval,
     intervalStyle,
+    timescaleID,
+    additionalTimescales = [],
+    className,
   } = props;
 
-  // Use intervals from Macrostrat API
-  const baseURL = useMacrostratBaseURL();
-  const intervals = useMacrostratIntervals({ baseURL });
+  // Every timescale drawn here is fetched in one place: a column is split into
+  // sections, and fetching per section would ask for the same timescale once
+  // per section per extra timescale.
+  const mainTimescaleID = timescaleID ?? INTERNATIONAL_TIMESCALE_ID;
+  const timescaleIDs = useMemo(
+    () => [mainTimescaleID, ...additionalTimescales],
+    [mainTimescaleID, additionalTimescales.join(",")],
+  );
+  const intervalSets = useMacrostratTimescales(timescaleIDs);
+  const intervals = intervalSets.get(mainTimescaleID) ?? [];
 
   let _levels: [number, number];
   if (typeof levels === "number") {
@@ -247,16 +305,19 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
     _levels = levels;
   }
 
-  const nCols = _levels[1] - _levels[0] + 1;
+  // Each timescale sizes itself from its own level count. The count can't live
+  // on the container they share, because custom properties inherit: set there,
+  // every timescale inside would take the full width of all of them.
+  const mainLevelCount = _levels[1] - _levels[0] + 1;
 
-  return h("div.timescale-column", [
+  return h("div.timescale-column", { className }, [
     h(
       "div.timescales",
       packages.map((group) => {
         const { pixelHeight, paddingTop, key, scale } = group;
         return h(
-          "div.timescale-container",
-          { style: { paddingTop, "--timescale-level-count": nCols }, key },
+          "div.section-timescales",
+          { style: { paddingTop }, key },
           [
             h(Timescale, {
               orientation: TimescaleOrientation.VERTICAL,
@@ -268,7 +329,18 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
               intervals,
               onClick: onClickInterval,
               intervalStyle,
+              style: levelCountStyle(mainLevelCount),
             }),
+            ...additionalTimescales.map((id) =>
+              h(AdditionalTimescale, {
+                key: id,
+                intervals: intervalSets.get(id) ?? [],
+                length: pixelHeight,
+                scale,
+                onClickInterval,
+                intervalStyle,
+              }),
+            ),
           ],
         );
       }),
