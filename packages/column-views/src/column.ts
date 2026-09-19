@@ -49,10 +49,6 @@ import {
   ColumnHeightScaleOptions,
 } from "./prepare-units";
 import { UnitLong } from "@macrostrat/api-types";
-import type {
-  TimescaleClickHandler,
-  IntervalStyleBuilder,
-} from "@macrostrat/timescale";
 import { NonIdealState } from "@blueprintjs/core";
 import { DataField } from "@macrostrat/data-components";
 import { ScaleContinuousNumeric } from "d3-scale";
