@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.1] - 2026-09-21 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.3.0...@macrostrat/data-provider-v1.3.1)
+
+### Patch Changes
+
+- Fix three bugs in cached interval fetching: a request for one timescale no
+  [1b694ccf](https://github.com/UW-Macrostrat/web-components/commit/1b694ccfcc40321a6edc609b8c07106a87164a3b)
+  longer strips intervals out of the timescales fetched before it, a duplicate
+  request in flight shares the first one's response rather than resolving to
+  nothing, and fetched intervals merge into current store state rather than a
+  pre-fetch snapshot
+- Updated dependencies
+  [ea700ff1](https://github.com/UW-Macrostrat/web-components/commit/ea700ff1e7725703d971e3cac440fad0f7540a65)
+  - @macrostrat/api-types@1.4.0
+
 ## [1.3.0] - 2026-09-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.2.1...@macrostrat/data-provider-v1.3.0)
 
 ### Minor Changes
