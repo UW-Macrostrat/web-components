@@ -42,6 +42,8 @@ export interface SectionSharedProps {
   columnWidth?: number;
   children?: ReactNode;
   showLabelColumn?: boolean;
+  /** Suppress the label for a unit drawn thinner than this many pixels */
+  labelSuppressHeight?: number;
   axisType?: ColumnAxisType;
   className?: string;
   clipUnits?: boolean;
@@ -68,6 +70,7 @@ export function SectionsColumn(props: SectionSharedProps) {
     showLabelColumn = true,
     clipUnits = true,
     maxInternalColumns,
+    labelSuppressHeight,
   } = props;
 
   const units = useMacrostratUnits();
@@ -87,6 +90,7 @@ export function SectionsColumn(props: SectionSharedProps) {
     }),
     h.if(showLabelColumn)(SectionLabelsColumn, {
       width: width - columnWidth,
+      labelSuppressHeight,
     }),
   ]);
 }
@@ -103,7 +107,8 @@ function SectionUnitsColumn(props: SectionSharedProps) {
     unconformityLabels = true,
   } = props;
 
-  const { sections, totalHeight } = useMacrostratColumnData();
+  const { sections, totalHeight, axisType: columnAxisType } =
+    useMacrostratColumnData();
 
   const scaleData: PackageScaleLayoutData[] = sections.map((section) => {
     return section.scaleInfo;
@@ -143,6 +148,9 @@ function SectionUnitsColumn(props: SectionSharedProps) {
     h.if(unconformityLabels)(UnconformityLabels, {
       width,
       sections: scaleData,
+      // A gap between sections is measured in whatever the axis is: metres
+      // down a core, Myr across a time column
+      axisType: axisType ?? columnAxisType,
       verbose: false,
     }),
   ]);

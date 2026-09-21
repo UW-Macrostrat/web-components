@@ -31,6 +31,7 @@ import { type ColumnHeightScaleOptions, SectionInfo } from "./types";
 
 export * from "./utils";
 export * from "./types";
+export * from "./density";
 export { preprocessUnits };
 export type { CompositeColumnScale };
 
@@ -45,40 +46,6 @@ export function usePreparedColumnUnits(
     return prepareColumnUnits(data, options);
   }, [data, ...Object.values(options)]);
 }
-
-/** Apply `heightMultiplier` to the options that set how tall a section is
- * drawn. Multiplying all of them together scales the output heights exactly —
- * the density heuristic, the explicit scale, and both floors move as one, so
- * nothing changes but the size. Values the caller left unset stay unset (a
- * `null` `targetUnitHeight` means "a fixed pixel scale is in charge"), except
- * that a column relying on the default unit height still stretches. */
-function stretchHeights(
-  options: PrepareColumnOptions,
-  multiplier: number,
-): Partial<ColumnHeightScaleOptions> {
-  if (multiplier === 1) return {};
-
-  const stretched: Partial<ColumnHeightScaleOptions> = {};
-  const keys = [
-    "pixelScale",
-    "targetUnitHeight",
-    "minPixelScale",
-    "minSectionHeight",
-  ] as const;
-  for (const key of keys) {
-    const value = options[key];
-    if (value != null) stretched[key] = value * multiplier;
-  }
-
-  // Nothing set the density, so the default unit height is what's in charge
-  if (options.targetUnitHeight === undefined && options.pixelScale == null) {
-    stretched.targetUnitHeight = DEFAULT_TARGET_UNIT_HEIGHT * multiplier;
-  }
-  return stretched;
-}
-
-/** Mirrors the default in `buildSectionScale` */
-const DEFAULT_TARGET_UNIT_HEIGHT = 20;
 
 export function prepareColumnUnits(
   units: UnitWithLayoutHints<UnitLong>[],
@@ -96,7 +63,6 @@ export function prepareColumnUnits(
     hybridScale,
     scale,
     windowPadding = 0,
-    heightMultiplier = 1,
   } = options;
 
   let _totalHeight: number | null = null;
@@ -127,14 +93,28 @@ export function prepareColumnUnits(
   // also set up some values for eODP-style columns
   let units1 = units.map(preprocessSectionUnit);
 
-  if (clipBeforeLayout) {
+  /** A bound that isn't set doesn't bound anything. Passing `null` for one is
+   * the ordinary way to say "no window", and comparing against it as though
+   * it were an age would throw every unit out. */
+  const window = {
+    t_age: t_age ?? -Infinity,
+    b_age: b_age ?? Infinity,
+    t_pos: t_pos ?? -Infinity,
+    b_pos: b_pos ?? Infinity,
+  };
+  const isWindowed =
+    axisType == ColumnAxisType.AGE
+      ? t_age != null || b_age != null
+      : t_pos != null || b_pos != null;
+
+  if (clipBeforeLayout && isWindowed) {
     /** Prototype filtering to age range */
     units1 = units1.filter((d) => {
       // Filter units by t_age and b_age, inclusive
       if (axisType == ColumnAxisType.AGE) {
-        return agesOverlap(d, { t_age, b_age });
+        return agesOverlap(d, window);
       } else {
-        return unitsOverlap(d, { t_pos, b_pos } as any, axisType);
+        return unitsOverlap(d, window as any, axisType);
       }
     });
   }
@@ -209,11 +189,7 @@ export function prepareColumnUnits(
     ? null
     : [b_age ?? Infinity, t_age ?? -Infinity];
 
-  const layoutOptions = {
-    ...options,
-    ...stretchHeights(options, heightMultiplier),
-    visibleWindow: focalWindow,
-  };
+  const layoutOptions = { ...options, visibleWindow: focalWindow };
 
   /* Compute pixel scales etc. for sections
    * We need to do this now to determine which unconformities
@@ -249,8 +225,11 @@ export function prepareColumnUnits(
     const floor =
       layoutOptions.minSectionHeight ?? layoutOptions.targetUnitHeight ?? 0;
     const scales = resolveWindowScales(sectionsWithScales, focalWindow, floor);
-    const scaleFor = (section) =>
+    const natural = (section) =>
       scales.get(section) ?? section.scaleInfo.pixelScale;
+
+
+    const scaleFor = natural;
 
     const window =
       windowPadding > 0

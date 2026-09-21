@@ -201,7 +201,7 @@ function SurfaceNavigation(props: SurfaceNavigationProps) {
         units,
         surfaces,
         zoom,
-        heightMultiplier: verticalZoom.heightMultiplier,
+        targetUnitHeight: verticalZoom.targetUnitHeight,
         windowPadding,
         columnName: info?.col_name,
         mode,
@@ -253,8 +253,8 @@ interface ColumnPaneProps {
   units: UnitLong[] | null;
   surfaces: ColumnSurface[];
   zoom: TimescaleZoom;
-  /** Fixed multiplier on the heights the layout works out */
-  heightMultiplier?: number;
+  /** Pixels for a typical unit: how much height the column is given */
+  targetUnitHeight?: number;
   windowPadding?: number;
   columnName?: string;
   mode: SelectionMode;
@@ -274,7 +274,7 @@ function ColumnPane(props: ColumnPaneProps) {
     units,
     surfaces,
     zoom,
-    heightMultiplier,
+    targetUnitHeight,
     windowPadding,
     columnName,
     mode,
@@ -325,7 +325,7 @@ function ColumnPane(props: ColumnPaneProps) {
         // "Interval zoom" story for the mechanics
         ...zoom.columnProps,
         windowPadding,
-        heightMultiplier,
+        targetUnitHeight,
       },
       h(ColumnSurfaces, {
         surfaces,

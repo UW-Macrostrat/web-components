@@ -59,6 +59,9 @@ interface BaseColumnProps extends Omit<
 > {
   className?: string;
   showLabelColumn?: boolean;
+  /** Suppress the label for a unit drawn thinner than this many pixels
+   * (default 2) */
+  labelSuppressHeight?: number;
   keyboardNavigation?: boolean;
   showLabels?: boolean;
   maxInternalColumns?: number;
@@ -132,8 +135,10 @@ export function Column(props: ColumnProps) {
     b_pos,
     unconformityHeight = 30,
     targetUnitHeight = 20,
+    sectionOptions,
     pixelScale,
-    heightMultiplier,
+    pixelsPerMyr,
+    pixelsPerMeter,
     minPixelScale = 0.2,
     minSectionHeight = 50,
     windowPadding = 0,
@@ -148,16 +153,9 @@ export function Column(props: ColumnProps) {
     ...rest
   } = props;
 
-  /* Make pixelScale and targetUnitHeight mutually exclusive. PixelScale implies
-   * standardization of scales in all sections */
-  let _targetUnitHeight: number | null = targetUnitHeight;
-  let _minSectionHeight = minSectionHeight;
-  let _minPixelScale = minPixelScale;
-  if (pixelScale != null) {
-    _targetUnitHeight = null;
-    _minSectionHeight = 0;
-    _minPixelScale = pixelScale;
-  }
+  /* `pixelScale` and `targetUnitHeight` are alternatives: a density stated
+   * outright takes over from the one a section's units imply, floors and all.
+   * That is settled in `prepare-units/density`, so nothing is adjusted here. */
 
   // Handle special cases for hybrid scales (WIP, we need to regularize this)
   let _axisType = axisType ?? ColumnAxisType.AGE;
@@ -178,12 +176,14 @@ export function Column(props: ColumnProps) {
     t_pos,
     b_pos,
     mergeSections,
-    targetUnitHeight: _targetUnitHeight,
+    targetUnitHeight,
+    sectionOptions,
     unconformityHeight,
     pixelScale,
-    heightMultiplier,
-    minPixelScale: _minPixelScale,
-    minSectionHeight: _minSectionHeight,
+    pixelsPerMyr,
+    pixelsPerMeter,
+    minPixelScale,
+    minSectionHeight,
     windowPadding,
     collapseSmallUnconformities,
     // TODO: consider unifying scale and hybridScale options
@@ -246,6 +246,7 @@ function ColumnInner(props: ColumnInnerProps) {
     width: _width = 300,
     columnWidth: _columnWidth = 150,
     showLabelColumn: _showLabelColumn = true,
+    labelSuppressHeight,
     className,
     clipUnits = false,
     children,
@@ -317,6 +318,7 @@ function ColumnInner(props: ColumnInnerProps) {
         width,
         columnWidth,
         showLabelColumn,
+        labelSuppressHeight,
         clipUnits,
         unconformityLabels: _sectionUnconformityLabels,
         maxInternalColumns,

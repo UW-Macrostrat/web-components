@@ -234,7 +234,7 @@ function SurfaceTimescalesColumn(props: SurfaceTimescalesProps) {
         showTimescaleLabels,
         timescaleIntervalStyle: intervalStyle,
         onClickTimescaleInterval,
-        heightMultiplier: verticalZoom.heightMultiplier,
+        targetUnitHeight: verticalZoom.targetUnitHeight,
         columnWidth: 180,
         width: 350,
         // Room above the column for the timescale names
