@@ -19,7 +19,9 @@
   --surface-leader-width: var(--surface-line-width)
   // The outline of the box around a selected surface line
   --surface-selection-width: 2px
-  --column-note-padding: 0px
+  // The tags keep the standard inset: it is what centers a note on the line
+  // that points at it, and it puts the tag's left edge exactly where the
+  // leader line ends, which the leader's overhang then tucks under
 
 // Map statuses to a single color token that the lines, markers and tags share
 .status-absolute

@@ -589,7 +589,14 @@ export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
       _diff(heights.map(currentSection.scaleInfo.scale)),
     ];
 
-    const pxHeight = Math.min(...pxHeights);
+    /** The gap has no density of its own — it falls between two sections that
+     * may be drawn at very different ones — so it is judged at the finer of
+     * the two. Taking the smaller estimate let a sparse neighbor speak for a
+     * gap the other neighbor would have drawn many times larger: a 16 Myr
+     * hiatus in column 22 read as 26px against one section and 166px against
+     * the other, and collapsed. A gap is only worth hiding when neither scale
+     * would give it more room than the break that replaces it. */
+    const pxHeight = Math.max(...pxHeights);
 
     if (pxHeight < threshold) {
       let t_pos: number;

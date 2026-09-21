@@ -30,11 +30,13 @@ export type SectionDensityLike = number | SectionDensity;
 
 /** Room for a typical unit on screen: `px` tall, whatever its duration.
  *
- * "Typical" is the geometric mean of the visible extents. Unit durations are
- * spread over orders of magnitude, so the arithmetic mean sits well above any
- * unit you would point at — a couple of long ones in a section drag it up and
- * everything shorter is squeezed below the target. The geometric mean is the
- * centre of a spread like that, and it takes no parameter to say so.
+ * "Typical" is the median of the visible extents, which is the only summary
+ * that survives both tails. Unit durations are spread over orders of
+ * magnitude: the arithmetic mean sits above any unit you would point at, so a
+ * couple of long ones squeeze everything else below the target — and the
+ * geometric mean fails the other way, since a single hair-thin unit (a
+ * Holocene sliver beside a Pliocene terrace, say) drags the log-average down
+ * and stretches the whole section to give that sliver its 20 pixels.
  */
 export function unitHeight(px: number): SectionDensity {
   return (ctx) => px / typicalExtent(ctx.unitExtents);
@@ -74,10 +76,12 @@ export function resolveDensity(
 }
 
 function typicalExtent(extents: number[]): number {
-  const positive = extents.filter((d) => d > 0);
-  if (positive.length === 0) return NaN;
-  const logSum = positive.reduce((total, d) => total + Math.log(d), 0);
-  return Math.exp(logSum / positive.length);
+  const sorted = extents.filter((d) => d > 0).sort((a, b) => a - b);
+  if (sorted.length === 0) return NaN;
+  const mid = (sorted.length - 1) / 2;
+  const lower = Math.floor(mid);
+  const upper = Math.ceil(mid);
+  return (sorted[lower] + sorted[upper]) / 2;
 }
 
 /** Mirrors the default in `sectionDensity` */

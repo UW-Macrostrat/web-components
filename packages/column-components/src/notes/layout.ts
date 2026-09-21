@@ -262,12 +262,20 @@ class NoteLayoutProvider extends StatefulComponent<
     if (height == null) {
       return;
     }
-    const { elementHeights } = this.state;
-    if (elementHeights[id] === height) return;
-    // A new object, so `componentDidUpdate` can see that heights changed and
-    // re-run the force layout with the measured sizes
-    const nextHeights = { ...elementHeights, [id]: height };
-    return this.updateState({ elementHeights: { $set: nextHeights } });
+    /** Through the updater, not from `this.state`: every note measures itself
+     * in the same tick, so each would build its new object from the same
+     * pre-measurement copy and the last one would be the only height kept.
+     * The layout would then place all of them at the 10px guess — which is
+     * what it did, until labels of two lines had no room to be two lines.
+     *
+     * A new object each time, so `componentDidUpdate` can see that heights
+     * changed and re-run the force layout with the measured sizes.
+     */
+    this.setState((prevState) => {
+      const { elementHeights } = prevState;
+      if (elementHeights[id] === height) return null;
+      return { elementHeights: { ...elementHeights, [id]: height } };
+    });
   }
 
   updateNotes() {
