@@ -5,8 +5,8 @@
 
 import { MacrostratInterval } from "@macrostrat/api-types";
 import { defaultIntervals } from "./intervals";
-import { useMemo } from "react";
-import { useMacrostratData } from "@macrostrat/data-provider";
+import { useEffect, useMemo, useState } from "react";
+import { useMacrostratData, useMacrostratStore } from "@macrostrat/data-provider";
 import { Interval } from "./types";
 
 interface FetchIntervalsOptions {
@@ -141,12 +141,81 @@ export function useMacrostratIntervals(
     if (data == null) {
       return [];
     }
-    let treeBuilder = buildTree;
-    if (timescaleID === 11) {
-      treeBuilder = buildInternationalIntervalsTree;
-    }
-    return treeBuilder(data);
+    return treeBuilderFor(timescaleID, buildTree)(data);
   }, [data, buildTree]);
+}
+
+/** Get interval trees for several timescales at once, keyed by timescale ID.
+ *
+ * Views that show timescales side by side (against a shared scale, say) need
+ * every timescale's intervals in one place — to build a scale that spans all
+ * of them, for instance. Calling `useMacrostratIntervals` once per timescale
+ * can't do that: the number of timescales would set the number of hooks.
+ */
+export function useMacrostratTimescales(
+  timescaleIDs: number[],
+  opts: MacrostratIntervalsOptions = {},
+): Map<number, Interval[]> {
+  const { buildTree = defaultBuildIntervalsTree } = opts;
+  const getIntervals = useMacrostratStore((state) => state.getIntervals);
+
+  const [data, setData] = useState<Map<number, MacrostratInterval[]> | null>(
+    null,
+  );
+
+  // Identity of the array isn't stable across renders, so key the fetch on
+  // the IDs themselves
+  const key = timescaleIDs.join(",");
+
+  useEffect(() => {
+    let cancelled = false;
+    const ids = key.split(",").filter(Boolean).map(Number);
+
+    Promise.all(
+      ids.map(async (id): Promise<[number, MacrostratInterval[]]> => {
+        return [id, await getIntervals(null, id)];
+      }),
+    ).then((entries) => {
+      if (cancelled) return;
+      // Merged, not replaced: changing the set of timescales shouldn't blank
+      // out the ones already loaded while the new one is fetched
+      setData((previous) => {
+        const next = new Map(previous ?? []);
+        for (const [id, intervals] of entries) {
+          next.set(id, intervals);
+        }
+        return next;
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getIntervals, key]);
+
+  return useMemo(() => {
+    const trees = new Map<number, Interval[]>();
+    if (data == null) {
+      return trees;
+    }
+    for (const [id, intervals] of data) {
+      if (intervals == null || intervals.length == 0) continue;
+      trees.set(id, treeBuilderFor(id, buildTree)(intervals));
+    }
+    return trees;
+  }, [data, buildTree]);
+}
+
+/** The international timescale is the only one with a real hierarchy; the
+ * rest are flat lists of intervals. */
+function treeBuilderFor(
+  timescaleID: number,
+  buildTree: (intervals: MacrostratInterval[]) => Interval[],
+) {
+  if (timescaleID === 11) {
+    return buildInternationalIntervalsTree;
+  }
+  return buildTree;
 }
 
 function defaultBuildIntervalsTree(

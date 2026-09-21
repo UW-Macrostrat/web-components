@@ -9,6 +9,8 @@ interface HeightRangeAnnotationProps {
   color?: string;
   lineInset?: number;
   circleRadius?: number;
+  /** Draw the circle marking a note with no extent (default `true`) */
+  showPointMarker?: boolean;
 }
 
 function HeightRangeAnnotation(props: HeightRangeAnnotationProps) {
@@ -20,6 +22,7 @@ function HeightRangeAnnotation(props: HeightRangeAnnotationProps) {
     color,
     lineInset = 1,
     circleRadius = 2,
+    showPointMarker = true,
     ...rest
   } = props;
 
@@ -45,7 +48,7 @@ function HeightRangeAnnotation(props: HeightRangeAnnotationProps) {
       y1: lineInset,
       y2: pxHeight - lineInset,
     }),
-    h.if(!isLine)("circle", {
+    h.if(!isLine && showPointMarker)("circle", {
       r: circleRadius,
       transform: `translate(0,${pxHeight / 2})`,
     }),

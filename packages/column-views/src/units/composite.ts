@@ -118,6 +118,8 @@ type ICompositeUnitProps = BaseUnitProps & {
   showLabelColumn?: boolean;
   noteComponent?: React.FC<any>;
   shouldRenderNote?: (d: any) => boolean;
+  /** Suppress the label for a unit drawn thinner than this many pixels */
+  labelSuppressHeight?: number;
 };
 
 interface CompositeUnitProps {
@@ -159,6 +161,13 @@ export function AnnotatedUnitsColumn(props: ICompositeUnitProps) {
   return null;
 }
 
+/** A unit drawn thinner than this gets no label. The notes column can place
+ * a label away from its unit and run a leader line back, so a thin unit is
+ * labelable in principle — but below a pixel or two there is nothing on the
+ * page to lead back to, and a dense column spends its labels on units the
+ * reader cannot see. */
+const DEFAULT_LABEL_SUPPRESS_HEIGHT = 2;
+
 export function SectionLabelsColumn(props: ICompositeUnitProps) {
   // Section with "squishy" time scale
   const {
@@ -167,6 +176,7 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
     labelOffset = 30,
     noteComponent,
     shouldRenderNote,
+    labelSuppressHeight = DEFAULT_LABEL_SUPPRESS_HEIGHT,
   } = props;
 
   const { totalHeight, axisType } = useMacrostratColumnData();
@@ -198,6 +208,7 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
           divisions: unitsToLabel,
           paddingLeft: labelOffset,
           width,
+          minimumHeight: labelSuppressHeight,
           noteComponent,
           shouldRenderNote,
           scale: _compositeScale,

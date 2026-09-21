@@ -1,5 +1,174 @@
 # Changelog
 
+## [3.12.0] - 2026-09-21 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.11.0...@macrostrat/column-views-v3.12.0)
+
+### Minor Changes
+
+- Reduce the options that set how tall a column draws to the few that say
+  [0614432f](https://github.com/UW-Macrostrat/web-components/commit/0614432fe94bfd2c222375b9add8f7ac100e33c3)
+  different things. They all resolve to one quantity — density, the pixels given
+  to one unit of the axis.
+
+  `targetUnitHeight` is the usual knob: room for a typical unit, now the
+  geometric mean of the visible units' extents rather than their arithmetic
+  mean, which a few long units skew far above anything on screen.
+  `minSectionHeight` and `minPixelScale` floor it for legibility. `pixelScale`
+  is the alternative: a density stated outright, which is then the density — the
+  floors no longer apply to it, since they would undo the scale you stated, and
+  `Column` no longer adjusts them behind the scenes. It is quoted in whatever
+  the axis measures, so `pixelsPerMyr` and `pixelsPerMeter` spell it per axis,
+  the way `t_age` and `t_pos` already do for the window: both can be held at
+  once and the axis picks, since useful values for the two differ by orders of
+  magnitude. `sectionOptions` decides any of these per section, given what the
+  section holds.
+
+  `heightMultiplier` is gone — asking for more room per unit is the same
+  control, and leaves the legibility floors where they belong — as is the
+  internal `visibleWindow`, which only restated `t_age`/`b_age`.
+
+- Add a surfaces view for a column's age model. `ColumnSurfaces`, dropped into a
+  [ea700ff1](https://github.com/UW-Macrostrat/web-components/commit/ea700ff1e7725703d971e3cac440fad0f7540a65)
+  `Column` as a child, draws the column's calibration surfaces from the
+  `/age_model` route as lines across the units (`ColumnSurfaceLines`) and as a
+  collision-avoiding notes column of labels beside them (`ColumnSurfaceLabels`),
+  styled by `boundary_status` and `boundary_type`, with hover and selection.
+  Labels use the standard `IntervalTag` for the calibration interval (with the
+  position within it) over the modeled age, are drawn by default only for the
+  tie points where the age model was constrained (absolute, relative, spike,
+  imposed — `labelStatuses` widens this), and take the label column over from
+  the unit labels while mounted (`useClaimLabelColumn`, a new way for a column's
+  children to claim that space). `SurfaceDetailsPanel` inspects a selected
+  surface — model age, calibration interval and position within it, the units it
+  separates, provenance — and `SurfaceStatusLegend` explains the line styles.
+
+  The view is data-agnostic: `useColumnAgeModel` fetches boundaries through the
+  `MacrostratDataProvider` base URL (the old overlay hardcoded the dev server),
+  `surfacesFromBoundaries` maps them to `ColumnSurface` records, and
+  `surfacesFromUnits` derives surfaces from unit tops and bottoms as the
+  fallback for columns without `unit_boundaries` (or for an editor's own state).
+  `BoundaryAgeModelOverlay` and `ComputedSurfacesOverlay` remain as deprecated
+  wrappers. `ColumnNotes` gains `onClickNote` and `className` passthroughs.
+
+  `@macrostrat/api-types` gains `AgeModelBoundary` and the `BoundaryStatus` /
+  `BoundaryType` vocabularies, mirroring the database enums.
+
+- Draw several timescales beside a column. A new `timescales` prop takes them in
+  [1b694ccf](https://github.com/UW-Macrostrat/web-components/commit/1b694ccfcc40321a6edc609b8c07106a87164a3b)
+  order, each a Macrostrat timescale ID or a timescale carrying its own
+  intervals, levels and label — the international timescale is one of these
+  rather than a special case. Clicks and per-interval styles report which
+  timescale they came from, so the same interval drawn in two of them can be
+  told apart, and `useTimescaleZoom` treats a click in another timescale as
+  moving the selection rather than zooming out. Timescales are fetched in one
+  place rather than once per section.
+- Suppress unit labels below a pixel height, rather than labeling units too thin
+  [0614432f](https://github.com/UW-Macrostrat/web-components/commit/0614432fe94bfd2c222375b9add8f7ac100e33c3)
+  to see: `labelSuppressHeight` on `Column`, 2px by default. A gap between
+  sections is also labeled in the units of the axis, so a drill core reads
+  metres rather than Myr.
+- One selection color across a column: `--column-selection-color` (the accent
+  [1b694ccf](https://github.com/UW-Macrostrat/web-components/commit/1b694ccfcc40321a6edc609b8c07106a87164a3b)
+  color, purple) drives both the unit selection overlay — now a box with an
+  outline and a light wash, rather than a heavy red fill — and the surface
+  selection.
+
+  Surface lines are drawn at a constant weight; status shows in the dash pattern
+  and color. A selected surface is outlined as a box, keeping its interval color
+  inside, and a selected label bolds its interval tag rather than sitting in a
+  card.
+
+  `useTimescaleZoom`: shift-clicking a timescale interval widens the window to
+  take it in, instead of moving the window to it. `selectedIntervals` reports
+  everything in the selection; all of them are styled as selected.
+
+  `CompositeTimescale` takes a `timescaleID` (which timescale the leveled column
+  draws) and `additionalTimescales` (further timescales drawn as extra level
+  columns beside it, against the same section scales), and is exported. `Column`
+  passes `additionalTimescales` through: narrow `timescaleLevels` by as many to
+  swap the finest international level for a regional one rather than widen the
+  timescale.
+
+  `heightMultiplier` on `Column` multiplies the heights the layout works out by
+  a fixed factor. The scaling approach is unchanged — density still comes from
+  `targetUnitHeight` and the section floors — so sections keep their proportions
+  and only the size changes; unconformity gaps and `windowPadding`, being chrome
+  rather than scale, stay put.
+
+- Infer `relative` status for age-model surfaces that cannot have been
+  [c17e6379](https://github.com/UW-Macrostrat/web-components/commit/c17e637909bbff76f7bbf4366134b0ba5c5f59ef)
+  interpolated: those sitting on the base or top of their calibration interval,
+  and the edges of gap-bound packages (the youngest surface in a section with no
+  unit above, or the oldest with none below). `boundary_status` records many of
+  these as `modeled`, so filtering to the tie-point statuses was hiding real tie
+  points. `inferTiePointStatuses` promotes them client-side and marks the result
+  `statusInferred`, which `SurfaceStatusTag` shows. On by default;
+  `inferTiePoints: false` on `ColumnSurfaces`, `useColumnSurfaces` or
+  `surfacesFromBoundaries` takes the data as recorded.
+
+  Fix surface lines drifting out of alignment with the units column: the overlay
+  measured its position once and only re-measured on its own resize, so a
+  sibling changing width — the timescale, once its intervals load — left it
+  stale.
+
+- Color age-model surfaces by the interval they are calibrated against: the
+  [acc9f478](https://github.com/UW-Macrostrat/web-components/commit/acc9f4782cbae65bfe017aa195e1b51456871822)
+  surface line and its label's leader line both take the interval's color, and
+  the lines are drawn a little heavier. The label's endpoint marker is gone —
+  the leader now runs into the surface line itself.
+
+  `SurfaceDetailsPanel` accepts a `null` surface and renders an empty state, so
+  a panel bound to a selection doesn't have to be guarded by its caller.
+
+- Add `useTimescaleZoom`: click-to-zoom navigation over geologic time, extracted
+  [af6d14e1](https://github.com/UW-Macrostrat/web-components/commit/af6d14e1da59af8d09712ed5cb750b1b6bca7cc8)
+  from the Interval zoom story. Clicking a timescale interval animates the
+  rendered age window to it, clicking the interval you are in zooms back out a
+  level, and the timescale's level window slides with the selection so finer
+  intervals come into reach as you drill. `columnProps` spreads the window, the
+  levels, the click handler and the selected-interval styling onto a `Column`.
+  `unitsAgeExtent` derives the full extent from a set of units.
+
+### Patch Changes
+
+- Notes columns re-run their force layout once the notes' rendered heights have
+  [7252f222](https://github.com/UW-Macrostrat/web-components/commit/7252f22207f63d57ef91172cf898f6b27c38725a)
+  been measured. The first layout ran on a 10px guess per note and was never
+  revisited, so notes taller than that (interval tags, two-line labels)
+  overlapped their neighbors. `ColumnNotes` also passes `forceOptions` through
+  to the layout.
+- Treat an unset age or depth bound as unbounded rather than as a real one. A
+  [0614432f](https://github.com/UW-Macrostrat/web-components/commit/0614432fe94bfd2c222375b9add8f7ac100e33c3)
+  `null` `t_age` is the ordinary way to say "no window" — it is what clearing a
+  window leaves behind — and columns laid out with a hybrid scale, which clip
+  before laying out, were dropping every unit when they saw one.
+- Judge an unconformity against the finer of the two scales it falls between,
+  [aa4fda55](https://github.com/UW-Macrostrat/web-components/commit/aa4fda557137cdb652cb3ddce98d1b5dae8109ef)
+  rather than the coarser one. A gap has no density of its own, and taking the
+  smaller estimate let a sparse neighbor speak for one the other neighbor would
+  have drawn many times larger — a 16 Myr hiatus read as 26px against one
+  section and 166px against the other, and collapsed.
+- Updated dependencies
+  [ea700ff1](https://github.com/UW-Macrostrat/web-components/commit/ea700ff1e7725703d971e3cac440fad0f7540a65)
+- Updated dependencies
+  [1b694ccf](https://github.com/UW-Macrostrat/web-components/commit/1b694ccfcc40321a6edc609b8c07106a87164a3b)
+- Updated dependencies
+  [1b694ccf](https://github.com/UW-Macrostrat/web-components/commit/1b694ccfcc40321a6edc609b8c07106a87164a3b)
+- Updated dependencies
+  [acc9f478](https://github.com/UW-Macrostrat/web-components/commit/acc9f4782cbae65bfe017aa195e1b51456871822)
+- Updated dependencies
+  [aa4fda55](https://github.com/UW-Macrostrat/web-components/commit/aa4fda557137cdb652cb3ddce98d1b5dae8109ef)
+- Updated dependencies
+  [af6d14e1](https://github.com/UW-Macrostrat/web-components/commit/af6d14e1da59af8d09712ed5cb750b1b6bca7cc8)
+- Updated dependencies
+  [7252f222](https://github.com/UW-Macrostrat/web-components/commit/7252f22207f63d57ef91172cf898f6b27c38725a)
+- Updated dependencies
+  [1b694ccf](https://github.com/UW-Macrostrat/web-components/commit/1b694ccfcc40321a6edc609b8c07106a87164a3b)
+  - @macrostrat/api-types@1.4.0
+  - @macrostrat/data-provider@1.3.1
+  - @macrostrat/timescale@3.3.0
+  - @macrostrat/column-components@2.2.0
+  - @macrostrat/stratigraphy-utils@1.4.2
+
 ## [3.11.0] - 2026-09-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.10.0...@macrostrat/column-views-v3.11.0)
 
 ### Minor Changes

@@ -10,7 +10,7 @@ import { useMacrostratDefs } from "@macrostrat/data-provider";
 import h from "./age-range.module.sass";
 import { formatProportion, formatRange } from "./utils";
 import classNames from "classnames";
-import { useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 
 export function AgeField({ unit, children, ...rest }) {
   const [_b_age, _t_age, _unit] = getAgeRange(unit);
@@ -221,8 +221,8 @@ function getProportion(age: number, interval: IntervalShort): number | null {
   return (interval.b_age - age) / (interval.b_age - interval.t_age);
 }
 
-function Proportion({ value }) {
-  let content = null;
+export function Proportion({ value }: { value: number }) {
+  let content: ReactNode | null = null;
   if (value == 0) {
     content = "base";
   } else if (value == 1) {

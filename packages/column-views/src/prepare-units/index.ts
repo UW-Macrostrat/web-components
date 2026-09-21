@@ -27,10 +27,11 @@ import {
   PreparedColumnData,
   unitsOverlap,
 } from "./utils";
-import { SectionInfo } from "./types";
+import { type ColumnHeightScaleOptions, SectionInfo } from "./types";
 
 export * from "./utils";
 export * from "./types";
+export * from "./density";
 export { preprocessUnits };
 export type { CompositeColumnScale };
 
@@ -92,14 +93,28 @@ export function prepareColumnUnits(
   // also set up some values for eODP-style columns
   let units1 = units.map(preprocessSectionUnit);
 
-  if (clipBeforeLayout) {
+  /** A bound that isn't set doesn't bound anything. Passing `null` for one is
+   * the ordinary way to say "no window", and comparing against it as though
+   * it were an age would throw every unit out. */
+  const window = {
+    t_age: t_age ?? -Infinity,
+    b_age: b_age ?? Infinity,
+    t_pos: t_pos ?? -Infinity,
+    b_pos: b_pos ?? Infinity,
+  };
+  const isWindowed =
+    axisType == ColumnAxisType.AGE
+      ? t_age != null || b_age != null
+      : t_pos != null || b_pos != null;
+
+  if (clipBeforeLayout && isWindowed) {
     /** Prototype filtering to age range */
     units1 = units1.filter((d) => {
       // Filter units by t_age and b_age, inclusive
       if (axisType == ColumnAxisType.AGE) {
-        return agesOverlap(d, { t_age, b_age });
+        return agesOverlap(d, window);
       } else {
-        return unitsOverlap(d, { t_pos, b_pos } as any, axisType);
+        return unitsOverlap(d, window as any, axisType);
       }
     });
   }
@@ -207,10 +222,14 @@ export function prepareColumnUnits(
     // stretched to `minSectionHeight`), then spend the padding budget against
     // them, so a margin is the pixels asked for rather than those pixels times
     // whatever stretch its neighbor happened to need.
-    const floor = options.minSectionHeight ?? options.targetUnitHeight ?? 0;
+    const floor =
+      layoutOptions.minSectionHeight ?? layoutOptions.targetUnitHeight ?? 0;
     const scales = resolveWindowScales(sectionsWithScales, focalWindow, floor);
-    const scaleFor = (section) =>
+    const natural = (section) =>
       scales.get(section) ?? section.scaleInfo.pixelScale;
+
+
+    const scaleFor = natural;
 
     const window =
       windowPadding > 0

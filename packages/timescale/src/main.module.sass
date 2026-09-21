@@ -1,5 +1,11 @@
 .interval
   display: flex
+  // Flex items refuse to shrink below their content by default, so a box
+  // whose label needs more room than its slot pushed the whole timescale
+  // wider than the width it was given — over the top of whatever was beside
+  // it. The per-level floor stays on `.interval-box` below.
+  min-width: 0
+  min-height: 0
 
 .interval-box
   position: relative
@@ -43,6 +49,8 @@
   .children
     flex: 1
     display: flex
+    min-width: 0
+    min-height: 0
 
   .cursor
     position: absolute
@@ -123,6 +131,11 @@
 
     :global
       .interval-label
+        // A name long enough to wrap runs onto a second vertical line, which
+        // doubles how wide the box wants to be. Labels that don't fit are
+        // abbreviated rather than wrapped.
+        white-space: nowrap
+
         .label-text
           writing-mode: vertical-lr
           transform: rotate(180deg)

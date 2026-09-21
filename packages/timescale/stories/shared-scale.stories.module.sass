@@ -1,0 +1,51 @@
+// Matches `.column-label` in the package's shared-scale stylesheet, which the
+// surface overlay has to clear
+$header-height: 40px
+$pad: 32px
+$gutter: 96px
+
+.story-frame
+  padding: $pad
+
+// Equidistant surfaces
+
+.equidistant
+  position: relative
+  width: max-content
+  // Gutter for the surface ages, which sit at the left end of each line
+  padding: $pad $pad $pad $gutter
+
+.columns
+  display: flex
+  flex-direction: row
+  align-items: flex-start
+  gap: 1em
+
+.surface-overlay
+  position: absolute
+  top: $pad + $header-height
+  left: $gutter
+  right: $pad
+  pointer-events: none
+
+.surface
+  position: absolute
+  left: 0
+  right: 0
+  // A boundary in only one of the timescales: it cuts across an interval in
+  // the other, so it is drawn more lightly
+  border-top: 1px dashed var(--text-subtle-color, #888)
+  opacity: 0.6
+
+  &.shared
+    border-top-style: solid
+    border-top-width: 2px
+    opacity: 1
+
+.surface-age
+  position: absolute
+  left: -$gutter + 16px
+  transform: translateY(-50%)
+  font-size: 10px
+  font-variant-numeric: tabular-nums
+  color: var(--text-subtle-color, var(--text-color))

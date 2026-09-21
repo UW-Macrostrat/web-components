@@ -3,6 +3,7 @@ import { agesOverlap, ensureArray, getUnitHeightRange } from "./utils";
 import { ScaleContinuousNumeric, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
 import { buildHybridScale } from "./dynamic-scales";
+import { sectionDensity } from "./density";
 import { ExtUnit, HybridScaleType, SectionInfo } from "./types";
 import type {
   ColumnScaleOptions,
@@ -120,6 +121,7 @@ function addScaleToSection<T extends UnitLong = ExtUnit>(
   const scaleInfo = buildSectionScale<T>(units, {
     ...opts,
     domain: _range,
+    sectionID: group.section_id,
   });
 
   return {
@@ -134,18 +136,17 @@ function buildSectionScale<T extends UnitLong>(
 ): PackageScaleInfo {
   const {
     targetUnitHeight = 20,
-    minPixelScale = 0.2,
     axisType,
-    minSectionHeight,
     visibleWindow,
     scale,
     hybridScale,
+    sectionID,
   } = opts;
   const domain = opts.domain ?? findSectionHeightRange(data, axisType);
 
   const dAge = Math.abs(domain[0] - domain[1]);
 
-  let _pixelScale = opts.pixelScale;
+  let _pixelScale: any = opts.pixelScale;
   let pixelHeight: number;
 
   if (hybridScale != null) {
@@ -154,7 +155,12 @@ function buildSectionScale<T extends UnitLong>(
      * This is somewhat like an ordinal scale
      */
     if (hybridScale.type === HybridScaleType.EquidistantSurfaces) {
+      // Pixels between one surface and the next: neither axis's units
       _pixelScale ??= targetUnitHeight;
+    } else {
+      // An approximate-height column is drawn from measured thickness, so it
+      // is metres per pixel whatever the axis is labeled in
+      _pixelScale = opts.pixelsPerMeter ?? _pixelScale;
     }
 
     return buildHybridScale(hybridScale, data, domain, {
@@ -164,27 +170,19 @@ function buildSectionScale<T extends UnitLong>(
   }
 
   if (scale == null) {
-    if (_pixelScale == null) {
-      const avgAgeRange = findAverageUnitHeight(data, axisType, visibleWindow);
-      // Get pixel height necessary to render average unit at target height
-      _pixelScale = Math.max(targetUnitHeight / avgAgeRange, minPixelScale);
-
-      // OLD METHOD that cares about overall section height vs. individual unit height
-      // 0.2 pixel per myr is the floor scale
-      //const targetHeight = targetUnitHeight * data.length;
-      // 1 pixel per myr is the floor scale
-      //_pixelScale = Math.max(targetHeight / dAge, minPixelScale);
-    }
-
-    let height = dAge * _pixelScale;
-    // If height is less than minSectionHeight, set it to minSectionHeight.
-    // Sections reach here at their *full* extent (the rendered window is applied
-    // afterwards, by `trimSectionsToWindow`), so this floor only ever inflates a
-    // genuinely small section — which is what it's for — and never a sliver that
-    // the window happens to cut.
-    const _minSectionHeight = minSectionHeight ?? targetUnitHeight ?? 0;
-    pixelHeight = Math.max(height, _minSectionHeight);
-    _pixelScale = pixelHeight / dAge;
+    /** Every rule that sets a section's height resolves to one density (see
+     * `./density`). Sections reach here at their *full* extent — the rendered
+     * window is applied afterwards, by `trimSectionsToWindow` — so a floor on
+     * the section's height only ever inflates a genuinely small section, which
+     * is what it's for, and never a sliver the window happens to cut. */
+    _pixelScale = sectionDensity(opts)({
+      extent: dAge,
+      unitExtents: visibleUnitExtents(data, axisType, visibleWindow),
+      units: data,
+      sectionID,
+      axisType,
+    });
+    pixelHeight = dAge * _pixelScale;
   } else {
     // If a scale is provided, use it to compute pixel height
     pixelHeight = Math.abs(scale(domain[0]) - scale(domain[1]));
@@ -429,12 +427,12 @@ function findSectionHeightRange(
   }
 }
 
-function findAverageUnitHeight(
+function visibleUnitExtents(
   data: UnitLong[],
   axisType: ColumnAxisType,
   visibleWindow?: [number, number] | null,
-): number {
-  /** The typical duration of a unit, which `targetUnitHeight` sizes.
+): number[] {
+  /** The durations of the units a density rule gets to size.
    *
    * Measured over what the render window actually *shows* — units outside it
    * are ignored and a unit it cuts through counts only for its visible part.
@@ -463,9 +461,7 @@ function findAverageUnitHeight(
   const useWindow = visibleWindow != null && axisType === ColumnAxisType.AGE;
   let heights = useWindow ? durations(true) : [];
   if (heights.length === 0) heights = durations(false);
-  if (heights.length === 0) return 1;
-
-  return heights.reduce((a, b) => a + b, 0) / heights.length;
+  return heights;
 }
 
 export interface CompositeColumnScale {
@@ -593,7 +589,14 @@ export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
       _diff(heights.map(currentSection.scaleInfo.scale)),
     ];
 
-    const pxHeight = Math.min(...pxHeights);
+    /** The gap has no density of its own — it falls between two sections that
+     * may be drawn at very different ones — so it is judged at the finer of
+     * the two. Taking the smaller estimate let a sparse neighbor speak for a
+     * gap the other neighbor would have drawn many times larger: a 16 Myr
+     * hiatus in column 22 read as 26px against one section and 166px against
+     * the other, and collapsed. A gap is only worth hiding when neither scale
+     * would give it more room than the break that replaces it. */
+    const pxHeight = Math.max(...pxHeights);
 
     if (pxHeight < threshold) {
       let t_pos: number;

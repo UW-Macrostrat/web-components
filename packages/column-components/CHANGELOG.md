@@ -1,5 +1,50 @@
 # Changelog
 
+## [2.2.0] - 2026-09-21 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.1.0...@macrostrat/column-components-v2.2.0)
+
+### Minor Changes
+
+- A note can carry a `color`, which sets `--note-color` on its group — so its
+  [acc9f478](https://github.com/UW-Macrostrat/web-components/commit/acc9f4782cbae65bfe017aa195e1b51456871822)
+  connector and endpoint follow the thing the note describes rather than the
+  column's default note color.
+
+  Two options on the connector itself: `connectorOverhang` continues the leader
+  line a few pixels past each end, so it meets what marks the note's height in
+  the column on one side and the note body on the other instead of stopping in
+  the gap; `showPointMarker: false` drops the endpoint dot, which a connector
+  running into something already drawn at that height doesn't need.
+
+### Patch Changes
+
+- Give a note the height it measured, and center it on the line that points at
+  [aa4fda55](https://github.com/UW-Macrostrat/web-components/commit/aa4fda557137cdb652cb3ddce98d1b5dae8109ef)
+  it. Every note measures itself in the same tick, so accumulating the heights
+  had to go through a state updater — building each from a snapshot meant only
+  the last one was kept and the layout placed them all at its 10px guess, which
+  left labels of two lines no room to be two lines. The note's inset is a margin
+  again, too: as padding it folded into the measured height, so the text sat
+  half an inset above its connector.
+- Fix notes columns rendering a stale layout after the column zooms or its data
+  [af6d14e1](https://github.com/UW-Macrostrat/web-components/commit/af6d14e1da59af8d09712ed5cb750b1b6bca7cc8)
+  changes. `NoteLayoutProvider` re-filtered the notes and laid them out in the
+  same pass, so the layout used the note set it was replacing, and the pass that
+  followed skipped the work because its guard only counted nodes — two columns
+  with the same number of notes looked identical to it. Notes now lay out once
+  the new set is in state, and the guard identifies the set itself.
+- Notes columns re-run their force layout once the notes' rendered heights have
+  [7252f222](https://github.com/UW-Macrostrat/web-components/commit/7252f22207f63d57ef91172cf898f6b27c38725a)
+  been measured. The first layout ran on a 10px guess per note and was never
+  revisited, so notes taller than that (interval tags, two-line labels)
+  overlapped their neighbors. `ColumnNotes` also passes `forceOptions` through
+  to the layout.
+- Updated dependencies
+  [1b694ccf](https://github.com/UW-Macrostrat/web-components/commit/1b694ccfcc40321a6edc609b8c07106a87164a3b)
+- Updated dependencies
+  [1b694ccf](https://github.com/UW-Macrostrat/web-components/commit/1b694ccfcc40321a6edc609b8c07106a87164a3b)
+  - @macrostrat/timescale@3.3.0
+  - @macrostrat/stratigraphy-utils@1.4.2
+
 ## [2.1.0] - 2026-08-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.0.10...@macrostrat/column-components-v2.1.0)
 
 ### Minor Changes

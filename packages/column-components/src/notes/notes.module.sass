@@ -57,7 +57,11 @@ g.height-range line
       pointer-events: none
 
 .note-inner
-  margin: 5px
+  border: none
+  // A margin, not padding: the note's measured height is what the layout
+  // centers on the connector, and padding would fold the inset into that
+  // height — leaving the text half an inset above the line that points at it
+  margin: var(--column-note-padding, 5px)
 
 .focusable
   .note-inner

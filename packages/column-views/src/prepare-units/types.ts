@@ -1,24 +1,33 @@
 import type { UnitLong } from "@macrostrat/api-types";
 import type { ColumnAxisType } from "@macrostrat/column-components";
 import type { ScaleContinuousNumeric } from "d3-scale";
+import type { SectionDensityLike, SectionOptionsLike } from "./density";
 
 export interface ColumnHeightScaleOptions {
-  /** A fixed pixel scale to use for the section (pixels per Myr) */
-  pixelScale?: number;
-  /** The target height of a constituent unit in pixels, for dynamic
-   * scale generation */
+  /** A density stated outright: pixels per Myr on an age column, per metre
+   * otherwise, every section drawn to the same scale whatever it holds.
+   * Rarely what you want within one column, and the only way to make several
+   * of them comparable.
+   *
+   * It also takes a rule — a function of the section's context — for the
+   * cases the options here can't describe. A rule is in sole charge of its
+   * section: the floors don't apply to it. */
+  pixelScale?: SectionDensityLike;
+  /** Room for a typical unit the render window shows: this many pixels tall,
+   * whatever its duration. The knob that usually decides a column — reach for
+   * it to draw one larger or smaller — and the one that expands it as you
+   * zoom in, since the units on screen keep their size while the time they
+   * cover shrinks. See `./density` for what "typical" means. */
   targetUnitHeight?: number;
-  /** Min height of a section in pixels. Will override minPixelScale in some cases. */
+  /** Room for a section: at least this many pixels tall, whatever its extent.
+   * Small sections have a unit or two and little room for axis labels. */
   minSectionHeight?: number;
-  /** The minimum pixel scale to use for the section (pixels per Myr). This is mostly
-   * needed because small sections (<1-2 units) don't necessarily have space to comfortably
-   * render two axis labels */
+  /** A floor on the density itself, in pixels per axis unit. */
   minPixelScale?: number;
-  /** The requested render window, `[b_age, t_age]`, if there is one. Set
-   * internally by `prepareColumnUnits`: unit density is derived from the units
-   * this window actually shows, so `targetUnitHeight` describes the units you
-   * can see at any zoom depth rather than the section's overall average. */
-  visibleWindow?: [number, number];
+  /** Sizing for a section in particular, or a rule that works it out from
+   * what the section holds. Whatever it returns overrides the options above
+   * for that section; anything it leaves out keeps the column's value. */
+  sectionOptions?: SectionOptionsLike;
   /** Padding around the `t_age`/`b_age` window, in **pixels** of neighboring
    * column: how much of the abutting sections to reveal past the window.
    *
@@ -76,6 +85,13 @@ export type HybridScaleDefinition =
 export interface SectionScaleOptions extends ColumnHeightScaleOptions {
   axisType: ColumnAxisType;
   domain: [number, number];
+  /** Named in the context a per-section rule sees */
+  sectionID?: number;
+  /** The requested render window, `[b_age, t_age]`, if there is one. Set
+   * internally by `prepareColumnUnits`: unit density is derived from the units
+   * this window actually shows, so `targetUnitHeight` describes the units you
+   * can see at any zoom depth rather than the section's overall average. */
+  visibleWindow?: [number, number];
 }
 
 /** Output of a section scale. For now, this assumes that the
@@ -141,6 +157,11 @@ export interface CompositeScaleData {
 export interface ColumnScaleOptions extends ColumnHeightScaleOptions {
   axisType: ColumnAxisType;
   unconformityHeight: number;
+  /** The requested render window, `[b_age, t_age]`, if there is one. Set
+   * internally by `prepareColumnUnits`: unit density is derived from the units
+   * this window actually shows, so `targetUnitHeight` describes the units you
+   * can see at any zoom depth rather than the section's overall average. */
+  visibleWindow?: [number, number];
 }
 
 export interface CompositeColumnData<T extends UnitLong = ExtUnit> extends Omit<

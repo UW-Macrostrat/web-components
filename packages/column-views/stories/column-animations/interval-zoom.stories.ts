@@ -1,111 +1,38 @@
 import h from "@macrostrat/hyper";
 import { Meta } from "@storybook/react-vite";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Button, Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
 import {
   Column,
-  useAnimatedAgeWindow,
   MergeSectionsMode,
-  type AgeWindow,
+  unitsAgeExtent,
+  useTimescaleZoom,
 } from "../../src";
-import type { Interval, TimescaleClickData } from "@macrostrat/timescale";
 import { useColumnUnits } from "./utils";
-
-/** Deepest timescale level to ever show (age/stage). */
-const MAX_TIMESCALE_LEVEL = 5;
-/** Coarsest timescale level to ever show. Level 0 ("all of geologic time") is
- * implied and never rendered. */
-const MIN_TIMESCALE_LEVEL = 1;
-/** How many timescale levels to display at once. */
-const LEVEL_WINDOW = 3;
-/** Level to anchor on before anything is selected (full extent). */
-const DEFAULT_SELECTED_LEVEL = 2;
-
-/** A fixed 3-level window that slides with the selected interval's level, which
- * sits roughly in the middle (one coarser for context, one finer to drill in).
- * Clamped so the useless level 0 is never shown. */
-function levelsForSelected(selectedLevel: number): [number, number] {
-  const lo = Math.min(
-    Math.max(selectedLevel - 1, MIN_TIMESCALE_LEVEL),
-    MAX_TIMESCALE_LEVEL - (LEVEL_WINDOW - 1),
-  );
-  return [lo, lo + (LEVEL_WINDOW - 1)];
-}
 
 function IntervalZoomColumn({ id, padding, ...rest }: any) {
   const units = useColumnUnits(id);
+  const fullExtent = useMemo(() => unitsAgeExtent(units), [units]);
 
-  const fullExtent = useMemo<AgeWindow | null>(() => {
-    if (units == null || units.length === 0) return null;
-    return {
-      t_age: Math.min(...units.map((u: any) => u.t_age)),
-      b_age: Math.max(...units.map((u: any) => u.b_age)),
-    };
-  }, [units]);
-
-  const zoom = useAnimatedAgeWindow({ fullExtent });
-  // A drill-down path of intervals. The last is the current selection; the
-  // timescale detail window anchors on its level.
-  const [stack, setStack] = useState<Interval[]>([]);
-  const selectedInterval = stack.length > 0 ? stack[stack.length - 1] : null;
-  const selectedLevel = selectedInterval?.lvl ?? DEFAULT_SELECTED_LEVEL;
+  // Click-to-zoom lives in the library: clicking an interval zooms to it,
+  // clicking the one you're in zooms back out, and the timescale's level
+  // window slides with the selection so finer intervals come into reach.
+  const zoom = useTimescaleZoom({ fullExtent, defaultLevel: 2 });
 
   if (units == null || fullExtent == null) {
     return h(Spinner);
   }
 
   const window = zoom.window ?? fullExtent;
-  const timescaleLevels = levelsForSelected(selectedLevel);
-
-  const zoomTo = (interval: Interval) => {
-    zoom.zoomToWindow({ t_age: interval.lag, b_age: interval.eag });
-  };
-
-  const onClickTimescaleInterval = (_evt: Event, data: TimescaleClickData) => {
-    const interval = data?.interval;
-    if (interval == null || interval.lvl == null) return;
-
-    // Clicking the interval you're already in is the only "zoom out": pop a
-    // level, or return to the full extent past the root.
-    if (selectedInterval != null && interval.oid === selectedInterval.oid) {
-      const next = stack.slice(0, -1);
-      setStack(next);
-      const parent = next[next.length - 1] ?? null;
-      if (parent != null) zoomTo(parent);
-      else zoom.reset();
-      return;
-    }
-
-    // Every other click navigates *to* the interval clicked, whatever its rank:
-    // a finer one drills in, a preceding/postdating one at the same rank moves
-    // along the timescale, a coarser one zooms out to it. The drill path keeps
-    // only the coarser intervals that actually contain the new selection, so
-    // stepping sideways into a different parent (say the last stage of the
-    // Cambrian → the first of the Ordovician) doesn't strand the old one.
-    const containing = stack.filter(
-      (d) =>
-        d.lvl < interval.lvl && d.eag >= interval.eag && d.lag <= interval.lag,
-    );
-    setStack([...containing, interval]);
-    zoomTo(interval);
-  };
-
-  const onReset = () => {
-    setStack([]);
-    zoom.reset();
-  };
-
-  // Bold the selected interval: it's the one whose click zooms out, whereas
-  // every other interval navigates to itself.
-  const intervalStyle = (interval: Interval) => {
-    if (selectedInterval != null && interval.oid === selectedInterval.oid) {
-      return { fontWeight: "bold" };
-    }
-    return {};
-  };
-
   const span = window.b_age - window.t_age;
+  const [lo, hi] = zoom.timescaleLevels;
+
+  let instructions = "Click a timescale interval to zoom in.";
+  const selected = zoom.selectedInterval;
+  if (selected != null) {
+    instructions = `${selected.nam} — click a finer interval to drill in, a neighboring one to move along the timescale, or ${selected.nam} itself to zoom out`;
+  }
 
   return h(
     "div",
@@ -128,19 +55,14 @@ function IntervalZoomColumn({ id, padding, ...rest }: any) {
               small: true,
               intent: "primary",
               disabled: zoom.isFullExtent,
-              onClick: onReset,
+              onClick: zoom.reset,
             },
             "Reset to full extent",
           ),
-          h(
-            "span",
-            selectedInterval != null
-              ? `${selectedInterval.nam} — click a finer interval to drill in, a neighboring one to move along the timescale, or ${selectedInterval.nam} itself to zoom out`
-              : "Click a timescale interval to zoom in.",
-          ),
+          h("span", instructions),
           h(
             "code",
-            `${window.t_age.toFixed(2)}–${window.b_age.toFixed(2)} Ma (${span.toFixed(2)} Myr) · levels ${timescaleLevels[0]}–${timescaleLevels[1]}`,
+            `${window.t_age.toFixed(2)}–${window.b_age.toFixed(2)} Ma (${span.toFixed(2)} Myr) · levels ${lo}–${hi}`,
           ),
         ],
       ),
@@ -150,17 +72,13 @@ function IntervalZoomColumn({ id, padding, ...rest }: any) {
         // and from `targetUnitHeight`, which the layout applies to the units
         // this window shows — so the column is drawn the same way whether you
         // animated here or set these ages directly.
-        t_age: window.t_age,
-        b_age: window.b_age,
+        //
+        // `columnProps` carries the window, the timescale levels, the click
+        // handler and the bold styling of the selected interval.
+        ...zoom.columnProps,
         // Reveal this many px of the abutting sections past the window, so
         // neighboring stratigraphy and its intervals stay navigable.
         windowPadding: padding,
-        // Timescale detail follows the selected level; layout is unaffected.
-        timescaleLevels,
-        // Bold the selected interval (click it to zoom out).
-        timescaleIntervalStyle: intervalStyle,
-        isTransitioning: zoom.isAnimating,
-        onClickTimescaleInterval,
         ...rest,
       }),
     ],

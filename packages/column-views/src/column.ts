@@ -30,11 +30,15 @@ import {
 import {
   MacrostratColumnDataProvider,
   useCompositeScale,
+  useLabelColumnClaimed,
   useMacrostratColumnData,
 } from "./data-provider";
 import {
   SectionSharedProps,
   CompositeTimescale,
+  type ColumnIntervalStyleBuilder,
+  type ColumnTimescaleClickHandler,
+  type ColumnTimescaleLike,
   SectionsColumn,
 } from "./section";
 import { ApproximateHeightAxis, CompositeAgeAxis } from "./age-axis";
@@ -45,10 +49,6 @@ import {
   ColumnHeightScaleOptions,
 } from "./prepare-units";
 import { UnitLong } from "@macrostrat/api-types";
-import type {
-  TimescaleClickHandler,
-  IntervalStyleBuilder,
-} from "@macrostrat/timescale";
 import { NonIdealState } from "@blueprintjs/core";
 import { DataField } from "@macrostrat/data-components";
 import { ScaleContinuousNumeric } from "d3-scale";
@@ -59,16 +59,32 @@ interface BaseColumnProps extends Omit<
 > {
   className?: string;
   showLabelColumn?: boolean;
+  /** Suppress the label for a unit drawn thinner than this many pixels
+   * (default 2) */
+  labelSuppressHeight?: number;
   keyboardNavigation?: boolean;
   showLabels?: boolean;
   maxInternalColumns?: number;
   // Timescale properties
   showTimescale?: boolean;
   timescaleLevels?: number | [number, number];
-  /** Called when a timescale interval is clicked (e.g. to zoom the age range). */
-  onClickTimescaleInterval?: TimescaleClickHandler;
-  /** Per-interval style for the timescale (e.g. to bold the selected interval). */
-  timescaleIntervalStyle?: IntervalStyleBuilder;
+  /** Regional or project timescales drawn as extra columns beside the
+   * international one (see `CompositeTimescale`). Narrow `timescaleLevels` by
+   * as many to swap the finest level for them rather than widen the column. */
+  additionalTimescales?: number[];
+  /** Every timescale to draw beside the column, in order: a Macrostrat
+   * timescale ID, or a timescale with its own intervals (see
+   * `CompositeTimescale`). Supersedes `timescaleLevels` and
+   * `additionalTimescales`. */
+  timescales?: ColumnTimescaleLike[];
+  /** Draw each timescale's name above it */
+  showTimescaleLabels?: boolean;
+  /** Called when a timescale interval is clicked (e.g. to zoom the age range).
+   * The data says which timescale it was clicked in. */
+  onClickTimescaleInterval?: ColumnTimescaleClickHandler;
+  /** Per-interval style for the timescale (e.g. to bold the selected
+   * interval), by interval and the timescale it was drawn from. */
+  timescaleIntervalStyle?: ColumnIntervalStyleBuilder;
   unconformityLabels?: boolean | UnconformityLabelPlacement;
   onMouseOver?: (
     unit: UnitLong | null,
@@ -119,7 +135,10 @@ export function Column(props: ColumnProps) {
     b_pos,
     unconformityHeight = 30,
     targetUnitHeight = 20,
+    sectionOptions,
     pixelScale,
+    pixelsPerMyr,
+    pixelsPerMeter,
     minPixelScale = 0.2,
     minSectionHeight = 50,
     windowPadding = 0,
@@ -134,16 +153,9 @@ export function Column(props: ColumnProps) {
     ...rest
   } = props;
 
-  /* Make pixelScale and targetUnitHeight mutually exclusive. PixelScale implies
-   * standardization of scales in all sections */
-  let _targetUnitHeight: number | null = targetUnitHeight;
-  let _minSectionHeight = minSectionHeight;
-  let _minPixelScale = minPixelScale;
-  if (pixelScale != null) {
-    _targetUnitHeight = null;
-    _minSectionHeight = 0;
-    _minPixelScale = pixelScale;
-  }
+  /* `pixelScale` and `targetUnitHeight` are alternatives: a density stated
+   * outright takes over from the one a section's units imply, floors and all.
+   * That is settled in `prepare-units/density`, so nothing is adjusted here. */
 
   // Handle special cases for hybrid scales (WIP, we need to regularize this)
   let _axisType = axisType ?? ColumnAxisType.AGE;
@@ -164,11 +176,14 @@ export function Column(props: ColumnProps) {
     t_pos,
     b_pos,
     mergeSections,
-    targetUnitHeight: _targetUnitHeight,
+    targetUnitHeight,
+    sectionOptions,
     unconformityHeight,
     pixelScale,
-    minPixelScale: _minPixelScale,
-    minSectionHeight: _minSectionHeight,
+    pixelsPerMyr,
+    pixelsPerMeter,
+    minPixelScale,
+    minSectionHeight,
     windowPadding,
     collapseSmallUnconformities,
     // TODO: consider unifying scale and hybridScale options
@@ -231,11 +246,15 @@ function ColumnInner(props: ColumnInnerProps) {
     width: _width = 300,
     columnWidth: _columnWidth = 150,
     showLabelColumn: _showLabelColumn = true,
+    labelSuppressHeight,
     className,
     clipUnits = false,
     children,
     showTimescale,
     timescaleLevels,
+    additionalTimescales,
+    timescales,
+    showTimescaleLabels,
     maxInternalColumns,
     onMouseOver,
     onClickTimescaleInterval,
@@ -244,6 +263,9 @@ function ColumnInner(props: ColumnInnerProps) {
   } = props;
 
   const { axisType } = useMacrostratColumnData();
+  // A child layer drawing its own labels (the surfaces view) takes the label
+  // column over from the unit labels
+  const labelColumnClaimed = useLabelColumnClaimed();
 
   const columnRef = useColumnRef();
 
@@ -262,12 +284,12 @@ function ColumnInner(props: ColumnInnerProps) {
     columnWidth = width;
   }
   let showLabelColumn = _showLabelColumn;
-  if (columnWidth > width - 10) {
+  if (columnWidth > width - 10 || labelColumnClaimed) {
     showLabelColumn = false;
   }
 
   let _showTimescale = showTimescale ?? true;
-  if (timescaleLevels != null) {
+  if (timescaleLevels != null || timescales != null) {
     _showTimescale = true;
   }
   _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;
@@ -283,6 +305,9 @@ function ColumnInner(props: ColumnInnerProps) {
       h(ageAxisComponent),
       h.if(_showTimescale)(CompositeTimescale, {
         levels: timescaleLevels,
+        additionalTimescales,
+        timescales,
+        showLabels: showTimescaleLabels,
         unconformityLabels: _timescaleUnconformityLabels,
         onClickInterval: onClickTimescaleInterval,
         intervalStyle: timescaleIntervalStyle,
@@ -293,6 +318,7 @@ function ColumnInner(props: ColumnInnerProps) {
         width,
         columnWidth,
         showLabelColumn,
+        labelSuppressHeight,
         clipUnits,
         unconformityLabels: _sectionUnconformityLabels,
         maxInternalColumns,

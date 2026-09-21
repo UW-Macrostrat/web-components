@@ -1,0 +1,35 @@
+.axis-sizing
+  display: flex
+  flex-direction: column
+  gap: 1em
+  padding: 1em
+  align-items: flex-start
+
+.readout
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  gap: 1.5em
+  font-size: 12px
+  padding: 0.5em 0.8em
+  border: 1px solid var(--panel-border-color, rgba(128, 128, 128, 0.3))
+  border-radius: 4px
+
+.measure
+  display: flex
+  flex-direction: column
+
+  .measure-label
+    color: var(--secondary-color, var(--text-color))
+    text-transform: uppercase
+    letter-spacing: 0.04em
+    font-size: 10px
+
+  .measure-value
+    font-variant-numeric: tabular-nums
+    font-weight: 600
+
+.hint
+  font-size: 12px
+  color: var(--secondary-color, var(--text-color))
+  max-width: 44em

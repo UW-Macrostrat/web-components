@@ -1,0 +1,168 @@
+// Surface styling is keyed on boundary status (how the age is constrained)
+// and boundary type (the nature of the contact). The tokens default to the
+// design-system palette and can be overridden per column.
+.column-surface-lines, .column-surface-labels, .surface-status-legend, .surface-tag
+  --surface-color-absolute: var(--pz-intent-danger, #c23030)
+  --surface-color-relative: var(--pz-intent-primary, #2d72d2)
+  --surface-color-spike: var(--pz-purple-500, #7961db)
+  --surface-color-imposed: var(--pz-orange-500, #c87619)
+  --surface-color-modeled: var(--pz-neutral-500, #8f99a8)
+  --surface-color-unspecified: var(--pz-neutral-400, #abb3bf)
+  --surface-color-derived: var(--pz-intent-success, #238551)
+  // The selection color is the column's, so a selected surface and a selected
+  // unit read as the same act
+  --surface-selected-color: var(--column-selection-color, var(--pz-accent-color, #7961db))
+  // Surfaces are drawn at one weight — the status shows in the dash pattern
+  // and the color, not the thickness — and the label's leader line matches it,
+  // so the stroke reads as continuous from the column into the tag.
+  --surface-line-width: 3px
+  --surface-leader-width: var(--surface-line-width)
+  // The outline of the box around a selected surface line
+  --surface-selection-width: 2px
+  // The tags keep the standard inset: it is what centers a note on the line
+  // that points at it, and it puts the tag's left edge exactly where the
+  // leader line ends, which the leader's overhang then tucks under
+
+// Map statuses to a single color token that the lines, markers and tags share
+.status-absolute
+  --surface-color: var(--surface-color-absolute)
+.status-relative
+  --surface-color: var(--surface-color-relative)
+.status-spike
+  --surface-color: var(--surface-color-spike)
+.status-imposed
+  --surface-color: var(--surface-color-imposed)
+.status-modeled
+  --surface-color: var(--surface-color-modeled)
+.status-unspecified
+  --surface-color: var(--surface-color-unspecified)
+.status-derived
+  --surface-color: var(--surface-color-derived)
+
+// The dash pattern follows how the age is constrained: dated and
+// interval-relative surfaces are solid, interpolated and unspecified ones
+// dotted, imposed ones dashed. Weight is constant.
+.status-absolute, .status-relative, .status-spike
+  --surface-line-style: solid
+.status-imposed
+  --surface-line-style: dashed
+.status-modeled, .status-unspecified, .status-derived
+  --surface-line-style: dotted
+
+// Unconformable contacts are drawn as a double rule
+.type-unconformity, .type-disconformity, .type-non-conformity, .type-angular-unconformity
+  --surface-line-double: 1
+.type-fault
+  --surface-line-style: dashed
+
+.column-surface-lines
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  pointer-events: none
+  z-index: 5
+  &.measuring
+    visibility: hidden
+
+.surface-line
+  position: absolute
+  left: 0
+  right: 0
+  height: 0
+  // A comfortable hit area around a hairline
+  padding: 4px 0
+  transform: translateY(-4px)
+  pointer-events: none
+  color: var(--surface-color)
+  &.interactive
+    pointer-events: auto
+    cursor: pointer
+
+  .surface-line-inner
+    border-top: var(--surface-line-width, 1px) var(--surface-line-style, solid) var(--surface-color)
+    transform: translateY(calc(var(--surface-line-width, 1px) / -2))
+
+  &.interactive:hover .surface-line-inner
+    border-top-width: calc(var(--surface-line-width, 1px) + 1px)
+    filter: brightness(0.8)
+
+  // Selection outlines the box around the line; the line inside keeps the
+  // color of the interval it marks
+  &.selected
+    outline: var(--surface-selection-width) solid var(--surface-selected-color)
+    background-color: var(--pz-selected-background-color, transparent)
+
+// Double rule for unconformable contacts
+.surface-line
+  &.type-unconformity, &.type-disconformity, &.type-non-conformity, &.type-angular-unconformity
+    .surface-line-inner
+      border-bottom: var(--surface-line-width, 1px) var(--surface-line-style, solid) var(--surface-color)
+      height: 3px
+
+.column-surface-labels
+  position: relative
+  :global(.col-note-label)
+    // We render our own label body
+    display: none
+  :global(.note-inner)
+    margin: 2px 5px
+  // The leader continues past both of its ends (`connectorOverhang`), so it
+  // has to paint outside the notes SVG: left over the gap to the column, right
+  // under the tag body
+  svg
+    overflow: visible
+  // It carries the surface's color (set per note as `--note-color`) and the
+  // weight of the line it runs into
+  :global(.link)
+    stroke-width: var(--surface-leader-width)
+
+.surface-label
+  display: flex
+  flex-direction: row
+  align-items: center
+  gap: 6px
+  padding: 2px 4px
+  border-radius: 3px
+  cursor: pointer
+  line-height: 1.2
+  color: var(--column-text-color)
+  &:hover
+    background-color: var(--pz-hover-background-color, rgba(128, 128, 128, 0.12))
+  // Selection reads in the text itself rather than as a card around it
+  &.selected .surface-label-primary
+    font-weight: 700
+
+.surface-label-marker
+  flex: none
+  width: 14px
+  height: 0
+  border-top: var(--surface-line-width, 1px) var(--surface-line-style, solid) var(--surface-color)
+  .type-unconformity &, .type-disconformity &, .type-non-conformity &, .type-angular-unconformity &
+    border-bottom: var(--surface-line-width, 1px) var(--surface-line-style, solid) var(--surface-color)
+    height: 3px
+
+.surface-label-text
+  min-width: 0
+  display: flex
+  flex-direction: row
+  align-items: baseline
+  gap: 6px
+  white-space: nowrap
+
+.surface-label-primary
+  font-size: 0.75rem
+  font-weight: 500
+  white-space: nowrap
+  // The tag keeps its name and detail on one line
+  :global(.bp6-tag), .surface-interval-tag
+    white-space: nowrap
+    vertical-align: middle
+
+.surface-label-status
+  font-style: italic
+
+.surface-label-secondary
+  font-size: 0.7rem
+  white-space: nowrap
+  color: var(--text-subtle-color, var(--pz-text-subtle-color, #5f6b7c))

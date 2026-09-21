@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.3.0] - 2026-09-21 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/timescale-v3.2.0...@macrostrat/timescale-v3.3.0)
+
+### Minor Changes
+
+- Add `SharedScaleTimescales`: several timescales side by side against one age
+  [1b694ccf](https://github.com/UW-Macrostrat/web-components/commit/1b694ccfcc40321a6edc609b8c07106a87164a3b)
+  scale, with `useMacrostratTimescales` to fetch their intervals together. The
+  `Timescale` component moves to its own module so components can build on it
+  without cycling through the barrel.
+
+### Patch Changes
+
+- Keep a timescale within the width it is given: a long interval name no longer
+  [1b694ccf](https://github.com/UW-Macrostrat/web-components/commit/1b694ccfcc40321a6edc609b8c07106a87164a3b)
+  wraps onto a second vertical line and pushes the boxes past the edge
+- Updated dependencies
+  [1b694ccf](https://github.com/UW-Macrostrat/web-components/commit/1b694ccfcc40321a6edc609b8c07106a87164a3b)
+  - @macrostrat/data-provider@1.3.1
+
 ## [3.2.0] - 2026-08-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/timescale-v3.1.6...@macrostrat/timescale-v3.2.0)
 
 ### Minor Changes

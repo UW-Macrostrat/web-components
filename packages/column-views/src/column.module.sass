@@ -1,4 +1,10 @@
+// One slot per timescale level, as `--timescale-level-count` counts them
+$timescale-column-width: calc(calc(1.5em + 1.5px) * var(--timescale-level-count, 4))
+
 .column-container, body:global(.light-mode) .column-container
+  // One selection color for everything a column can select — units, surfaces —
+  // so the highlight means the same thing wherever it appears
+  --column-selection-color: var(--column-cursor-color, var(--pz-accent-color, #7961db))
   --column-background-color: var(--background-color, #fff)
   --column-stroke-color: var(--text-emphasized-color, #000)
   --column-text-color: var(--text-emphasized-color, #000)
@@ -53,13 +59,18 @@ body:global(.dark-mode) .column-container
     stroke: var(--column-stroke-color)
     stroke-width: 1px
 
+  // A box around the selected unit: a light wash so its own color still
+  // reads, and an outline in the selection color
   .selection-overlay
-    fill: var(--selection-overlay-color, red)
-    fill-opacity: var(--selection-overlay-opacity, 0.5)
+    fill: var(--selection-overlay-color, var(--column-selection-color))
+    fill-opacity: var(--selection-overlay-opacity, 0.15)
+    stroke: var(--selection-overlay-color, var(--column-selection-color))
+    stroke-width: var(--selection-overlay-stroke-width, 2px)
+    vector-effect: non-scaling-stroke
 
   // Units sharing a stratigraphic name with the selection: a subtler highlight
   .linked-overlay
-    fill: var(--linked-overlay-color, var(--selection-overlay-color, red))
+    fill: var(--linked-overlay-color, var(--selection-overlay-color, var(--column-selection-color)))
     fill-opacity: var(--linked-overlay-opacity, 0.18)
     pointer-events: none
 
@@ -80,10 +91,6 @@ body:global(.dark-mode) .column-container
 .column-container :global g.height-range
   display: none
 
-.column-container :global .note-inner
-  border: none
-  padding: 1px
-
 .column-container :global .frame rect
   fill: transparent
 
@@ -99,11 +106,55 @@ body:global(.dark-mode) .column-container
   cursor: pointer
 
 .column-container :global(.timescale)
-  width: calc(calc(1.5em + 1.5px) * var(--timescale-level-count, 4))
+  width: $timescale-column-width
   --timescale-level-size: 1.5em
 
 .timescale-column
   position: relative
+
+// A section's timescales, drawn side by side against that section's scale.
+// The name is deliberately not `timescale-container`: that is also the class
+// on each `Timescale`'s own root, and the two were easy to confuse for one
+// another (this one went unstyled for a while, stacking the timescales).
+// Timescale names, set above the columns they belong to. Positioned out of
+// flow so the timescales still start level with the units beside them: a
+// column that shows these needs top padding to fit them.
+.timescale-labels
+  position: absolute
+  bottom: 100%
+  left: 0
+  display: flex
+  flex-direction: row
+  align-items: flex-end
+  padding-bottom: 3px
+
+  // Matches the gap between the leveled timescale and the rest
+  > :first-child
+    margin-right: 5px
+
+.timescale-label
+  // No font-size here: the width is in `em`, and must resolve the same way it
+  // does on the timescale below
+  width: $timescale-column-width
+  display: flex
+  justify-content: center
+  overflow: hidden
+
+.timescale-label-text
+  writing-mode: vertical-rl
+  transform: rotate(180deg)
+  white-space: nowrap
+  font-size: 11px
+  color: var(--secondary-color, var(--text-color))
+
+.section-timescales
+  display: flex
+  flex-direction: row
+  align-items: flex-start
+
+  // Set the timescale a column is leveled against apart from the others
+  > :first-child
+    margin-right: 5px
 
 .section-main
   position: relative

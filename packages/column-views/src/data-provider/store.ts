@@ -2,8 +2,10 @@ import {
   createContext,
   ReactNode,
   RefObject,
+  useCallback,
   useContext,
   useMemo,
+  useState,
 } from "react";
 import h from "@macrostrat/hyper";
 import {
@@ -188,9 +190,56 @@ export function MacrostratColumnDataProvider<T extends BaseUnit>({
     },
     [
       h(ColumnRefManager, { ref }),
-      h(MacrostratColumnDataContext.Provider, { value }, children),
+      h(
+        MacrostratColumnDataContext.Provider,
+        { value },
+        h(ColumnLayoutOverridesProvider, null, children),
+      ),
     ],
   );
+}
+
+/* Layout overrides requested by a column's children. A layer that draws its
+ * own labels beside the units (the surfaces view) claims the label column, so
+ * the unit labels give way: it is one set of labels or the other. */
+
+interface ColumnLayoutOverrides {
+  /** How many children currently claim the label column */
+  labelColumnClaims: number;
+  claimLabelColumn(): () => void;
+}
+
+const ColumnLayoutOverridesContext = createContext<ColumnLayoutOverrides>({
+  labelColumnClaims: 0,
+  claimLabelColumn: () => () => {},
+});
+
+function ColumnLayoutOverridesProvider({ children }: { children: ReactNode }) {
+  const [labelColumnClaims, setClaims] = useState(0);
+  const claimLabelColumn = useCallback(() => {
+    setClaims((n) => n + 1);
+    return () => setClaims((n) => Math.max(n - 1, 0));
+  }, []);
+  const value = useMemo(
+    () => ({ labelColumnClaims, claimLabelColumn }),
+    [labelColumnClaims, claimLabelColumn],
+  );
+  return h(ColumnLayoutOverridesContext.Provider, { value }, children);
+}
+
+/** Claim the column's label column for this component while it is mounted:
+ * the unit labels are hidden in favor of whatever the caller draws there. */
+export function useClaimLabelColumn(active: boolean = true) {
+  const { claimLabelColumn } = useContext(ColumnLayoutOverridesContext);
+  useEffect(() => {
+    if (!active) return;
+    return claimLabelColumn();
+  }, [active, claimLabelColumn]);
+}
+
+/** Whether a child of the column has claimed the label column */
+export function useLabelColumnClaimed(): boolean {
+  return useContext(ColumnLayoutOverridesContext).labelColumnClaims > 0;
 }
 
 function ColumnRefManager({ ref }: { ref?: RefObject<ColumnRef> }) {
