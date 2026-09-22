@@ -54,6 +54,14 @@ export function ExpansionPanel(props) {
   );
 }
 
+/** A stack of `ExpansionPanel`s whose headers stay on screen: each pins to the
+ * top of the scrolling container once its section has scrolled past, and to
+ * the bottom until its section is reached. Pass the panels as direct children.
+ */
+export function ExpansionPanelAccordion({ className, children }) {
+  return h("div.expansion-panel-accordion", { className }, children);
+}
+
 export function SubExpansionPanel(props) {
   return h(ExpansionPanel, {
     ...props,

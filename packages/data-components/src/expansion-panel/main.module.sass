@@ -31,6 +31,38 @@
   padding-right: 0.2em
 
 
+/** A stack of expansion panels whose headers never scroll out of view: each
+ * one pins to the top of the scroll container once you have scrolled past its
+ * section, and to the bottom before you reach it. The whole set of section
+ * headings therefore stays on screen, reading as an accordion however long any
+ * one section's content is.
+ *
+ * Only direct children are treated this way, so nested panels inside a
+ * section's content keep their ordinary layout. The offsets assume a
+ * single-line header, `--panel-header-height` tall.
+ */
+.expansion-panel-accordion
+  > .expansion-panel
+    // A sticky element can only travel within its own parent's box, so a
+    // header left inside its panel could never reach the bottom of the stack —
+    // a collapsed panel is barely taller than its header. Dropping the panel's
+    // box makes the whole accordion the header's sticky range.
+    display: contents
+
+    > .expansion-panel-header
+      // Carries the border overlap that `.expansion-panel`'s own negative
+      // margin provided before its box went away.
+      margin-top: -1px
+
+  // Each header is offset by the headers that stack ahead of it at that edge,
+  // so they pile up rather than covering one another.
+  @for $i from 1 through 8
+    > .expansion-panel:nth-child(#{$i}) > .expansion-panel-header
+      top: calc(#{$i - 1} * var(--panel-header-height) - 1px)
+
+    > .expansion-panel:nth-last-child(#{$i}) > .expansion-panel-header
+      bottom: calc(#{$i - 1} * var(--panel-header-height))
+
 .expansion-panel-content
   padding: var(--panel-padding-v) var(--panel-padding-h)
   --outer-panel-header-height: var(--panel-header-height)
