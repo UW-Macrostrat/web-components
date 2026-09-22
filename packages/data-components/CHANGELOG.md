@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0] - 2026-09-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.5.1...@macrostrat/data-components-v1.6.0)
+
+### Minor Changes
+
+- Add `ExpansionPanelAccordion`, a container for a stack of `ExpansionPanel`s
+  [d12c36e8](https://github.com/UW-Macrostrat/web-components/commit/d12c36e83869ead8da357602259055c54607a9d8)
+  whose headers stay on screen: each pins to the top of the scrolling container
+  once its section has scrolled past, and waits at the bottom until its section
+  is reached. Opening a section scrolls it up to the top of the stack, so a
+  header waiting at the bottom edge reveals its content rather than expanding
+  below the fold.
+
 ## [1.5.1] - 2026-08-02 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.5.0...@macrostrat/data-components-v1.5.1)
 
 ### Patch Changes

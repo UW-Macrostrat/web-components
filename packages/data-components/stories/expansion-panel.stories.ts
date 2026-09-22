@@ -1,6 +1,10 @@
 import type { Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { ExpansionPanel, SubExpansionPanel } from "../src/expansion-panel";
+import {
+  ExpansionPanel,
+  ExpansionPanelAccordion,
+  SubExpansionPanel,
+} from "../src/expansion-panel";
 import { LithologyList, Tag, TagField } from "../src/components/unit-details";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { LoremIpsum } from "lorem-ipsum";
@@ -141,6 +145,33 @@ export function ExtremelyLongContent() {
           content,
         );
       },
+    ),
+  );
+}
+
+/** The same long content in an accordion: the section headers pile up at the
+ * top as you scroll past them and wait at the bottom until you reach them, so
+ * every section stays reachable. Needs a scrolling container to show anything,
+ * which is why this one sets a height. */
+export function Accordion() {
+  return h(
+    "div",
+    { style: { height: "500px", overflowY: "scroll" } },
+    h(
+      ExpansionPanelAccordion,
+      Array.from({ length: 6 }, () => generateLoremContent(4)).map(
+        (content, i) => {
+          return h(
+            ExpansionPanel,
+            {
+              title: `Panel ${i + 1}`,
+              helpText: "via a data source",
+              expanded: i % 2 == 0,
+            },
+            content,
+          );
+        },
+      ),
     ),
   );
 }
