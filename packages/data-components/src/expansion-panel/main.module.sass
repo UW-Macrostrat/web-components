@@ -55,10 +55,13 @@
       margin-top: -1px
 
   // Each header is offset by the headers that stack ahead of it at that edge,
-  // so they pile up rather than covering one another.
+  // so they pile up rather than covering one another. `scroll-margin-top`
+  // repeats the top offset, which is what lands a section below the headers
+  // already pinned there when opening it scrolls it into view.
   @for $i from 1 through 8
     > .expansion-panel:nth-child(#{$i}) > .expansion-panel-header
       top: calc(#{$i - 1} * var(--panel-header-height) - 1px)
+      scroll-margin-top: calc(#{$i - 1} * var(--panel-header-height))
 
     > .expansion-panel:nth-last-child(#{$i}) > .expansion-panel-header
       bottom: calc(#{$i - 1} * var(--panel-header-height))
