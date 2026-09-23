@@ -56,6 +56,12 @@
     &:focus
       outline: none
 
+// Derived (computed) values: dimmed and italic, so a restatement reads apart
+// from a record. The intent colours still win for an invalid derived cell.
+.derived-cell
+  color: var(--pz-text-subtle-color, var(--secondary-color)) !important
+  font-style: italic
+
 .value-viewer-cell
   :global(.bp6-popover-target)
     width: 100%

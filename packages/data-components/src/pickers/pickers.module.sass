@@ -1,0 +1,123 @@
+// Pickers: chosen items as tags in a row, an add/change affordance, and the
+// searchable list in its popover.
+
+.item-picker
+  display: inline-flex
+  flex-wrap: wrap
+  align-items: center
+  gap: 0.3em
+  min-width: 0
+  max-width: 100%
+
+.picked-item
+  display: inline-flex
+  align-items: center
+  gap: 0.15em
+  min-width: 0
+
+.remove-item, .change-item
+  min-height: 0
+  min-width: 0
+  padding: 0
+  opacity: 0.6
+  &:hover
+    opacity: 1
+
+.add-item
+  font-size: 0.85em
+
+.picker-empty
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.item-picker-list
+  display: flex
+  flex-direction: column
+  gap: 6px
+  min-width: 260px
+  padding: 6px
+
+.item-rows
+  display: flex
+  flex-direction: column
+  max-height: 280px
+  overflow-y: auto
+
+.item-row
+  display: flex
+  align-items: center
+  gap: 8px
+  padding: 3px 6px
+  cursor: pointer
+  border-radius: 3px
+  &:hover
+    background: rgba(128, 128, 128, 0.12)
+  &.selected .item-name
+    font-weight: 600
+
+.item-swatch
+  flex: none
+  width: 10px
+  height: 10px
+  border-radius: 2px
+  border: 1px solid rgba(128, 128, 128, 0.4)
+
+.item-text
+  display: flex
+  flex-direction: column
+  min-width: 0
+  line-height: 1.2
+
+.item-description
+  font-size: 0.8em
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.item-check
+  margin-left: auto
+  color: var(--pz-intent-primary, #2d72d2)
+
+.picker-empty-list
+  padding: 6px
+  font-size: 12px
+  opacity: 0.6
+
+// Lithology proportions beside their tag
+.proportion-input
+  width: 4.2em
+  :global(input)
+    padding-right: 1.2em !important
+    text-align: right
+  .percent-sign
+    font-size: 0.8em
+    line-height: 24px
+    padding-right: 0.3em
+    color: var(--pz-text-subtle-color, var(--secondary-color))
+
+// Interval + proportion
+.interval-position
+  display: flex
+  flex-direction: column
+  gap: 0.25em
+  min-width: 0
+
+.interval-row
+  display: flex
+  align-items: center
+  gap: 0.5em
+  flex-wrap: wrap
+
+.proportion-row
+  padding: 0 0.5em
+  .proportion-slider
+    min-width: 12em
+
+.proportion-value
+  font-variant-numeric: tabular-nums
+
+.derived-age
+  font-variant-numeric: tabular-nums
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+  font-style: italic
+
+.unresolved-interval
+  color: var(--pz-intent-warning, #c87619)
+  font-style: italic

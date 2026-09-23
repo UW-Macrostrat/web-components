@@ -16,6 +16,7 @@ import type {
 } from "../postgrest-table";
 import { buildActionContext } from "../actions";
 import { useMemo } from "react";
+import classNames from "classnames";
 
 export interface ColumnActionsConfig {
   activeSort?: ColumnSortEntry | null;
@@ -107,9 +108,18 @@ function ColumnHeaderName({ col, hasSortActive, hasFilterActive, activeSort }) {
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
           },
+          className: classNames({ "derived-column-name": col.derived }),
         },
         col.name,
       ),
+      // A derived column says so in its header: the values below are computed
+      // and won't take an edit.
+      h.if(col.derived === true)(Icon, {
+        icon: "function",
+        size: 12,
+        title: "Derived — computed from other values, not editable",
+        style: { marginLeft: "4px", flexShrink: 0, opacity: 0.6 },
+      }),
       h.if(hasSortActive || hasFilterActive)(
         "span",
         {

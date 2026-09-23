@@ -39,34 +39,35 @@ recorded in the `CHANGELOG`. See the design doc in the Workbench
 Workstreams, in sequence:
 
 - [x] **G — Bugfixes** (small, low-risk, land first)
-  - [x] `onCellEdited` empty↔null normalization (no phantom edit when an
-        empty cell stays empty) — _story:_ `Data sheet/Editing`
+  - [x] `onCellEdited` empty↔null normalization (no phantom edit when an empty
+        cell stays empty) — _story:_ `Data sheet/Editing`
   - [x] Filter-aware edit methods (`clearSelection` / `onSelectionEdited` /
-        `fillValues` target the correct data row under sort/filter) —
-        _story:_ `Data sheet/Editing`, `Data sheet/Filters`
+        `fillValues` target the correct data row under sort/filter) — _story:_
+        `Data sheet/Editing`, `Data sheet/Filters`
   - [x] `col.style` clone (stop mutating the caller's style object)
   - [x] Remove dead `onSaveData` prop (never invoked; save is a table action)
-- [x] **B — Rich cell-render context** (pass `{ rowIndex, colIndex, column,
-      row, isEdited, isDeleted }` to renderers)
+- [x] **B — Rich cell-render context** (pass
+      `{ rowIndex, colIndex, column,     row, isEdited, isDeleted }` to
+      renderers)
 - [x] **C — Cell interaction & editor UX** (`cellInteraction` auto/manual;
       per-cell editor selection; focus flow-through with Escape→nav-mode,
-      direction-of-travel cursor, Enter/F2 to edit, click-to-toggle;
-      read-only `detailRenderer` panels)
-- [x] **A — Controlled editing** (`onEdit(event)` + controlled
-      `updatedData` / `rowStatus` overlay; unified `cellDetail` /
-      `detailPresentation` surface API)
+      direction-of-travel cursor, Enter/F2 to edit, click-to-toggle; read-only
+      `detailRenderer` panels)
+- [x] **A — Controlled editing** (`onEdit(event)` + controlled `updatedData` /
+      `rowStatus` overlay; unified `cellDetail` / `detailPresentation` surface
+      API)
 - [x] **D+E — Data source & view state** — one `TableDataProvider`
       (`fetchData({ offset, limit, sorts, filters, cursor })` + `identity` +
       optional `saveRows` / `deleteRows` / `insertRow`), passed via the
       **`provider`** prop or the loose `data` / `fetchData` props;
       `createLocalProvider` + `createPostgRESTProvider`; unified operator +
-      custom column filters and column sort (applied in memory or server-side
-      by the provider); identity-keyed edits that survive a re-sort; keyset &
+      custom column filters and column sort (applied in memory or server-side by
+      the provider); identity-keyed edits that survive a re-sort; keyset &
       unknown-length scroll. Table-scoped controls (`scrollToRowAction`,
       `fullTextSearchAction`) are ordinary `TableAction`s (`dataSheetActions`
-      removed). _Stories:_ `Data sheet/Chunk loader`, `Data sheet/PostgREST
-      sheet`, `Data sheet/Filters`. _(Group-by stays a consumer/page-side
-      concern for now — only the ingestion page needs it.)_
+      removed). _Stories:_ `Data sheet/Chunk loader`,
+      `Data sheet/PostgREST     sheet`, `Data sheet/Filters`. _(Group-by stays a
+      consumer/page-side concern for now — only the ingestion page needs it.)_
 - [x] **F — Row-header & row-status customization** — extensible `rowStatus`
       (any string, not just added/deleted), per-status presentation via
       **`rowStatusStyles`** (cell style + intent, row-header style; merged over
@@ -74,7 +75,39 @@ Workstreams, in sequence:
       gutter content (group-key labels, omit markers), and `status` on
       `CellRenderContext`. _Story:_ `Data sheet/Row status`.
 - [x] **Column-header menus** — sort and filter render as native menu items in
-      the column-header dropdown via **`TableAction.renderMenuItem`**: sort as an
-      Ascending/Descending submenu (re-click active to toggle off), filter as a
-      list of every applicable filter, each with its edit form in a submenu.
+      the column-header dropdown via **`TableAction.renderMenuItem`**: sort as
+      an Ascending/Descending submenu (re-click active to toggle off), filter as
+      a list of every applicable filter, each with its edit form in a submenu.
       _Stories:_ `Data sheet/Controls`, `Data sheet/Filters`.
+
+## Locked, derived and hidden columns
+
+The column spec is the only authority on what may be written, and it holds on
+every write path — typing, the fill handle, a paste, "clear", and the row editor
+— not only when a cell is clicked into. Three flags shape a column's role:
+
+- `editable: false` — **locked**: a value this view shows but never changes (an
+  identifier).
+- `derived: true` — **derived**: computed from other values, never writable,
+  drawn dimmed and marked ƒ in its header. The consumer recomputes it into the
+  edit overlay when its inputs change.
+- `hidden: true` — **hidden**: kept in the spec but left out of the table, so
+  one spec serves every view and a control toggles flags rather than maintaining
+  several column arrays.
+
+`isColumnWritable(col, tableEditable)` is the rule the store applies.
+
+## Row editor
+
+`RowEditor` renders one row's fields as a form derived from the column spec: the
+column's `name` is the label, `valueRenderer` draws the value, `cellDetail` is
+the editor when the column has one, and otherwise an input follows from
+`dataType`. Locked and derived columns show read-only; with `editable: false`
+the whole form is a read-only row viewer. It is store-free — a row, its edits
+and an `onChange`.
+
+`SelectedRowEditor` binds it to the enclosing `DataSheetProvider`: it follows
+the selected row and writes through `onCellEdited`, so an edit made in the form
+is the same edit as one typed into the grid (same overlay, same `onEdit`, same
+Reset), and it keeps working when the grid itself isn't mounted. See
+`stories/row-editor.stories.ts`.

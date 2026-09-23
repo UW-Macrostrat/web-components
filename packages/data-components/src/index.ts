@@ -6,3 +6,4 @@ export * from "./data-links";
 export * from "./expansion-panel";
 export * from "./xdd-articles";
 export * from "./tag-editor";
+export * from "./pickers";

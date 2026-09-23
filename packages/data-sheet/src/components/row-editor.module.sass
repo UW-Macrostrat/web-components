@@ -1,0 +1,70 @@
+// The row editor: one row's fields as a form. Labels carry a marker for what
+// kind of value a field holds (derived, required) and a revert button once
+// it has been edited; the value or its editor sits beneath.
+
+.row-editor
+  display: flex
+  flex-direction: column
+  gap: 0.25em
+  min-width: 0
+
+.row-editor-fields
+  display: flex
+  flex-direction: column
+  gap: 0.1em
+
+.row-editor-field
+  margin-bottom: 0.4em
+  min-width: 0
+  :global(.bp6-label)
+    margin-bottom: 0.15em
+  &.edited .field-name
+    color: var(--pz-intent-success, #0f9960)
+  &.derived .field-value
+    color: var(--pz-text-subtle-color, var(--secondary-color))
+    font-style: italic
+  &.read-only :global(.bp6-form-content)
+    padding: 0.15em 0
+
+.row-editor.inline .row-editor-field
+  align-items: baseline
+
+.field-label
+  display: inline-flex
+  align-items: center
+  gap: 0.35em
+  min-height: 1.4em
+
+.field-name
+  font-weight: 600
+  font-size: 0.85em
+  color: var(--secondary-color)
+
+.field-marker
+  font-size: 0.7em
+  line-height: 1
+  padding: 0 0.4em
+  min-height: 1.4em
+
+.required-marker
+  color: var(--pz-intent-danger, #cd4246)
+
+.reset-field
+  margin-left: -0.15em
+  min-height: 0
+  :global(.bp6-icon)
+    color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.field-value
+  display: inline-block
+  min-width: 0
+  overflow-wrap: anywhere
+  &.empty
+    color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.field-surface.cell-detail
+  min-width: 0
+
+.row-editor-empty
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+  font-size: 0.9em

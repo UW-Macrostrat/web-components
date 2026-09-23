@@ -13,6 +13,7 @@ import { singleFocusedCell } from "../provider";
 import { Cell } from "@blueprintjs/table";
 import { ctx, dragValueHandlerAtom, useSelector } from "../provider";
 import { Intent } from "@blueprintjs/core";
+import classNames from "classnames";
 
 /** Two validations are equivalent if they convey the same thing — so a fresh
  * `validateCell` result object doesn't force a re-render when nothing changed. */
@@ -111,7 +112,10 @@ export function basicCellRenderer<T>(
     ? null
     : validateCell(col, value, row, dataRowIndex);
 
-  const editable = (col.editable ?? state.editable) && !isDeleted;
+  // A derived column is never writable, whatever `editable` says — see
+  // `isColumnWritable`, which every write path in the store applies too.
+  const editable =
+    (col.editable ?? state.editable) && !isDeleted && !col.derived;
   const tableIsEditable = state.editable;
 
   // topLeftCell stores visible row indices, so compare with the visible rowIndex
@@ -160,6 +164,10 @@ export function basicCellRenderer<T>(
   const detailPresentation =
     col.cellDetail != null ? (col.detailPresentation ?? "popover") : null;
 
+  // Derived values are drawn dimmed, so a reader can tell a record from a
+  // restatement of one. Applied on every path below.
+  const derivedClass = col.derived ? "derived-cell" : undefined;
+
   // Fast path — any non-focused cell whose *unfocused* appearance is just the
   // value viewer (a plain Blueprint `Cell`). That's everything except a custom
   // `cellComponent` (its own markup on every cell) and an *inline* `cellDetail`
@@ -179,6 +187,7 @@ export function basicCellRenderer<T>(
         loading,
         //value,
         style,
+        className: derivedClass,
         interactive: false,
         //disabled: tableIsEditable && !editable,
       },
@@ -255,6 +264,7 @@ export function basicCellRenderer<T>(
         loading,
         value,
         style,
+        className: derivedClass,
         disabled: tableIsEditable && !editable,
         interactive: false,
         ...cellComponentProps,
@@ -385,7 +395,7 @@ export function basicCellRenderer<T>(
     if (_dataEditor != null) {
       cellContents = _dataEditor;
     }
-    const className = "value-viewer-cell";
+    const className = classNames("value-viewer-cell", derivedClass);
 
     return h(
       _Cell,

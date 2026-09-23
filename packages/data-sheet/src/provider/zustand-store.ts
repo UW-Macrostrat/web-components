@@ -19,6 +19,7 @@ import {
   getSelectionCardinality,
   range,
 } from "../actions";
+import { isColumnWritable } from "./column-spec.ts";
 
 /** Monotonic counter for synthetic ids on in-table-added rows. */
 let _addedRowCounter = 0;
@@ -240,6 +241,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       event.preventDefault();
     },
     onCellEdited(rowIndex: number, columnName: string, value: any) {
+      // The column decides whether it takes writes (see `isColumnWritable`):
+      // a locked or derived column is refused here as well as in the cell
+      // renderer, so a programmatic caller — the row editor, say — can't
+      // write what the grid wouldn't let you type.
+      const targetColumn = get().columnSpec.find((c) => c.key === columnName);
+      if (!isColumnWritable(targetColumn, get().editable)) return;
       set((state) => {
         const { editable, updatedData, data } = state;
         if (!editable) return {};
@@ -297,6 +304,8 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
             if (rowIsDeleted) continue;
             let vals = {};
             for (const col of colRange) {
+              // A locked or derived column is never cleared
+              if (!isColumnWritable(columnSpec[col], state.editable)) continue;
               const key = columnSpec[col].key;
               const currentValue = updatedData[row]?.[key] ?? data[row]?.[key];
               if (currentValue != null && currentValue !== "") {
@@ -309,6 +318,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
                 });
               }
             }
+            if (Object.keys(vals).length === 0) continue;
             let op = updatedData[row] == null ? "$set" : "$merge";
             spec[row] = { [op]: vals };
           }
@@ -381,8 +391,13 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           for (const visibleRow of rowRange) {
             // Selection indices are visible positions; map to the data row.
             const row = toDataRowIndex(state, visibleRow);
+            // A deleted row takes no edits
+            if (state.rowStatus[row] === TableElementStatus.DELETED) continue;
             let vals = {};
             for (const col of colRange) {
+              // Only the columns that take writes — a selection spanning a
+              // locked or derived column writes around it
+              if (!isColumnWritable(columnSpec[col], editable)) continue;
               const key = columnSpec[col].key;
               vals[key] = value;
               edits.push({
@@ -392,6 +407,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
                 row: state.data[row],
               });
             }
+            if (Object.keys(vals).length === 0) continue;
             let op = updatedData[row] == null ? "$set" : "$merge";
             spec[row] = { [op]: vals };
           }
@@ -594,6 +610,8 @@ function fillValues<T>(state: DataSheetStore<T>, selection: Region[]) {
   // Fill values downwards
   if (!editable || fillValueBaseCell == null) return updatedData;
   const { col, row: baseVisibleRow } = fillValueBaseCell;
+  // Dragging from a locked or derived column fills nothing
+  if (!isColumnWritable(columnSpec[col], editable)) return updatedData;
   // The base cell and target rows are visible positions; map to data rows.
   const baseRow = toDataRowIndex(state, baseVisibleRow);
   const key = columnSpec[col].key;
@@ -603,6 +621,7 @@ function fillValues<T>(state: DataSheetStore<T>, selection: Region[]) {
     const { rows } = region;
     for (const visibleRow of range(rows ?? [])) {
       const row = toDataRowIndex(state, visibleRow);
+      if (state.rowStatus[row] === TableElementStatus.DELETED) continue;
       let op = updatedData[row] == null ? "$set" : "$merge";
       spec[row] = { [op]: { [key]: value } };
     }

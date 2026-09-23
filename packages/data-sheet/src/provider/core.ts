@@ -402,7 +402,7 @@ export function DataSheetProviderInner<T>(
     const rows = loadedData.filter((r) => r != null);
     if (rows.length === 0) return;
     derivedSpecFor.current = columnSpec;
-    storeAPI.setState({ columnSpec: columnSpec(rows) });
+    storeAPI.setState({ columnSpec: postprocessColumnSpec(columnSpec(rows)) });
   }, [columnSpec, loadedData, storeAPI]);
 
   const bumpRefresh = ctx.useSet(dataRefreshTokenAtom);
