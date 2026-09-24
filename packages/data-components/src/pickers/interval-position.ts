@@ -9,10 +9,13 @@
  * at its top. The interval is drawn as a tag, with the position inside it
  * once there is one; the age is derived, shown in its details, and never typed.
  *
- * Selecting the tag opens the position control as a nested control, inline
- * below it (or in a popover, with `detailsMode: "popover"`): a slider with
- * *Base* and *Top* shortcuts, with a ✕ that drops the position. The ✕ after
- * the selected tag, or Delete, clears the interval.
+ * Editing, a click on the tag changes the interval (a searchable list), and
+ * the caret in its prefix — where the position shows once there is one —
+ * opens the position control, inline below it (or in a popover, with
+ * `detailsMode: "popover"`): a slider with *Base* and *Top* shortcuts, headed
+ * like the rest of the control, with a ✕ that drops the position. The
+ * interval is clearable: its ✕ is always beside the tag, and Delete on the
+ * tag does the same.
  *
  * Intervals and timescales come from the enclosing `MacrostratDataProvider`
  * unless given as props. Matching can be **constrained to a timescale**:
@@ -22,23 +25,22 @@
  */
 import classNames from "classnames";
 import { type ReactNode, useMemo, useState } from "react";
-import { Button, ButtonGroup, HTMLSelect, Slider } from "@blueprintjs/core";
+import {
+  Button,
+  ButtonGroup,
+  HTMLSelect,
+  Icon,
+  PopoverNext,
+  Slider,
+} from "@blueprintjs/core";
 import {
   formatIntervalProportion,
   IntervalTag,
   type IntervalShort,
 } from "../components/unit-details";
 import { TagSize } from "../components/unit-details/tag";
-import {
-  type PickerItem,
-  type TagDetailsContext,
-  TagPicker,
-} from "./tag-picker";
-import {
-  type DetailsMode,
-  TagDetailsEditor,
-  type TagDetailsSection,
-} from "./tag-details-editor";
+import { type PickerItem, TagPicker, VocabularyList } from "./tag-picker";
+import { type DetailsMode, RemoveButton } from "./tag-details-editor";
 import { useVocabulary, type Vocabulary } from "./vocabularies";
 import h from "./pickers.module.sass";
 
@@ -106,8 +108,8 @@ export interface IntervalPositionEditorProps {
   timescales?: Vocabulary<TimescaleRef>;
   /** The timescale chosen at first (uncontrolled). */
   defaultTimescaleID?: number | null;
-  /** Where the selected interval's position control opens (default
-   * `inline`). */
+  /** Where the position control opens: `inline` below the interval
+   * (default) or in a `popover` from the tag's caret. */
   detailsMode?: DetailsMode;
   /** Show the derived age in the interval's tag (default): the age at the
    * position, or the interval's range while there is no position. */
@@ -148,6 +150,7 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
   } = props;
 
   const editable = onChange != null && !disabled;
+  const [positionOpen, setPositionOpen] = useState(false);
   const defs = useVocabulary<IntervalDefLike>("intervals", props.intervals);
 
   // Timescales are only needed to offer a choice of them
@@ -206,48 +209,24 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
     });
   };
 
-  const changePicked = (next: IntervalItem[]) => {
-    if (next.length === 0) {
-      // Removing the interval takes its position with it
-      emit({ int_id: null, prop: null });
-      return;
-    }
-    emit({ int_id: next[0].id as number });
-  };
+  // Clearing the interval takes its position with it
+  const clear = () => emit({ int_id: null, prop: null });
 
-  const renderDetails = (ctx: TagDetailsContext<IntervalItem>) => {
-    const sections: TagDetailsSection[] = [];
-    if (proportion) {
-      sections.push({
-        key: "position",
-        label: "Position in interval",
-        addLabel: "Add position in interval",
-        icon: "arrows-vertical",
-        summary: positionSummary(prop),
-        editor: h(ProportionControl, {
-          prop,
-          defaultProportion,
-          onChange: (next) => emit({ prop: next }),
-        }),
-        // Dropping the position leaves the interval alone
-        onRemove: () => emit({ prop: null }),
-      });
-    }
-    // Inline, the interval's tag says what is being edited, so the panel is
-    // its field alone and the interval's ✕ follows the tag
-    return h(TagDetailsEditor, {
-      mode: ctx.mode,
-      header: ctx.mode === "popover",
-      title: ctx.item.name,
-      color: ctx.item.color,
-      sections,
-      removeLabel: "Clear interval",
-      onRemove: ctx.remove,
-    });
-  };
-
-  let removeButton: "details" | "tag" = "details";
-  if (detailsMode === "inline") removeButton = "tag";
+  // The position control: a field headed like the rest of the control, whose
+  // ✕ drops the position (leaving the interval alone)
+  let dropPosition: (() => void) | undefined;
+  if (prop != null) dropPosition = () => emit({ prop: null });
+  const positionControl = h("div.details-field.position-field", [
+    h("div.details-field-header", [
+      h("span.details-field-label", "Position in interval"),
+      h(RemoveButton, { label: "Clear position", onRemove: dropPosition }),
+    ]),
+    h(ProportionControl, {
+      prop,
+      defaultProportion,
+      onChange: (next) => emit({ prop: next }),
+    }),
+  ]);
 
   let unresolved: ReactNode = null;
   if (current == null && value?.int_name != null) {
@@ -264,35 +243,27 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
   let tagAge: number | null = null;
   if (showAge) tagAge = age;
 
-  let picked: IntervalItem[] = [];
-  if (current != null) picked = [current];
+  // The constraint sits above the interval: it says what the interval is
+  // matched within, and is read before the interval is.
+  const constraint = h(TimescaleConstraint, {
+    timescale,
+    timescales,
+    timescaleID: chosenTimescaleID,
+    onChange: setChosenTimescaleID,
+    editable,
+  });
 
-  let change: ((next: IntervalItem[]) => void) | undefined;
-  if (editable) change = changePicked;
-
-  return h(
-    "div.interval-position",
-    { className: classNames(className, { editable }) },
-    [
-      // The constraint sits above the interval: it says what the interval is
-      // matched within, and is read before the interval is.
-      h(TimescaleConstraint, {
-        timescale,
-        timescales,
-        timescaleID: chosenTimescaleID,
-        onChange: setChosenTimescaleID,
-        editable,
-      }),
+  // Read-only: the interval tag of the unit details panels, the position in
+  // its prefix and the age in its details
+  if (!editable) {
+    let picked: IntervalItem[] = [];
+    if (current != null) picked = [current];
+    return h("div.interval-position", { className }, [
+      constraint,
       h(TagPicker<IntervalItem>, {
         items,
         value: picked,
         multi: false,
-        onChange: change,
-        detailsMode,
-        placeholder: "Choose an interval…",
-        searchPlaceholder: "Search intervals…",
-        // The interval tag of the unit details panels: the position in its
-        // prefix, the age in its details
         renderTag: (item) =>
           h(IntervalTag, {
             interval: toIntervalShort(item.def),
@@ -302,11 +273,146 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
             size,
             interactive: false,
           }),
-        renderDetails,
-        removeButton,
         trailing: unresolved,
       }),
+    ]);
+  }
+
+  const chosen = new Set<number | string>();
+  if (current != null) chosen.add(current.id);
+  const list = h(VocabularyList<IntervalItem>, {
+    items,
+    chosen,
+    multi: false,
+    onPick: (item) => emit({ int_id: item.id as number }),
+    searchPlaceholder: "Search intervals…",
+  });
+
+  let interval: ReactNode;
+  if (current == null) {
+    interval = h(
+      PopoverNext,
+      { minimal: true, placement: "bottom-start", content: list },
+      h(Button, {
+        small: true,
+        minimal: true,
+        icon: "caret-down",
+        text: "Choose an interval…",
+        className: "add-item",
+      }),
+    );
+  } else {
+    let prefix: ReactNode = null;
+    if (proportion) {
+      prefix = h(PositionToggle, {
+        prop,
+        open: positionOpen,
+        detailsMode,
+        onToggle: () => setPositionOpen(!positionOpen),
+        popover: positionControl,
+      });
+    }
+    // A click on the tag changes the interval; the prefix's caret is the
+    // position within it
+    interval = h(
+      PopoverNext,
+      { minimal: true, placement: "bottom-start", content: list },
+      h(
+        "span.picker-tag.editable.interval-target",
+        {
+          tabIndex: 0,
+          role: "button",
+          "aria-label": `${current.name}: change the interval`,
+          onKeyDown(evt) {
+            if (evt.key === "Delete" || evt.key === "Backspace") {
+              evt.preventDefault();
+              evt.stopPropagation();
+              clear();
+            }
+          },
+        },
+        h(IntervalTag, {
+          interval: toIntervalShort(current.def),
+          prefix,
+          age: tagAge,
+          showAgeRange: showAge,
+          size,
+          interactive: false,
+        }),
+      ),
+    );
+  }
+
+  let inlinePosition: ReactNode = null;
+  if (
+    proportion &&
+    current != null &&
+    positionOpen &&
+    detailsMode !== "popover"
+  ) {
+    inlinePosition = positionControl;
+  }
+
+  return h(
+    "div.interval-position",
+    { className: classNames(className, "editable") },
+    [
+      constraint,
+      h("div.tag-row", [
+        interval,
+        // The interval is clearable: its ✕ is always beside it
+        h.if(current != null)(RemoveButton, {
+          label: "Clear interval",
+          onRemove: clear,
+        }),
+        unresolved,
+      ]),
+      inlinePosition,
     ],
+  );
+}
+
+/** The caret in the interval tag's prefix: the position within the interval
+ * ("25%", "base"), or a bare caret while there is none, opening the position
+ * control — inline below, or in a popover of its own. */
+function PositionToggle({
+  prop,
+  open,
+  detailsMode,
+  onToggle,
+  popover,
+}: {
+  prop: number | null;
+  open: boolean;
+  detailsMode: DetailsMode;
+  onToggle: () => void;
+  popover: ReactNode;
+}) {
+  let label: ReactNode = null;
+  if (prop != null) label = formatIntervalProportion(prop);
+  const button = h(
+    "button.position-toggle",
+    {
+      type: "button",
+      title: "Position in the interval",
+      className: classNames({ open, unset: prop == null }),
+      onClick(evt) {
+        // Not a click on the tag, which changes the interval
+        evt.stopPropagation();
+        if (detailsMode !== "popover") onToggle();
+      },
+    },
+    [label, h(Icon, { icon: "caret-down", size: 12 })],
+  );
+  if (detailsMode !== "popover") return button;
+  return h(
+    "span.position-toggle-holder",
+    { onClick: (evt) => evt.stopPropagation() },
+    h(
+      PopoverNext,
+      { minimal: true, placement: "bottom-start", content: popover },
+      button,
+    ),
   );
 }
 
@@ -393,8 +499,7 @@ function TimescaleConstraint({
   editable: boolean;
 }) {
   if (timescale != null) {
-    return h("div.timescale-row", [
-      h("span.timescale-label", "Timescale"),
+    return h(TimescaleHeader, [
       h(
         "span.timescale-constraint",
         { title: "Intervals are matched within this timescale" },
@@ -406,8 +511,7 @@ function TimescaleConstraint({
   const chosen = timescales.find((t) => t.timescale_id === timescaleID);
   if (!editable) {
     if (chosen == null) return null;
-    return h("div.timescale-row", [
-      h("span.timescale-label", "Timescale"),
+    return h(TimescaleHeader, [
       h("span.timescale-constraint", timescaleName(chosen)),
     ]);
   }
@@ -418,29 +522,37 @@ function TimescaleConstraint({
       value: String(t.timescale_id),
     })),
   ];
-  return h("div.timescale-row", [
-    h("span.timescale-label", "Timescale"),
+  let selected = "";
+  if (timescaleID != null) selected = String(timescaleID);
+  return h(TimescaleHeader, [
     h(HTMLSelect, {
       className: "timescale-select",
       minimal: true,
       options,
-      value: timescaleID == null ? "" : String(timescaleID),
+      value: selected,
       title: "Constrain matching to a timescale",
       onChange: (evt) => {
         const raw = evt.currentTarget.value;
-        onChange(raw === "" ? null : Number(raw));
+        if (raw === "") {
+          onChange(null);
+          return;
+        }
+        onChange(Number(raw));
       },
     }),
   ]);
 }
 
-function inTimescale(def: IntervalDefLike, timescaleID: number): boolean {
-  return (def.timescales ?? []).some((t) => t.timescale_id === timescaleID);
+/** The timescale's header, drawn as the control's other field headers are. */
+function TimescaleHeader({ children }: { children: ReactNode }) {
+  return h("div.details-field-header.timescale-row", [
+    h("span.details-field-label.timescale-label", "Timescale"),
+    children,
+  ]);
 }
 
-function positionSummary(prop: number | null): string | null {
-  if (prop == null || isNaN(prop)) return null;
-  return formatIntervalProportion(prop);
+function inTimescale(def: IntervalDefLike, timescaleID: number): boolean {
+  return (def.timescales ?? []).some((t) => t.timescale_id === timescaleID);
 }
 
 function toIntervalShort(def: IntervalDefLike): IntervalShort {

@@ -44,7 +44,11 @@ import { useVocabulary, type Vocabulary } from "./vocabularies";
 import {
   addToAll,
   applyUnionChange,
+  type CombinedValues,
   combineValues,
+  type MergedItem,
+  type MergeItems,
+  mergeLists,
   updateInEach,
 } from "./multi-values";
 import type { SelectionColor } from "./selection-colors";
@@ -108,6 +112,10 @@ export interface LithologyPickerProps {
   values?: UnitLithologyValue[][] | null;
   /** Every unit's lithologies after a change, aligned with `values`. */
   onChangeValues?: (values: UnitLithologyValue[][]) => void;
+  /** Merge the entries several units hold for one lithology. Defaults to
+   * `mergeLithologies`: attributes as their union, those only some hold
+   * partial, and a proportion that differs "mixed". */
+  mergeItems?: MergeItems<UnitLithologyValue>;
   /** The lithology vocabulary. Defaults to the data provider's. */
   lithologies?: Vocabulary<LithologyDef>;
   /** The attribute vocabulary. Defaults to the data provider's. */
@@ -143,6 +151,7 @@ export function LithologyPicker(props: LithologyPickerProps) {
     onChange,
     values = null,
     onChangeValues,
+    mergeItems = mergeLithologies,
     attributes = true,
     detailsMode = "popover",
     removable = true,
@@ -185,8 +194,8 @@ export function LithologyPicker(props: LithologyPickerProps) {
   // Over several units, what they hold between them
   const combined = useMemo(() => {
     if (values == null) return null;
-    return combineValues(values, lithID);
-  }, [values]);
+    return combineValues(values, lithID, mergeItems);
+  }, [values, mergeItems]);
   let current: UnitLithologyValue[] = value ?? [];
   if (combined != null) current = combined.union;
 
@@ -256,12 +265,42 @@ export function LithologyPicker(props: LithologyPickerProps) {
     commitEach(addToAll(values, lithID, entryOf(item)));
   };
 
+  // A lithology's attributes: over several units, a change to the merged
+  // list is made to each unit's own list
+  const setAttributes = (lith_id: number, next: string[]) => {
+    if (values == null || combined == null) {
+      updateEntry(lith_id, { atts: next });
+      return;
+    }
+    const prev = combined.merged.get(lith_id)?.value.atts ?? [];
+    commitEach(
+      updateInEach(values, lithID, lith_id, (d) => ({
+        ...d,
+        atts: applyUnionChange([d.atts ?? []], attID, prev, next)[0],
+      })),
+    );
+  };
+
+  const applyAttributeToAll = (lith_id: number, att: string) => {
+    if (values == null) return;
+    commitEach(
+      updateInEach(values, lithID, lith_id, (d) => ({
+        ...d,
+        atts: addToAll([d.atts ?? []], attID, att)[0],
+      })),
+    );
+  };
+
   const renderDetails = (ctx: TagDetailsContext<LithItem>) => {
     const entry = ctx.item.entry;
     if (entry == null) return null;
+    const merged = combined?.merged.get(entry.lith_id);
+    const mixedProportion = merged?.mixed?.has("prop") ?? false;
     const sections: TagDetailsSection[] = [];
     if (proportions != null) {
       const current = proportionOf(entry);
+      let summary: string | null = proportionLabel(current);
+      if (mixedProportion) summary = "Mixed";
       let clearProportion: (() => void) | undefined;
       if (proportions.clearable) {
         clearProportion = () =>
@@ -272,11 +311,11 @@ export function LithologyPicker(props: LithologyPickerProps) {
         label: "Proportion",
         addLabel: "Add proportion",
         icon: "percentage",
-        summary: proportionLabel(current),
+        summary,
         editor: h(ProportionEditor, {
           value: current,
           options: proportions,
-          autoFocus: ctx.mode === "popover",
+          autoFocus: ctx.mode !== "inline",
           onChange: ({ prop, term }) =>
             updateEntry(entry.lith_id, { prop, prop_term: term }),
         }),
@@ -296,9 +335,11 @@ export function LithologyPicker(props: LithologyPickerProps) {
         editor: h(AttributeEditor, {
           options: attributeDefs,
           value: atts,
+          partial: merged?.partial?.atts,
           mode: ctx.mode,
           color: ctx.item.color,
-          onChange: (next) => updateEntry(entry.lith_id, { atts: next }),
+          onChange: (next) => setAttributes(entry.lith_id, next),
+          onApplyToAll: (att) => applyAttributeToAll(entry.lith_id, att),
         }),
         onRemove: () => updateEntry(entry.lith_id, { atts: [] }),
       });
@@ -310,6 +351,7 @@ export function LithologyPicker(props: LithologyPickerProps) {
       sections,
       onRemove: ctx.remove,
       onApplyToAll: ctx.applyToAll,
+      onBack: ctx.back,
     });
   };
 
@@ -334,7 +376,7 @@ export function LithologyPicker(props: LithologyPickerProps) {
       h(LithologyTag, {
         data: { ...item.def, ...(item.entry ?? {}) } as any,
         features: tagFeatures,
-        proportionLabel: item.entry?.prop_term?.name,
+        proportionLabel: tagProportionLabel(item, combined),
         size,
         interactive: false,
       }),
@@ -348,12 +390,16 @@ type AttributeItem = PickerItem & { def?: LithAttributeDef };
 
 /** The attributes of one lithology, stored by name as the API carries them.
  * In a popover, the attribute vocabulary as a searchable list, the ones on
- * the lithology in bold, in its colours, and listed first; inline, those attributes as tags
- * of their own, with a list to add more. */
+ * the lithology in bold, in its colours, and listed first; inline, those
+ * attributes as tags of their own, with a list to add more. Over several
+ * units, the attributes only some hold are `partial`: faded, and applied to
+ * all by a click in the list or "Apply to all" on the tag. */
 export function AttributeEditor({
   options,
   value,
   onChange,
+  partial = null,
+  onApplyToAll,
   mode = "popover",
   color,
 }: {
@@ -362,6 +408,10 @@ export function AttributeEditor({
   /** The attribute names on the lithology. */
   value: string[];
   onChange: (atts: string[]) => void;
+  /** The attributes only some of the units hold. */
+  partial?: Set<string | number> | null;
+  /** Give an attribute to every unit. */
+  onApplyToAll?: (att: string) => void;
   mode?: DetailsMode;
   /** The lithology's colour, which the chosen attributes are drawn in. */
   color?: SelectionColor;
@@ -394,6 +444,8 @@ export function AttributeEditor({
       items,
       value: picked,
       onChange: (next) => onChange(next.map((d) => d.name)),
+      partial,
+      onApplyToAll: (item) => onApplyToAll?.(item.name),
       placeholder: "Add attribute",
       selectionColor: color,
       searchPlaceholder: "Search attributes…",
@@ -402,6 +454,11 @@ export function AttributeEditor({
   }
 
   const onPick = (item: AttributeItem) => {
+    // A partial attribute is promoted to every unit; a full one is removed
+    if (partial?.has(item.id) && onApplyToAll != null) {
+      onApplyToAll(item.name);
+      return;
+    }
     if (chosen.has(item.id)) {
       onChange(value.filter((name) => name !== item.name));
       return;
@@ -419,6 +476,7 @@ export function AttributeEditor({
     multi: true,
     onPick,
     compareItems,
+    partial,
     selectionColor: color,
     searchPlaceholder: "Search attributes…",
   });
@@ -426,6 +484,48 @@ export function AttributeEditor({
 
 function lithID(entry: UnitLithologyValue) {
   return entry.lith_id;
+}
+
+function attID(att: string) {
+  return att;
+}
+
+/** What the tag shows for a proportion: "mixed" where the units differ, a
+ * term by name, else (absent) the percentage. */
+function tagProportionLabel(
+  item: LithItem,
+  combined: CombinedValues<UnitLithologyValue> | null,
+): string | undefined {
+  if (combined?.merged.get(item.id)?.mixed?.has("prop")) return "mixed";
+  return item.entry?.prop_term?.name;
+}
+
+/** The default merge for lithologies over several units: attributes as the
+ * union of the units' (those only some hold partial), and a proportion — as
+ * a number or a term — cleared and marked mixed where the units differ. */
+export function mergeLithologies(
+  entries: UnitLithologyValue[],
+): MergedItem<UnitLithologyValue> {
+  const first = entries[0];
+  const atts = mergeLists(entries.map((d) => d.atts));
+  const proportionToken = (d: UnitLithologyValue) =>
+    JSON.stringify([d.prop ?? null, d.prop_term?.id ?? null]);
+  const firstProportion = proportionToken(first);
+  const mixedProportion = entries.some(
+    (d) => proportionToken(d) !== firstProportion,
+  );
+  const mixed = new Set<string>();
+  let value: UnitLithologyValue = { ...first, atts: atts.union };
+  if (mixedProportion) {
+    mixed.add("prop");
+    value = { ...value, prop: null, prop_term: null };
+  }
+  return {
+    value,
+    multi: mixedProportion || atts.partial.size > 0,
+    partial: { atts: atts.partial },
+    mixed,
+  };
 }
 
 /** A picked item as a unit's entry: its own, or a new one from the

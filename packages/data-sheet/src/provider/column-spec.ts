@@ -97,10 +97,11 @@ export interface CellDetailContext<T = any> extends CellRenderContext<T> {
   /** True when `cells` hold differing values. */
   mixed?: boolean;
   /** Where the surface is drawn: `"cell"`, the grid's own popover, modal or
-   * in-cell surface, or `"row-editor"`, a field of the row editor — so a
-   * surface can lay itself out to suit (a picker nesting its own popovers
-   * only where it has room). */
-  surface?: "cell" | "row-editor";
+   * in-cell surface; `"row-editor"`, a field of the sheet's row editor; or
+   * `"editor"`, a field of a standalone `DataEditor` — so a surface can lay
+   * itself out to suit (a picker nesting its own popovers only where it has
+   * room). */
+  surface?: "cell" | "row-editor" | "editor";
   /** Commit a new value for this cell — for every cell, when the surface
    * stands for several. */
   onChange: (value: any) => void;

@@ -8,6 +8,38 @@
   min-width: 0
   min-height: 0
 
+// A field's actions, after its label
+.field-actions
+  display: inline-flex
+  gap: 0.1em
+  margin-left: 0.2em
+  :global(.bp6-button)
+    min-height: 0
+    min-width: 0
+    padding: 0 3px
+
+.editor-action-form
+  display: flex
+  flex-direction: column
+  gap: 0.5em
+  padding: 0.6em
+  min-width: 14em
+
+// The data editor's footer: its actions, then Reset and Save
+.data-editor-footer
+  flex: none
+  display: flex
+  align-items: center
+  gap: 0.3em
+  padding-top: 0.5em
+
+.data-editor-footer-spacer
+  flex: 1
+
+.row-editor.panel .data-editor-footer
+  padding: 0.4em 0.6em
+  border-top: 1px solid var(--pz-border-color, rgba(128, 128, 128, 0.3))
+
 .row-editor-body
   display: flex
   flex-direction: column
@@ -101,10 +133,14 @@
 // selected region — a light fill and a full outline in the selection colour —
 // and the only writable fields; the rest of the row is context.
 .row-editor-field.selected
-  margin: 0 -0.4em 0.4em
+  // Padding for the outline, taken back by margins, so selecting a field
+  // moves nothing (fields sit 0.4em apart)
+  margin: -0.3em -0.4em 0.1em
   padding: 0.3em 0.4em
   border-radius: 3px
-  background: var(--pz-intent-primary-surface, rgba(45, 114, 210, 0.1))
+  // A faint fill — enough to say "selected" without tinting what the field
+  // shows; the outline carries the selection
+  background: color-mix(in srgb, var(--pz-intent-primary, #2d72d2) 4%, transparent)
   box-shadow: inset 0 0 0 1px var(--pz-intent-primary, #2d72d2)
   // Tags keep an edge against the selection's fill
   --tag-outline: 0 0 0 1px rgba(128, 128, 128, 0.35)

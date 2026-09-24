@@ -55,6 +55,20 @@
   parenthetical.
 - Tags in a cell are pinned inside it — a tighter line height, one line centred
   clear of the cell's border — and outlined in the selected cell.
+- `DataEditor`: a standalone form over one record from a data spec (any column
+  spec is one), keeping its own edits (or controlled `edits`), with Reset and
+  Save in a footer (`onSave`; Save waits for edits and for no errors). Its
+  `actions` are table actions scoped to the form (`editorActionsFor`,
+  `editorActionContext`, `EditorActionButton`): those for a row act on the
+  record, in the footer; those for a cell or column, and a field's column
+  `actions`, act on one field, beside its label; `showActions` turns them off.
+  It has no field selection. The row editor is built on its parts —
+  `DataEditorFields`, `DataEditorFrame`, `DataEditorField` — which are exported;
+  `CellDetailContext.surface` gains `"editor"`.
+- `SelectedDataEditor`: a `DataEditor` over a sheet's or panel's single selected
+  row, saving it through the provider (`rowEditing.saveRows`) — the
+  immediate-edit counterpart of `SelectedRowEditor`, for a `DataPanel`'s
+  sidebar.
 - Fix: typing in a text field inside a cell's popover surface no longer reaches
   the sheet's hotkeys, which run inside inputs — Backspace in a surface's search
   box cleared the cell, and Enter moved off it.

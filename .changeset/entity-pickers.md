@@ -55,8 +55,20 @@ than in free text:
   a tag only some hold is drawn faded (`TagPicker`'s `partial`) and its header
   offers "Apply to all" (`onApplyToAll`, `ApplyToAllButton`). Adding or removing
   a tag, or editing its details, changes each row's own list. `combineValues`,
-  `applyUnionChange`, `addToAll` and `updateInEach` are exported.
+  `applyUnionChange`, `addToAll` and `updateInEach` are exported. A `mergeItems`
+  function merges the entries rows hold for one item (`MergedItem`: the entry to
+  draw, whether they differ, nested members only some hold, fields that differ);
+  the default compares whole entries (`mergeByEquality`), and `mergeLithologies`
+  gives a lithology's attributes the same partial / apply-to-all treatment and
+  shows a differing proportion as "mixed".
+- On a one-line row (`--tag-row-wrap: nowrap`), tags keep their width and those
+  that don't fit give way to "and n more".
 - A container can pin tags and pickers through CSS variables:
   `--tag-line-height` and `--tag-outline` on a tag, `--tag-picker-height` (which
   centres the row in that height), `--tag-picker-overflow` and `--tag-row-wrap`
   on a picker.
+- A `"stack"` details mode: the selected tag's menu, then a section, stacked in
+  the picker's place with a way back — for a picker that is itself in a popover.
+- `IntervalPositionEditor`: a click on the tag changes the interval, the caret
+  in its prefix opens the position control, the interval's ✕ is always beside it
+  while editing, and its headers match the position field's.

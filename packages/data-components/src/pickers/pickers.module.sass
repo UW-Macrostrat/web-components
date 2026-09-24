@@ -17,6 +17,7 @@ $ring: var(--pz-intent-primary, #2d72d2)
   overflow: var(--tag-picker-overflow, visible)
 
 .tag-row
+  position: relative
   display: flex
   flex-wrap: var(--tag-row-wrap, wrap)
   align-items: center
@@ -27,6 +28,7 @@ $ring: var(--pz-intent-primary, #2d72d2)
 // drawn on the tag's own outline.
 .picker-tag
   display: inline-flex
+  flex-shrink: 0
   min-width: 0
   border-radius: 0.3em
   outline: none
@@ -36,6 +38,11 @@ $ring: var(--pz-intent-primary, #2d72d2)
     box-shadow: 0 0 0 2px var(--pz-focus-ring-color, $ring)
   &.selected
     box-shadow: 0 0 0 2px $ring
+  // Past the end of a one-line row: out of the flow, keeping its width
+  &.overflowed
+    position: absolute
+    visibility: hidden
+    pointer-events: none
   // Held by only some of the rows a picker stands for
   &.partial
     opacity: 0.5
@@ -44,6 +51,13 @@ $ring: var(--pz-intent-primary, #2d72d2)
 
 .add-item
   font-size: 0.85em
+
+// "and n more", for the tags a one-line row has no room for
+.more-tags
+  flex: none
+  font-size: 0.85em
+  white-space: nowrap
+  color: var(--pz-text-subtle-color, var(--secondary-color))
 
 .picker-empty
   color: var(--pz-text-subtle-color, var(--secondary-color))
@@ -75,6 +89,9 @@ $ring: var(--pz-intent-primary, #2d72d2)
   &.selected
     color: var(--selected-color, inherit)
     background: var(--selected-background-color, transparent)
+  // Held by only some of the rows: faded, and a click gives it to all
+  &.selected.partial
+    opacity: 0.55
     .item-name
       font-weight: 600
     .item-description
@@ -103,7 +120,13 @@ $ring: var(--pz-intent-primary, #2d72d2)
   font-size: 12px
   opacity: 0.6
 
-// A selected tag's details editor
+// A selected tag's details editor. Stacked in the picker's place, it has the
+// popover's layout at the picker's width
+.tag-details-stacked
+  min-width: 240px
+  max-width: 320px
+  padding: 4px
+
 .popover-details
   min-width: 220px
 
@@ -235,30 +258,56 @@ $ring: var(--pz-intent-primary, #2d72d2)
 .proportion-shortcuts
   flex: none
 
-// The timescale matching is constrained to, above the interval and smaller
+// The timescale matching is constrained to, above the interval, headed as the
+// control's other fields are (`details-field-header` / `-label`)
 .timescale-row
-  display: flex
-  align-items: center
-  gap: 0.4em
-  font-size: 0.75em
-  line-height: 1.4
-  color: var(--pz-text-subtle-color, var(--secondary-color))
+  justify-content: flex-start
 
 .timescale-label
-  text-transform: uppercase
-  letter-spacing: 0.04em
-  font-size: 0.9em
+  flex: none
 
 .timescale-constraint
+  font-size: 0.8em
   padding: 0 0.45em
   border-radius: 3px
   background: rgba(128, 128, 128, 0.12)
   white-space: nowrap
+  color: var(--pz-text-subtle-color, var(--secondary-color))
 
 .timescale-select
-  font-size: 1em
+  font-size: 0.8em
   :global(select)
-    height: 20px
-    line-height: 20px
+    height: 22px
+    line-height: 22px
     padding: 0 20px 0 6px
     font-size: 1em
+
+// The interval as a target: a click changes the interval
+.interval-target
+  cursor: pointer
+
+// The caret in the interval tag's prefix, and the position it opens
+.position-toggle
+  all: unset
+  display: inline-flex
+  align-items: center
+  gap: 0.15em
+  cursor: pointer
+  border-radius: 2px
+  &:hover, &.open
+    background: rgba(128, 128, 128, 0.2)
+  &:focus-visible
+    outline: 2px solid var(--pz-focus-ring-color, $ring)
+  &.unset
+    opacity: 0.75
+
+.position-toggle-holder
+  display: inline-flex
+
+// Inline below the interval, set apart as the modal control it is
+.position-field
+  margin-top: 0.2em
+  padding: 0.35em 0.6em 0.5em
+  border: 1px solid var(--pz-border-color, rgba(128, 128, 128, 0.3))
+  border-radius: 4px
+  background: var(--panel-secondary-background-color, rgba(128, 128, 128, 0.06))

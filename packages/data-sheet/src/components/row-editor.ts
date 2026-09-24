@@ -1,5 +1,7 @@
 /**
- * Row editor — a selection's fields as a form, derived from the column spec.
+ * Row editor — a selection's fields as a form, derived from the column spec:
+ * the `DataEditor`'s form (see `data-editor.ts`) over the sheet's selected
+ * rows.
  *
  * The row-level mirror of the cell viewer/editor split: every column becomes a
  * field whose label is the column's `name`, whose value is drawn by the
@@ -39,30 +41,18 @@
  */
 import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
-import {
-  Button,
-  FormGroup,
-  InputGroup,
-  Intent,
-  type IconName,
-  NonIdealState,
-  Switch,
-  Tag,
-  TextArea,
-} from "@blueprintjs/core";
+import { Button, type IconName, NonIdealState } from "@blueprintjs/core";
 import { atom } from "jotai";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useMemo, useRef } from "react";
 import { type Region, RegionCardinality } from "@blueprintjs/table";
 import {
-  type CellDetailContext,
-  type CellSelectionEntry,
   type CellValidation,
   type ColumnSpec,
   ctx as sheetScope,
-  isColumnWritable,
   itemLabelAtom,
   pluralize,
   selectionAtom,
+  tableActionsAtom,
   useSelector,
   useStoreAPI,
 } from "../provider";
@@ -72,7 +62,14 @@ import {
   getSelectionCardinality,
 } from "../actions/selection.ts";
 import type { TableAction } from "../actions";
-import { validateCell } from "../utils/validation.ts";
+import {
+  DataEditor,
+  DataEditorField,
+  DataEditorFields,
+  DataEditorFrame,
+  type DataEditorProps,
+  type FieldSpec,
+} from "./data-editor";
 import styles from "./row-editor.module.sass";
 
 const h = hyper.styled(styles);
@@ -135,6 +132,9 @@ export interface RowEditorProps<T = any> {
   children?: ReactNode;
 }
 
+/** The form over one row or several, as the sheet's row editor draws it:
+ * `DataEditorFields` in a `DataEditorFrame`, with the sheet's notions of a
+ * focus (the columns a cell selection falls in) and an active field. */
 export function RowEditor<T = any>(props: RowEditorProps<T>) {
   const {
     columnSpec,
@@ -158,137 +158,35 @@ export function RowEditor<T = any>(props: RowEditorProps<T>) {
   } = props;
 
   const { rows, rowEdits, rowIndices } = resolveRows(props);
-  const merged = useMemo(
-    () => rows.map((row, i) => ({ ...(row ?? {}), ...(rowEdits[i] ?? {}) })),
-    [rows, rowEdits],
-  );
-  const several = rows.length > 1;
 
-  const columns = useMemo(
-    () => columnSpec.filter((col) => showHidden || !col.hidden),
-    [columnSpec, showHidden],
-  );
-
-  const canEdit = editable && onChange != null;
-  const focus = focusColumns == null ? null : new Set(focusColumns);
-
-  const fields = columns.map((col, colIndex) => {
-    const values = merged.map((row) => row[col.key]);
-    const shared = sharedValue(values);
-    const value = shared.mixed ? undefined : shared.value;
-    const focused = focus == null || focus.has(col.key);
-    // A column's own surface edits several cells only when it says it can;
-    // the default editors always can.
-    const canEditSeveral = !several || col.cellDetail == null || col.multiCell;
-    const writable =
-      canEdit && focused && canEditSeveral && isColumnWritable(col, true);
-    const isEmpty = value == null || value === "";
-    if (hideEmpty && isEmpty && !shared.mixed && !writable) return null;
-    const isEdited = rowEdits.some((e) => e != null && col.key in e);
-    let validation: CellValidation | null = null;
-    if (!shared.mixed) {
-      validation = validateCell(col, value, merged[0], rowIndices[0] ?? -1);
-    }
-    const ctx: CellDetailContext = {
+  return h(DataEditorFrame, { className, panel, title, onClose, closeLabel }, [
+    header,
+    h(DataEditorFields<T>, {
+      dataSpec: columnSpec,
+      rows,
+      rowEdits,
+      rowIndices,
       surface: "row-editor",
-      value,
-      rowIndex: rowIndices[0] ?? -1,
-      colIndex,
-      column: col,
-      row: merged[0],
-      isEdited,
-      isDeleted: false,
-      status: undefined,
-      validation,
-      editable: writable,
-      onChange(next) {
-        if (!writable) return;
-        onChange?.(col.key, next);
-      },
-      resetValue() {
-        onResetField?.(col.key);
-      },
-      close() {},
-    };
-    if (several) {
-      ctx.cells = rows.map((row, i): CellSelectionEntry => ({
-        rowIndex: rowIndices[i] ?? -1,
-        row: merged[i],
-        value: values[i],
-      }));
-      ctx.mixed = shared.mixed;
-      if (onChangeCells != null) {
-        ctx.onChangeCells = (next) => {
-          if (!writable) return;
-          onChangeCells(col.key, next);
-        };
-      }
-    }
-    let onClick: (() => void) | undefined;
-    if (onFieldClick != null) onClick = () => onFieldClick(col.key);
-    return h(RowEditorField, {
-      key: col.key,
-      ctx,
+      editable,
+      onChange,
+      onChangeCells,
+      onResetField,
+      focusFields: focusColumns,
+      activeField: activeColumn,
+      onFieldClick,
+      showHidden,
+      hideEmpty,
       inline,
-      onClick,
-      selected:
-        (focus != null && focus.has(col.key)) || activeColumn === col.key,
-      onReset: isEdited && onResetField != null ? ctx.resetValue : null,
-    });
-  });
-
-  return h(
-    RowEditorFrame,
-    {
-      className: classNames(className, { editable: canEdit, inline, several }),
-      panel,
-      title,
-      onClose,
-      closeLabel,
-    },
-    [header, h("div.row-editor-fields", fields), children],
-  );
-}
-
-/** The form's frame: as a panel, a title bar over a scrolling body;
- * otherwise the body alone. The title bar is the toolbar's selection tag at
- * full width — minimal, large, primary — and its ✕ is the tag's own. */
-export function RowEditorFrame({
-  panel = false,
-  title,
-  onClose,
-  closeLabel = "Close",
-  className,
-  children,
-}: {
-  panel?: boolean;
-  title?: ReactNode;
-  onClose?: () => void;
-  closeLabel?: string;
-  className?: string;
-  children?: ReactNode;
-}) {
-  let titleBar: ReactNode = null;
-  if (panel && (title != null || onClose != null)) {
-    titleBar = h(
-      Tag,
-      {
-        minimal: true,
-        large: true,
-        fill: true,
-        intent: "primary",
-        className: "row-editor-title-bar",
-        onRemove: onClose,
-        removeButtonProps: { title: closeLabel, "aria-label": closeLabel },
-      } as any,
-      title,
-    );
-  }
-  return h("div.row-editor", { className: classNames(className, { panel }) }, [
-    titleBar,
-    h("div.row-editor-body", children),
+    }),
+    children,
   ]);
 }
+
+/** The row editor's frame: the data editor's. */
+export const RowEditorFrame = DataEditorFrame;
+
+/** A row editor field: the data editor's. */
+export const RowEditorField = DataEditorField;
 
 /** One row or several, as arrays either way. */
 function resolveRows<T>(props: RowEditorProps<T>): {
@@ -308,261 +206,6 @@ function resolveRows<T>(props: RowEditorProps<T>): {
     rowEdits: [props.edits],
     rowIndices: props.rowIndices ?? [],
   };
-}
-
-/** The value a set of cells share, or that they differ. Structured values
- * compare by their JSON form, so two equal lithology arrays count as one. */
-function sharedValue(values: any[]): { value: any; mixed: boolean } {
-  if (values.length === 0) return { value: undefined, mixed: false };
-  const first = values[0];
-  const key = valueToken(first);
-  for (const v of values.slice(1)) {
-    if (valueToken(v) !== key) return { value: undefined, mixed: true };
-  }
-  return { value: first, mixed: false };
-}
-
-function valueToken(value: any): string {
-  if (value == null || value === "") return "";
-  if (typeof value === "object") return JSON.stringify(value);
-  return String(value);
-}
-
-/* ------------------------------------------------------------------ field */
-
-interface RowEditorFieldProps {
-  ctx: CellDetailContext;
-  inline?: boolean;
-  /** A click anywhere in the field. */
-  onClick?: () => void;
-  /** Part of the cell selection the form is focused on. */
-  selected?: boolean;
-  onReset?: (() => void) | null;
-}
-
-/** One field: the column's name, a marker for what kind of value it is, the
- * value or its editor, and any validation message. */
-export function RowEditorField({
-  ctx,
-  inline,
-  selected = false,
-  onReset,
-  onClick,
-}: RowEditorFieldProps) {
-  const { column: col, validation, isEdited, editable, mixed } = ctx;
-
-  let intent: Intent | undefined;
-  if (validation?.severity === "error") {
-    intent = "danger";
-  } else if (validation?.severity === "warning") {
-    intent = "warning";
-  }
-
-  let marker: ReactNode = null;
-  if (col.derived) {
-    marker = h(
-      Tag,
-      {
-        minimal: true,
-        icon: "function",
-        className: "field-marker",
-        title: "Derived — computed from other values",
-      },
-      "derived",
-    );
-  } else if (col.required && editable) {
-    marker = h("span.required-marker", { title: "Required" }, "*");
-  }
-
-  let reset: ReactNode = null;
-  if (onReset != null) {
-    reset = h(Button, {
-      icon: "undo",
-      minimal: true,
-      small: true,
-      className: "reset-field",
-      title: "Revert to the loaded value",
-      onClick: onReset,
-    });
-  }
-
-  const label = h("span.field-label", [
-    h("span.field-name", col.name),
-    marker,
-    reset,
-  ]);
-
-  // The wrapper takes no space (`display: contents`); it catches the click
-  // Blueprint's FormGroup doesn't pass through
-  return h(
-    "div.row-editor-field-target",
-    { onClick },
-    h(
-      FormGroup,
-      {
-        label,
-        inline,
-        intent,
-        helperText: validation?.message,
-        className: classNames("row-editor-field", {
-          edited: isEdited,
-          derived: col.derived,
-          selected,
-          mixed,
-          "read-only": !editable,
-          [`data-type-${col.dataType ?? "string"}`]: true,
-        }),
-      },
-      h(FieldSurface, { ctx }),
-    ),
-  );
-}
-
-/** The value or its editor: the column's own `cellDetail` when it has one
- * (the unified surface, which is an editor when `ctx.editable`), else a
- * default by `dataType`. A surface that can't stand for several cells shows
- * the shared value, or "Multiple values". */
-function FieldSurface({ ctx }: { ctx: CellDetailContext }) {
-  const { column: col, editable } = ctx;
-  const several = ctx.cells != null;
-  if (col.cellDetail != null && (!several || col.multiCell)) {
-    return h("div.field-surface.cell-detail", col.cellDetail(ctx));
-  }
-  if (!editable) {
-    return h(FieldValue, { ctx });
-  }
-  return h(DefaultFieldEditor, { ctx });
-}
-
-/** The read-only rendering of a value, through the column's renderer. */
-export function FieldValue({ ctx }: { ctx: CellDetailContext }) {
-  const { value, column: col } = ctx;
-  if (ctx.mixed) {
-    return h(MixedValues, { ctx });
-  }
-  if (value == null || value === "") {
-    return h("span.field-value.empty", "—");
-  }
-  const rendered = col.valueRenderer?.(value, ctx) ?? String(value);
-  return h("span.field-value", rendered);
-}
-
-/** "Multiple values", naming how many distinct ones the cells hold. */
-export function MixedValues({ ctx }: { ctx: CellDetailContext }) {
-  const distinct = new Set((ctx.cells ?? []).map((c) => valueToken(c.value)));
-  return h(
-    "span.field-value.mixed-values",
-    {
-      title: `${distinct.size} distinct values across ${ctx.cells?.length} rows`,
-    },
-    "Multiple values",
-  );
-}
-
-function DefaultFieldEditor({ ctx }: { ctx: CellDetailContext }) {
-  const { value, column: col, onChange, mixed } = ctx;
-  const type = col.dataType ?? "string";
-  const placeholder = mixed ? "Multiple values" : undefined;
-
-  if (type === "boolean") {
-    return h(Switch, {
-      checked: Boolean(value),
-      // An indeterminate switch has no Blueprint form; say so beside it.
-      label: mixed ? "Multiple values" : undefined,
-      onChange: (evt: any) => onChange(evt.target.checked),
-      className: "field-switch",
-    });
-  }
-  if (type === "text") {
-    return h(CommittedTextArea, { value, placeholder, onCommit: onChange });
-  }
-  if (type === "number" || type === "integer") {
-    return h(CommittedInput, {
-      value,
-      placeholder,
-      onCommit: (text: string) => onChange(parseNumber(text, type)),
-      type: "number",
-      step: type === "integer" ? 1 : "any",
-    });
-  }
-  if (type === "object" || type === "array") {
-    // No default editor for structured values: the column should supply a
-    // `cellDetail`. Show the value so the form is still complete.
-    return h(FieldValue, { ctx });
-  }
-  return h(CommittedInput, { value, placeholder, onCommit: onChange });
-}
-
-function parseNumber(text: string, type: "number" | "integer") {
-  if (text === "" || text == null) return null;
-  const n = type === "integer" ? parseInt(text, 10) : parseFloat(text);
-  if (isNaN(n)) return text;
-  return n;
-}
-
-/** An input that commits on blur or Enter rather than on every keystroke, the
- * way a sheet cell does — so a half-typed number doesn't move a column. */
-function CommittedInput({
-  value,
-  onCommit,
-  ...rest
-}: {
-  value: any;
-  onCommit: (text: string) => void;
-  [key: string]: any;
-}) {
-  const [text, setText] = useState(toText(value));
-  useEffect(() => {
-    setText(toText(value));
-  }, [value]);
-  const commit = () => {
-    if (text === toText(value)) return;
-    onCommit(text);
-  };
-  return h(InputGroup, {
-    small: true,
-    fill: true,
-    value: text,
-    onValueChange: setText,
-    onBlur: commit,
-    onKeyDown(evt) {
-      if (evt.key === "Enter") commit();
-      if (evt.key === "Escape") setText(toText(value));
-    },
-    ...rest,
-  });
-}
-
-function CommittedTextArea({
-  value,
-  onCommit,
-  placeholder,
-}: {
-  value: any;
-  onCommit: (text: string) => void;
-  placeholder?: string;
-}) {
-  const [text, setText] = useState(toText(value));
-  useEffect(() => {
-    setText(toText(value));
-  }, [value]);
-  return h(TextArea, {
-    small: true,
-    fill: true,
-    autoResize: true,
-    placeholder,
-    value: text,
-    onChange: (evt: any) => setText(evt.target.value),
-    onBlur() {
-      if (text === toText(value)) return;
-      onCommit(text);
-    },
-  });
-}
-
-function toText(value: any): string {
-  if (value == null) return "";
-  return String(value);
 }
 
 /* ---------------------------------------------------------- store-bound */
@@ -824,6 +467,99 @@ function sameRegions(a: Region[], b: Region[]): boolean {
       r.cols?.[0] === s.cols?.[0] &&
       r.cols?.[1] === s.cols?.[1]
     );
+  });
+}
+
+/* -------------------------------------------------- selected data editor */
+
+export interface SelectedDataEditorProps<T = any> extends Omit<
+  DataEditorProps<T>,
+  "dataSpec" | "data" | "onSave"
+> {
+  /** The fields; defaults to the sheet's column spec. */
+  dataSpec?: FieldSpec[];
+  /** Persist the edited record. Defaults to the sheet's provider
+   * (`rowEditing.saveRows`), which refreshes the rows after. Without either,
+   * the editor is a viewer. */
+  onSave?: DataEditorProps<T>["onSave"];
+  /** Whether the ✕ in the title bar clears the selection (default). */
+  closeable?: boolean;
+  /** Show the sheet's actions, scoped to the record and its fields (off by
+   * default: the sheet's toolbar carries them). */
+  showActions?: boolean;
+}
+
+/**
+ * A `DataEditor` over the one row a sheet's or panel's selection holds: the
+ * immediate-edit counterpart of `SelectedRowEditor`, for a view (a `DataPanel`
+ * card list) whose edits are saved one record at a time rather than
+ * accumulated in the sheet's overlay. It keeps its own pending edits, and
+ * Save writes the record through the provider. Several rows selected, or
+ * none, it says so.
+ */
+export function SelectedDataEditor<T = any>(props: SelectedDataEditorProps<T>) {
+  const {
+    dataSpec,
+    onSave,
+    closeable = true,
+    showActions = false,
+    panel = true,
+    title,
+    editable,
+    ...rest
+  } = props;
+  const store = useStoreAPI();
+  const columnSpec = useSelector((s) => s.columnSpec);
+  const saveRows = useSelector((s) => s.rowEditing?.saveRows);
+  const tableActions = sheetScope.useValue(
+    tableActionsAtom,
+  ) as TableAction<T>[];
+  const itemLabel = sheetScope.useValue(itemLabelAtom);
+  const setSelection = sheetScope.useSet(selectionAtom);
+  const { rows } = useSelectedRows<T>();
+  const count = rows.length;
+
+  if (count !== 1 || rows[0] == null) {
+    let noun = pluralize(itemLabel, count);
+    let stateTitle = `${count} ${noun} selected`;
+    if (count === 0) stateTitle = `No ${noun} selected`;
+    return h(
+      RowEditorFrame,
+      { panel, className: "row-editor-empty" },
+      h(NonIdealState, {
+        title: stateTitle,
+        className: "row-editor-non-ideal",
+      }),
+    );
+  }
+
+  let save = onSave;
+  if (save == null && saveRows != null) {
+    save = async (value: T) => {
+      await saveRows([value]);
+    };
+  }
+  const canEdit = (editable ?? true) && save != null;
+  let heading = title;
+  if (heading == null) {
+    heading = `Viewing 1 ${itemLabel}`;
+    if (canEdit) heading = `Editing 1 ${itemLabel}`;
+  }
+  let onClose: (() => void) | undefined;
+  if (closeable) onClose = () => setSelection([]);
+
+  return h(DataEditor<T>, {
+    ...rest,
+    dataSpec: dataSpec ?? columnSpec,
+    data: rows[0] as T,
+    onSave: save,
+    editable: canEdit,
+    panel,
+    title: heading,
+    onClose,
+    closeLabel: "Clear selection",
+    actions: tableActions,
+    showActions,
   });
 }
 

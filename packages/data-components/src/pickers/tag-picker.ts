@@ -5,7 +5,9 @@
  * The chosen items are the tags themselves: no chip around them, no remove
  * cross, no inputs in the row. A tag is selected by clicking it (or focusing
  * it and pressing Enter), and a selected tag opens its **details editor** —
- * in a popover anchored to the tag, or inline below the row
+ * in a popover anchored to the tag, inline below the row, or — `stack` — in
+ * place of the row, for a picker that is itself in a popover: the tags, then
+ * the chosen tag's menu, then a section, each with a way back
  * (`detailsMode`). What the editor holds is up to the caller
  * (`renderDetails`, usually a `TagDetailsEditor`, whose header carries the
  * ✕ that removes the item). Without one there is no editor to open, and a
@@ -17,6 +19,10 @@
  * what they hold between them, and the items only some hold are `partial`:
  * drawn faded, with an "Apply to all" (`onApplyToAll`) where the ✕ is.
  *
+ * Where its row is kept to one line (a container sets `--tag-row-wrap:
+ * nowrap`, as a table cell does), tags keep their width rather than being
+ * squeezed, and those that don't fit give way to "and n more".
+ *
  * It knows nothing about Macrostrat — the caller hands it `items` with an
  * `id`, a `name` and optionally a `color`, and gets the chosen items back
  * through `onChange`. Read-only when `onChange` is absent, so the same
@@ -27,7 +33,9 @@ import {
   Fragment,
   type KeyboardEvent,
   type ReactNode,
+  type RefObject,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -61,6 +69,8 @@ export interface TagDetailsContext<T extends PickerItem> {
   remove?: () => void;
   /** Let go of the selection. */
   close(): void;
+  /** In `stack` mode, back from the item's editor to the tags. */
+  back?: () => void;
   /** Whether only some of the rows the picker stands for hold the item. */
   partial: boolean;
   /** Give the item to every row; present for a partial item when the picker
@@ -241,21 +251,33 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
       partial: isPartial(item),
       applyToAll,
     };
+    if (mode === "stack") ctx.back = () => setSelectedID(null);
     return renderDetails?.(ctx);
   };
 
-  const tags = value.map((item) => {
+  // On a one-line row, the index of the first tag that doesn't fit
+  const overflowFrom = useOverflowFrom(
+    rowRef,
+    value.map((d) => d.id).join("\u0000"),
+  );
+
+  const tags = value.map((item, index) => {
     const isSelected = selected?.id === item.id;
     const tag =
       renderTag?.(item) ??
       h(Tag, { name: item.name, color: item.color ?? undefined, size });
 
     const partialItem = isPartial(item);
+    const overflowed = overflowFrom != null && index >= overflowFrom;
 
     if (!editable) {
       return h(
         "span.picker-tag",
-        { key: item.id, className: classNames({ partial: partialItem }) },
+        {
+          key: item.id,
+          "data-picker-item": true,
+          className: classNames({ partial: partialItem, overflowed }),
+        },
         tag,
       );
     }
@@ -267,9 +289,11 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
       "aria-pressed": isSelected,
       "aria-label": item.name,
       "data-picker-tag": true,
+      "data-picker-item": true,
       className: classNames("editable", {
         selected: isSelected,
         partial: partialItem,
+        overflowed,
       }),
       onClick: () => toggleSelected(item),
       onKeyDown: (evt) => onTagKeyDown(evt, item),
@@ -294,7 +318,7 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
       ];
     }
 
-    if (detailsMode === "inline" || !hasDetails) {
+    if (detailsMode !== "popover" || !hasDetails) {
       return h(Fragment, { key: item.id }, [
         h("span.picker-tag", targetProps, tag),
         tagRemove,
@@ -347,6 +371,7 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
         title: placeholder,
         "aria-label": placeholder,
         className: "add-item",
+        "data-picker-adder": true,
       });
     } else {
       // Single mode: a caret beside the chosen tag changes it
@@ -357,6 +382,7 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
         className: "add-item change-item",
         title: "Change",
         "aria-label": "Change",
+        "data-picker-adder": true,
       });
     }
     adder = h(
@@ -373,9 +399,20 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
           compareItems,
           searchPlaceholder,
           selectionColor,
+          partial,
         }),
       },
       target,
+    );
+  }
+
+  let more: ReactNode = null;
+  if (overflowFrom != null && overflowFrom < value.length) {
+    const hidden = value.slice(overflowFrom);
+    more = h(
+      "span.more-tags",
+      { title: hidden.map((d) => d.name).join(", ") },
+      `and ${hidden.length} more`,
     );
   }
 
@@ -397,14 +434,89 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
     );
   }
 
+  // Stacked, the selected tag's editor takes the row's place
+  if (detailsMode === "stack" && hasDetails && selected != null) {
+    return h(
+      "div.tag-picker",
+      { className: classNames(className, "stacked", { editable, multi }) },
+      h(
+        DetailsKeyBoundary,
+        {
+          className: "tag-details-stacked",
+          onRemove: () => remove(selected),
+          onClose: () => setSelectedID(null),
+        },
+        details(selected, "stack"),
+      ),
+    );
+  }
+
   return h(
     "div.tag-picker",
     { className: classNames(className, { editable, multi }) },
     [
-      h("div.tag-row", { ref: rowRef }, [tags, empty, adder, trailing]),
+      h("div.tag-row", { ref: rowRef }, [tags, more, empty, adder, trailing]),
       inlineDetails,
     ],
   );
+}
+
+/** On a row kept to one line (`flex-wrap: nowrap`), the index of the first
+ * tag that doesn't fit, leaving room for the adder and "and n more"; `null`
+ * when all fit, or when the row wraps. Tags keep their widths whether shown
+ * or not (the hidden ones are taken out of the flow, not resized), so the
+ * measure is stable; it re-runs when the tags or the row's width change. */
+function useOverflowFrom(
+  rowRef: RefObject<HTMLElement | null>,
+  tagsKey: string,
+): number | null {
+  const [from, setFrom] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    const row = rowRef.current;
+    if (row == null) return;
+    const measure = () => {
+      const style = getComputedStyle(row);
+      if (style.flexWrap !== "nowrap") {
+        setFrom(null);
+        return;
+      }
+      const gap = parseFloat(style.columnGap) || 0;
+      const widths = Array.from(
+        row.querySelectorAll<HTMLElement>("[data-picker-item]"),
+      ).map((el) => el.offsetWidth);
+      let adders = 0;
+      for (const el of row.querySelectorAll<HTMLElement>(
+        "[data-picker-adder]",
+      )) {
+        adders += el.offsetWidth + gap;
+      }
+      const available = row.clientWidth - adders;
+      const total =
+        widths.reduce((a, b) => a + b, 0) +
+        gap * Math.max(widths.length - 1, 0);
+      if (total <= available) {
+        setFrom(null);
+        return;
+      }
+      // Room for "and n more"
+      const reserve = (parseFloat(style.fontSize) || 12) * 5 + gap;
+      let used = 0;
+      let fit = 0;
+      for (const width of widths) {
+        let next = used + width;
+        if (fit > 0) next += gap;
+        if (next > available - reserve) break;
+        used = next;
+        fit += 1;
+      }
+      setFrom(fit);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(row);
+    return () => observer.disconnect();
+  }, [rowRef, tagsKey]);
+  return from;
 }
 
 /** Around a details editor: Delete removes the tag and Escape closes the
@@ -448,6 +560,8 @@ export interface VocabularyListProps<T extends PickerItem> {
   /** Draw chosen items in this colour (see `selection-colors.ts`); without
    * one, in the colours of an enclosing details editor, if any. */
   selectionColor?: SelectionColor;
+  /** Chosen items only some of the rows hold, drawn faded. */
+  partial?: Set<number | string> | null;
 }
 
 /** The searchable list of a vocabulary. Rows toggle in multi mode and pick
@@ -464,6 +578,7 @@ export function VocabularyList<T extends PickerItem>(
     compareItems,
     autoFocus = true,
     selectionColor,
+    partial = null,
   } = props;
   const [query, setQuery] = useState("");
   const style = useSelectionColors(selectionColor);
@@ -498,7 +613,10 @@ export function VocabularyList<T extends PickerItem>(
           "div.item-row",
           {
             key: item.id,
-            className: classNames({ selected }),
+            className: classNames({
+              selected,
+              partial: selected && (partial?.has(item.id) ?? false),
+            }),
             onClick: () => onPick(item),
           },
           [

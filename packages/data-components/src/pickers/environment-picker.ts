@@ -13,7 +13,12 @@ import { LithologyTag } from "../components/unit-details";
 import { TagSize } from "../components/unit-details/tag";
 import { type PickerItem, TagPicker } from "./tag-picker";
 import { useVocabulary, type Vocabulary } from "./vocabularies";
-import { addToAll, applyUnionChange, combineValues } from "./multi-values";
+import {
+  addToAll,
+  applyUnionChange,
+  combineValues,
+  type MergeItems,
+} from "./multi-values";
 import h from "./pickers.module.sass";
 
 /** An environment definition, as `/defs/environments` reports it. */
@@ -37,6 +42,9 @@ export interface EnvironmentPickerProps {
   values?: EnvironmentValue[][] | null;
   /** Every unit's environments after a change, aligned with `values`. */
   onChangeValues?: (values: EnvironmentValue[][]) => void;
+  /** Merge the entries several units hold for one environment (default: they
+   * are compared whole). */
+  mergeItems?: MergeItems<EnvironmentValue>;
   /** The environment vocabulary. Defaults to the data provider's. */
   environments?: Vocabulary<EnvironmentDef>;
   /** Whether environments can be removed (default). */
@@ -53,6 +61,7 @@ export function EnvironmentPicker(props: EnvironmentPickerProps) {
     onChange,
     values = null,
     onChangeValues,
+    mergeItems,
     removable,
     size = TagSize.Small,
     disabled,
@@ -81,8 +90,8 @@ export function EnvironmentPicker(props: EnvironmentPickerProps) {
 
   const combined = useMemo(() => {
     if (values == null) return null;
-    return combineValues(values, environID);
-  }, [values]);
+    return combineValues(values, environID, mergeItems);
+  }, [values, mergeItems]);
   let current: EnvironmentValue[] = value ?? [];
   if (combined != null) current = combined.union;
 

@@ -28,7 +28,10 @@ import type chroma from "chroma-js";
 import { useSelectionColors } from "./selection-colors";
 import h from "./pickers.module.sass";
 
-export type DetailsMode = "popover" | "inline";
+/** Where a tag's editor is drawn: in a popover on the tag, inline below the
+ * picker, or stacked in the picker's place (the menu and its sections as in
+ * a popover, with a way back to the tags). */
+export type DetailsMode = "popover" | "inline" | "stack";
 
 export interface TagDetailsSection {
   key: string;
@@ -64,11 +67,15 @@ export interface TagDetailsEditorProps {
   /** Give the item to every row the picker stands for, when only some hold
    * it — an "Apply to all" in the header, before the ✕. */
   onApplyToAll?: () => void;
+  /** Back from the item to the tags — a back button in the header, when the
+   * editor is stacked in the picker's place. */
+  onBack?: () => void;
   className?: string;
 }
 
 export function TagDetailsEditor(props: TagDetailsEditorProps) {
   if (props.mode === "inline") return h(InlineDetails, props);
+  // Popover and stacked alike: the menu, then a section's field
   return h(MenuDetails, props);
 }
 
@@ -80,6 +87,7 @@ function MenuDetails({
   onRemove,
   removeLabel = "Remove",
   onApplyToAll,
+  onBack,
   className,
 }: TagDetailsEditorProps) {
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -104,7 +112,7 @@ function MenuDetails({
   }
 
   return h("div.tag-details-editor.popover-details", { className, style }, [
-    h(DetailsHeader, { title, onRemove, removeLabel, onApplyToAll }),
+    h(DetailsHeader, { title, onRemove, removeLabel, onApplyToAll, onBack }),
     h.if(sections.length > 0)(
       Menu,
       { small: true, className: "details-menu" },
