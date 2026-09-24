@@ -8,7 +8,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
 import { useState } from "react";
-import { Card, FormGroup, Switch } from "@blueprintjs/core";
+import { Switch } from "@blueprintjs/core";
 import { useAPIResult } from "@macrostrat/ui-components";
 import {
   EnvironmentPicker,
@@ -18,8 +18,9 @@ import {
   LithologyPicker,
   type UnitLithologyValue,
 } from "../src/pickers";
+import styles from "./pickers.stories.module.sass";
 
-const h = hyper;
+const h = hyper.styled(styles);
 
 const meta: Meta<any> = {
   title: "Data components/Pickers",
@@ -67,8 +68,12 @@ const environments = [
 ];
 
 const timescales = [
-  { timescale_id: 1, name: "international periods" },
-  { timescale_id: 2, name: "North American land mammal ages" },
+  { timescale_id: 1, timescale: "international periods", n_intervals: 9 },
+  {
+    timescale_id: 2,
+    timescale: "North American land mammal ages",
+    n_intervals: 2,
+  },
 ];
 
 function interval(int_id, name, b_age, t_age, color, timescale) {
@@ -139,76 +144,70 @@ function PickersDemo({ live = false }: { live?: boolean }) {
     ? liveDefs
     : { lithologies, lithAttributes, environments, intervals, timescales };
 
-  return h(
-    "div",
-    { style: { maxWidth: "36em", display: "grid", gap: "1em" } },
-    [
-      h(Switch, {
-        label: "Editable",
-        checked: editable,
-        onChange: () => setEditable(!editable),
+  return h("div.story", [
+    h(
+      "p.story-note",
+      "Each dashed box is one component; the headings and notes are the story's. Toggle to see the same components as read-only viewers.",
+    ),
+    h(Switch, {
+      label: "Editable",
+      checked: editable,
+      onChange: () => setEditable(!editable),
+    }),
+    h(Example, {
+      title: "Lithology",
+      note: "Pick lithologies; set a proportion; the + beside each adds attributes, listed by kind.",
+      children: h(LithologyPicker, {
+        lithologies: defs.lithologies,
+        lithAttributes: defs.lithAttributes,
+        value: liths,
+        onChange: editable ? setLiths : undefined,
       }),
-      h(Card, [
-        h(
-          FormGroup,
-          {
-            label: "Lithology",
-            helperText:
-              "Pick lithologies; set a proportion; the + beside each adds attributes, listed by kind.",
-          },
-          h(LithologyPicker, {
-            lithologies: defs.lithologies,
-            lithAttributes: defs.lithAttributes,
-            value: liths,
-            onChange: editable ? setLiths : undefined,
-          }),
-        ),
-        h(
-          FormGroup,
-          { label: "Environment" },
-          h(EnvironmentPicker, {
-            environments: defs.environments,
-            value: envs,
-            onChange: editable ? setEnvs : undefined,
-          }),
-        ),
-        h(
-          FormGroup,
-          {
-            label: "Base of unit",
-            helperText:
-              "An interval and a position in it; the age follows. Choose a timescale to match within.",
-          },
-          h(IntervalPositionEditor, {
-            intervals: defs.intervals,
-            timescales: defs.timescales,
-            value: position,
-            onChange: editable ? setPosition : undefined,
-          }),
-        ),
-        h(
-          FormGroup,
-          {
-            label: "Top of unit, within one timescale",
-            helperText:
-              "The timescale is imposed from outside, so only its intervals are offered. The position starts as the interval alone; add a proportion to refine it.",
-          },
-          h(IntervalPositionEditor, {
-            intervals: defs.intervals,
-            timescale: timescales[0],
-            defaultProportion: 1,
-            value: topPosition,
-            onChange: editable ? setTopPosition : undefined,
-          }),
-        ),
-      ]),
-      h(
-        "pre",
-        { style: { fontSize: "11px", opacity: 0.7 } },
-        JSON.stringify({ liths, envs, position, topPosition }, null, 2),
-      ),
-    ],
-  );
+    }),
+    h(Example, {
+      title: "Environment",
+      children: h(EnvironmentPicker, {
+        environments: defs.environments,
+        value: envs,
+        onChange: editable ? setEnvs : undefined,
+      }),
+    }),
+    h(Example, {
+      title: "Base of unit",
+      note: "An interval and a position in it; the age follows. The timescale dropdown constrains matching.",
+      children: h(IntervalPositionEditor, {
+        intervals: defs.intervals,
+        timescales: defs.timescales,
+        value: position,
+        onChange: editable ? setPosition : undefined,
+      }),
+    }),
+    h(Example, {
+      title: "Top of unit, within one timescale",
+      note: "The timescale is imposed from outside, so it is shown by name and only its intervals are offered. The position starts as the interval alone; add a proportion to refine it.",
+      children: h(IntervalPositionEditor, {
+        intervals: defs.intervals,
+        timescale: timescales[0],
+        defaultProportion: 1,
+        value: topPosition,
+        onChange: editable ? setTopPosition : undefined,
+      }),
+    }),
+    h(
+      "pre.state",
+      JSON.stringify({ liths, envs, position, topPosition }, null, 2),
+    ),
+  ]);
+}
+
+/** Story chrome around one component: a heading and a note that belong to
+ * the story, and the component itself in a dashed box. */
+function Example({ title, note, children }) {
+  return h("div.example", [
+    h("h4", title),
+    h.if(note != null)("p.story-note", note),
+    h("div.component", children),
+  ]);
 }
 
 export const Fixtures: StoryObj<any> = {

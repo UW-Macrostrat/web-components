@@ -157,7 +157,8 @@ export function LithologyPicker(props: LithologyPickerProps) {
           onChange: (prop) => updateEntry(entry.lith_id, { prop }),
         }),
         h.if(attributeDefs.length > 0)(AttributePicker, {
-          attributes: attributeDefs,
+          // Not `attributes`: hyperscript unnests a prop of that name
+          options: attributeDefs,
           value: (entry.atts ?? []) as unknown as string[],
           lithologyName: entry.name,
           onChange: (atts) => updateEntry(entry.lith_id, { atts: atts as any }),
@@ -195,12 +196,13 @@ type AttributeItem = PickerItem & { def: LithAttributeDef };
  * lithology checked. Attributes are stored by name, as the API carries
  * them. */
 export function AttributePicker({
-  attributes,
+  options,
   value,
   onChange,
   lithologyName,
 }: {
-  attributes: LithAttributeDef[];
+  /** The attribute vocabulary. */
+  options: LithAttributeDef[];
   /** The attribute names on the lithology. */
   value: string[];
   onChange: (atts: string[]) => void;
@@ -208,7 +210,7 @@ export function AttributePicker({
 }) {
   const items: AttributeItem[] = useMemo(
     () =>
-      [...attributes]
+      [...options]
         .sort(
           (a, b) =>
             (a.att_type ?? "").localeCompare(b.att_type ?? "") ||
@@ -220,7 +222,7 @@ export function AttributePicker({
           description: def.att_type,
           def,
         })),
-    [attributes],
+    [options],
   );
   const chosen = useMemo(() => new Set<string | number>(value), [value]);
 

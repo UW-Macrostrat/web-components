@@ -150,6 +150,9 @@
     flex: 1 1 10em
     min-width: 10em
     max-width: 18em
+    // Room for the slider's own labels, which sit below its track
+    margin-bottom: 1.2em
+    margin-right: 0.5em
 
 .proportion-shortcuts
   flex: none
@@ -157,13 +160,30 @@
 .proportion-absent
   padding: 0
 
+// The timescale matching is constrained to, above the interval and smaller
+.timescale-row
+  display: flex
+  align-items: center
+  gap: 0.4em
+  font-size: 0.75em
+  line-height: 1.4
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.timescale-label
+  text-transform: uppercase
+  letter-spacing: 0.04em
+  font-size: 0.9em
+
 .timescale-constraint
-  font-size: 0.8em
-  padding: 0.1em 0.5em
+  padding: 0 0.45em
   border-radius: 3px
   background: rgba(128, 128, 128, 0.12)
-  color: var(--pz-text-subtle-color, var(--secondary-color))
   white-space: nowrap
 
 .timescale-select
-  font-size: 0.85em
+  font-size: 1em
+  :global(select)
+    height: 20px
+    line-height: 20px
+    padding: 0 20px 0 6px
+    font-size: 1em

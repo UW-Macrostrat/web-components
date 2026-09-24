@@ -10,10 +10,10 @@
  * *Top* shortcuts. The age is derived and never typed.
  *
  * Matching can be **constrained to a timescale**: either a timescale is
- * imposed from outside (`timescale`, shown by name) or the vocabulary of
- * timescales is offered (`timescales`) and one is chosen in the control.
- * Read-only when `onChange` is absent, so it doubles as the display of a
- * calibration.
+ * imposed from outside (`timescale`, shown by name above the interval) or the
+ * vocabulary of timescales is offered (`timescales`) and one is chosen in the
+ * control. Read-only when `onChange` is absent, so it doubles as the display
+ * of a calibration.
  */
 import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
@@ -26,9 +26,19 @@ import styles from "./pickers.module.sass";
 
 const h = hyper.styled(styles);
 
+/** A timescale as `/defs/timescales` reports it (`timescale` is its name;
+ * `name` is accepted too). */
 export interface TimescaleRef {
   timescale_id: number;
-  name: string;
+  timescale?: string;
+  name?: string;
+  n_intervals?: number;
+  max_age?: number;
+  min_age?: number;
+}
+
+export function timescaleName(t: TimescaleRef | null | undefined): string {
+  return t?.timescale ?? t?.name ?? `Timescale ${t?.timescale_id ?? "?"}`;
 }
 
 /** An interval definition: what `useMacrostratDefs("intervals")` holds,
@@ -210,18 +220,16 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
     "div.interval-position",
     { className: classNames(className, { editable }) },
     [
-      h("div.interval-row", [
-        h(TimescaleConstraint, {
-          timescale,
-          timescales,
-          timescaleID: chosenTimescaleID,
-          onChange: setChosenTimescaleID,
-          editable,
-        }),
-        picker,
-        unresolved,
-        ageLabel,
-      ]),
+      // The constraint sits above the interval: it says what the interval is
+      // matched within, and is read before the interval is.
+      h(TimescaleConstraint, {
+        timescale,
+        timescales,
+        timescaleID: chosenTimescaleID,
+        onChange: setChosenTimescaleID,
+        editable,
+      }),
+      h("div.interval-row", [picker, unresolved, ageLabel]),
       proportionRow,
     ],
   );
@@ -310,8 +318,8 @@ function ProportionControl({
 
 /* ---------------------------------------------------------------- timescale */
 
-/** The timescale matching is constrained to: a name when it is imposed, a
- * choice when a vocabulary is offered, nothing otherwise. */
+/** The timescale matching is constrained to, above the interval: a name when
+ * it is imposed, a choice when a vocabulary is offered, nothing otherwise. */
 function TimescaleConstraint({
   timescale,
   timescales,
@@ -326,31 +334,45 @@ function TimescaleConstraint({
   editable: boolean;
 }) {
   if (timescale != null) {
-    return h(
-      "span.timescale-constraint",
-      { title: "Intervals are matched within this timescale" },
-      timescale.name,
-    );
+    return h("div.timescale-row", [
+      h("span.timescale-label", "Timescale"),
+      h(
+        "span.timescale-constraint",
+        { title: "Intervals are matched within this timescale" },
+        timescaleName(timescale),
+      ),
+    ]);
   }
-  if (timescales == null || timescales.length === 0 || !editable) return null;
+  if (timescales == null || timescales.length === 0) return null;
+  const chosen = timescales.find((t) => t.timescale_id === timescaleID);
+  if (!editable) {
+    if (chosen == null) return null;
+    return h("div.timescale-row", [
+      h("span.timescale-label", "Timescale"),
+      h("span.timescale-constraint", timescaleName(chosen)),
+    ]);
+  }
   const options = [
     { label: "Any timescale", value: "" },
     ...timescales.map((t) => ({
-      label: t.name,
+      label: timescaleName(t),
       value: String(t.timescale_id),
     })),
   ];
-  return h(HTMLSelect, {
-    className: "timescale-select",
-    minimal: true,
-    options,
-    value: timescaleID == null ? "" : String(timescaleID),
-    title: "Constrain matching to a timescale",
-    onChange: (evt) => {
-      const raw = evt.currentTarget.value;
-      onChange(raw === "" ? null : Number(raw));
-    },
-  });
+  return h("div.timescale-row", [
+    h("span.timescale-label", "Timescale"),
+    h(HTMLSelect, {
+      className: "timescale-select",
+      minimal: true,
+      options,
+      value: timescaleID == null ? "" : String(timescaleID),
+      title: "Constrain matching to a timescale",
+      onChange: (evt) => {
+        const raw = evt.currentTarget.value;
+        onChange(raw === "" ? null : Number(raw));
+      },
+    }),
+  ]);
 }
 
 function inTimescale(def: IntervalDefLike, timescaleID: number): boolean {

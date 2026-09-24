@@ -1,18 +1,21 @@
 /**
  * Row editor.
  *
- * One row's fields as a form, derived from the column spec: the column's name
- * is the label, its `valueRenderer` draws the value, its `cellDetail` is the
- * editor when it has one, and otherwise an input follows from `dataType`.
- * Locked and derived columns show read-only; the whole form is a read-only
- * *viewer* when the sheet isn't editable.
+ * One row's fields — or a selection's — as a form, derived from the column
+ * spec: the column's name is the label, its `valueRenderer` draws the value,
+ * its `cellDetail` is the editor when it has one, and otherwise an input
+ * follows from `dataType`. Locked and derived columns show read-only; the
+ * whole form is a read-only *viewer* when the sheet isn't editable.
  *
- * `SelectedRowEditor` follows the sheet's selected row and writes through the
+ * `SelectedRowEditor` follows the sheet's selection and writes through the
  * store's `onCellEdited`, so an edit made in the form is the same edit as one
  * typed into the grid — it lights the same cell green, reaches the same
  * `onEdit` observer, and is undone by the same Reset. Because it reads the
  * provider's store rather than the grid, it keeps working when the grid isn't
  * on screen.
+ *
+ * The dashed outlines are story chrome marking the component under test; the
+ * grid and the panel share one `DataSheetProvider`.
  */
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
@@ -21,7 +24,6 @@ import { Callout, SegmentedControl, Switch } from "@blueprintjs/core";
 import {
   type CellDetailContext,
   type ColumnSpec,
-  DataSheet,
   DataSheetProvider,
   DataSheetRenderer,
   DataViewRendererType,
@@ -29,9 +31,10 @@ import {
   SelectedRowEditor,
   splitDataProviderProps,
 } from "../src";
+import styles from "./row-editor.stories.module.sass";
 import "@blueprintjs/table/lib/css/table.css";
 
-const h = hyper;
+const h = hyper.styled(styles);
 
 const meta: Meta<any> = {
   title: "Data sheet/Row editor",
@@ -95,20 +98,8 @@ function NoteDetail(ctx: CellDetailContext) {
 }
 
 const columnSpec: ColumnSpec[] = [
-  {
-    key: "id",
-    name: "ID",
-    dataType: "integer",
-    width: 70,
-    editable: false,
-  },
-  {
-    key: "name",
-    name: "Name",
-    dataType: "string",
-    width: 160,
-    required: true,
-  },
+  { key: "id", name: "ID", dataType: "integer", width: 70, editable: false },
+  { key: "name", name: "Name", dataType: "string", width: 160, required: true },
   {
     key: "category",
     name: "Category",
@@ -143,134 +134,93 @@ const columnSpec: ColumnSpec[] = [
   },
 ];
 
-const panelStyle = {
-  flex: "0 0 22em",
-  minWidth: 0,
-  overflowY: "auto",
-  padding: "0 0.5em 0 1em",
-  borderLeft: "1px solid rgba(128,128,128,0.25)",
-} as const;
+/**
+ * The grid and the panel side by side over one store. `DataSheet` renders its
+ * children *inside* its own column, so a side-by-side layout mounts the
+ * provider and the renderer separately — the same split as any two views of
+ * one store.
+ */
+function SheetWithEditor({
+  editable = true,
+  showTable = true,
+  note,
+}: {
+  editable?: boolean;
+  showTable?: boolean;
+  note?: string;
+}) {
+  const [providerProps, rendererProps] = splitDataProviderProps<Row>({
+    data,
+    columnSpec,
+    editable,
+    identity: (row) => row.id,
+    viewType: DataViewRendererType.TABLE,
+  } as any);
 
-/** Sheet and form side by side, sharing one store. */
-function SheetWithEditor({ editable = true }: { editable?: boolean }) {
-  return h(
-    "div",
-    {
-      style: {
-        padding: "2em",
-        height: "100vh",
-        boxSizing: "border-box",
-        display: "flex",
-        gap: "1em",
-      },
-    },
-    [
-      h(
-        "div",
-        { style: { flex: 1, minWidth: 0, display: "flex" } },
-        h(
-          DataSheet<Row>,
-          {
-            data,
-            columnSpec,
-            editable,
-            identity: (row) => row.id,
-          },
-          // Rendered as the sheet's child, so it is inside the provider
-          h("div", { style: panelStyle }, [
-            h("h3", { style: { margin: "0 0 0.5em" } }, "Selected row"),
-            h(SelectedRowEditor, {
-              emptyState: "Select a row in the table to see it here.",
-            }),
-          ]),
-        ),
+  return h(DataSheetProvider<Row>, providerProps as any, [
+    h.if(note != null)("p.story-note", note),
+    h("div.split", [
+      h.if(showTable)(
+        "div.grid-pane",
+        h(DataSheetRenderer<Row>, rendererProps as any),
       ),
-    ],
-  );
+      h(
+        "div.panel.component",
+        { className: showTable ? undefined : "wide" },
+        h(SelectedRowEditor, {
+          emptyState: h(
+            Callout,
+            { icon: "select", compact: true },
+            "Select a row, several rows, or a block of cells in the table.",
+          ),
+        }),
+      ),
+    ]),
+  ]);
 }
 
-export const BesideTheSheet: StoryObj<any> = {
-  render: () => h(SheetWithEditor),
-};
+function Story({ children }) {
+  return h("div.story", children);
+}
 
 /**
- * Select several rows (shift-click the row headers) and the form stands for
- * all of them: a shared value shows as one, differing values read "Multiple
- * values", and a change applies to every row. Category's picker declares
- * `multiCell`, so it edits the selection; Note's surface doesn't, so it is
- * shown read-only until one row is selected. Select a block of cells instead
- * and only those columns are editable — the rest of the row is context.
+ * Select a row and the panel is its form. Select several rows (shift-click
+ * the row headers) and the form stands for all of them: a shared value shows
+ * as one, differing values read "Multiple values", and a change applies to
+ * every row. Category's picker declares `multiCell`, so it edits the
+ * selection; Note's surface doesn't, so it is shown read-only until one row is
+ * selected. Select a block of cells instead and only those columns are
+ * editable — the rest of the row is context.
  */
-export const SeveralRows: StoryObj<any> = {
-  render: () => h(SheetWithEditor),
+export const BesideTheSheet: StoryObj<any> = {
+  render: () =>
+    h(Story, [
+      h(SheetWithEditor, {
+        note: "Select a row, shift-click for several, or a block of cells.",
+      }),
+    ]),
 };
 
 /** The same form as a read-only row viewer. */
 export const RowViewer: StoryObj<any> = {
-  render: () => h(SheetWithEditor, { editable: false }),
+  render: () => h(Story, [h(SheetWithEditor, { editable: false })]),
 };
 
 /**
  * The grid can leave the screen while the form keeps editing: the provider
  * owns the store, and the renderer is just one view of it. Hide the table and
- * the form still edits the row you had selected, through the same store.
+ * the form still edits the rows you had selected, through the same store.
  */
 function EditorWithoutTable() {
   const [showTable, setShowTable] = useState(true);
-  const [providerProps, rendererProps] = splitDataProviderProps<Row>({
-    data,
-    columnSpec,
-    editable: true,
-    identity: (row) => row.id,
-    viewType: DataViewRendererType.TABLE,
-  } as any);
-
-  let table = null;
-  if (showTable) {
-    table = h(
-      "div",
-      { style: { flex: 1, minWidth: 0, display: "flex" } },
-      h(DataSheetRenderer<Row>, rendererProps as any),
-    );
-  }
-
-  return h(
-    "div",
-    {
-      style: {
-        padding: "2em",
-        height: "100vh",
-        boxSizing: "border-box",
-        display: "flex",
-        flexDirection: "column",
-        gap: "0.5em",
-      },
-    },
-    h(DataSheetProvider<Row>, providerProps as any, [
-      h(Switch, {
-        label: "Show the table",
-        checked: showTable,
-        onChange: () => setShowTable(!showTable),
-      }),
-      h("div", { style: { display: "flex", flex: 1, minHeight: 0 } }, [
-        table,
-        h(
-          "div",
-          { style: { ...panelStyle, flex: showTable ? "0 0 22em" : 1 } },
-          [
-            h(SelectedRowEditor, {
-              inline: !showTable,
-              emptyState: h(
-                Callout,
-                { icon: "select" },
-                "Select a row while the table is showing, then hide it.",
-              ),
-            }),
-          ],
-        ),
-      ]),
-    ]),
-  );
+  return h(Story, [
+    h(Switch, {
+      label: "Show the table",
+      checked: showTable,
+      onChange: () => setShowTable(!showTable),
+    }),
+    h(SheetWithEditor, { showTable }),
+  ]);
 }
 
 export const WithoutTheTable: StoryObj<any> = {
@@ -281,30 +231,34 @@ export const WithoutTheTable: StoryObj<any> = {
 function StandaloneForm() {
   const [edits, setEdits] = useState<Partial<Row>>({});
   const row = data[3];
-  return h(
-    "div",
-    { style: { padding: "2em", maxWidth: "28em" } },
-    h(RowEditor<Row>, {
-      columnSpec,
-      row,
-      edits,
-      header: h("h3", { style: { margin: "0 0 0.5em" } }, row.name),
-      onChange(key, value) {
-        setEdits((prev) => {
-          const next = { ...prev, [key]: value };
-          if (String(value) === String(row[key])) delete next[key];
-          return next;
-        });
-      },
-      onResetField(key) {
-        setEdits((prev) => {
-          const next = { ...prev };
-          delete next[key];
-          return next;
-        });
-      },
-    }),
-  );
+  return h(Story, [
+    h(
+      "p.story-note",
+      `Editing ${row.name} against local state; edits: ${JSON.stringify(edits)}`,
+    ),
+    h(
+      "div.component.standalone",
+      h(RowEditor<Row>, {
+        columnSpec,
+        row,
+        edits,
+        onChange(key, value) {
+          setEdits((prev) => {
+            const next = { ...prev, [key]: value };
+            if (String(value) === String(row[key])) delete next[key];
+            return next;
+          });
+        },
+        onResetField(key) {
+          setEdits((prev) => {
+            const next = { ...prev };
+            delete next[key];
+            return next;
+          });
+        },
+      }),
+    ),
+  ]);
 }
 
 export const Standalone: StoryObj<any> = {
