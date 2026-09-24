@@ -2,73 +2,15 @@
 "@macrostrat/data-components": minor
 ---
 
-Pickers for controlled vocabularies, for editing at the point of entry rather
-than in free text:
+Vocabulary pickers and an interval tag with position and age
 
-- `TagPicker`: the chosen items as the tags themselves — no chip, remove cross
-  or inline inputs. Selecting a tag opens its details editor, in a popover or
-  inline below the row (`detailsMode`); without an editor, a selected tag is
-  followed by a ✕ (`removeButton` chooses). Delete removes a tag, the arrow keys
-  move between tags; `removable: false` turns removal off. Read-only when
-  `onChange` is absent. `VocabularyList` (the searchable list) is exported;
-  chosen rows are bold, and a swatch is drawn only for an item with a colour.
-- `TagDetailsEditor`: the editor a selected tag opens, built from sections
-  (label, add action, summary, field, optional `onRemove`) — a menu of actions
-  in a popover, every field inline — under a header naming the item in its tag's
-  text colour (`header: false` omits it). What is chosen within it (attributes,
-  a proportion's term) takes the item's colours through `--selected-color` and
-  `--selected-background-color` (`useSelectionColors`; `selectionColor` on
-  `TagPicker` and `VocabularyList` for lists in their own popover). Removal is a
-  danger ✕ at the right of the header (the item) or of a section (its value),
-  present only with an `onRemove`. `RemoveButton` is exported.
-- `LithologyPicker`: selecting a lithology offers Add proportion and Add
-  attributes, with its ✕ in the header; the proportion and attributes are drawn
-  on its `LithologyTag`. `proportions` takes options: a percentage (`numeric`),
-  terms from an abundance vocabulary (`terms`), or both, and whether it can be
-  cleared (`clearable`). A term is shown on the tag in place of a percentage and
-  returned as `prop_term` alongside `prop`. `resolveProportions` (`true`, or a
-  resolver of your own) adds each lithology's share of the whole as `comp_prop`
-  on every change. `AttributeEditor` is exported.
-- `ProportionEditor`, `ProportionTerm`, `resolveLithologyProportions` (numbers
-  as given, the rest shared by term weight, as the backend computes
-  `comp_prop`), and two vocabularies: `macrostratProportionTerms` (`dom`/`sub`,
-  weighted 5:1) and `ngsProportionTerms`.
-- `LithologyTag` takes a `proportionLabel`, shown in place of the percentage.
-- `buildTagStyle` (a tag's colour variables) is exported.
-- Every picker takes a `size`.
-- `EnvironmentPicker`.
-- `IntervalTag` takes a `proportion` (drawn in its prefix as "base", "top" or a
-  percent) and an `age` (in its details, in place of the range), and an
-  `interactive` flag — the design of the unit details panels, now the library's.
-  `IntervalProportion`, `formatIntervalProportion`, `AgeLabel` and `getAge` move
-  here from `@macrostrat/column-views`.
-- `IntervalPositionEditor`: an interval and optionally a position within it,
-  drawn as an `IntervalTag` with the age at that position; selecting the tag
-  opens the position control inline. Matching can be constrained to a timescale,
-  imposed (`timescale`) or chosen (`timescaleChoice`). `ageAtProportion` is
-  exported.
-- Vocabularies default to the enclosing `MacrostratDataProvider`; a list passed
-  as a prop overrides it for that picker (`useVocabulary`).
-- Stories: Pickers.
-- Several rows at once: `LithologyPicker` and `EnvironmentPicker` take one list
-  per row (`values`, `onChangeValues`) and show what the rows hold between them;
-  a tag only some hold is drawn faded (`TagPicker`'s `partial`) and its header
-  offers "Apply to all" (`onApplyToAll`, `ApplyToAllButton`). Adding or removing
-  a tag, or editing its details, changes each row's own list. `combineValues`,
-  `applyUnionChange`, `addToAll` and `updateInEach` are exported. A `mergeItems`
-  function merges the entries rows hold for one item (`MergedItem`: the entry to
-  draw, whether they differ, nested members only some hold, fields that differ);
-  the default compares whole entries (`mergeByEquality`), and `mergeLithologies`
-  gives a lithology's attributes the same partial / apply-to-all treatment and
-  shows a differing proportion as "mixed".
-- On a one-line row (`--tag-row-wrap: nowrap`), tags keep their width and those
-  that don't fit give way to "and n more".
-- A container can pin tags and pickers through CSS variables:
-  `--tag-line-height` and `--tag-outline` on a tag, `--tag-picker-height` (which
-  centres the row in that height), `--tag-picker-overflow` and `--tag-row-wrap`
-  on a picker.
-- A `"stack"` details mode: the selected tag's menu, then a section, stacked in
-  the picker's place with a way back — for a picker that is itself in a popover.
-- `IntervalPositionEditor`: a click on the tag changes the interval, the caret
-  in its prefix opens the position control, the interval's ✕ is always beside it
-  while editing, and its headers match the position field's.
+- `TagPicker` — chosen items as tags; select one to open its details editor (popover, inline, or stacked), Delete removes it
+- `TagDetailsEditor` — a tag's sections as a menu or inline fields, with danger ✕ removal
+- `LithologyPicker` — proportions (percent or abundance terms) and attributes per lithology; `resolveProportions` adds `comp_prop`
+- `EnvironmentPicker`, `IntervalPositionEditor` — environments; an interval with an optional position and derived age
+- `ProportionEditor`, `macrostratProportionTerms`, `ngsProportionTerms`, `resolveLithologyProportions`
+- Multi-row pickers (`values` / `onChangeValues`) with partial tags, "Apply to all", and `mergeItems` (`mergeLithologies`)
+- Vocabularies default to `MacrostratDataProvider` (`useVocabulary`); a prop overrides
+- `IntervalTag` — `proportion` in the prefix, `age` in the details, `interactive`; `IntervalProportion`, `AgeLabel`, `getAge` moved here from column-views
+- `LithologyTag` — `proportionLabel`; `buildTagStyle` exported
+- CSS variables for containers: `--tag-line-height`, `--tag-outline`, `--tag-picker-height`, `--tag-row-wrap` (one-line rows show "and n more")
