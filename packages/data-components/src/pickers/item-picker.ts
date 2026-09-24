@@ -156,7 +156,7 @@ export function ItemPicker<T extends PickerItem>(props: ItemPickerProps<T>) {
   );
 }
 
-interface ItemPickerListProps<T extends PickerItem> {
+export interface ItemPickerListProps<T extends PickerItem> {
   items: T[];
   chosen: Set<number | string>;
   multi: boolean;
@@ -168,7 +168,9 @@ interface ItemPickerListProps<T extends PickerItem> {
 
 /** The searchable list inside the popover. Rows toggle in multi mode and
  * pick in single mode; the query narrows by name. */
-function ItemPickerList<T extends PickerItem>(props: ItemPickerListProps<T>) {
+export function ItemPickerList<T extends PickerItem>(
+  props: ItemPickerListProps<T>,
+) {
   const { items, chosen, multi, onPick, renderItem, compareItems } = props;
   const [query, setQuery] = useState("");
 

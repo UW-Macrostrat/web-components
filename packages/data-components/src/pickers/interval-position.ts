@@ -1,17 +1,24 @@
 /**
- * IntervalPositionEditor — a chronostratigraphic position: an interval and a
- * proportion within it, from which an age follows.
+ * IntervalPositionEditor — a chronostratigraphic position: an interval and,
+ * optionally, a proportion within it, from which an age follows.
  *
  * This is how the column-ingestion format records where a boundary sits in
  * time (`b_int`/`b_prop`, `t_int`/`t_prop`), and how Macrostrat's age model
- * calibrates a surface. The age is derived — 0 is the interval's base (its
- * older bound), 1 its top — and is shown but never typed. Read-only when
- * `onChange` is absent, so it doubles as the display of a calibration.
+ * calibrates a surface. The interval alone is a position ("in the Devonian");
+ * the proportion is an add-on that refines it — 0 at the interval's base (its
+ * older bound), 1 at its top — added with a button and slid, with *Base* and
+ * *Top* shortcuts. The age is derived and never typed.
+ *
+ * Matching can be **constrained to a timescale**: either a timescale is
+ * imposed from outside (`timescale`, shown by name) or the vocabulary of
+ * timescales is offered (`timescales`) and one is chosen in the control.
+ * Read-only when `onChange` is absent, so it doubles as the display of a
+ * calibration.
  */
 import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
-import { useMemo } from "react";
-import { Slider } from "@blueprintjs/core";
+import { type ReactNode, useMemo, useState } from "react";
+import { Button, ButtonGroup, HTMLSelect, Slider } from "@blueprintjs/core";
 import { IntervalTag, type IntervalShort } from "../components/unit-details";
 import { TagSize } from "../components/unit-details/tag";
 import { ItemPicker, type PickerItem } from "./item-picker";
@@ -19,8 +26,14 @@ import styles from "./pickers.module.sass";
 
 const h = hyper.styled(styles);
 
+export interface TimescaleRef {
+  timescale_id: number;
+  name: string;
+}
+
 /** An interval definition: what `useMacrostratDefs("intervals")` holds,
- * reduced to what a position needs. */
+ * reduced to what a position needs. `timescales` lists the timescales the
+ * interval belongs to, when the source reports them. */
 export interface IntervalDefLike {
   int_id: number;
   name: string;
@@ -29,12 +42,14 @@ export interface IntervalDefLike {
   color?: string;
   rank?: number;
   int_type?: string;
+  timescales?: TimescaleRef[];
 }
 
 export interface IntervalPosition {
   int_id: number | null;
   int_name?: string | null;
-  /** 0 at the interval's base, 1 at its top. */
+  /** 0 at the interval's base, 1 at its top; `null` when the position is the
+   * interval alone. */
   prop: number | null;
 }
 
@@ -44,9 +59,24 @@ export interface IntervalPositionChange extends IntervalPosition {
 }
 
 export interface IntervalPositionEditorProps {
-  intervals: IntervalDefLike[] | Map<number, IntervalDefLike> | null | undefined;
+  intervals:
+    IntervalDefLike[] | Map<number, IntervalDefLike> | null | undefined;
   value: IntervalPosition | null | undefined;
   onChange?: (value: IntervalPositionChange) => void;
+  /** Whether the proportion within the interval can be set at all. Off, the
+   * position is the interval alone. */
+  proportion?: boolean;
+  /** The proportion a position starts at when one is added (default 0, the
+   * interval's base). */
+  defaultProportion?: number;
+  /** Constrain matching to this timescale, from outside: only its intervals
+   * are offered, and it is shown by name. */
+  timescale?: TimescaleRef | null;
+  /** Offer a choice of timescale in the control. Ignored when `timescale` is
+   * imposed. */
+  timescales?: TimescaleRef[] | null;
+  /** The timescale chosen from `timescales` at first (uncontrolled). */
+  defaultTimescaleID?: number | null;
   /** Show the derived age (default). */
   showAge?: boolean;
   disabled?: boolean;
@@ -71,37 +101,56 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
     intervals,
     value,
     onChange,
+    proportion = true,
+    defaultProportion = 0,
+    timescale = null,
+    timescales = null,
+    defaultTimescaleID = null,
     showAge = true,
     disabled,
     className,
   } = props;
 
+  const editable = onChange != null && !disabled;
   const defs = useMemo(() => toArray(intervals), [intervals]);
-  const items: IntervalItem[] = useMemo(
-    () =>
-      [...defs]
-        .sort((a, b) => b.b_age - a.b_age)
-        .map((def) => ({
-          id: def.int_id,
-          name: def.name,
-          color: def.color,
-          description: `${formatAge(def.b_age)}–${formatAge(def.t_age)} Ma`,
-          def,
-        })),
-    [defs],
-  );
 
+  // The timescale in force: imposed, else the one chosen here
+  const [chosenTimescaleID, setChosenTimescaleID] = useState<number | null>(
+    defaultTimescaleID,
+  );
+  const timescaleID = timescale?.timescale_id ?? chosenTimescaleID;
+
+  const items: IntervalItem[] = useMemo(() => {
+    let list = defs;
+    if (timescaleID != null) {
+      list = defs.filter((d) => inTimescale(d, timescaleID));
+    }
+    return [...list]
+      .sort((a, b) => b.b_age - a.b_age)
+      .map((def) => ({
+        id: def.int_id,
+        name: def.name,
+        color: def.color,
+        description: `${formatAge(def.b_age)}–${formatAge(def.t_age)} Ma`,
+        def,
+      }));
+  }, [defs, timescaleID]);
+
+  // The current interval is looked up in the whole vocabulary: a constraint
+  // narrows what can be picked, not what is already there.
   const current = useMemo(() => {
     if (value?.int_id == null) return null;
-    return items.find((d) => d.id === value.int_id) ?? null;
-  }, [items, value?.int_id]);
+    const def = defs.find((d) => d.int_id === value.int_id);
+    if (def == null) return null;
+    return { id: def.int_id, name: def.name, color: def.color, def };
+  }, [defs, value?.int_id]);
 
   const prop = value?.prop ?? null;
   const age = ageAtProportion(current?.def, prop);
-  const editable = onChange != null && !disabled;
 
   const emit = (next: Partial<IntervalPosition>) => {
-    const int_id = next.int_id !== undefined ? next.int_id : (value?.int_id ?? null);
+    const int_id =
+      next.int_id !== undefined ? next.int_id : (value?.int_id ?? null);
     const def = defs.find((d) => d.int_id === int_id) ?? null;
     const nextProp = next.prop !== undefined ? next.prop : prop;
     onChange?.({
@@ -116,7 +165,9 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
     items,
     value: current == null ? [] : [current],
     multi: false,
-    onChange: editable ? (next) => emit({ int_id: next[0]?.id as number }) : undefined,
+    onChange: editable
+      ? (next) => emit({ int_id: (next[0]?.id as number) ?? null })
+      : undefined,
     placeholder: "Choose an interval…",
     searchPlaceholder: "Search intervals…",
     renderTag: (item) =>
@@ -126,7 +177,7 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
       }),
   });
 
-  let unresolved = null;
+  let unresolved: ReactNode = null;
   if (current == null && value?.int_name != null) {
     unresolved = h(
       "span.unresolved-interval",
@@ -135,38 +186,175 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
     );
   }
 
-  let proportion = null;
-  if (current != null) {
-    if (editable) {
-      proportion = h(Slider, {
-        className: "proportion-slider",
-        min: 0,
-        max: 1,
-        stepSize: 0.01,
-        labelStepSize: 0.5,
-        labelRenderer: (v) => `${Math.round(v * 100)}%`,
-        value: prop ?? 0,
-        onChange: (v) => emit({ prop: v }),
-        disabled,
-      });
-    } else if (prop != null) {
-      proportion = h("span.proportion-value", `${Math.round(prop * 100)}%`);
-    }
-  }
-
-  let ageLabel = null;
+  let ageLabel: ReactNode = null;
   if (showAge && age != null) {
     ageLabel = h("span.derived-age", [formatAge(age), " Ma"]);
+  } else if (showAge && current != null && prop == null) {
+    ageLabel = h(
+      "span.derived-age",
+      `${formatAge(current.def.b_age)}–${formatAge(current.def.t_age)} Ma`,
+    );
+  }
+
+  let proportionRow: ReactNode = null;
+  if (proportion && current != null) {
+    proportionRow = h(ProportionControl, {
+      prop,
+      editable,
+      defaultProportion,
+      onChange: (next) => emit({ prop: next }),
+    });
   }
 
   return h(
     "div.interval-position",
     { className: classNames(className, { editable }) },
     [
-      h("div.interval-row", [picker, unresolved, ageLabel]),
-      h.if(proportion != null)("div.proportion-row", proportion),
+      h("div.interval-row", [
+        h(TimescaleConstraint, {
+          timescale,
+          timescales,
+          timescaleID: chosenTimescaleID,
+          onChange: setChosenTimescaleID,
+          editable,
+        }),
+        picker,
+        unresolved,
+        ageLabel,
+      ]),
+      proportionRow,
     ],
   );
+}
+
+/* --------------------------------------------------------------- proportion */
+
+/** The optional position within the interval. Without one: a button that
+ * adds it (at the default) and shortcuts straight to the base or the top.
+ * With one: a slider, the same shortcuts, and a way to drop it again. */
+function ProportionControl({
+  prop,
+  editable,
+  defaultProportion,
+  onChange,
+}: {
+  prop: number | null;
+  editable: boolean;
+  defaultProportion: number;
+  onChange: (prop: number | null) => void;
+}) {
+  if (!editable) {
+    if (prop == null) return null;
+    return h(
+      "div.proportion-row",
+      h("span.proportion-value", `${Math.round(prop * 100)}% up the interval`),
+    );
+  }
+
+  const shortcuts = h(
+    ButtonGroup,
+    { minimal: true, className: "proportion-shortcuts" },
+    [
+      h(Button, {
+        small: true,
+        text: "Base",
+        active: prop === 0,
+        title: "At the interval's base (0)",
+        onClick: () => onChange(0),
+      }),
+      h(Button, {
+        small: true,
+        text: "Top",
+        active: prop === 1,
+        title: "At the interval's top (1)",
+        onClick: () => onChange(1),
+      }),
+    ],
+  );
+
+  if (prop == null) {
+    return h("div.proportion-row.proportion-absent", [
+      h(Button, {
+        small: true,
+        minimal: true,
+        icon: "small-plus",
+        text: "Position in interval",
+        title: "Refine the position to a proportion of the interval",
+        onClick: () => onChange(defaultProportion),
+      }),
+      shortcuts,
+    ]);
+  }
+
+  return h("div.proportion-row", [
+    h(Slider, {
+      className: "proportion-slider",
+      min: 0,
+      max: 1,
+      stepSize: 0.01,
+      labelStepSize: 0.5,
+      labelRenderer: (v) => `${Math.round(v * 100)}%`,
+      value: prop,
+      onChange: (v) => onChange(v),
+    }),
+    shortcuts,
+    h(Button, {
+      small: true,
+      minimal: true,
+      icon: "small-cross",
+      title: "Drop the proportion: the position is the interval alone",
+      onClick: () => onChange(null),
+    }),
+  ]);
+}
+
+/* ---------------------------------------------------------------- timescale */
+
+/** The timescale matching is constrained to: a name when it is imposed, a
+ * choice when a vocabulary is offered, nothing otherwise. */
+function TimescaleConstraint({
+  timescale,
+  timescales,
+  timescaleID,
+  onChange,
+  editable,
+}: {
+  timescale: TimescaleRef | null;
+  timescales: TimescaleRef[] | null;
+  timescaleID: number | null;
+  onChange: (id: number | null) => void;
+  editable: boolean;
+}) {
+  if (timescale != null) {
+    return h(
+      "span.timescale-constraint",
+      { title: "Intervals are matched within this timescale" },
+      timescale.name,
+    );
+  }
+  if (timescales == null || timescales.length === 0 || !editable) return null;
+  const options = [
+    { label: "Any timescale", value: "" },
+    ...timescales.map((t) => ({
+      label: t.name,
+      value: String(t.timescale_id),
+    })),
+  ];
+  return h(HTMLSelect, {
+    className: "timescale-select",
+    minimal: true,
+    options,
+    value: timescaleID == null ? "" : String(timescaleID),
+    title: "Constrain matching to a timescale",
+    onChange: (evt) => {
+      const raw = evt.currentTarget.value;
+      onChange(raw === "" ? null : Number(raw));
+    },
+  });
+}
+
+function inTimescale(def: IntervalDefLike, timescaleID: number): boolean {
+  return (def.timescales ?? []).some((t) => t.timescale_id === timescaleID);
 }
 
 function toIntervalShort(def: IntervalDefLike): IntervalShort {

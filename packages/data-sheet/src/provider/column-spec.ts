@@ -85,12 +85,29 @@ export interface CellEditors {
 export interface CellDetailContext<T = any> extends CellRenderContext<T> {
   /** Whether this cell is editable (column × table × not-deleted). */
   editable: boolean;
+  /**
+   * When the surface stands for several cells at once (the row editor over a
+   * multi-row selection), the cells it stands for. `value` is then the value
+   * they share, or `undefined` when they differ (`mixed`), and `onChange`
+   * writes every one of them. Only offered to a column that declares
+   * `multiCell`; absent for a single cell.
+   */
+  cells?: CellSelectionEntry<T>[];
+  /** True when `cells` hold differing values. */
+  mixed?: boolean;
   /** Commit a new value for this cell. */
   onChange: (value: any) => void;
   /** Reset this cell (and selection) to its base value. */
   resetValue: () => void;
   /** Close the surface and return focus to the table. */
   close: () => void;
+}
+
+/** One of the cells a multi-cell surface stands for. */
+export interface CellSelectionEntry<T = any> {
+  rowIndex: number;
+  row: T | null | undefined;
+  value: any;
 }
 
 /** How a cell's detail surface is presented. Orthogonal to what it renders. */
@@ -142,6 +159,15 @@ export interface ColumnSpec {
    * same component works in any container.
    */
   cellDetail?: (ctx: CellDetailContext) => React.ReactNode;
+  /**
+   * Whether this column's `cellDetail` can stand for several cells at once —
+   * read the shared value (or `ctx.mixed`) and write every cell in
+   * `ctx.cells` through one `onChange`. A surface that doesn't declare this
+   * is shown read-only over a multi-row selection, with "Multiple values"
+   * where they differ. The default editors (an input by `dataType`) always
+   * can, since setting one value on every cell is what they do.
+   */
+  multiCell?: boolean;
   /** How `cellDetail` is presented. Defaults to `"popover"`. */
   detailPresentation?: DetailPresentation;
   cellComponent?: any;

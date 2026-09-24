@@ -121,3 +121,49 @@
 .unresolved-interval
   color: var(--pz-intent-warning, #c87619)
   font-style: italic
+
+// Attributes on a realized lithology
+.add-attribute
+  min-height: 0
+  min-width: 0
+  padding: 0
+  opacity: 0.7
+  &:hover
+    opacity: 1
+
+.attribute-picker
+  padding: 6px 0 0 0
+
+.attribute-picker-title
+  padding: 0 12px 4px 12px
+  font-size: 0.8em
+  font-weight: 600
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+// Interval position: the optional proportion and the timescale constraint
+.proportion-row
+  display: flex
+  align-items: center
+  gap: 0.75em
+  flex-wrap: wrap
+  .proportion-slider
+    flex: 1 1 10em
+    min-width: 10em
+    max-width: 18em
+
+.proportion-shortcuts
+  flex: none
+
+.proportion-absent
+  padding: 0
+
+.timescale-constraint
+  font-size: 0.8em
+  padding: 0.1em 0.5em
+  border-radius: 3px
+  background: rgba(128, 128, 128, 0.12)
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+  white-space: nowrap
+
+.timescale-select
+  font-size: 0.85em

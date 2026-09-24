@@ -66,14 +66,31 @@ const data = buildData();
 
 /** A `cellDetail` surface: a segmented picker when editable, the plain value
  * otherwise. The same function serves the grid's popover and the form's
- * field. */
+ * field. It declares `multiCell`, so over several rows it shows the shared
+ * category (or none, when they differ) and sets every row at once. */
 function CategoryDetail(ctx: CellDetailContext) {
-  if (!ctx.editable) return h("span", ctx.value);
+  if (!ctx.editable) {
+    if (ctx.mixed) return h("span", "Multiple values");
+    return h("span", ctx.value);
+  }
   return h(SegmentedControl, {
     small: true,
     options: categories.map((c) => ({ label: c, value: c })),
-    value: ctx.value,
+    value: ctx.mixed ? undefined : ctx.value,
     onValueChange: (value) => ctx.onChange(value),
+  });
+}
+
+/** A `cellDetail` that does NOT declare `multiCell`: fine for one row, shown
+ * read-only over several. */
+function NoteDetail(ctx: CellDetailContext) {
+  if (!ctx.editable) return h("span", ctx.value ?? "—");
+  return h("textarea.bp6-input", {
+    defaultValue: ctx.value ?? "",
+    style: { width: "100%", minHeight: "4em", fontFamily: "inherit" },
+    onBlur: (e) => {
+      if (e.target.value !== (ctx.value ?? "")) ctx.onChange(e.target.value);
+    },
   });
 }
 
@@ -98,6 +115,7 @@ const columnSpec: ColumnSpec[] = [
     dataType: "string",
     width: 130,
     cellDetail: CategoryDetail,
+    multiCell: true,
   },
   {
     key: "value",
@@ -116,7 +134,13 @@ const columnSpec: ColumnSpec[] = [
     },
   },
   { key: "confirmed", name: "Confirmed", dataType: "boolean", width: 90 },
-  { key: "note", name: "Note", dataType: "text", width: 240 },
+  {
+    key: "note",
+    name: "Note",
+    dataType: "text",
+    width: 240,
+    cellDetail: NoteDetail,
+  },
 ];
 
 const panelStyle = {
@@ -166,6 +190,18 @@ function SheetWithEditor({ editable = true }: { editable?: boolean }) {
 }
 
 export const BesideTheSheet: StoryObj<any> = {
+  render: () => h(SheetWithEditor),
+};
+
+/**
+ * Select several rows (shift-click the row headers) and the form stands for
+ * all of them: a shared value shows as one, differing values read "Multiple
+ * values", and a change applies to every row. Category's picker declares
+ * `multiCell`, so it edits the selection; Note's surface doesn't, so it is
+ * shown read-only until one row is selected. Select a block of cells instead
+ * and only those columns are editable — the rest of the row is context.
+ */
+export const SeveralRows: StoryObj<any> = {
   render: () => h(SheetWithEditor),
 };
 

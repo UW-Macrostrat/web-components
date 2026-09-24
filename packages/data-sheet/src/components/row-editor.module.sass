@@ -68,3 +68,21 @@
 .row-editor-empty
   color: var(--pz-text-subtle-color, var(--secondary-color))
   font-size: 0.9em
+
+// A cell selection's columns are the focus: marked, and the only writable
+// fields; the rest of the row is context.
+.row-editor-field.selected
+  .field-name
+    color: var(--pz-intent-primary, #2d72d2)
+  :global(.bp6-form-content)
+    box-shadow: inset 2px 0 0 var(--pz-intent-primary, #2d72d2)
+    padding-left: 0.4em
+
+.mixed-values
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+  font-style: italic
+
+.selection-summary
+  font-size: 0.85em
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+  margin-bottom: 0.5em

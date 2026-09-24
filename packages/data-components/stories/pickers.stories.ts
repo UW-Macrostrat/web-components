@@ -1,8 +1,9 @@
 /**
- * Pickers for controlled vocabularies: lithologies and environments as
- * multi-valued tag pickers, and a chronostratigraphic position (interval +
- * proportion, age derived). Each is read-only without `onChange`, so the same
- * component shows a value in a viewer and edits it in an editor.
+ * Pickers for controlled vocabularies: lithologies (with their attributes)
+ * and environments as multi-valued tag pickers, and a chronostratigraphic
+ * position (interval, optional proportion, derived age, an optional timescale
+ * constraint). Each is read-only without `onChange`, so the same component
+ * shows a value in a viewer and edits it in an editor.
  */
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
@@ -29,172 +30,89 @@ export default meta;
 
 /* ------------------------------------------------------------- fixtures */
 
+function lith(lith_id, name, color, cls, type) {
+  return { lith_id, name, color, class: cls, type };
+}
+
 const lithologies = [
-  {
-    lith_id: 1,
-    name: "sandstone",
-    color: "#f4d47c",
-    class: "sedimentary",
-    type: "siliciclastic",
-  },
-  {
-    lith_id: 2,
-    name: "shale",
-    color: "#9aa9b8",
-    class: "sedimentary",
-    type: "siliciclastic",
-  },
-  {
-    lith_id: 3,
-    name: "limestone",
-    color: "#8fc7e8",
-    class: "sedimentary",
-    type: "carbonate",
-  },
-  {
-    lith_id: 4,
-    name: "dolomite",
-    color: "#b7a6d6",
-    class: "sedimentary",
-    type: "carbonate",
-  },
-  {
-    lith_id: 5,
-    name: "conglomerate",
-    color: "#e0a56b",
-    class: "sedimentary",
-    type: "siliciclastic",
-  },
-  {
-    lith_id: 6,
-    name: "basalt",
-    color: "#6d6d6d",
-    class: "igneous",
-    type: "volcanic",
-  },
-  {
-    lith_id: 7,
-    name: "granite",
-    color: "#e88f8f",
-    class: "igneous",
-    type: "plutonic",
-  },
+  lith(1, "sandstone", "#f4d47c", "sedimentary", "siliciclastic"),
+  lith(2, "shale", "#9aa9b8", "sedimentary", "siliciclastic"),
+  lith(3, "limestone", "#8fc7e8", "sedimentary", "carbonate"),
+  lith(4, "dolomite", "#b7a6d6", "sedimentary", "carbonate"),
+  lith(5, "conglomerate", "#e0a56b", "sedimentary", "siliciclastic"),
+  lith(6, "basalt", "#6d6d6d", "igneous", "volcanic"),
+  lith(7, "granite", "#e88f8f", "igneous", "plutonic"),
 ];
+
+const lithAttributes = [
+  { lith_att_id: 1, name: "fine-grained", att_type: "grains" },
+  { lith_att_id: 2, name: "coarse-grained", att_type: "grains" },
+  { lith_att_id: 3, name: "cross-bedded", att_type: "bedform" },
+  { lith_att_id: 4, name: "laminated", att_type: "bedform" },
+  { lith_att_id: 5, name: "calcareous", att_type: "lithology" },
+  { lith_att_id: 6, name: "arkosic", att_type: "lithology" },
+  { lith_att_id: 7, name: "fossiliferous", att_type: "sed structures" },
+];
+
+function env(environ_id, name, color, cls, type) {
+  return { environ_id, name, color, class: cls, type };
+}
 
 const environments = [
-  {
-    environ_id: 1,
-    name: "fluvial",
-    color: "#8ccf7a",
-    class: "non-marine",
-    type: "fluvial",
-  },
-  {
-    environ_id: 2,
-    name: "deltaic",
-    color: "#b8e07a",
-    class: "marginal marine",
-    type: "deltaic",
-  },
-  {
-    environ_id: 3,
-    name: "shallow marine",
-    color: "#6bb3e0",
-    class: "marine",
-    type: "carbonate",
-  },
-  {
-    environ_id: 4,
-    name: "deep marine",
-    color: "#3b6fb3",
-    class: "marine",
-    type: "siliciclastic",
-  },
-  {
-    environ_id: 5,
-    name: "eolian",
-    color: "#e6c47a",
-    class: "non-marine",
-    type: "eolian",
-  },
+  env(1, "fluvial", "#8ccf7a", "non-marine", "fluvial"),
+  env(2, "deltaic", "#b8e07a", "marginal marine", "deltaic"),
+  env(3, "shallow marine", "#6bb3e0", "marine", "carbonate"),
+  env(4, "deep marine", "#3b6fb3", "marine", "siliciclastic"),
+  env(5, "eolian", "#e6c47a", "non-marine", "eolian"),
 ];
 
+const timescales = [
+  { timescale_id: 1, name: "international periods" },
+  { timescale_id: 2, name: "North American land mammal ages" },
+];
+
+function interval(int_id, name, b_age, t_age, color, timescale) {
+  return {
+    int_id,
+    name,
+    b_age,
+    t_age,
+    color,
+    rank: 3,
+    timescales: [timescale],
+  };
+}
+
+const [ics, nalma] = timescales;
+
 const intervals = [
-  {
-    int_id: 1,
-    name: "Cambrian",
-    b_age: 538.8,
-    t_age: 486.85,
-    color: "#7FA056",
-    rank: 3,
-  },
-  {
-    int_id: 2,
-    name: "Ordovician",
-    b_age: 486.85,
-    t_age: 443.1,
-    color: "#009270",
-    rank: 3,
-  },
-  {
-    int_id: 3,
-    name: "Silurian",
-    b_age: 443.1,
-    t_age: 419.62,
-    color: "#B3E1B6",
-    rank: 3,
-  },
-  {
-    int_id: 4,
-    name: "Devonian",
-    b_age: 419.62,
-    t_age: 358.86,
-    color: "#CB8C37",
-    rank: 3,
-  },
-  {
-    int_id: 5,
-    name: "Carboniferous",
-    b_age: 358.86,
-    t_age: 298.9,
-    color: "#67A599",
-    rank: 3,
-  },
-  {
-    int_id: 6,
-    name: "Permian",
-    b_age: 298.9,
-    t_age: 251.9,
-    color: "#F04028",
-    rank: 3,
-  },
-  {
-    int_id: 7,
-    name: "Triassic",
-    b_age: 251.9,
-    t_age: 201.4,
-    color: "#812B92",
-    rank: 3,
-  },
-  {
-    int_id: 8,
-    name: "Jurassic",
-    b_age: 201.4,
-    t_age: 143.1,
-    color: "#34B2C9",
-    rank: 3,
-  },
-  {
-    int_id: 9,
-    name: "Cretaceous",
-    b_age: 143.1,
-    t_age: 66.0,
-    color: "#7FC64E",
-    rank: 3,
-  },
+  interval(1, "Cambrian", 538.8, 486.85, "#7FA056", ics),
+  interval(2, "Ordovician", 486.85, 443.1, "#009270", ics),
+  interval(3, "Silurian", 443.1, 419.62, "#B3E1B6", ics),
+  interval(4, "Devonian", 419.62, 358.86, "#CB8C37", ics),
+  interval(5, "Carboniferous", 358.86, 298.9, "#67A599", ics),
+  interval(6, "Permian", 298.9, 251.9, "#F04028", ics),
+  interval(7, "Triassic", 251.9, 201.4, "#812B92", ics),
+  interval(8, "Jurassic", 201.4, 143.1, "#34B2C9", ics),
+  interval(9, "Cretaceous", 143.1, 66.0, "#7FC64E", ics),
+  interval(10, "Wasatchian", 55.8, 50.3, "#FDB46C", nalma),
+  interval(11, "Bridgerian", 50.3, 46.2, "#FDC07A", nalma),
 ];
 
 /* --------------------------------------------------------------- stories */
+
+function useLiveDefs(live: boolean) {
+  const url = (path: string) =>
+    live ? `https://macrostrat.org/api/v2/defs/${path}` : null;
+  const unwrap = (res) => res?.success?.data;
+  return {
+    lithologies: useAPIResult(url("lithologies"), { all: true }, unwrap),
+    lithAttributes: useAPIResult(url("lith_atts"), { all: true }, unwrap),
+    environments: useAPIResult(url("environments"), { all: true }, unwrap),
+    intervals: useAPIResult(url("intervals"), { all: true }, unwrap),
+    timescales: useAPIResult(url("timescales"), { all: true }, unwrap),
+  };
+}
 
 function PickersDemo({ live = false }: { live?: boolean }) {
   const [editable, setEditable] = useState(true);
@@ -210,22 +128,16 @@ function PickersDemo({ live = false }: { live?: boolean }) {
     int_name: "Devonian",
     prop: 0.25,
   });
+  const [topPosition, setTopPosition] = useState<IntervalPosition>({
+    int_id: 5,
+    int_name: "Carboniferous",
+    prop: null,
+  });
 
-  const liveLiths = useAPIResult(
-    live ? "https://macrostrat.org/api/v2/defs/lithologies" : null,
-    { all: true },
-    (res) => res?.success?.data,
-  );
-  const liveEnvs = useAPIResult(
-    live ? "https://macrostrat.org/api/v2/defs/environments" : null,
-    { all: true },
-    (res) => res?.success?.data,
-  );
-  const liveIntervals = useAPIResult(
-    live ? "https://macrostrat.org/api/v2/defs/intervals" : null,
-    { timescale_id: 11 },
-    (res) => res?.success?.data,
-  );
+  const liveDefs = useLiveDefs(live);
+  const defs = live
+    ? liveDefs
+    : { lithologies, lithAttributes, environments, intervals, timescales };
 
   return h(
     "div",
@@ -239,9 +151,14 @@ function PickersDemo({ live = false }: { live?: boolean }) {
       h(Card, [
         h(
           FormGroup,
-          { label: "Lithology" },
+          {
+            label: "Lithology",
+            helperText:
+              "Pick lithologies; set a proportion; the + beside each adds attributes, listed by kind.",
+          },
           h(LithologyPicker, {
-            lithologies: live ? liveLiths : lithologies,
+            lithologies: defs.lithologies,
+            lithAttributes: defs.lithAttributes,
             value: liths,
             onChange: editable ? setLiths : undefined,
           }),
@@ -250,7 +167,7 @@ function PickersDemo({ live = false }: { live?: boolean }) {
           FormGroup,
           { label: "Environment" },
           h(EnvironmentPicker, {
-            environments: live ? liveEnvs : environments,
+            environments: defs.environments,
             value: envs,
             onChange: editable ? setEnvs : undefined,
           }),
@@ -260,19 +177,35 @@ function PickersDemo({ live = false }: { live?: boolean }) {
           {
             label: "Base of unit",
             helperText:
-              "An interval and a position within it; the age follows.",
+              "An interval and a position in it; the age follows. Choose a timescale to match within.",
           },
           h(IntervalPositionEditor, {
-            intervals: live ? liveIntervals : intervals,
+            intervals: defs.intervals,
+            timescales: defs.timescales,
             value: position,
             onChange: editable ? setPosition : undefined,
+          }),
+        ),
+        h(
+          FormGroup,
+          {
+            label: "Top of unit, within one timescale",
+            helperText:
+              "The timescale is imposed from outside, so only its intervals are offered. The position starts as the interval alone; add a proportion to refine it.",
+          },
+          h(IntervalPositionEditor, {
+            intervals: defs.intervals,
+            timescale: timescales[0],
+            defaultProportion: 1,
+            value: topPosition,
+            onChange: editable ? setTopPosition : undefined,
           }),
         ),
       ]),
       h(
         "pre",
         { style: { fontSize: "11px", opacity: 0.7 } },
-        JSON.stringify({ liths, envs, position }, null, 2),
+        JSON.stringify({ liths, envs, position, topPosition }, null, 2),
       ),
     ],
   );
@@ -282,7 +215,9 @@ export const Fixtures: StoryObj<any> = {
   render: () => h(PickersDemo),
 };
 
-/** The same pickers over Macrostrat's live definitions. */
+/** The same pickers over Macrostrat's live definitions (the imposed
+ * timescale is the fixture's, so its constraint matches nothing live — pick
+ * "Any timescale" on the first editor to browse the full vocabulary). */
 export const LiveDefinitions: StoryObj<any> = {
   render: () => h(PickersDemo, { live: true }),
 };

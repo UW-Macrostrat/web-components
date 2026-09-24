@@ -106,8 +106,16 @@ the editor when the column has one, and otherwise an input follows from
 the whole form is a read-only row viewer. It is store-free — a row, its edits
 and an `onChange`.
 
+Over several rows each field stands for that column across all of them: a
+shared value is edited as one, differing values read "Multiple values", and a
+change applies to every row. A column's `cellDetail` edits several cells only
+when the column declares `multiCell` (its context then carries `cells` and
+`mixed`); the default editors always do. Over a cell selection the selected
+columns are the focus — editable and marked — and the rest of the row is
+read-only context.
+
 `SelectedRowEditor` binds it to the enclosing `DataSheetProvider`: it follows
-the selected row and writes through `onCellEdited`, so an edit made in the form
-is the same edit as one typed into the grid (same overlay, same `onEdit`, same
-Reset), and it keeps working when the grid itself isn't mounted. See
-`stories/row-editor.stories.ts`.
+the selected rows and columns and writes through `onCellEdited`, so an edit
+made in the form is the same edit as one typed into the grid (same overlay,
+same `onEdit`, same Reset), and it keeps working when the grid itself isn't
+mounted. See `stories/row-editor.stories.ts`.

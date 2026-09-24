@@ -8,14 +8,19 @@
  * decides where definitions come from (`useMacrostratDefs`, a fixture, a
  * server) — and hand back the unit's own array shape (`UnitLithology[]`,
  * `Environment[]`), so a value round-trips without translation.
+ *
+ * A realized lithology can carry **attributes** (`lith_atts`: grain size,
+ * bedding, composition…). Given the attribute vocabulary, each chosen
+ * lithology gets a second, smaller picker that adds or removes attributes on
+ * it, listed with the kind of attribute each one is.
  */
 import hyper from "@macrostrat/hyper";
 import { type ReactNode, useMemo } from "react";
 import type { Environment, UnitLithology } from "@macrostrat/api-types";
-import { InputGroup } from "@blueprintjs/core";
+import { Button, InputGroup, Popover } from "@blueprintjs/core";
 import { LithologyTag, LithologyTagFeature } from "../components/unit-details";
 import { TagSize } from "../components/unit-details/tag";
-import { ItemPicker, type PickerItem } from "./item-picker";
+import { ItemPicker, ItemPickerList, type PickerItem } from "./item-picker";
 import styles from "./pickers.module.sass";
 
 const h = hyper.styled(styles);
@@ -30,16 +35,30 @@ export interface LithologyDef {
   group?: string | null;
 }
 
+/** A lithology attribute definition (`/defs/lith_atts`). */
+export interface LithAttributeDef {
+  lith_att_id: number;
+  name: string;
+  /** What kind of attribute: `grains`, `bedform`, `sed structures`… */
+  att_type?: string;
+  /** Total units carrying it, when the source reports it. */
+  t_units?: number;
+}
+
 /** A unit's lithology entry: the definition's id and name, with the unit's
- * own proportion and attributes. */
+ * own proportion and attributes (attribute names, as the API carries them). */
 export type UnitLithologyValue = Pick<UnitLithology, "lith_id" | "name"> &
   Partial<UnitLithology> & { color?: string };
 
-type LithItem = PickerItem & { def: LithologyDef };
+type LithItem = PickerItem & { def: LithologyDef; entry?: UnitLithologyValue };
 
 export interface LithologyPickerProps {
   /** The lithology vocabulary. */
   lithologies: LithologyDef[] | Map<number, LithologyDef> | null | undefined;
+  /** The attribute vocabulary. Given, each chosen lithology gets an attribute
+   * picker; absent, attributes are shown but not edited. */
+  lithAttributes?:
+    LithAttributeDef[] | Map<number, LithAttributeDef> | null | undefined;
   value: UnitLithologyValue[] | null | undefined;
   onChange?: (value: UnitLithologyValue[]) => void;
   /** Show and edit each lithology's proportion (0–1, shown as a percent). */
@@ -51,6 +70,7 @@ export interface LithologyPickerProps {
 export function LithologyPicker(props: LithologyPickerProps) {
   const {
     lithologies,
+    lithAttributes,
     value,
     onChange,
     proportions = true,
@@ -59,9 +79,10 @@ export function LithologyPicker(props: LithologyPickerProps) {
   } = props;
 
   const defs = useMemo(() => toArray(lithologies), [lithologies]);
-  const byID = useMemo(
-    () => new Map(defs.map((d) => [d.lith_id, d])),
-    [defs],
+  const byID = useMemo(() => new Map(defs.map((d) => [d.lith_id, d])), [defs]);
+  const attributeDefs = useMemo(
+    () => toArray(lithAttributes),
+    [lithAttributes],
   );
 
   const items: LithItem[] = useMemo(
@@ -78,7 +99,7 @@ export function LithologyPicker(props: LithologyPickerProps) {
 
   // The value as picker items, carrying the unit's own entry so a change can
   // give it back unaltered.
-  const picked: (LithItem & { entry: UnitLithologyValue })[] = useMemo(
+  const picked: LithItem[] = useMemo(
     () =>
       (value ?? []).map((entry) => {
         const def = byID.get(entry.lith_id);
@@ -93,17 +114,19 @@ export function LithologyPicker(props: LithologyPickerProps) {
     [value, byID],
   );
 
+  const editable = onChange != null && !disabled;
+
   const features = useMemo(() => {
     const set = new Set<LithologyTagFeature>([LithologyTagFeature.Attributes]);
-    if (proportions && onChange == null) set.add(LithologyTagFeature.Proportion);
+    // While editing, the proportion is an input beside the tag instead
+    if (proportions && !editable) set.add(LithologyTagFeature.Proportion);
     return set;
-  }, [proportions, onChange]);
+  }, [proportions, editable]);
 
   const emit = (next: LithItem[]) => {
     onChange?.(
       next.map((item) => {
-        const existing = (item as any).entry as UnitLithologyValue | undefined;
-        if (existing != null) return existing;
+        if (item.entry != null) return item.entry;
         return {
           lith_id: item.def.lith_id,
           name: item.def.name,
@@ -115,40 +138,127 @@ export function LithologyPicker(props: LithologyPickerProps) {
     );
   };
 
-  const setProportion = (lith_id: number, prop: number | null) => {
+  const updateEntry = (lith_id: number, patch: Partial<UnitLithologyValue>) => {
     onChange?.(
       (value ?? []).map((entry) =>
-        entry.lith_id === lith_id ? { ...entry, prop } : entry,
+        entry.lith_id === lith_id ? { ...entry, ...patch } : entry,
       ),
     );
   };
 
   let tagAdornment: ((item: LithItem) => ReactNode) | undefined;
-  if (proportions && onChange != null && !disabled) {
-    tagAdornment = (item) =>
-      h(ProportionInput, {
-        value: (item as any).entry?.prop ?? null,
-        onChange: (prop) => setProportion(item.def.lith_id, prop),
-      });
+  if (editable) {
+    tagAdornment = (item) => {
+      const entry = item.entry;
+      if (entry == null) return null;
+      return h([
+        h.if(proportions)(ProportionInput, {
+          value: entry.prop ?? null,
+          onChange: (prop) => updateEntry(entry.lith_id, { prop }),
+        }),
+        h.if(attributeDefs.length > 0)(AttributePicker, {
+          attributes: attributeDefs,
+          value: (entry.atts ?? []) as unknown as string[],
+          lithologyName: entry.name,
+          onChange: (atts) => updateEntry(entry.lith_id, { atts: atts as any }),
+        }),
+      ]);
+    };
   }
 
   return h(ItemPicker<LithItem>, {
     className,
     items,
     value: picked,
-    onChange: onChange == null ? undefined : emit,
+    onChange: editable ? emit : undefined,
     disabled,
     placeholder: "Add lithology",
     searchPlaceholder: "Search lithologies…",
     renderTag: (item) =>
       h(LithologyTag, {
-        data: { ...item.def, ...((item as any).entry ?? {}) } as any,
+        data: { ...item.def, ...(item.entry ?? {}) } as any,
         features,
         size: TagSize.Small,
         interactive: false,
       }),
     tagAdornment,
   });
+}
+
+/* --------------------------------------------------------------- attributes */
+
+type AttributeItem = PickerItem & { def: LithAttributeDef };
+
+/** Add or remove attributes on one realized lithology: a small "+" beside
+ * its tag opens a searchable list of the attribute vocabulary, each entry
+ * labelled with the kind of attribute it is, the ones already on the
+ * lithology checked. Attributes are stored by name, as the API carries
+ * them. */
+export function AttributePicker({
+  attributes,
+  value,
+  onChange,
+  lithologyName,
+}: {
+  attributes: LithAttributeDef[];
+  /** The attribute names on the lithology. */
+  value: string[];
+  onChange: (atts: string[]) => void;
+  lithologyName?: string;
+}) {
+  const items: AttributeItem[] = useMemo(
+    () =>
+      [...attributes]
+        .sort(
+          (a, b) =>
+            (a.att_type ?? "").localeCompare(b.att_type ?? "") ||
+            a.name.localeCompare(b.name),
+        )
+        .map((def) => ({
+          id: def.name,
+          name: def.name,
+          description: def.att_type,
+          def,
+        })),
+    [attributes],
+  );
+  const chosen = useMemo(() => new Set<string | number>(value), [value]);
+
+  const onPick = (item: AttributeItem) => {
+    if (chosen.has(item.id)) {
+      onChange(value.filter((name) => name !== item.name));
+      return;
+    }
+    onChange([...value, item.name]);
+  };
+
+  let title = "Attributes";
+  if (lithologyName != null) title = `Attributes of ${lithologyName}`;
+
+  return h(
+    Popover,
+    {
+      minimal: true,
+      placement: "bottom-start",
+      content: h("div.attribute-picker", [
+        h("div.attribute-picker-title", title),
+        h(ItemPickerList<AttributeItem>, {
+          items,
+          chosen,
+          multi: true,
+          onPick,
+          searchPlaceholder: "Search attributes…",
+        }),
+      ]),
+    },
+    h(Button, {
+      icon: "small-plus",
+      minimal: true,
+      small: true,
+      className: "add-attribute",
+      title,
+    }),
+  );
 }
 
 /** A proportion as a percent, committed on blur or Enter. Blank clears it —
@@ -205,10 +315,7 @@ type EnvItem = PickerItem & { def: EnvironmentDef; entry?: EnvironmentValue };
 
 export interface EnvironmentPickerProps {
   environments:
-    | EnvironmentDef[]
-    | Map<number, EnvironmentDef>
-    | null
-    | undefined;
+    EnvironmentDef[] | Map<number, EnvironmentDef> | null | undefined;
   value: EnvironmentValue[] | null | undefined;
   onChange?: (value: EnvironmentValue[]) => void;
   disabled?: boolean;
