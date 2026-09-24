@@ -3,16 +3,22 @@
 
 $ring: var(--pz-intent-primary, #2d72d2)
 
+// A container can pin the picker to a fixed height (`--tag-picker-height`,
+// e.g. a table cell's, less its border), which centres the row of tags in it,
+// clips what overflows and keeps the row to one line
 .tag-picker
   display: flex
   flex-direction: column
+  justify-content: center
   gap: 0.5em
   min-width: 0
   max-width: 100%
+  height: var(--tag-picker-height)
+  overflow: var(--tag-picker-overflow, visible)
 
 .tag-row
   display: flex
-  flex-wrap: wrap
+  flex-wrap: var(--tag-row-wrap, wrap)
   align-items: center
   gap: 0.3em
   min-width: 0
@@ -30,6 +36,11 @@ $ring: var(--pz-intent-primary, #2d72d2)
     box-shadow: 0 0 0 2px var(--pz-focus-ring-color, $ring)
   &.selected
     box-shadow: 0 0 0 2px $ring
+  // Held by only some of the rows a picker stands for
+  &.partial
+    opacity: 0.5
+    &.selected, &:focus-visible
+      opacity: 0.8
 
 .add-item
   font-size: 0.85em
@@ -123,7 +134,7 @@ $ring: var(--pz-intent-primary, #2d72d2)
   font-weight: 400
   color: var(--pz-text-subtle-color, var(--secondary-color))
 
-.remove-button
+.remove-button, .apply-to-all
   flex: none
 
 // In a popover, the bar spans it, and the menu or a section's field below

@@ -365,8 +365,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         // target's click toggle — this avoids racing the selection event
         // (which fires on mousedown, possibly more than once) and is what
         // makes both re-focus-to-open and click-to-close reliable.
+        // In "second-click" mode a new selection only selects; the click on
+        // the already-selected cell opens it.
         if (!selectionEquals(selection, state.selection)) {
-          spec.cellSurfaceOpen = singleFocusedCell(selection) != null;
+          spec.cellSurfaceOpen =
+            state.cellInteraction !== "second-click" &&
+            singleFocusedCell(selection) != null;
         }
         return spec;
       });

@@ -1,4 +1,5 @@
 import React from "react";
+import type { Placement } from "@blueprintjs/core";
 import { enhanceColumnFilter, TableFilter } from "../actions";
 
 const defaultRenderers = {
@@ -95,8 +96,18 @@ export interface CellDetailContext<T = any> extends CellRenderContext<T> {
   cells?: CellSelectionEntry<T>[];
   /** True when `cells` hold differing values. */
   mixed?: boolean;
-  /** Commit a new value for this cell. */
+  /** Where the surface is drawn: `"cell"`, the grid's own popover, modal or
+   * in-cell surface, or `"row-editor"`, a field of the row editor — so a
+   * surface can lay itself out to suit (a picker nesting its own popovers
+   * only where it has room). */
+  surface?: "cell" | "row-editor";
+  /** Commit a new value for this cell — for every cell, when the surface
+   * stands for several. */
   onChange: (value: any) => void;
+  /** With `cells`, commit a value for each cell, aligned with them — for a
+   * surface that changes each cell's own value (adding a tag to every row's
+   * list) rather than setting them all to one. */
+  onChangeCells?: (values: any[]) => void;
   /** Reset this cell (and selection) to its base value. */
   resetValue: () => void;
   /** Close the surface and return focus to the table. */
@@ -170,6 +181,13 @@ export interface ColumnSpec {
   multiCell?: boolean;
   /** How `cellDetail` is presented. Defaults to `"popover"`. */
   detailPresentation?: DetailPresentation;
+  /** What one cell of the column is called, for the selection indicator
+   * ("1 lithology", "3 lithologies"). Defaults to the column's name. */
+  cellLabel?: string;
+  /** Where a popover `cellDetail` opens against its cell. Defaults to
+   * `"right-start"`; a wide surface (a tag picker) reads better below, at
+   * `"bottom-start"`. */
+  detailPlacement?: Placement;
   cellComponent?: any;
   category?: string;
   editable?: boolean;

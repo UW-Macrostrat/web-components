@@ -5,8 +5,8 @@ import { useCallback, useRef } from "react";
 import { useSelector } from "../provider";
 
 export function EditorPopup(props) {
-  const { children, targetClassName, valueViewer, placement = "right-start" } =
-    props;
+  const { children, targetClassName, valueViewer } = props;
+  const placement = props.placement ?? "right-start";
 
   // Open state is owned by the store (not local), so navigation, clicks, and
   // the Escape handler all agree on whether the focused cell's surface is
@@ -49,7 +49,14 @@ export function EditorPopup(props) {
               evt.preventDefault();
               return;
             }
-            // Climb over the interaction barrier to propagate the key event to the table
+            // Typing in one of the surface's own fields stays there: the
+            // sheet's hotkeys run inside inputs, so a Backspace in a search
+            // box would otherwise clear the cell, and Enter move off it.
+            if (isTextEntry(evt.target)) {
+              evt.stopPropagation();
+              return;
+            }
+            // Otherwise climb over the interaction barrier to propagate the key event to the table
           },
         },
         h(ErrorBoundary, null, children),
@@ -89,4 +96,10 @@ export function EditorPopup(props) {
       valueViewer,
     ),
   );
+}
+
+function isTextEntry(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable) return true;
+  return target.tagName === "INPUT" || target.tagName === "TEXTAREA";
 }

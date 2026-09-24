@@ -10,8 +10,13 @@
 .clickable
   cursor: pointer
 
+// A container can pin a tag's line height (`--tag-line-height`, e.g. a table
+// cell shorter than a tag at its text's line height) and outline it
+// (`--tag-outline`, a box-shadow, where it sits on a background like its own)
 .tag
   font-size: var(--font-size)
+  line-height: var(--tag-line-height)
+  box-shadow: var(--tag-outline)
   align-items: stretch
   display: inline-flex
   border-radius: 0.3em

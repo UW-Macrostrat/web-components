@@ -2,6 +2,7 @@ export * from "./tag-picker";
 export * from "./tag-details-editor";
 export * from "./selection-colors";
 export * from "./vocabularies";
+export * from "./multi-values";
 export * from "./proportions";
 export * from "./lithology-picker";
 export * from "./environment-picker";

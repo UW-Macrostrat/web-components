@@ -13,6 +13,10 @@
  * selected or focused tag, the arrow keys move between tags, and Escape lets
  * go of the selection. With `removable: false`, nothing is removed.
  *
+ * Standing for several rows at once (see `multi-values.ts`), the value is
+ * what they hold between them, and the items only some hold are `partial`:
+ * drawn faded, with an "Apply to all" (`onApplyToAll`) where the ✕ is.
+ *
  * It knows nothing about Macrostrat — the caller hands it `items` with an
  * `id`, a `name` and optionally a `color`, and gets the chosen items back
  * through `onChange`. Read-only when `onChange` is absent, so the same
@@ -31,7 +35,11 @@ import {
 import { Button, InputGroup, PopoverNext } from "@blueprintjs/core";
 import chroma from "chroma-js";
 import { Tag, TagSize } from "../components/unit-details/tag";
-import { type DetailsMode, RemoveButton } from "./tag-details-editor";
+import {
+  ApplyToAllButton,
+  type DetailsMode,
+  RemoveButton,
+} from "./tag-details-editor";
 import { type SelectionColor, useSelectionColors } from "./selection-colors";
 import h from "./pickers.module.sass";
 
@@ -53,6 +61,11 @@ export interface TagDetailsContext<T extends PickerItem> {
   remove?: () => void;
   /** Let go of the selection. */
   close(): void;
+  /** Whether only some of the rows the picker stands for hold the item. */
+  partial: boolean;
+  /** Give the item to every row; present for a partial item when the picker
+   * has `onApplyToAll`. */
+  applyToAll?: () => void;
 }
 
 export interface TagPickerProps<T extends PickerItem> {
@@ -97,6 +110,10 @@ export interface TagPickerProps<T extends PickerItem> {
   /** The colour the list draws chosen items in — the colour of the item the
    * picker belongs to, for a picker nested in its editor. */
   selectionColor?: SelectionColor;
+  /** The ids of items only some of the rows the picker stands for hold. */
+  partial?: Set<number | string> | null;
+  /** Give a partial item to every row. */
+  onApplyToAll?: (item: T) => void;
 }
 
 export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
@@ -119,6 +136,8 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
     className,
     trailing,
     selectionColor,
+    partial = null,
+    onApplyToAll,
   } = props;
 
   const editable = onChange != null && !disabled;
@@ -202,15 +221,25 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
     }
   };
 
+  const isPartial = (item: T) => partial?.has(item.id) ?? false;
+  const applyToAllFor = (item: T) => {
+    if (!editable || onApplyToAll == null || !isPartial(item)) return undefined;
+    return () => onApplyToAll(item);
+  };
+
   const details = (item: T, mode: DetailsMode) => {
     let removeItem: (() => void) | undefined;
     if (canRemove && removeButton === "details")
       removeItem = () => remove(item);
+    let applyToAll: (() => void) | undefined;
+    if (removeButton === "details") applyToAll = applyToAllFor(item);
     const ctx: TagDetailsContext<T> = {
       item,
       mode,
       remove: removeItem,
       close: () => setSelectedID(null),
+      partial: isPartial(item),
+      applyToAll,
     };
     return renderDetails?.(ctx);
   };
@@ -221,8 +250,14 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
       renderTag?.(item) ??
       h(Tag, { name: item.name, color: item.color ?? undefined, size });
 
+    const partialItem = isPartial(item);
+
     if (!editable) {
-      return h("span.picker-tag", { key: item.id }, tag);
+      return h(
+        "span.picker-tag",
+        { key: item.id, className: classNames({ partial: partialItem }) },
+        tag,
+      );
     }
 
     const targetProps = {
@@ -232,19 +267,31 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
       "aria-pressed": isSelected,
       "aria-label": item.name,
       "data-picker-tag": true,
-      className: classNames("editable", { selected: isSelected }),
+      className: classNames("editable", {
+        selected: isSelected,
+        partial: partialItem,
+      }),
       onClick: () => toggleSelected(item),
       onKeyDown: (evt) => onTagKeyDown(evt, item),
     };
 
-    // The ✕ after the tag, while it is selected, when that's where it goes
+    // The ✕ after the tag, while it is selected, when that's where it goes —
+    // and, for a partial item, its "apply to all" beside it
     let tagRemove: ReactNode = null;
-    if (isSelected && canRemove && removeButton === "tag") {
-      tagRemove = h(RemoveButton, {
-        className: "tag-remove",
-        label: `Remove ${item.name}`,
-        onRemove: () => remove(item),
-      });
+    if (isSelected && removeButton === "tag") {
+      let onRemove: (() => void) | undefined;
+      if (canRemove) onRemove = () => remove(item);
+      tagRemove = [
+        h(ApplyToAllButton, {
+          className: "tag-remove",
+          onApplyToAll: applyToAllFor(item),
+        }),
+        h(RemoveButton, {
+          className: "tag-remove",
+          label: `Remove ${item.name}`,
+          onRemove,
+        }),
+      ];
     }
 
     if (detailsMode === "inline" || !hasDetails) {

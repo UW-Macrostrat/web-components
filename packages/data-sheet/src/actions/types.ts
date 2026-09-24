@@ -98,6 +98,11 @@ export interface TableAction<T = any, S = null> {
    * target), so they appear only for a single column. */
   appliesTo?: (context: TableActionContext<T>) => boolean;
 
+  /** Where the action sits in the toolbar: with the contextual actions at its
+   * start (default), or at its fixed end beside Save and Reset — for a
+   * control that doesn't change with the selection, like a panel toggle. */
+  placement?: "start" | "end";
+
   /** Whether this action requires the table to be in edit mode.
    * Defaults to `true`. Set to `false` for read-only actions
    * (e.g., "open URL", "copy to clipboard"). */

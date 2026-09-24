@@ -225,6 +225,7 @@ export function basicCellRenderer<T>(
   // Build the detail context for the unified `cellDetail` surface.
   const makeDetailCtx = (editableFlag: boolean): CellDetailContext<T> => ({
     ...cellContext,
+    surface: "cell",
     editable: editableFlag,
     onChange(v: any) {
       if (editableFlag) onCellEdited(dataRowIndex, col.key, v);
@@ -318,7 +319,11 @@ export function basicCellRenderer<T>(
     }
 
     // Default: popover (same open/close machinery as editors and panels).
-    const panel = h(EditorPopup, { valueViewer: _renderedValue }, content);
+    const panel = h(
+      EditorPopup,
+      { valueViewer: _renderedValue, placement: col.detailPlacement },
+      content,
+    );
     return h(
       _Cell,
       {

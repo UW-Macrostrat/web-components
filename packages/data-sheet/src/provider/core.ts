@@ -642,10 +642,25 @@ function itemCount(n: number, dataKind: string) {
 }
 
 export function pluralize(singularForm: string, n: number) {
-  const pluralForm = singularForm + "s";
-  if (n == 0) return `${pluralForm}`;
   if (n == 1) return singularForm;
-  return pluralForm;
+  return pluralFormOf(singularForm);
+}
+
+/** An English plural, well enough for the nouns a sheet uses: "row" → "rows",
+ * "lithology" → "lithologies", "thickness (m)" → "thicknesses (m)" — a
+ * trailing parenthetical (a unit, say) stays as it is. */
+export function pluralFormOf(singularForm: string): string {
+  const match = singularForm.match(/^(.*?)(\s*\([^)]*\))?$/);
+  const head = match?.[1] ?? singularForm;
+  const tail = match?.[2] ?? "";
+  if (head === "") return singularForm;
+  let plural = head + "s";
+  if (/(s|x|z|ch|sh)$/i.test(head)) {
+    plural = head + "es";
+  } else if (/[^aeiou]y$/i.test(head)) {
+    plural = head.slice(0, -1) + "ies";
+  }
+  return plural + tail;
 }
 
 export function capitalize(s: string) {

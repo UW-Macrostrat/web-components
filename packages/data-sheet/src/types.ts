@@ -143,8 +143,12 @@ export enum DataSheetDensity {
  *   until the next click.
  * - `"manual"` (default when `autoFocusEditor` is `false`): the surface stays
  *   closed until the cell is clicked; arrow keys always navigate the table.
+ * - `"second-click"`: a click selects a cell and nothing more; a second click
+ *   on it (or Enter / F2) opens its surface. For a sheet whose selection
+ *   already feeds an editor of its own — a row editor beside the grid — so
+ *   selecting doesn't also open a popover over the cells.
  */
-export type CellInteraction = "auto" | "manual";
+export type CellInteraction = "auto" | "manual" | "second-click";
 
 export interface DataSheetRendererProps<T = any>
   extends TableProps, DataViewSharedProps<T> {

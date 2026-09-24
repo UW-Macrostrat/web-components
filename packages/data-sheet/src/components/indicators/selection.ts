@@ -35,12 +35,20 @@ const selectionTitleAtom = atom<string | null>((get) => {
     }
     case RegionCardinality.FULL_ROWS:
       return itemCount(sh.rows, itemName);
-    case RegionCardinality.CELLS:
-      if (sh.columns == 1 || sh.rows == 1) {
-        const nCells = Math.max(sh.columns, sh.rows);
-        return itemCount(nCells, "cell");
+    case RegionCardinality.CELLS: {
+      // Cells in one column are named for what the column holds: "1
+      // lithology", "3 lithologies"
+      if (sh.columns == 1) {
+        const columnSpec = get(columnSpecAtom);
+        const columnKey = getSelectedColumnKeys(sel, columnSpec)[0];
+        const col = columnSpec.find((c) => c.key === columnKey);
+        let noun = "cell";
+        if (col != null) noun = col.cellLabel ?? col.name.toLowerCase();
+        return itemCount(sh.rows, noun);
       }
+      if (sh.rows == 1) return itemCount(sh.columns, "cell");
       return `${sh.columns}×${sh.rows} cells`;
+    }
     case RegionCardinality.FULL_TABLE:
       return null;
     default:

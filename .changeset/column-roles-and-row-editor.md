@@ -24,5 +24,40 @@
   the sheet's store, following the selected rows and columns and writing through
   `onCellEdited`, so it works beside the grid or with the grid unmounted.
   `useSelectedRows()` / `useSelectedRow()` expose the binding.
+- `SelectedRowEditor` is a panel (`panel`, on by default; `RowEditor` takes it
+  too, with `title` and `onClose`). Its title bar is the toolbar's selection tag
+  at full width, naming what it does to how many of the sheet's items ("Editing
+  3 rows", "Viewing 1 unit", after `itemLabel`); the tag's ✕ clears the
+  selection (`closeable`). With nothing selected it shows a `NonIdealState` ("No
+  units selected"). The columns a cell selection falls in are outlined as the
+  table outlines a selection. `RowEditorFrame` is exported.
+- The row editor can be switched on and off from the toolbar:
+  `rowEditorOpenAtom` (with `useRowEditorOpen`) holds whether it is shown,
+  `ShowRowEditor` toggles it, and `showRowEditorAction` puts that toggle in a
+  sheet's toolbar, wherever the editor itself is mounted. `SelectedRowEditor`
+  follows it (`toggleable`).
+- `TableAction.placement: "end"` puts an action at the toolbar's fixed end,
+  beside Save and Reset.
+- `cellInteraction: "second-click"`: a click selects a cell and a second click
+  (or Enter, F2) opens its surface — for a sheet whose selection feeds a row
+  editor.
+- `ColumnSpec.detailPlacement`: where a popover `cellDetail` opens against its
+  cell (default `right-start`).
+- `CellDetailContext.surface`: `"cell"` or `"row-editor"`, so one `cellDetail`
+  can lay itself out for either.
+- Clicking a row-editor field selects its cells in the sheet; the field is
+  marked, and the form stays whole rather than narrowing to it.
+  `CellDetailContext.onChangeCells` writes a value to each of a multi-row
+  surface's cells (`RowEditor`'s `onChangeCells`).
+- A cell selection in one column is named for what the column holds ("1
+  lithology", "3 lithologies"; `ColumnSpec.cellLabel` overrides the column's
+  name), and `pluralize` handles `-y`, `-s`/`-x`/`-ch`/`-sh` and a trailing
+  parenthetical.
+- Tags in a cell are pinned inside it — a tighter line height, one line centred
+  clear of the cell's border — and outlined in the selected cell.
+- Fix: typing in a text field inside a cell's popover surface no longer reaches
+  the sheet's hotkeys, which run inside inputs — Backspace in a surface's search
+  box cleared the cell, and Enter moved off it.
 - Stories: Locked and derived columns, Column visibility, Row editor (including
-  several rows and a cell selection).
+  several rows and a cell selection), and the vocabulary pickers of
+  `@macrostrat/data-components` as a units sheet's column surfaces.

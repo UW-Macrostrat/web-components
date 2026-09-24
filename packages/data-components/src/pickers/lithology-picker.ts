@@ -19,6 +19,11 @@
  * both, and the tag shows the term when there is one. With
  * `resolveProportions`, every change also carries each lithology's share of
  * the whole (`comp_prop`), summed to one as Macrostrat's backend does it.
+ *
+ * Over several units at once, pass their lists as `values` (and take
+ * `onChangeValues`): the picker shows what they hold between them, faded
+ * where only some hold a lithology, and edits each unit's own list — see
+ * `multi-values.ts`.
  */
 import { useMemo } from "react";
 import type { UnitLithology } from "@macrostrat/api-types";
@@ -36,6 +41,12 @@ import {
   type TagDetailsSection,
 } from "./tag-details-editor";
 import { useVocabulary, type Vocabulary } from "./vocabularies";
+import {
+  addToAll,
+  applyUnionChange,
+  combineValues,
+  updateInEach,
+} from "./multi-values";
 import type { SelectionColor } from "./selection-colors";
 import {
   type ProportionOptions,
@@ -93,6 +104,10 @@ type LithItem = PickerItem & { def: LithologyDef; entry?: UnitLithologyValue };
 export interface LithologyPickerProps {
   value: UnitLithologyValue[] | null | undefined;
   onChange?: (value: UnitLithologyValue[]) => void;
+  /** Several units' lithologies at once, in place of `value`. */
+  values?: UnitLithologyValue[][] | null;
+  /** Every unit's lithologies after a change, aligned with `values`. */
+  onChangeValues?: (values: UnitLithologyValue[][]) => void;
   /** The lithology vocabulary. Defaults to the data provider's. */
   lithologies?: Vocabulary<LithologyDef>;
   /** The attribute vocabulary. Defaults to the data provider's. */
@@ -126,6 +141,8 @@ export function LithologyPicker(props: LithologyPickerProps) {
   const {
     value,
     onChange,
+    values = null,
+    onChangeValues,
     attributes = true,
     detailsMode = "popover",
     removable = true,
@@ -165,11 +182,19 @@ export function LithologyPicker(props: LithologyPickerProps) {
     [defs],
   );
 
+  // Over several units, what they hold between them
+  const combined = useMemo(() => {
+    if (values == null) return null;
+    return combineValues(values, lithID);
+  }, [values]);
+  let current: UnitLithologyValue[] = value ?? [];
+  if (combined != null) current = combined.union;
+
   // The value as picker items, carrying the unit's own entry so a change can
   // give it back unaltered.
   const picked: LithItem[] = useMemo(
     () =>
-      (value ?? []).map((entry) => {
+      current.map((entry) => {
         const def = byID.get(entry.lith_id);
         return {
           id: entry.lith_id,
@@ -179,10 +204,12 @@ export function LithologyPicker(props: LithologyPickerProps) {
           entry,
         };
       }),
-    [value, byID],
+    [current, byID],
   );
 
-  const editable = onChange != null && !disabled;
+  let canChange = onChange != null;
+  if (values != null) canChange = onChangeValues != null;
+  const editable = canChange && !disabled;
 
   const commit = (next: UnitLithologyValue[]) => {
     if (resolve != null) {
@@ -192,28 +219,41 @@ export function LithologyPicker(props: LithologyPickerProps) {
     onChange?.(next);
   };
 
+  // Every unit's own list, each resolved on its own
+  const commitEach = (next: UnitLithologyValue[][]) => {
+    if (resolve != null) {
+      onChangeValues?.(next.map(resolve));
+      return;
+    }
+    onChangeValues?.(next);
+  };
+
   const emit = (next: LithItem[]) => {
-    commit(
-      next.map((item) => {
-        if (item.entry != null) return item.entry;
-        return {
-          lith_id: item.def.lith_id,
-          name: item.def.name,
-          color: item.def.color,
-          prop: null,
-          prop_term: null,
-          atts: [],
-        } as UnitLithologyValue;
-      }),
-    );
+    const entries = next.map(entryOf);
+    if (values != null && combined != null) {
+      commitEach(applyUnionChange(values, lithID, combined.union, entries));
+      return;
+    }
+    commit(entries);
   };
 
   const updateEntry = (lith_id: number, patch: Partial<UnitLithologyValue>) => {
+    if (values != null) {
+      commitEach(
+        updateInEach(values, lithID, lith_id, (d) => ({ ...d, ...patch })),
+      );
+      return;
+    }
     commit(
-      (value ?? []).map((entry) =>
+      current.map((entry) =>
         entry.lith_id === lith_id ? { ...entry, ...patch } : entry,
       ),
     );
+  };
+
+  const applyToAll = (item: LithItem) => {
+    if (values == null) return;
+    commitEach(addToAll(values, lithID, entryOf(item)));
   };
 
   const renderDetails = (ctx: TagDetailsContext<LithItem>) => {
@@ -269,6 +309,7 @@ export function LithologyPicker(props: LithologyPickerProps) {
       color: ctx.item.color,
       sections,
       onRemove: ctx.remove,
+      onApplyToAll: ctx.applyToAll,
     });
   };
 
@@ -285,6 +326,8 @@ export function LithologyPicker(props: LithologyPickerProps) {
     detailsMode,
     removable,
     size,
+    partial: combined?.partial,
+    onApplyToAll: applyToAll,
     placeholder: "Add lithology",
     searchPlaceholder: "Search lithologies…",
     renderTag: (item) =>
@@ -379,6 +422,24 @@ export function AttributeEditor({
     selectionColor: color,
     searchPlaceholder: "Search attributes…",
   });
+}
+
+function lithID(entry: UnitLithologyValue) {
+  return entry.lith_id;
+}
+
+/** A picked item as a unit's entry: its own, or a new one from the
+ * definition. */
+function entryOf(item: LithItem): UnitLithologyValue {
+  if (item.entry != null) return item.entry;
+  return {
+    lith_id: item.def.lith_id,
+    name: item.def.name,
+    color: item.def.color,
+    prop: null,
+    prop_term: null,
+    atts: [],
+  } as UnitLithologyValue;
 }
 
 function proportionOf(entry: UnitLithologyValue) {

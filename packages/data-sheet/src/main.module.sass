@@ -8,7 +8,15 @@
   --data-sheet-cell-padding: 0px 8px
 
   :global
+    // Tags drawn in a cell (a tag picker as a value renderer, say) are pinned
+    // inside it: a tighter line height than the row's, one line centred in
+    // the cell clear of its bottom border, and clipped — through the
+    // variables the tag and picker styles read in @macrostrat/data-components
     .bp6-table-cell
+      --tag-line-height: 1.25
+      --tag-picker-height: calc(var(--data-sheet-row-height) - 1px)
+      --tag-picker-overflow: hidden
+      --tag-row-wrap: nowrap
       padding: var(--data-sheet-cell-padding)
       &:not([class*="bp6-intent-"]):not(.bp6-loading)
         color: var(--text-color)
@@ -69,6 +77,11 @@
     position: relative
     padding: var(--data-sheet-cell-padding)
     margin: calc(var(--data-sheet-cell-padding) * -1)
+
+// The selected cell sits under the selection's fill, which swallows a tag's
+// own background; a faint outline keeps tags apart from it
+.editor-cell
+  --tag-outline: 0 0 0 1px rgba(128, 128, 128, 0.35)
 
 // Make sure popover target fills the entire cell
 .editor-cell :global(.bp6-popover-target)

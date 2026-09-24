@@ -61,6 +61,9 @@ export interface TagDetailsEditorProps {
   /** Remove the item. Absent, it can't be removed from here. */
   onRemove?: () => void;
   removeLabel?: string;
+  /** Give the item to every row the picker stands for, when only some hold
+   * it — an "Apply to all" in the header, before the ✕. */
+  onApplyToAll?: () => void;
   className?: string;
 }
 
@@ -76,6 +79,7 @@ function MenuDetails({
   sections = [],
   onRemove,
   removeLabel = "Remove",
+  onApplyToAll,
   className,
 }: TagDetailsEditorProps) {
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -100,7 +104,7 @@ function MenuDetails({
   }
 
   return h("div.tag-details-editor.popover-details", { className, style }, [
-    h(DetailsHeader, { title, onRemove, removeLabel }),
+    h(DetailsHeader, { title, onRemove, removeLabel, onApplyToAll }),
     h.if(sections.length > 0)(
       Menu,
       { small: true, className: "details-menu" },
@@ -130,11 +134,17 @@ function InlineDetails({
   sections = [],
   onRemove,
   removeLabel = "Remove",
+  onApplyToAll,
   className,
 }: TagDetailsEditorProps) {
   const style = useSelectionColors(color);
   return h("div.tag-details-editor.inline-details", { className, style }, [
-    h.if(header)(DetailsHeader, { title, onRemove, removeLabel }),
+    h.if(header)(DetailsHeader, {
+      title,
+      onRemove,
+      removeLabel,
+      onApplyToAll,
+    }),
     sections.map((section) => {
       let sectionRemove: (() => void) | undefined;
       if (section.summary != null) sectionRemove = section.onRemove;
@@ -159,11 +169,13 @@ function DetailsHeader({
   onBack,
   onRemove,
   removeLabel,
+  onApplyToAll,
 }: {
   title?: ReactNode;
   onBack?: () => void;
   onRemove?: () => void;
   removeLabel: string;
+  onApplyToAll?: () => void;
 }) {
   return h("div.details-header", [
     h.if(onBack != null)(Button, {
@@ -176,8 +188,30 @@ function DetailsHeader({
       onClick: onBack,
     }),
     h("span.details-title", title),
+    h(ApplyToAllButton, { onApplyToAll }),
     h(RemoveButton, { onRemove, label: removeLabel }),
   ]);
+}
+
+/** "Apply to all", for an item only some of the rows hold — or nothing. */
+export function ApplyToAllButton({
+  onApplyToAll,
+  className,
+}: {
+  onApplyToAll?: () => void;
+  className?: string;
+}) {
+  if (onApplyToAll == null) return null;
+  return h(Button, {
+    icon: "add",
+    minimal: true,
+    small: true,
+    intent: "primary",
+    text: "Apply to all",
+    className: classNames("apply-to-all", className),
+    title: "Give this to every selected row",
+    onClick: onApplyToAll,
+  });
 }
 
 /** A danger ✕, or nothing when there is nothing to remove. */

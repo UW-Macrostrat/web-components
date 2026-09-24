@@ -28,7 +28,14 @@
  * `SelectedRowEditor` binds it to a `DataSheetProvider`'s store — the selected
  * rows and columns, the edit overlay, the `editable` flag — and writes through
  * `onCellEdited`, so edits land in the same overlay and the same `onEdit`
- * stream as typing into the grid.
+ * stream as typing into the grid. It is drawn as a panel, titled with what it
+ * is doing to how many of the sheet's items ("Editing 3 samples") in a bar
+ * drawn as the toolbar's selection tag, whose ✕ clears the selection.
+ *
+ * Whether it is shown at all is the sheet's `rowEditorOpenAtom`, which the
+ * toolbar's `ShowRowEditor` control toggles (add `showRowEditorAction` to a
+ * sheet's `actions`), so the editor can be mounted wherever the layout wants
+ * it and still be switched from the sheet.
  */
 import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
@@ -37,18 +44,25 @@ import {
   FormGroup,
   InputGroup,
   Intent,
+  type IconName,
+  NonIdealState,
   Switch,
   Tag,
   TextArea,
 } from "@blueprintjs/core";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
-import { RegionCardinality } from "@blueprintjs/table";
+import { atom } from "jotai";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type Region, RegionCardinality } from "@blueprintjs/table";
 import {
   type CellDetailContext,
   type CellSelectionEntry,
   type CellValidation,
   type ColumnSpec,
+  ctx as sheetScope,
   isColumnWritable,
+  itemLabelAtom,
+  pluralize,
+  selectionAtom,
   useSelector,
   useStoreAPI,
 } from "../provider";
@@ -57,6 +71,7 @@ import {
   getSelectedRowIndices,
   getSelectionCardinality,
 } from "../actions/selection.ts";
+import type { TableAction } from "../actions";
 import { validateCell } from "../utils/validation.ts";
 import styles from "./row-editor.module.sass";
 
@@ -88,6 +103,14 @@ export interface RowEditorProps<T = any> {
   /** A field was changed — for every row the form stands for. Absent, the
    * form is read-only. */
   onChange?: (columnKey: string, value: any) => void;
+  /** A field was changed row by row: a value for each of the form's rows,
+   * aligned with them (a `cellDetail`'s `onChangeCells`). */
+  onChangeCells?: (columnKey: string, values: any[]) => void;
+  /** The field to mark as active — the cell the sheet has selected, when the
+   * selection came from the form — without narrowing what is editable. */
+  activeColumn?: string | null;
+  /** A field was clicked. */
+  onFieldClick?: (columnKey: string) => void;
   /** Revert one field to its base value, in every row. Absent, edited fields
    * have no revert affordance. */
   onResetField?: (columnKey: string) => void;
@@ -99,7 +122,15 @@ export interface RowEditorProps<T = any> {
   /** Labels beside values rather than above them. */
   inline?: boolean;
   className?: string;
-  /** Rendered above the fields (a title row, say). */
+  /** Draw the form as a panel: bordered, with a title bar. */
+  panel?: boolean;
+  /** The panel's title ("Editing 1 row"). */
+  title?: ReactNode;
+  /** Close the panel — a ✕ at the end of the title bar. */
+  onClose?: () => void;
+  /** A label for the ✕ ("Clear selection"). */
+  closeLabel?: string;
+  /** Rendered above the fields. */
   header?: ReactNode;
   children?: ReactNode;
 }
@@ -110,11 +141,18 @@ export function RowEditor<T = any>(props: RowEditorProps<T>) {
     focusColumns = null,
     editable = true,
     onChange,
+    onChangeCells,
+    activeColumn = null,
+    onFieldClick,
     onResetField,
     showHidden = false,
     hideEmpty = false,
     inline = false,
     className,
+    panel = false,
+    title,
+    onClose,
+    closeLabel,
     header,
     children,
   } = props;
@@ -152,6 +190,7 @@ export function RowEditor<T = any>(props: RowEditorProps<T>) {
       validation = validateCell(col, value, merged[0], rowIndices[0] ?? -1);
     }
     const ctx: CellDetailContext = {
+      surface: "row-editor",
       value,
       rowIndex: rowIndices[0] ?? -1,
       colIndex,
@@ -178,27 +217,77 @@ export function RowEditor<T = any>(props: RowEditorProps<T>) {
         value: values[i],
       }));
       ctx.mixed = shared.mixed;
+      if (onChangeCells != null) {
+        ctx.onChangeCells = (next) => {
+          if (!writable) return;
+          onChangeCells(col.key, next);
+        };
+      }
     }
+    let onClick: (() => void) | undefined;
+    if (onFieldClick != null) onClick = () => onFieldClick(col.key);
     return h(RowEditorField, {
       key: col.key,
       ctx,
       inline,
-      selected: focus != null && focus.has(col.key),
+      onClick,
+      selected:
+        (focus != null && focus.has(col.key)) || activeColumn === col.key,
       onReset: isEdited && onResetField != null ? ctx.resetValue : null,
     });
   });
 
   return h(
-    "div.row-editor",
+    RowEditorFrame,
     {
-      className: classNames(className, {
-        editable: canEdit,
-        inline,
-        several,
-      }),
+      className: classNames(className, { editable: canEdit, inline, several }),
+      panel,
+      title,
+      onClose,
+      closeLabel,
     },
     [header, h("div.row-editor-fields", fields), children],
   );
+}
+
+/** The form's frame: as a panel, a title bar over a scrolling body;
+ * otherwise the body alone. The title bar is the toolbar's selection tag at
+ * full width — minimal, large, primary — and its ✕ is the tag's own. */
+export function RowEditorFrame({
+  panel = false,
+  title,
+  onClose,
+  closeLabel = "Close",
+  className,
+  children,
+}: {
+  panel?: boolean;
+  title?: ReactNode;
+  onClose?: () => void;
+  closeLabel?: string;
+  className?: string;
+  children?: ReactNode;
+}) {
+  let titleBar: ReactNode = null;
+  if (panel && (title != null || onClose != null)) {
+    titleBar = h(
+      Tag,
+      {
+        minimal: true,
+        large: true,
+        fill: true,
+        intent: "primary",
+        className: "row-editor-title-bar",
+        onRemove: onClose,
+        removeButtonProps: { title: closeLabel, "aria-label": closeLabel },
+      } as any,
+      title,
+    );
+  }
+  return h("div.row-editor", { className: classNames(className, { panel }) }, [
+    titleBar,
+    h("div.row-editor-body", children),
+  ]);
 }
 
 /** One row or several, as arrays either way. */
@@ -244,6 +333,8 @@ function valueToken(value: any): string {
 interface RowEditorFieldProps {
   ctx: CellDetailContext;
   inline?: boolean;
+  /** A click anywhere in the field. */
+  onClick?: () => void;
   /** Part of the cell selection the form is focused on. */
   selected?: boolean;
   onReset?: (() => void) | null;
@@ -256,6 +347,7 @@ export function RowEditorField({
   inline,
   selected = false,
   onReset,
+  onClick,
 }: RowEditorFieldProps) {
   const { column: col, validation, isEdited, editable, mixed } = ctx;
 
@@ -300,23 +392,29 @@ export function RowEditorField({
     reset,
   ]);
 
+  // The wrapper takes no space (`display: contents`); it catches the click
+  // Blueprint's FormGroup doesn't pass through
   return h(
-    FormGroup,
-    {
-      label,
-      inline,
-      intent,
-      helperText: validation?.message,
-      className: classNames("row-editor-field", {
-        edited: isEdited,
-        derived: col.derived,
-        selected,
-        mixed,
-        "read-only": !editable,
-        [`data-type-${col.dataType ?? "string"}`]: true,
-      }),
-    },
-    h(FieldSurface, { ctx }),
+    "div.row-editor-field-target",
+    { onClick },
+    h(
+      FormGroup,
+      {
+        label,
+        inline,
+        intent,
+        helperText: validation?.message,
+        className: classNames("row-editor-field", {
+          edited: isEdited,
+          derived: col.derived,
+          selected,
+          mixed,
+          "read-only": !editable,
+          [`data-type-${col.dataType ?? "string"}`]: true,
+        }),
+      },
+      h(FieldSurface, { ctx }),
+    ),
   );
 }
 
@@ -545,11 +643,17 @@ export interface SelectedRowEditorProps extends Omit<
   | "onChange"
   | "onResetField"
 > {
-  /** Shown when no row is selected. */
+  /** Shown when no row is selected. Defaults to a `NonIdealState` saying so
+   * ("No units selected"). */
   emptyState?: ReactNode;
-  /** Shown above the fields over a multi-row selection; the default names
-   * the count. Pass `null` for nothing. */
-  selectionSummary?: (count: number) => ReactNode;
+  /** Shown above the fields over a multi-row selection; the default says a
+   * change applies to all of them. Pass `null` for nothing. */
+  selectionSummary?: ((count: number) => ReactNode) | null;
+  /** Whether the panel's ✕ clears the selection (default). */
+  closeable?: boolean;
+  /** Follow the sheet's `rowEditorOpenAtom`, rendering nothing while it is
+   * off (default). */
+  toggleable?: boolean;
 }
 
 /**
@@ -563,8 +667,11 @@ export interface SelectedRowEditorProps extends Omit<
  */
 export function SelectedRowEditor(props: SelectedRowEditorProps) {
   const {
-    emptyState = null,
-    selectionSummary = defaultSelectionSummary,
+    emptyState,
+    selectionSummary,
+    closeable = true,
+    toggleable = true,
+    panel = true,
     editable,
     header,
     ...rest
@@ -572,11 +679,46 @@ export function SelectedRowEditor(props: SelectedRowEditorProps) {
   const store = useStoreAPI();
   const columnSpec = useSelector((s) => s.columnSpec);
   const tableEditable = useSelector((s) => s.editable);
+  const itemLabel = sheetScope.useValue(itemLabelAtom);
+  // Not the store's `clearSelection`, which clears the selected cells' values
+  const setSelection = sheetScope.useSet(selectionAtom);
+  const open = sheetScope.useValue(rowEditorOpenAtom);
+  const selection = useSelector((s) => s.selection);
+  const filteredRowIndices = useSelector((s) => s.filteredRowIndices);
   const { rowIndices, rows, edits, columnKeys, anyDeleted } = useSelectedRows();
-
-  if (rowIndices.length === 0) {
-    return h("div.row-editor-empty", emptyState);
+  const count = rowIndices.length;
+  // A click on a field selects its cells in the sheet. That selection is the
+  // form's own: it marks the field without narrowing the form to it, as a
+  // cell selection made in the grid would.
+  const formSelection = useRef<{ regions: Region[]; key: string } | null>(null);
+  let activeColumn: string | null = null;
+  let focusColumns = columnKeys;
+  const own = formSelection.current;
+  if (own != null && sameRegions(own.regions, selection ?? [])) {
+    activeColumn = own.key;
+    focusColumns = null;
   }
+  const items = `${count} ${pluralize(itemLabel, count)}`;
+
+  if (toggleable && !open) return null;
+
+  if (count === 0) {
+    let empty = emptyState;
+    if (empty === undefined) {
+      empty = h(NonIdealState, {
+        title: `No ${pluralize(itemLabel, 0)} selected`,
+        className: "row-editor-non-ideal",
+      });
+    }
+    return h(RowEditorFrame, { panel, className: "row-editor-empty" }, empty);
+  }
+
+  const canEdit = (editable ?? true) && tableEditable && !anyDeleted;
+  let title = `Viewing ${items}`;
+  if (canEdit) title = `Editing ${items}`;
+
+  let onClose: (() => void) | undefined;
+  if (closeable) onClose = () => setSelection([]);
 
   const onChange = (columnKey: string, value: any) => {
     const { onCellEdited } = store.getState();
@@ -594,9 +736,33 @@ export function SelectedRowEditor(props: SelectedRowEditorProps) {
     });
   };
 
+  const onChangeCells = (columnKey: string, values: any[]) => {
+    const { onCellEdited } = store.getState();
+    rowIndices.forEach((rowIndex, i) => {
+      onCellEdited(rowIndex, columnKey, values[i]);
+    });
+  };
+
+  const onFieldClick = (columnKey: string) => {
+    if (activeColumn === columnKey) return;
+    const regions = cellRegions(
+      rowIndices,
+      columnSpec.findIndex((c) => c.key === columnKey),
+      filteredRowIndices,
+    );
+    if (regions.length === 0) return;
+    formSelection.current = { regions, key: columnKey };
+    const state = store.getState();
+    // Selecting from the form opens nothing over the grid
+    store.setState({ cellSurfaceOpen: false });
+    state.setSelection(regions);
+  };
+
   let summary: ReactNode = null;
-  if (rowIndices.length > 1 && selectionSummary != null) {
-    summary = h("div.selection-summary", selectionSummary(rowIndices.length));
+  if (count > 1 && canEdit && selectionSummary !== null) {
+    let text: ReactNode = `A change here applies to all ${items}.`;
+    if (selectionSummary != null) text = selectionSummary(count);
+    summary = h("div.selection-summary", text);
   }
 
   return h(RowEditor, {
@@ -605,16 +771,114 @@ export function SelectedRowEditor(props: SelectedRowEditorProps) {
     rows,
     rowEdits: edits,
     rowIndices,
-    focusColumns: columnKeys,
+    focusColumns,
+    activeColumn,
+    onFieldClick,
+    panel,
+    title,
+    onClose,
+    closeLabel: "Clear selection",
     header: h([header, summary]),
-    editable: (editable ?? true) && tableEditable && !anyDeleted,
+    editable: canEdit,
     onChange,
+    onChangeCells,
     onResetField,
   });
 }
 
-function defaultSelectionSummary(count: number): ReactNode {
-  return `${count} rows selected — a change here applies to all of them.`;
+/** One column's cells in the given rows, as the table's regions: the rows'
+ * places in the view (under any filter), one region per run of adjacent
+ * rows. */
+function cellRegions(
+  rowIndices: number[],
+  colIndex: number,
+  filteredRowIndices: number[] | null | undefined,
+): Region[] {
+  if (colIndex < 0) return [];
+  const visible = rowIndices
+    .map((i) => {
+      if (filteredRowIndices == null) return i;
+      return filteredRowIndices.indexOf(i);
+    })
+    .filter((i) => i >= 0)
+    .sort((a, b) => a - b);
+  const regions: Region[] = [];
+  for (const row of visible) {
+    const last = regions[regions.length - 1];
+    if (last != null && last.rows![1] === row - 1) {
+      last.rows = [last.rows![0], row];
+      continue;
+    }
+    regions.push({ rows: [row, row], cols: [colIndex, colIndex] });
+  }
+  return regions;
 }
+
+function sameRegions(a: Region[], b: Region[]): boolean {
+  if (a.length !== b.length) return false;
+  return a.every((r, i) => {
+    const s = b[i];
+    return (
+      r.rows?.[0] === s.rows?.[0] &&
+      r.rows?.[1] === s.rows?.[1] &&
+      r.cols?.[0] === s.cols?.[0] &&
+      r.cols?.[1] === s.cols?.[1]
+    );
+  });
+}
+
+/* ------------------------------------------------------------ the toggle */
+
+/** Whether the sheet's row editor is shown. Scoped to the sheet, like the
+ * rest of its state; `SelectedRowEditor` follows it unless `toggleable` is
+ * off. */
+export const rowEditorOpenAtom = atom(true);
+
+/** The row editor's open state, and a setter. */
+export function useRowEditorOpen(): [boolean, (open: boolean) => void] {
+  const open = sheetScope.useValue(rowEditorOpenAtom);
+  const setOpen = sheetScope.useSet(rowEditorOpenAtom);
+  return [open, setOpen];
+}
+
+/** A toolbar toggle for the row editor, wherever it is mounted. */
+export function ShowRowEditor({
+  label = "Row editor",
+  icon = "properties",
+}: {
+  label?: string;
+  icon?: IconName;
+}) {
+  const [open, setOpen] = useRowEditorOpen();
+  let title = "Show the row editor";
+  if (open) title = "Hide the row editor";
+  return h(Button, {
+    minimal: true,
+    small: true,
+    icon,
+    active: open,
+    text: label,
+    title,
+    "aria-pressed": open,
+    onClick: () => setOpen(!open),
+  });
+}
+
+/** `ShowRowEditor` as a sheet action: add it to `actions` and the toggle sits
+ * at the toolbar's right end, whatever is selected, editable or not. */
+export const showRowEditorAction: TableAction = {
+  id: "show-row-editor",
+  name: "Row editor",
+  icon: "properties",
+  targets: [
+    RegionCardinality.CELLS,
+    RegionCardinality.FULL_ROWS,
+    RegionCardinality.FULL_COLUMNS,
+    RegionCardinality.FULL_TABLE,
+  ],
+  requiresEditable: false,
+  placement: "end",
+  render: () => h(ShowRowEditor),
+};
 
 export type { CellValidation };

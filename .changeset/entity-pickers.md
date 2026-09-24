@@ -50,3 +50,13 @@ than in free text:
 - Vocabularies default to the enclosing `MacrostratDataProvider`; a list passed
   as a prop overrides it for that picker (`useVocabulary`).
 - Stories: Pickers.
+- Several rows at once: `LithologyPicker` and `EnvironmentPicker` take one list
+  per row (`values`, `onChangeValues`) and show what the rows hold between them;
+  a tag only some hold is drawn faded (`TagPicker`'s `partial`) and its header
+  offers "Apply to all" (`onApplyToAll`, `ApplyToAllButton`). Adding or removing
+  a tag, or editing its details, changes each row's own list. `combineValues`,
+  `applyUnionChange`, `addToAll` and `updateInEach` are exported.
+- A container can pin tags and pickers through CSS variables:
+  `--tag-line-height` and `--tag-outline` on a tag, `--tag-picker-height` (which
+  centres the row in that height), `--tag-picker-overflow` and `--tag-row-wrap`
+  on a picker.

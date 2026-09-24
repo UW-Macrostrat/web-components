@@ -14,13 +14,14 @@
  * provider's store rather than the grid, it keeps working when the grid isn't
  * on screen.
  *
- * The dashed outlines are story chrome marking the component under test; the
- * grid and the panel share one `DataSheetProvider`.
+ * The panel titles itself with what it is doing to how many rows ("Editing 3
+ * rows", "Viewing 1 row"), and its ✕ clears the selection. The grid and the
+ * panel share one `DataSheetProvider`.
  */
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
 import { useState } from "react";
-import { Callout, SegmentedControl, Switch } from "@blueprintjs/core";
+import { SegmentedControl, Switch } from "@blueprintjs/core";
 import {
   type CellDetailContext,
   type ColumnSpec,
@@ -29,6 +30,7 @@ import {
   DataViewRendererType,
   RowEditor,
   SelectedRowEditor,
+  showRowEditorAction,
   splitDataProviderProps,
 } from "../src";
 import styles from "./row-editor.stories.module.sass";
@@ -155,6 +157,7 @@ function SheetWithEditor({
     editable,
     identity: (row) => row.id,
     viewType: DataViewRendererType.TABLE,
+    actions: [showRowEditorAction],
   } as any);
 
   return h(DataSheetProvider<Row>, providerProps as any, [
@@ -165,15 +168,9 @@ function SheetWithEditor({
         h(DataSheetRenderer<Row>, rendererProps as any),
       ),
       h(
-        "div.panel.component",
+        "div.panel",
         { className: showTable ? undefined : "wide" },
-        h(SelectedRowEditor, {
-          emptyState: h(
-            Callout,
-            { icon: "select", compact: true },
-            "Select a row, several rows, or a block of cells in the table.",
-          ),
-        }),
+        h(SelectedRowEditor),
       ),
     ]),
   ]);
@@ -237,11 +234,13 @@ function StandaloneForm() {
       `Editing ${row.name} against local state; edits: ${JSON.stringify(edits)}`,
     ),
     h(
-      "div.component.standalone",
+      "div.standalone",
       h(RowEditor<Row>, {
         columnSpec,
         row,
         edits,
+        panel: true,
+        title: `Editing ${row.name}`,
         onChange(key, value) {
           setEdits((prev) => {
             const next = { ...prev, [key]: value };

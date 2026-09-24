@@ -24,32 +24,20 @@
   display: flex
   flex-direction: column
 
-// The component under test, outlined so the story's own chrome reads apart
-.component
-  position: relative
-  border: 1px dashed rgba(128, 128, 128, 0.45)
-  border-radius: 4px
-  padding: 0.75em
-  &::before
-    content: "component"
-    position: absolute
-    top: -0.7em
-    right: 0.6em
-    padding: 0 0.3em
-    font-size: 0.65em
-    letter-spacing: 0.05em
-    text-transform: uppercase
-    color: var(--pz-text-subtle-color, var(--secondary-color))
-    background: var(--background-color, white)
-
+// The row editor's column: the panel scrolls its own body
 .panel
   flex: 0 0 24em
   min-width: 0
-  overflow-y: auto
-  margin-top: 0.6em
+  min-height: 0
+  display: flex
+  flex-direction: column
 
 .panel.wide
   flex: 1
+
+// Toggled off, the row editor renders nothing and its column goes with it
+.panel:empty
+  display: none
 
 .standalone
   max-width: 30em
