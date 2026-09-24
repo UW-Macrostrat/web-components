@@ -15,7 +15,7 @@ import {
 import { useMacrostratDefs } from "@macrostrat/data-provider";
 import type { UnitLong } from "@macrostrat/api-types";
 import { useColumnUnitsMap } from "../data-provider";
-import { AgeLabel, Proportion } from "../unit-details/age-range";
+import { AgeLabel } from "../unit-details/age-range";
 import { formatRange } from "../unit-details/utils";
 import { ReferencesField } from "../unit-details/panel";
 import { surfaceClasses } from "./surfaces";
@@ -187,7 +187,7 @@ function SurfaceCalibrationField({ surface }: { surface: ColumnSurface }) {
       "div.calibration-interval",
       h(IntervalTag, {
         interval,
-        prefix: h(Proportion, { value: proportion }),
+        proportion,
       }),
     ),
   ]);

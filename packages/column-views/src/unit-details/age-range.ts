@@ -1,5 +1,6 @@
 import {
   DataField,
+  IntervalProportion,
   IntervalShort,
   IntervalTag,
   type IntervalTagProps,
@@ -8,9 +9,17 @@ import {
 } from "@macrostrat/data-components";
 import { useMacrostratDefs } from "@macrostrat/data-provider";
 import h from "./age-range.module.sass";
-import { formatProportion, formatRange } from "./utils";
+import { formatRange } from "./utils";
 import classNames from "classnames";
-import { ReactNode, useMemo } from "react";
+import { useMemo } from "react";
+
+// The interval tag, its proportion and single-age label live in
+// `@macrostrat/data-components`; re-exported under their names here.
+export {
+  AgeLabel,
+  getAge,
+  IntervalProportion as Proportion,
+} from "@macrostrat/data-components";
 
 export function AgeField({ unit, children, ...rest }) {
   const [_b_age, _t_age, _unit] = getAgeRange(unit);
@@ -44,30 +53,6 @@ export function AgeRange({
     unit: _unit,
     className,
   });
-}
-
-export function AgeLabel({
-  age,
-  maximumFractionDigits = 2,
-  minimumFractionDigits = 0,
-  className,
-}: {
-  age: number;
-  className?: string;
-  maximumFractionDigits?: number;
-  minimumFractionDigits?: number;
-}) {
-  /** Component to display a single age value with unit conversion from
-   * Ma to ka or Ga as appropriate.
-   */
-  const [value, unit] = getAge(age);
-
-  const _value = value.toLocaleString("en-US", {
-    maximumFractionDigits,
-    minimumFractionDigits,
-  });
-
-  return h(Value, { value: _value, unit, className });
 }
 
 export function Duration({
@@ -179,11 +164,11 @@ export function IntervalProportions({
   let p1: any = null;
 
   if (_showProps !== false) {
-    p1 = h(Proportion, { value: t_prop });
+    p1 = h(IntervalProportion, { value: t_prop });
 
     if (i0 !== i1 || b_prop !== 0 || t_prop !== 1) {
       // We have a single interval with undefined proportions
-      p0 = h(Proportion, { value: b_prop });
+      p0 = h(IntervalProportion, { value: b_prop });
     }
 
     if (i0 === i1 && (b_prop !== 0 || t_prop !== 1)) {
@@ -221,19 +206,6 @@ function getProportion(age: number, interval: IntervalShort): number | null {
   return (interval.b_age - age) / (interval.b_age - interval.t_age);
 }
 
-export function Proportion({ value }: { value: number }) {
-  let content: ReactNode | null = null;
-  if (value == 0) {
-    content = "base";
-  } else if (value == 1) {
-    content = "top";
-  } else {
-    content = formatProportion(value * 100) + "%";
-  }
-
-  return h("span.proportion", content);
-}
-
 export function getAgeRange(_unit) {
   let b_age = _unit.b_age;
   let t_age = _unit.t_age;
@@ -250,22 +222,4 @@ export function getAgeRange(_unit) {
   }
 
   return [b_age, t_age, unit];
-}
-
-export function getAge(value) {
-  /** Get the age value in Ma, ka, or Ga as appropriate */
-  let unit = "Ma";
-  if (value < 0.8) {
-    unit = "ka";
-    value *= 1000;
-    if (value < 5) {
-      unit = "yr";
-      value *= 1000;
-    }
-  } else if (value > 1000) {
-    unit = "Ga";
-    value /= 1000;
-  }
-
-  return [value, unit];
 }

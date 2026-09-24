@@ -5,26 +5,42 @@
  * This is how the column-ingestion format records where a boundary sits in
  * time (`b_int`/`b_prop`, `t_int`/`t_prop`), and how Macrostrat's age model
  * calibrates a surface. The interval alone is a position ("in the Devonian");
- * the proportion is an add-on that refines it — 0 at the interval's base (its
- * older bound), 1 at its top — added with a button and slid, with *Base* and
- * *Top* shortcuts. The age is derived and never typed.
+ * the proportion refines it — 0 at the interval's base (its older bound), 1
+ * at its top. The interval is drawn as a tag, with the position inside it
+ * once there is one; the age is derived, shown in its details, and never typed.
  *
- * Matching can be **constrained to a timescale**: either a timescale is
- * imposed from outside (`timescale`, shown by name above the interval) or the
- * vocabulary of timescales is offered (`timescales`) and one is chosen in the
- * control. Read-only when `onChange` is absent, so it doubles as the display
- * of a calibration.
+ * Selecting the tag opens the position control as a nested control, inline
+ * below it (or in a popover, with `detailsMode: "popover"`): a slider with
+ * *Base* and *Top* shortcuts, with a ✕ that drops the position. The ✕ after
+ * the selected tag, or Delete, clears the interval.
+ *
+ * Intervals and timescales come from the enclosing `MacrostratDataProvider`
+ * unless given as props. Matching can be **constrained to a timescale**:
+ * imposed from outside (`timescale`, shown by name above the interval) or
+ * chosen in the control (`timescaleChoice`). Read-only when `onChange` is
+ * absent, so it doubles as the display of a calibration.
  */
-import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
 import { type ReactNode, useMemo, useState } from "react";
 import { Button, ButtonGroup, HTMLSelect, Slider } from "@blueprintjs/core";
-import { IntervalTag, type IntervalShort } from "../components/unit-details";
+import {
+  formatIntervalProportion,
+  IntervalTag,
+  type IntervalShort,
+} from "../components/unit-details";
 import { TagSize } from "../components/unit-details/tag";
-import { ItemPicker, type PickerItem } from "./item-picker";
-import styles from "./pickers.module.sass";
-
-const h = hyper.styled(styles);
+import {
+  type PickerItem,
+  type TagDetailsContext,
+  TagPicker,
+} from "./tag-picker";
+import {
+  type DetailsMode,
+  TagDetailsEditor,
+  type TagDetailsSection,
+} from "./tag-details-editor";
+import { useVocabulary, type Vocabulary } from "./vocabularies";
+import h from "./pickers.module.sass";
 
 /** A timescale as `/defs/timescales` reports it (`timescale` is its name;
  * `name` is accepted too). */
@@ -41,9 +57,9 @@ export function timescaleName(t: TimescaleRef | null | undefined): string {
   return t?.timescale ?? t?.name ?? `Timescale ${t?.timescale_id ?? "?"}`;
 }
 
-/** An interval definition: what `useMacrostratDefs("intervals")` holds,
- * reduced to what a position needs. `timescales` lists the timescales the
- * interval belongs to, when the source reports them. */
+/** An interval definition, as `/defs/intervals` reports it, reduced to what
+ * a position needs. `timescales` lists the timescales the interval belongs
+ * to. */
 export interface IntervalDefLike {
   int_id: number;
   name: string;
@@ -69,10 +85,10 @@ export interface IntervalPositionChange extends IntervalPosition {
 }
 
 export interface IntervalPositionEditorProps {
-  intervals:
-    IntervalDefLike[] | Map<number, IntervalDefLike> | null | undefined;
   value: IntervalPosition | null | undefined;
   onChange?: (value: IntervalPositionChange) => void;
+  /** The interval vocabulary. Defaults to the data provider's. */
+  intervals?: Vocabulary<IntervalDefLike>;
   /** Whether the proportion within the interval can be set at all. Off, the
    * position is the interval alone. */
   proportion?: boolean;
@@ -84,11 +100,20 @@ export interface IntervalPositionEditorProps {
   timescale?: TimescaleRef | null;
   /** Offer a choice of timescale in the control. Ignored when `timescale` is
    * imposed. */
-  timescales?: TimescaleRef[] | null;
-  /** The timescale chosen from `timescales` at first (uncontrolled). */
+  timescaleChoice?: boolean;
+  /** The timescales offered by `timescaleChoice`. Defaults to the data
+   * provider's. */
+  timescales?: Vocabulary<TimescaleRef>;
+  /** The timescale chosen at first (uncontrolled). */
   defaultTimescaleID?: number | null;
-  /** Show the derived age (default). */
+  /** Where the selected interval's position control opens (default
+   * `inline`). */
+  detailsMode?: DetailsMode;
+  /** Show the derived age in the interval's tag (default): the age at the
+   * position, or the interval's range while there is no position. */
   showAge?: boolean;
+  /** The size of the interval's tag (default small). */
+  size?: TagSize;
   disabled?: boolean;
   className?: string;
 }
@@ -108,21 +133,28 @@ type IntervalItem = PickerItem & { def: IntervalDefLike };
 
 export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
   const {
-    intervals,
     value,
     onChange,
     proportion = true,
     defaultProportion = 0,
     timescale = null,
-    timescales = null,
+    timescaleChoice = false,
     defaultTimescaleID = null,
+    detailsMode = "inline",
     showAge = true,
+    size = TagSize.Small,
     disabled,
     className,
   } = props;
 
   const editable = onChange != null && !disabled;
-  const defs = useMemo(() => toArray(intervals), [intervals]);
+  const defs = useVocabulary<IntervalDefLike>("intervals", props.intervals);
+
+  // Timescales are only needed to offer a choice of them
+  const offerTimescales = timescaleChoice && timescale == null;
+  let timescaleSource = props.timescales;
+  if (!offerTimescales) timescaleSource = null;
+  const timescales = useVocabulary<TimescaleRef>("timescales", timescaleSource);
 
   // The timescale in force: imposed, else the one chosen here
   const [chosenTimescaleID, setChosenTimescaleID] = useState<number | null>(
@@ -148,7 +180,7 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
 
   // The current interval is looked up in the whole vocabulary: a constraint
   // narrows what can be picked, not what is already there.
-  const current = useMemo(() => {
+  const current: IntervalItem | null = useMemo(() => {
     if (value?.int_id == null) return null;
     const def = defs.find((d) => d.int_id === value.int_id);
     if (def == null) return null;
@@ -159,62 +191,84 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
   const age = ageAtProportion(current?.def, prop);
 
   const emit = (next: Partial<IntervalPosition>) => {
-    const int_id =
-      next.int_id !== undefined ? next.int_id : (value?.int_id ?? null);
+    let int_id = value?.int_id ?? null;
+    if (next.int_id !== undefined) int_id = next.int_id;
+    let nextProp = prop;
+    if (next.prop !== undefined) nextProp = next.prop;
     const def = defs.find((d) => d.int_id === int_id) ?? null;
-    const nextProp = next.prop !== undefined ? next.prop : prop;
+    let int_name = def?.name ?? null;
+    if (int_id === value?.int_id) int_name ??= value?.int_name ?? null;
     onChange?.({
       int_id,
-      int_name: def?.name ?? value?.int_name ?? null,
+      int_name,
       prop: nextProp,
       age: ageAtProportion(def, nextProp),
     });
   };
 
-  const picker = h(ItemPicker<IntervalItem>, {
-    items,
-    value: current == null ? [] : [current],
-    multi: false,
-    onChange: editable
-      ? (next) => emit({ int_id: (next[0]?.id as number) ?? null })
-      : undefined,
-    placeholder: "Choose an interval…",
-    searchPlaceholder: "Search intervals…",
-    renderTag: (item) =>
-      h(IntervalTag, {
-        interval: toIntervalShort(item.def),
-        size: TagSize.Small,
-      }),
-  });
+  const changePicked = (next: IntervalItem[]) => {
+    if (next.length === 0) {
+      // Removing the interval takes its position with it
+      emit({ int_id: null, prop: null });
+      return;
+    }
+    emit({ int_id: next[0].id as number });
+  };
+
+  const renderDetails = (ctx: TagDetailsContext<IntervalItem>) => {
+    const sections: TagDetailsSection[] = [];
+    if (proportion) {
+      sections.push({
+        key: "position",
+        label: "Position in interval",
+        addLabel: "Add position in interval",
+        icon: "arrows-vertical",
+        summary: positionSummary(prop),
+        editor: h(ProportionControl, {
+          prop,
+          defaultProportion,
+          onChange: (next) => emit({ prop: next }),
+        }),
+        // Dropping the position leaves the interval alone
+        onRemove: () => emit({ prop: null }),
+      });
+    }
+    // Inline, the interval's tag says what is being edited, so the panel is
+    // its field alone and the interval's ✕ follows the tag
+    return h(TagDetailsEditor, {
+      mode: ctx.mode,
+      header: ctx.mode === "popover",
+      title: ctx.item.name,
+      color: ctx.item.color,
+      sections,
+      removeLabel: "Clear interval",
+      onRemove: ctx.remove,
+    });
+  };
+
+  let removeButton: "details" | "tag" = "details";
+  if (detailsMode === "inline") removeButton = "tag";
 
   let unresolved: ReactNode = null;
   if (current == null && value?.int_name != null) {
+    // Until the vocabulary arrives, a name can't be told unknown
+    let title = "No interval of this name is known";
+    if (defs.length === 0) title = "Loading intervals…";
     unresolved = h(
       "span.unresolved-interval",
-      { title: "No interval of this name is known" },
+      { title, className: classNames({ loading: defs.length === 0 }) },
       value.int_name,
     );
   }
 
-  let ageLabel: ReactNode = null;
-  if (showAge && age != null) {
-    ageLabel = h("span.derived-age", [formatAge(age), " Ma"]);
-  } else if (showAge && current != null && prop == null) {
-    ageLabel = h(
-      "span.derived-age",
-      `${formatAge(current.def.b_age)}–${formatAge(current.def.t_age)} Ma`,
-    );
-  }
+  let tagAge: number | null = null;
+  if (showAge) tagAge = age;
 
-  let proportionRow: ReactNode = null;
-  if (proportion && current != null) {
-    proportionRow = h(ProportionControl, {
-      prop,
-      editable,
-      defaultProportion,
-      onChange: (next) => emit({ prop: next }),
-    });
-  }
+  let picked: IntervalItem[] = [];
+  if (current != null) picked = [current];
+
+  let change: ((next: IntervalItem[]) => void) | undefined;
+  if (editable) change = changePicked;
 
   return h(
     "div.interval-position",
@@ -229,8 +283,29 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
         onChange: setChosenTimescaleID,
         editable,
       }),
-      h("div.interval-row", [picker, unresolved, ageLabel]),
-      proportionRow,
+      h(TagPicker<IntervalItem>, {
+        items,
+        value: picked,
+        multi: false,
+        onChange: change,
+        detailsMode,
+        placeholder: "Choose an interval…",
+        searchPlaceholder: "Search intervals…",
+        // The interval tag of the unit details panels: the position in its
+        // prefix, the age in its details
+        renderTag: (item) =>
+          h(IntervalTag, {
+            interval: toIntervalShort(item.def),
+            proportion: prop,
+            age: tagAge,
+            showAgeRange: showAge,
+            size,
+            interactive: false,
+          }),
+        renderDetails,
+        removeButton,
+        trailing: unresolved,
+      }),
     ],
   );
 }
@@ -239,26 +314,17 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
 
 /** The optional position within the interval. Without one: a button that
  * adds it (at the default) and shortcuts straight to the base or the top.
- * With one: a slider, the same shortcuts, and a way to drop it again. */
+ * With one: a slider and the same shortcuts. Dropping it is its section's
+ * ✕. */
 function ProportionControl({
   prop,
-  editable,
   defaultProportion,
   onChange,
 }: {
   prop: number | null;
-  editable: boolean;
   defaultProportion: number;
   onChange: (prop: number | null) => void;
 }) {
-  if (!editable) {
-    if (prop == null) return null;
-    return h(
-      "div.proportion-row",
-      h("span.proportion-value", `${Math.round(prop * 100)}% up the interval`),
-    );
-  }
-
   const shortcuts = h(
     ButtonGroup,
     { minimal: true, className: "proportion-shortcuts" },
@@ -286,7 +352,7 @@ function ProportionControl({
         small: true,
         minimal: true,
         icon: "small-plus",
-        text: "Position in interval",
+        text: "Set a position",
         title: "Refine the position to a proportion of the interval",
         onClick: () => onChange(defaultProportion),
       }),
@@ -306,13 +372,6 @@ function ProportionControl({
       onChange: (v) => onChange(v),
     }),
     shortcuts,
-    h(Button, {
-      small: true,
-      minimal: true,
-      icon: "small-cross",
-      title: "Drop the proportion: the position is the interval alone",
-      onClick: () => onChange(null),
-    }),
   ]);
 }
 
@@ -379,6 +438,11 @@ function inTimescale(def: IntervalDefLike, timescaleID: number): boolean {
   return (def.timescales ?? []).some((t) => t.timescale_id === timescaleID);
 }
 
+function positionSummary(prop: number | null): string | null {
+  if (prop == null || isNaN(prop)) return null;
+  return formatIntervalProportion(prop);
+}
+
 function toIntervalShort(def: IntervalDefLike): IntervalShort {
   return {
     id: def.int_id,
@@ -394,10 +458,4 @@ function formatAge(age: number): string {
   if (age >= 100) return age.toFixed(0);
   if (age >= 10) return age.toFixed(1);
   return age.toFixed(2);
-}
-
-function toArray<T>(source: T[] | Map<any, T> | null | undefined): T[] {
-  if (source == null) return [];
-  if (Array.isArray(source)) return source;
-  return Array.from(source.values());
 }

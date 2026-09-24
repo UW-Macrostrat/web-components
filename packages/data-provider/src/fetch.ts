@@ -70,7 +70,7 @@ export async function fetchAllColumns(
 
   if (projectID == null) {
     throw new Error(
-      "fetchAllColumns requires an explicit projectID (a project id, a list of them, or \"all\")",
+      'fetchAllColumns requires an explicit projectID (a project id, a list of them, or "all")',
     );
   }
 
@@ -213,6 +213,19 @@ export async function fetchIntervals(
 export async function fetchEnvironments(opts: FetchBaseOptions = {}) {
   const { fetch = defaultFetch } = opts;
   const res = await fetch("/defs/environments?all");
+  return await unwrapResponse(res);
+}
+
+/** Lithology attributes (grain size, bedforms, colours…), `/defs/lithology_attributes`. */
+export async function fetchLithAttributes(opts: FetchBaseOptions = {}) {
+  const { fetch = defaultFetch } = opts;
+  const res = await fetch("/defs/lithology_attributes?all");
+  return await unwrapResponse(res);
+}
+
+export async function fetchTimescales(opts: FetchBaseOptions = {}) {
+  const { fetch = defaultFetch } = opts;
+  const res = await fetch("/defs/timescales?all");
   return await unwrapResponse(res);
 }
 

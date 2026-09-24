@@ -1,31 +1,53 @@
 /**
- * Lithology and environment pickers: `ItemPicker` over Macrostrat's
- * vocabularies, drawing the chosen items as the same `LithologyTag`s the
- * details panels use, so a unit's lithology reads the same whether it is
- * being looked at or changed.
+ * LithologyPicker — a unit's lithologies, as the same `LithologyTag`s the
+ * details panels use, so a lithology reads the same whether it is being
+ * looked at or changed.
  *
- * Both take their vocabulary as a prop rather than fetching it — the caller
- * decides where definitions come from (`useMacrostratDefs`, a fixture, a
- * server) — and hand back the unit's own array shape (`UnitLithology[]`,
- * `Environment[]`), so a value round-trips without translation.
+ * Its vocabularies come from the enclosing `MacrostratDataProvider` unless
+ * given as props (see `vocabularies.ts`), and it hands back the unit's own
+ * array shape (`UnitLithology[]`), so a value round-trips without
+ * translation.
  *
- * A realized lithology can carry **attributes** (`lith_atts`: grain size,
- * bedding, composition…). Given the attribute vocabulary, each chosen
- * lithology gets a second, smaller picker that adds or removes attributes on
- * it, listed with the kind of attribute each one is.
+ * Selecting a lithology opens its details editor — a menu to add a
+ * proportion, add attributes (`lith_atts`: grain size, bedforms, colour…)
+ * or remove it, or, with `detailsMode: "inline"`, the same fields laid out
+ * below the picker. The proportion and attributes are then drawn on the tag
+ * itself.
+ *
+ * A proportion is a percentage, a term from a vocabulary of abundances
+ * (`proportions: { terms }` — Macrostrat's major/minor, the NGS list…), or
+ * both, and the tag shows the term when there is one. With
+ * `resolveProportions`, every change also carries each lithology's share of
+ * the whole (`comp_prop`), summed to one as Macrostrat's backend does it.
  */
-import hyper from "@macrostrat/hyper";
-import { type ReactNode, useMemo } from "react";
-import type { Environment, UnitLithology } from "@macrostrat/api-types";
-import { Button, InputGroup, Popover } from "@blueprintjs/core";
+import { useMemo } from "react";
+import type { UnitLithology } from "@macrostrat/api-types";
 import { LithologyTag, LithologyTagFeature } from "../components/unit-details";
-import { TagSize } from "../components/unit-details/tag";
-import { ItemPicker, ItemPickerList, type PickerItem } from "./item-picker";
-import styles from "./pickers.module.sass";
+import { Tag, TagSize } from "../components/unit-details/tag";
+import {
+  type PickerItem,
+  type TagDetailsContext,
+  TagPicker,
+  VocabularyList,
+} from "./tag-picker";
+import {
+  type DetailsMode,
+  TagDetailsEditor,
+  type TagDetailsSection,
+} from "./tag-details-editor";
+import { useVocabulary, type Vocabulary } from "./vocabularies";
+import type { SelectionColor } from "./selection-colors";
+import {
+  type ProportionOptions,
+  ProportionEditor,
+  proportionLabel,
+  proportionOptions,
+  type ProportionTerm,
+  resolveLithologyProportions,
+} from "./proportions";
+import h from "./pickers.module.sass";
 
-const h = hyper.styled(styles);
-
-/** A lithology definition as `useMacrostratDefs("lithologies")` holds it. */
+/** A lithology definition, as `/defs/lithologies` reports it. */
 export interface LithologyDef {
   lith_id: number;
   name: string;
@@ -35,12 +57,13 @@ export interface LithologyDef {
   group?: string | null;
 }
 
-/** A lithology attribute definition (`/defs/lith_atts`). */
+/** A lithology attribute definition, as `/defs/lithology_attributes`
+ * reports it. */
 export interface LithAttributeDef {
   lith_att_id: number;
   name: string;
-  /** What kind of attribute: `grains`, `bedform`, `sed structures`… */
-  att_type?: string;
+  /** What kind of attribute: `grains`, `bedform`, `sed structure`… */
+  type?: string;
   /** Total units carrying it, when the source reports it. */
   t_units?: number;
 }
@@ -48,42 +71,87 @@ export interface LithAttributeDef {
 /** A unit's lithology entry: the definition's id and name, with the unit's
  * own proportion and attributes (attribute names, as the API carries them). */
 export type UnitLithologyValue = Pick<UnitLithology, "lith_id" | "name"> &
-  Partial<UnitLithology> & { color?: string };
+  Omit<Partial<UnitLithology>, "prop"> & {
+    /** 0–1, as set or implied by `prop_term`; absent or null when there is no
+     * number. */
+    prop?: number | null;
+    /** The abundance term the proportion was set as. */
+    prop_term?: ProportionTerm | null;
+    /** The share of the whole, resolved from every lithology's proportion
+     * (with `resolveProportions`). */
+    comp_prop?: number | null;
+    color?: string;
+  };
+
+/** Turns the lithologies as set into their shares of the whole. */
+export type ProportionResolver = (
+  value: UnitLithologyValue[],
+) => UnitLithologyValue[];
 
 type LithItem = PickerItem & { def: LithologyDef; entry?: UnitLithologyValue };
 
 export interface LithologyPickerProps {
-  /** The lithology vocabulary. */
-  lithologies: LithologyDef[] | Map<number, LithologyDef> | null | undefined;
-  /** The attribute vocabulary. Given, each chosen lithology gets an attribute
-   * picker; absent, attributes are shown but not edited. */
-  lithAttributes?:
-    LithAttributeDef[] | Map<number, LithAttributeDef> | null | undefined;
   value: UnitLithologyValue[] | null | undefined;
   onChange?: (value: UnitLithologyValue[]) => void;
-  /** Show and edit each lithology's proportion (0–1, shown as a percent). */
-  proportions?: boolean;
+  /** The lithology vocabulary. Defaults to the data provider's. */
+  lithologies?: Vocabulary<LithologyDef>;
+  /** The attribute vocabulary. Defaults to the data provider's. */
+  lithAttributes?: Vocabulary<LithAttributeDef>;
+  /** Whether and how each lithology's proportion can be set: `true` (the
+   * default) for a percentage, or options naming a vocabulary of terms and
+   * whether a percentage is allowed too. */
+  proportions?: boolean | ProportionOptions;
+  /** Resolve every lithology's share of the whole (`comp_prop`) on each
+   * change: `true` for `resolveLithologyProportions`, or a resolver of your
+   * own. */
+  resolveProportions?: boolean | ProportionResolver;
+  /** The size of the tags (default small). */
+  size?: TagSize;
+  /** Whether each lithology's attributes can be set (default). */
+  attributes?: boolean;
+  /** Where a selected lithology's editor opens (default `popover`). */
+  detailsMode?: DetailsMode;
+  /** Whether lithologies can be removed (default). */
+  removable?: boolean;
   disabled?: boolean;
   className?: string;
 }
 
+const tagFeatures = new Set([
+  LithologyTagFeature.Attributes,
+  LithologyTagFeature.Proportion,
+]);
+
 export function LithologyPicker(props: LithologyPickerProps) {
   const {
-    lithologies,
-    lithAttributes,
     value,
     onChange,
-    proportions = true,
+    attributes = true,
+    detailsMode = "popover",
+    removable = true,
+    size = TagSize.Small,
     disabled,
     className,
   } = props;
 
-  const defs = useMemo(() => toArray(lithologies), [lithologies]);
-  const byID = useMemo(() => new Map(defs.map((d) => [d.lith_id, d])), [defs]);
-  const attributeDefs = useMemo(
-    () => toArray(lithAttributes),
-    [lithAttributes],
+  const proportions = proportionOptions(props.proportions ?? true);
+  let resolve: ProportionResolver | null = null;
+  if (props.resolveProportions === true) {
+    resolve = resolveLithologyProportions;
+  } else if (typeof props.resolveProportions === "function") {
+    resolve = props.resolveProportions;
+  }
+
+  const defs = useVocabulary<LithologyDef>("lithologies", props.lithologies);
+  // Attributes switched off need no vocabulary, so none is fetched
+  let attributeSource = props.lithAttributes;
+  if (!attributes) attributeSource = null;
+  const attributeDefs = useVocabulary<LithAttributeDef>(
+    "lithAttributes",
+    attributeSource,
   );
+
+  const byID = useMemo(() => new Map(defs.map((d) => [d.lith_id, d])), [defs]);
 
   const items: LithItem[] = useMemo(
     () =>
@@ -116,15 +184,16 @@ export function LithologyPicker(props: LithologyPickerProps) {
 
   const editable = onChange != null && !disabled;
 
-  const features = useMemo(() => {
-    const set = new Set<LithologyTagFeature>([LithologyTagFeature.Attributes]);
-    // While editing, the proportion is an input beside the tag instead
-    if (proportions && !editable) set.add(LithologyTagFeature.Proportion);
-    return set;
-  }, [proportions, editable]);
+  const commit = (next: UnitLithologyValue[]) => {
+    if (resolve != null) {
+      onChange?.(resolve(next));
+      return;
+    }
+    onChange?.(next);
+  };
 
   const emit = (next: LithItem[]) => {
-    onChange?.(
+    commit(
       next.map((item) => {
         if (item.entry != null) return item.entry;
         return {
@@ -132,6 +201,7 @@ export function LithologyPicker(props: LithologyPickerProps) {
           name: item.def.name,
           color: item.def.color,
           prop: null,
+          prop_term: null,
           atts: [],
         } as UnitLithologyValue;
       }),
@@ -139,92 +209,154 @@ export function LithologyPicker(props: LithologyPickerProps) {
   };
 
   const updateEntry = (lith_id: number, patch: Partial<UnitLithologyValue>) => {
-    onChange?.(
+    commit(
       (value ?? []).map((entry) =>
         entry.lith_id === lith_id ? { ...entry, ...patch } : entry,
       ),
     );
   };
 
-  let tagAdornment: ((item: LithItem) => ReactNode) | undefined;
-  if (editable) {
-    tagAdornment = (item) => {
-      const entry = item.entry;
-      if (entry == null) return null;
-      return h([
-        h.if(proportions)(ProportionInput, {
-          value: entry.prop ?? null,
-          onChange: (prop) => updateEntry(entry.lith_id, { prop }),
+  const renderDetails = (ctx: TagDetailsContext<LithItem>) => {
+    const entry = ctx.item.entry;
+    if (entry == null) return null;
+    const sections: TagDetailsSection[] = [];
+    if (proportions != null) {
+      const current = proportionOf(entry);
+      let clearProportion: (() => void) | undefined;
+      if (proportions.clearable) {
+        clearProportion = () =>
+          updateEntry(entry.lith_id, { prop: null, prop_term: null });
+      }
+      sections.push({
+        key: "proportion",
+        label: "Proportion",
+        addLabel: "Add proportion",
+        icon: "percentage",
+        summary: proportionLabel(current),
+        editor: h(ProportionEditor, {
+          value: current,
+          options: proportions,
+          autoFocus: ctx.mode === "popover",
+          onChange: ({ prop, term }) =>
+            updateEntry(entry.lith_id, { prop, prop_term: term }),
         }),
-        h.if(attributeDefs.length > 0)(AttributePicker, {
-          // Not `attributes`: hyperscript unnests a prop of that name
+        onRemove: clearProportion,
+      });
+    }
+    if (attributes) {
+      const atts = entry.atts ?? [];
+      let summary: string | null = null;
+      if (atts.length > 0) summary = atts.join(", ");
+      sections.push({
+        key: "attributes",
+        label: "Attributes",
+        addLabel: "Add attributes",
+        icon: "tag",
+        summary,
+        editor: h(AttributeEditor, {
           options: attributeDefs,
-          value: (entry.atts ?? []) as unknown as string[],
-          lithologyName: entry.name,
-          onChange: (atts) => updateEntry(entry.lith_id, { atts: atts as any }),
+          value: atts,
+          mode: ctx.mode,
+          color: ctx.item.color,
+          onChange: (next) => updateEntry(entry.lith_id, { atts: next }),
         }),
-      ]);
-    };
-  }
+        onRemove: () => updateEntry(entry.lith_id, { atts: [] }),
+      });
+    }
+    return h(TagDetailsEditor, {
+      mode: ctx.mode,
+      title: entry.name,
+      color: ctx.item.color,
+      sections,
+      onRemove: ctx.remove,
+    });
+  };
 
-  return h(ItemPicker<LithItem>, {
+  // With nothing to edit, a selected lithology offers only its ✕
+  let details: typeof renderDetails | undefined;
+  if (proportions != null || attributes) details = renderDetails;
+
+  return h(TagPicker<LithItem>, {
     className,
     items,
     value: picked,
     onChange: editable ? emit : undefined,
     disabled,
+    detailsMode,
+    removable,
+    size,
     placeholder: "Add lithology",
     searchPlaceholder: "Search lithologies…",
     renderTag: (item) =>
       h(LithologyTag, {
         data: { ...item.def, ...(item.entry ?? {}) } as any,
-        features,
-        size: TagSize.Small,
+        features: tagFeatures,
+        proportionLabel: item.entry?.prop_term?.name,
+        size,
         interactive: false,
       }),
-    tagAdornment,
+    renderDetails: details,
   });
 }
 
 /* --------------------------------------------------------------- attributes */
 
-type AttributeItem = PickerItem & { def: LithAttributeDef };
+type AttributeItem = PickerItem & { def?: LithAttributeDef };
 
-/** Add or remove attributes on one realized lithology: a small "+" beside
- * its tag opens a searchable list of the attribute vocabulary, each entry
- * labelled with the kind of attribute it is, the ones already on the
- * lithology checked. Attributes are stored by name, as the API carries
- * them. */
-export function AttributePicker({
+/** The attributes of one lithology, stored by name as the API carries them.
+ * In a popover, the attribute vocabulary as a searchable list, the ones on
+ * the lithology in bold, in its colours, and listed first; inline, those attributes as tags
+ * of their own, with a list to add more. */
+export function AttributeEditor({
   options,
   value,
   onChange,
-  lithologyName,
+  mode = "popover",
+  color,
 }: {
   /** The attribute vocabulary. */
   options: LithAttributeDef[];
   /** The attribute names on the lithology. */
   value: string[];
   onChange: (atts: string[]) => void;
-  lithologyName?: string;
+  mode?: DetailsMode;
+  /** The lithology's colour, which the chosen attributes are drawn in. */
+  color?: SelectionColor;
 }) {
   const items: AttributeItem[] = useMemo(
     () =>
       [...options]
         .sort(
           (a, b) =>
-            (a.att_type ?? "").localeCompare(b.att_type ?? "") ||
+            (a.type ?? "").localeCompare(b.type ?? "") ||
             a.name.localeCompare(b.name),
         )
         .map((def) => ({
           id: def.name,
           name: def.name,
-          description: def.att_type,
+          description: def.type,
           def,
         })),
     [options],
   );
   const chosen = useMemo(() => new Set<string | number>(value), [value]);
+
+  if (mode === "inline") {
+    const picked: AttributeItem[] = value.map((name) => {
+      const item = items.find((d) => d.id === name);
+      return item ?? { id: name, name };
+    });
+    return h(TagPicker<AttributeItem>, {
+      className: "attribute-editor",
+      items,
+      value: picked,
+      onChange: (next) => onChange(next.map((d) => d.name)),
+      placeholder: "Add attribute",
+      selectionColor: color,
+      searchPlaceholder: "Search attributes…",
+      renderTag: (item) => h(Tag, { name: item.name, size: TagSize.Small }),
+    });
+  }
 
   const onPick = (item: AttributeItem) => {
     if (chosen.has(item.id)) {
@@ -234,169 +366,21 @@ export function AttributePicker({
     onChange([...value, item.name]);
   };
 
-  let title = "Attributes";
-  if (lithologyName != null) title = `Attributes of ${lithologyName}`;
+  // The lithology's own attributes first, so they can be seen and taken off
+  const compareItems = (a: AttributeItem, b: AttributeItem) =>
+    Number(chosen.has(b.id)) - Number(chosen.has(a.id));
 
-  return h(
-    Popover,
-    {
-      minimal: true,
-      placement: "bottom-start",
-      content: h("div.attribute-picker", [
-        h("div.attribute-picker-title", title),
-        h(ItemPickerList<AttributeItem>, {
-          items,
-          chosen,
-          multi: true,
-          onPick,
-          searchPlaceholder: "Search attributes…",
-        }),
-      ]),
-    },
-    // Labelled with how many attributes are on it, so the control reads as
-    // "the attributes of this lithology" rather than another add button.
-    h(Button, {
-      icon: "tag",
-      minimal: true,
-      small: true,
-      className: "add-attribute",
-      text: value.length > 0 ? String(value.length) : undefined,
-      title,
-      "aria-label": title,
-    }),
-  );
-}
-
-/** A proportion as a percent, committed on blur or Enter. Blank clears it —
- * lithologies with no proportion are taken as equal parts. */
-function ProportionInput({
-  value,
-  onChange,
-}: {
-  value: number | null;
-  onChange: (prop: number | null) => void;
-}) {
-  const text = value == null ? "" : String(Math.round(value * 100));
-  const commit = (raw: string) => {
-    const trimmed = raw.trim().replace("%", "");
-    if (trimmed === "") {
-      if (value != null) onChange(null);
-      return;
-    }
-    const pct = Number(trimmed);
-    if (isNaN(pct)) return;
-    const prop = Math.min(Math.max(pct / 100, 0), 1);
-    if (prop !== value) onChange(prop);
-  };
-  return h(InputGroup, {
-    className: "proportion-input",
-    small: true,
-    defaultValue: text,
-    key: text,
-    placeholder: "%",
-    rightElement: h("span.percent-sign", "%"),
-    title: "Proportion of the unit",
-    onBlur: (evt) => commit(evt.target.value),
-    onKeyDown(evt) {
-      if (evt.key === "Enter") commit((evt.target as HTMLInputElement).value);
-    },
-  });
-}
-
-/* ------------------------------------------------------------ environments */
-
-/** An environment definition as `useMacrostratDefs("environments")` holds it. */
-export interface EnvironmentDef {
-  environ_id: number;
-  name: string;
-  color?: string;
-  type?: string;
-  class?: string;
-}
-
-export type EnvironmentValue = Pick<Environment, "environ_id" | "name"> &
-  Partial<Environment> & { color?: string };
-
-type EnvItem = PickerItem & { def: EnvironmentDef; entry?: EnvironmentValue };
-
-export interface EnvironmentPickerProps {
-  environments:
-    EnvironmentDef[] | Map<number, EnvironmentDef> | null | undefined;
-  value: EnvironmentValue[] | null | undefined;
-  onChange?: (value: EnvironmentValue[]) => void;
-  disabled?: boolean;
-  className?: string;
-}
-
-export function EnvironmentPicker(props: EnvironmentPickerProps) {
-  const { environments, value, onChange, disabled, className } = props;
-  const defs = useMemo(() => toArray(environments), [environments]);
-  const byID = useMemo(
-    () => new Map(defs.map((d) => [d.environ_id, d])),
-    [defs],
-  );
-
-  const items: EnvItem[] = useMemo(
-    () =>
-      defs.map((def) => ({
-        id: def.environ_id,
-        name: def.name,
-        color: def.color,
-        description: [def.class, def.type].filter(Boolean).join(" · "),
-        def,
-      })),
-    [defs],
-  );
-
-  const picked: EnvItem[] = useMemo(
-    () =>
-      (value ?? []).map((entry) => {
-        const def = byID.get(entry.environ_id);
-        return {
-          id: entry.environ_id,
-          name: entry.name ?? def?.name ?? `#${entry.environ_id}`,
-          color: entry.color ?? def?.color,
-          def: def ?? { environ_id: entry.environ_id, name: entry.name },
-          entry,
-        };
-      }),
-    [value, byID],
-  );
-
-  const emit = (next: EnvItem[]) => {
-    onChange?.(
-      next.map(
-        (item) =>
-          item.entry ?? {
-            environ_id: item.def.environ_id,
-            name: item.def.name,
-            color: item.def.color,
-            type: item.def.type,
-            class: item.def.class,
-          },
-      ),
-    );
-  };
-
-  return h(ItemPicker<EnvItem>, {
-    className,
+  return h(VocabularyList<AttributeItem>, {
     items,
-    value: picked,
-    onChange: onChange == null ? undefined : emit,
-    disabled,
-    placeholder: "Add environment",
-    searchPlaceholder: "Search environments…",
-    renderTag: (item) =>
-      h(LithologyTag, {
-        data: { ...item.def, ...(item.entry ?? {}) } as any,
-        size: TagSize.Small,
-        interactive: false,
-      }),
+    chosen,
+    multi: true,
+    onPick,
+    compareItems,
+    selectionColor: color,
+    searchPlaceholder: "Search attributes…",
   });
 }
 
-function toArray<T>(source: T[] | Map<any, T> | null | undefined): T[] {
-  if (source == null) return [];
-  if (Array.isArray(source)) return source;
-  return Array.from(source.values());
+function proportionOf(entry: UnitLithologyValue) {
+  return { prop: entry.prop ?? null, term: entry.prop_term ?? null };
 }

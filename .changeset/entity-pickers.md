@@ -2,25 +2,51 @@
 "@macrostrat/data-components": minor
 ---
 
-Standardized pickers for controlled vocabularies, for editing at the point of
-entry rather than in free text:
+Pickers for controlled vocabularies, for editing at the point of entry rather
+than in free text:
 
-- `ItemPicker`: chosen items as coloured tags (removable), with an add/change
-  affordance opening a searchable list of the vocabulary (`ItemPickerList`, also
-  exported). Single or multi; read-only when `onChange` is absent, so one
-  component both shows and edits a value.
-- `LithologyPicker` and `EnvironmentPicker`: `ItemPicker` over Macrostrat's
-  lithology and environment definitions, drawing the chosen items as
-  `LithologyTag`s and handing back the unit's own array shape
-  (`UnitLithology[]`, `Environment[]`). The lithology picker edits each entry's
-  proportion as a percent and, given the `lith_atts` vocabulary
-  (`lithAttributes`), adds or removes attributes on a realized lithology through
-  a second picker that names the kind of each attribute (`AttributePicker`).
-- `IntervalPositionEditor`: an interval and, optionally, a proportion within it
-  — the column-ingestion format's chronostratigraphic position — with the age it
-  works out to shown as a derived value. The proportion is an add-on: added with
-  a button at a `defaultProportion`, slid, with Base/Top shortcuts, and
-  droppable. Matching can be constrained to a timescale, imposed from outside
-  (`timescale`, shown by name) or chosen in the control (`timescales`).
-  `ageAtProportion` is exported.
-- Story: Pickers (fixtures and live definitions).
+- `TagPicker`: the chosen items as the tags themselves — no chip, remove cross
+  or inline inputs. Selecting a tag opens its details editor, in a popover or
+  inline below the row (`detailsMode`); without an editor, a selected tag is
+  followed by a ✕ (`removeButton` chooses). Delete removes a tag, the arrow keys
+  move between tags; `removable: false` turns removal off. Read-only when
+  `onChange` is absent. `VocabularyList` (the searchable list) is exported;
+  chosen rows are bold, and a swatch is drawn only for an item with a colour.
+- `TagDetailsEditor`: the editor a selected tag opens, built from sections
+  (label, add action, summary, field, optional `onRemove`) — a menu of actions
+  in a popover, every field inline — under a header naming the item in its tag's
+  text colour (`header: false` omits it). What is chosen within it (attributes,
+  a proportion's term) takes the item's colours through `--selected-color` and
+  `--selected-background-color` (`useSelectionColors`; `selectionColor` on
+  `TagPicker` and `VocabularyList` for lists in their own popover). Removal is a
+  danger ✕ at the right of the header (the item) or of a section (its value),
+  present only with an `onRemove`. `RemoveButton` is exported.
+- `LithologyPicker`: selecting a lithology offers Add proportion and Add
+  attributes, with its ✕ in the header; the proportion and attributes are drawn
+  on its `LithologyTag`. `proportions` takes options: a percentage (`numeric`),
+  terms from an abundance vocabulary (`terms`), or both, and whether it can be
+  cleared (`clearable`). A term is shown on the tag in place of a percentage and
+  returned as `prop_term` alongside `prop`. `resolveProportions` (`true`, or a
+  resolver of your own) adds each lithology's share of the whole as `comp_prop`
+  on every change. `AttributeEditor` is exported.
+- `ProportionEditor`, `ProportionTerm`, `resolveLithologyProportions` (numbers
+  as given, the rest shared by term weight, as the backend computes
+  `comp_prop`), and two vocabularies: `macrostratProportionTerms` (`dom`/`sub`,
+  weighted 5:1) and `ngsProportionTerms`.
+- `LithologyTag` takes a `proportionLabel`, shown in place of the percentage.
+- `buildTagStyle` (a tag's colour variables) is exported.
+- Every picker takes a `size`.
+- `EnvironmentPicker`.
+- `IntervalTag` takes a `proportion` (drawn in its prefix as "base", "top" or a
+  percent) and an `age` (in its details, in place of the range), and an
+  `interactive` flag — the design of the unit details panels, now the library's.
+  `IntervalProportion`, `formatIntervalProportion`, `AgeLabel` and `getAge` move
+  here from `@macrostrat/column-views`.
+- `IntervalPositionEditor`: an interval and optionally a position within it,
+  drawn as an `IntervalTag` with the age at that position; selecting the tag
+  opens the position control inline. Matching can be constrained to a timescale,
+  imposed (`timescale`) or chosen (`timescaleChoice`). `ageAtProportion` is
+  exported.
+- Vocabularies default to the enclosing `MacrostratDataProvider`; a list passed
+  as a prop overrides it for that picker (`useVocabulary`).
+- Stories: Pickers.

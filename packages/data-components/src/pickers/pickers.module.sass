@@ -1,36 +1,35 @@
-// Pickers: chosen items as tags in a row, an add/change affordance, and the
-// searchable list in its popover.
+// Pickers: the chosen items as a row of tags, an add/change affordance, the
+// searchable vocabulary in its popover, and a selected tag's details editor.
 
-.item-picker
-  display: inline-flex
+$ring: var(--pz-intent-primary, #2d72d2)
+
+.tag-picker
+  display: flex
+  flex-direction: column
+  gap: 0.5em
+  min-width: 0
+  max-width: 100%
+
+.tag-row
+  display: flex
   flex-wrap: wrap
   align-items: center
   gap: 0.3em
   min-width: 0
-  max-width: 100%
 
-.picked-item
+// A chosen item is its tag, and nothing more: selection and focus are a ring
+// drawn on the tag's own outline.
+.picker-tag
   display: inline-flex
-  align-items: center
-  gap: 0.15em
   min-width: 0
-
-// A chosen item is a chip: the tag and the controls that act on it, framed
-// together so the controls read as its own rather than as loose icons.
-.picker-chip
-  display: inline-flex
-  align-items: center
-  gap: 0.1em
-  padding: 0.1em 0.15em 0.1em 0.2em
-  border-radius: 4px
-  background: rgba(128, 128, 128, 0.1)
-  border: 1px solid rgba(128, 128, 128, 0.25)
-
-.remove-item, .change-item
-  min-height: 0
-  min-width: 0
-  padding: 0 2px
-  color: inherit
+  border-radius: 0.3em
+  outline: none
+  &.editable
+    cursor: pointer
+  &.editable:focus-visible
+    box-shadow: 0 0 0 2px var(--pz-focus-ring-color, $ring)
+  &.selected
+    box-shadow: 0 0 0 2px $ring
 
 .add-item
   font-size: 0.85em
@@ -38,7 +37,8 @@
 .picker-empty
   color: var(--pz-text-subtle-color, var(--secondary-color))
 
-.item-picker-list
+// The vocabulary list
+.vocabulary-list
   display: flex
   flex-direction: column
   gap: 6px
@@ -60,8 +60,15 @@
   border-radius: 3px
   &:hover
     background: rgba(128, 128, 128, 0.12)
-  &.selected .item-name
-    font-weight: 600
+  // Chosen: bold, in the selection colours of the item being edited
+  &.selected
+    color: var(--selected-color, inherit)
+    background: var(--selected-background-color, transparent)
+    .item-name
+      font-weight: 600
+    .item-description
+      color: inherit
+      opacity: 0.75
 
 .item-swatch
   flex: none
@@ -80,75 +87,128 @@
   font-size: 0.8em
   color: var(--pz-text-subtle-color, var(--secondary-color))
 
-.item-check
-  margin-left: auto
-  color: var(--pz-intent-primary, #2d72d2)
-
 .picker-empty-list
   padding: 6px
   font-size: 12px
   opacity: 0.6
 
-// Lithology proportions beside their tag
+// A selected tag's details editor
+.popover-details
+  min-width: 220px
+
+// The bar across its top: the item's name in its tag's text colour, and the
+// ✕ at its right
+.details-header
+  display: flex
+  align-items: center
+  gap: 0.4em
+  min-height: 28px
+  padding: 2px 2px 2px 8px
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2)
+
+.details-back
+  margin-left: -6px
+
+.details-title
+  flex: 1 1 auto
+  display: flex
+  align-items: baseline
+  gap: 0.5em
+  min-width: 0
+  font-size: 0.9em
+  font-weight: 600
+  color: var(--item-color, inherit)
+
+.details-section
+  font-weight: 400
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.remove-button
+  flex: none
+
+// In a popover, the bar spans it, and the menu or a section's field below
+.tag-details-editor.popover-details
+  .details-menu
+    background: transparent
+  .details-field-body
+    padding: 8px
+    // The vocabulary list brings its own padding
+    & > .vocabulary-list
+      padding: 0
+
+// Inline: every field, below the row of tags
+.inline-details
+  display: flex
+  flex-direction: column
+  gap: 0.5em
+  .details-header
+    padding-left: 0
+  .vocabulary-list
+    padding: 0
+
+.details-field
+  display: flex
+  flex-direction: column
+  gap: 0.2em
+
+.details-field-header
+  display: flex
+  align-items: center
+  gap: 0.4em
+  min-height: 24px
+
+.details-field-label
+  flex: 1 1 auto
+  font-size: 0.75em
+  text-transform: uppercase
+  letter-spacing: 0.04em
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+// The ✕ after a selected tag that has no editor to open
+.tag-remove
+  min-height: 0
+  min-width: 0
+  padding: 0 2px
+
+// Lithology proportion: a percentage, and the terms of a vocabulary
+.proportion-editor
+  display: flex
+  flex-direction: column
+  gap: 0.4em
+
+.proportion-terms
+  display: flex
+  flex-wrap: wrap
+  gap: 0.25em
+  max-width: 22em
+
+// The chosen term, in the selection colours of the lithology
+.proportion-term.active
+  font-weight: 600
+  color: var(--selected-color, inherit) !important
+  background: var(--selected-background-color, rgba(128, 128, 128, 0.2)) !important
+
 .proportion-input
-  width: 4.2em
-  :global(input)
-    padding-right: 1.2em !important
-    text-align: right
+  width: 9em
   .percent-sign
     font-size: 0.8em
     line-height: 24px
-    padding-right: 0.3em
+    padding-right: 0.4em
     color: var(--pz-text-subtle-color, var(--secondary-color))
 
-// Interval + proportion
+// Interval position
 .interval-position
   display: flex
   flex-direction: column
   gap: 0.25em
   min-width: 0
 
-.interval-row
-  display: flex
-  align-items: center
-  gap: 0.5em
-  flex-wrap: wrap
-
-.proportion-row
-  padding: 0 0.5em
-  .proportion-slider
-    min-width: 12em
-
-.proportion-value
-  font-variant-numeric: tabular-nums
-
-.derived-age
-  font-variant-numeric: tabular-nums
-  color: var(--pz-text-subtle-color, var(--secondary-color))
-  font-style: italic
-
 .unresolved-interval
   color: var(--pz-intent-warning, #c87619)
   font-style: italic
+  &.loading
+    color: var(--pz-text-subtle-color, var(--secondary-color))
 
-// Attributes on a realized lithology
-.add-attribute
-  min-height: 0
-  min-width: 0
-  padding: 0 3px
-  font-size: 0.85em
-  color: inherit
-
-.attribute-picker
-  padding: 6px 0 0 0
-
-.attribute-picker-title
-  padding: 0 12px 4px 12px
-  font-size: 0.8em
-  font-weight: 600
-  color: var(--pz-text-subtle-color, var(--secondary-color))
-
-// Interval position: the optional proportion and the timescale constraint
 .proportion-row
   display: flex
   align-items: center
@@ -159,14 +219,10 @@
     min-width: 10em
     max-width: 18em
     // Room for the slider's own labels, which sit below its track
-    margin-bottom: 1.2em
-    margin-right: 0.5em
+    margin: 0 0.5em 1.2em 0.5em
 
 .proportion-shortcuts
   flex: none
-
-.proportion-absent
-  padding: 0
 
 // The timescale matching is constrained to, above the interval and smaller
 .timescale-row
