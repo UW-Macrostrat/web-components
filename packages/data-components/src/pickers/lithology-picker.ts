@@ -253,12 +253,16 @@ export function AttributePicker({
         }),
       ]),
     },
+    // Labelled with how many attributes are on it, so the control reads as
+    // "the attributes of this lithology" rather than another add button.
     h(Button, {
-      icon: "small-plus",
+      icon: "tag",
       minimal: true,
       small: true,
       className: "add-attribute",
+      text: value.length > 0 ? String(value.length) : undefined,
       title,
+      "aria-label": title,
     }),
   );
 }

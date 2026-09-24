@@ -156,7 +156,7 @@ function PickersDemo({ live = false }: { live?: boolean }) {
     }),
     h(Example, {
       title: "Lithology",
-      note: "Pick lithologies; set a proportion; the + beside each adds attributes, listed by kind.",
+      note: "Pick lithologies; set a proportion; the tag button on each adds attributes, listed by kind.",
       children: h(LithologyPicker, {
         lithologies: defs.lithologies,
         lithAttributes: defs.lithAttributes,

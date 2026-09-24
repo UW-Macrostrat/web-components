@@ -42,8 +42,13 @@ export interface ItemPickerProps<T extends PickerItem> {
   renderItem?: (item: T) => ReactNode;
   /** Order the list. Defaults to the order of `items`. */
   compareItems?: (a: T, b: T) => number;
-  /** Text for the add button / empty single value. */
+  /** What the add affordance does ("Add lithology"): its tooltip, and its
+   * label when `addLabel` is set. */
   placeholder?: string;
+  /** Show `placeholder` as the add button's text. Off (the default) the
+   * button is a bare +, since the picker usually sits under a field label
+   * that already says what is being added. */
+  addLabel?: boolean;
   searchPlaceholder?: string;
   size?: TagSize;
   disabled?: boolean;
@@ -62,6 +67,7 @@ export function ItemPicker<T extends PickerItem>(props: ItemPickerProps<T>) {
     renderItem,
     compareItems,
     placeholder = multi ? "Add" : "Choose…",
+    addLabel = false,
     searchPlaceholder = "Search…",
     size = TagSize.Small,
     disabled = false,
@@ -89,19 +95,27 @@ export function ItemPicker<T extends PickerItem>(props: ItemPickerProps<T>) {
   };
 
   const tags = value.map((item) =>
-    h("span.picked-item", { key: item.id }, [
-      renderTag?.(item) ??
-        h(Tag, { name: item.name, color: item.color ?? undefined, size }),
-      tagAdornment?.(item),
-      h.if(editable && multi)(Button, {
-        icon: "small-cross",
-        minimal: true,
-        small: true,
-        className: "remove-item",
-        title: `Remove ${item.name}`,
-        onClick: () => remove(item),
-      }),
-    ]),
+    h(
+      "span.picked-item",
+      {
+        key: item.id,
+        className: classNames({ "picker-chip": editable && multi }),
+      },
+      [
+        renderTag?.(item) ??
+          h(Tag, { name: item.name, color: item.color ?? undefined, size }),
+        tagAdornment?.(item),
+        h.if(editable && multi)(Button, {
+          icon: "cross",
+          minimal: true,
+          small: true,
+          className: "remove-item",
+          title: `Remove ${item.name}`,
+          "aria-label": `Remove ${item.name}`,
+          onClick: () => remove(item),
+        }),
+      ],
+    ),
   );
 
   let adder: ReactNode = null;
@@ -112,7 +126,9 @@ export function ItemPicker<T extends PickerItem>(props: ItemPickerProps<T>) {
         icon: multi ? "plus" : "caret-down",
         small: true,
         minimal: true,
-        text: multi ? placeholder : placeholder,
+        text: addLabel || !multi ? placeholder : undefined,
+        title: placeholder,
+        "aria-label": placeholder,
         className: "add-item",
       });
     } else {
