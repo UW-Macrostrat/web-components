@@ -14,3 +14,4 @@ Column roles, a row editor, and a standalone data editor
 - Selection indicator names single-column cells by column ("3 lithologies"); `pluralize` handles more English plurals
 - Tags in cells are pinned to the row height
 - Fix: Backspace in a cell popover's text field cleared the cell
+- Fix: edits to object- and array-valued cells (an interval, a list of lithologies) were dropped as unchanged

@@ -666,6 +666,12 @@ function valuesAreEquivalent(a: any, b: any): boolean {
   const aBlank = a == null || a === "";
   const bBlank = b == null || b === "";
   if (aBlank || bBlank) return aBlank && bBlank;
+  // Structured values (an interval position, a list of lithologies) compare
+  // by content: as strings, every object is "[object Object]", so any edit
+  // to one — or to a list that keeps its length — read as no change
+  if (typeof a === "object" || typeof b === "object") {
+    return JSON.stringify(a) === JSON.stringify(b);
+  }
   return String(a) === String(b);
 }
 
