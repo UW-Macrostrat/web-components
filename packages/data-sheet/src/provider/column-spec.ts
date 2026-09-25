@@ -1,4 +1,5 @@
 import React from "react";
+import type { Placement } from "@blueprintjs/core";
 import { enhanceColumnFilter, TableFilter } from "../actions";
 
 const defaultRenderers = {
@@ -21,13 +22,7 @@ const defaultWidthForValue = (val) => String(val).length * 8;
 /** Inferred data type of a column, used to select appropriate
  * sort/filter operators. */
 export type ColumnDataType =
-  | "text"
-  | "string"
-  | "number"
-  | "integer"
-  | "boolean"
-  | "object"
-  | "array";
+  "text" | "string" | "number" | "integer" | "boolean" | "object" | "array";
 
 /** Severity of a cell validation result. `warning` is soft (flagged, doesn't
  * block saving); `error` is hard (blocks saving). */
@@ -91,12 +86,40 @@ export interface CellEditors {
 export interface CellDetailContext<T = any> extends CellRenderContext<T> {
   /** Whether this cell is editable (column × table × not-deleted). */
   editable: boolean;
-  /** Commit a new value for this cell. */
+  /**
+   * When the surface stands for several cells at once (the row editor over a
+   * multi-row selection), the cells it stands for. `value` is then the value
+   * they share, or `undefined` when they differ (`mixed`), and `onChange`
+   * writes every one of them. Only offered to a column that declares
+   * `multiCell`; absent for a single cell.
+   */
+  cells?: CellSelectionEntry<T>[];
+  /** True when `cells` hold differing values. */
+  mixed?: boolean;
+  /** Where the surface is drawn: `"cell"`, the grid's own popover, modal or
+   * in-cell surface; `"row-editor"`, a field of the sheet's row editor; or
+   * `"editor"`, a field of a standalone `DataEditor` — so a surface can lay
+   * itself out to suit (a picker nesting its own popovers only where it has
+   * room). */
+  surface?: "cell" | "row-editor" | "editor";
+  /** Commit a new value for this cell — for every cell, when the surface
+   * stands for several. */
   onChange: (value: any) => void;
+  /** With `cells`, commit a value for each cell, aligned with them — for a
+   * surface that changes each cell's own value (adding a tag to every row's
+   * list) rather than setting them all to one. */
+  onChangeCells?: (values: any[]) => void;
   /** Reset this cell (and selection) to its base value. */
   resetValue: () => void;
   /** Close the surface and return focus to the table. */
   close: () => void;
+}
+
+/** One of the cells a multi-cell surface stands for. */
+export interface CellSelectionEntry<T = any> {
+  rowIndex: number;
+  row: T | null | undefined;
+  value: any;
 }
 
 /** How a cell's detail surface is presented. Orthogonal to what it renders. */
@@ -148,11 +171,45 @@ export interface ColumnSpec {
    * same component works in any container.
    */
   cellDetail?: (ctx: CellDetailContext) => React.ReactNode;
+  /**
+   * Whether this column's `cellDetail` can stand for several cells at once —
+   * read the shared value (or `ctx.mixed`) and write every cell in
+   * `ctx.cells` through one `onChange`. A surface that doesn't declare this
+   * is shown read-only over a multi-row selection, with "Multiple values"
+   * where they differ. The default editors (an input by `dataType`) always
+   * can, since setting one value on every cell is what they do.
+   */
+  multiCell?: boolean;
   /** How `cellDetail` is presented. Defaults to `"popover"`. */
   detailPresentation?: DetailPresentation;
+  /** What one cell of the column is called, for the selection indicator
+   * ("1 lithology", "3 lithologies"). Defaults to the column's name. */
+  cellLabel?: string;
+  /** Where a popover `cellDetail` opens against its cell. Defaults to
+   * `"right-start"`; a wide surface (a tag picker) reads better below, at
+   * `"bottom-start"`. */
+  detailPlacement?: Placement;
   cellComponent?: any;
   category?: string;
   editable?: boolean;
+  /**
+   * A **derived** column holds values computed from other data — a total, an
+   * age that follows from an interval and a proportion — rather than values
+   * anyone types. It is never writable, whatever `editable` or the table
+   * says, and every write path (inline editing, fill, paste, the row editor)
+   * leaves it alone; it is drawn dimmed so a reader can tell what is a record
+   * and what is a restatement of one. Use it instead of `editable: false` when
+   * the read-only-ness is a property of the *data* rather than of the view.
+   */
+  derived?: boolean;
+  /**
+   * A **hidden** column stays in the spec but is left out of the working
+   * spec the table is built from: it isn't rendered, isn't part of a
+   * selection, and isn't written by a fill or a paste. A consumer keeps one
+   * spec and toggles this flag ("show absolute ages", "show generated ids")
+   * rather than maintaining two arrays. Resolved by `postprocessColumnSpec`.
+   */
+  hidden?: boolean;
   inlineEditor?: boolean | React.ComponentType<any> | string | null;
   style?: React.CSSProperties;
   width?: number;
@@ -328,15 +385,36 @@ export function generateColumnSpec<T>(
 
 export function postprocessColumnSpec(columnSpec: ColumnSpec[]) {
   /** Postprocess column spec to make sure that, e.g., column filters are
-   * properly established, etc.
+   * properly established, etc. Hidden columns are dropped here, so everything
+   * downstream — the renderer, the selection, the edit paths — works with the
+   * visible columns only and indexes into one array.
    */
-  return columnSpec.map((col) => {
-    return {
-      ...col,
-      filters: postprocessColumnFilters(col),
-      actions: col.actions ?? [],
-    };
-  });
+  return columnSpec
+    .filter((col) => !col.hidden)
+    .map((col) => {
+      return {
+        ...col,
+        filters: postprocessColumnFilters(col),
+        actions: col.actions ?? [],
+      };
+    });
+}
+
+/**
+ * Whether a column takes writes at all: the table is editable, the column
+ * isn't locked (`editable: false`) and it isn't `derived`. This is the one
+ * rule every write path consults — the inline editor, `onSelectionEdited`,
+ * fill, clear, clipboard paste and the row editor — so a locked column is
+ * locked however the edit arrives, not only when it is typed into.
+ */
+export function isColumnWritable(
+  col: ColumnSpec | null | undefined,
+  tableEditable: boolean = true,
+): boolean {
+  if (col == null) return false;
+  if (!tableEditable) return false;
+  if (col.derived) return false;
+  return col.editable !== false;
 }
 
 function postprocessColumnFilters(col: ColumnSpec): TableFilter[] | undefined {

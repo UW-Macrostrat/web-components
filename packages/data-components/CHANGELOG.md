@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.7.0] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.6.0...@macrostrat/data-components-v1.7.0)
+
+### Minor Changes
+
+- Vocabulary pickers and an interval tag with position and age
+  [dc1feb79](https://github.com/UW-Macrostrat/web-components/commit/dc1feb7961e6f901fe6a3dbb2d3f3bdba03cc32c)
+
+  - `TagPicker` — chosen items as tags; select one to open its details editor
+    (popover, inline, or stacked), Delete removes it
+  - `TagDetailsEditor` — a tag's sections as a menu or inline fields, with
+    danger ✕ removal
+  - `LithologyPicker` — proportions (percent or abundance terms) and attributes
+    per lithology; `resolveProportions` adds `comp_prop`
+  - `EnvironmentPicker`, `IntervalPositionEditor` — environments; an interval
+    with an optional position and derived age
+  - `ProportionEditor`, `macrostratProportionTerms`, `ngsProportionTerms`,
+    `resolveLithologyProportions`
+  - Multi-row pickers (`values` / `onChangeValues`) with partial tags, "Apply to
+    all", and `mergeItems` (`mergeLithologies`)
+  - Vocabularies default to `MacrostratDataProvider` (`useVocabulary`); a prop
+    overrides
+  - `IntervalTag` — `proportion` in the prefix, `age` in the details,
+    `interactive`; `IntervalProportion`, `AgeLabel`, `getAge` moved here from
+    column-views
+  - `LithologyTag` — `proportionLabel`; `buildTagStyle` exported
+  - CSS variables for containers: `--tag-line-height`, `--tag-outline`,
+    `--tag-picker-height`, `--tag-row-wrap` (one-line rows show "and n more")
+
+### Patch Changes
+
+- Updated dependencies
+  [5be3d4c9](https://github.com/UW-Macrostrat/web-components/commit/5be3d4c9f3fcf4442720a7ed3bdb72abca4db4ab)
+  - @macrostrat/data-provider@1.4.0
+
 ## [1.6.0] - 2026-09-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.5.1...@macrostrat/data-components-v1.6.0)
 
 ### Minor Changes

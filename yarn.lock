@@ -1817,6 +1817,7 @@ __metadata:
     "@dnd-kit/core": "npm:^6.3.1"
     "@dnd-kit/sortable": "npm:^10.0.0"
     "@macrostrat/color-utils": "workspace:^"
+    "@macrostrat/data-provider": "workspace:^"
     "@macrostrat/hyper": "npm:^3.1.1"
     "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/scoped-store": "workspace:^"

@@ -4,3 +4,6 @@ export * from "./colors";
 export * from "./text-areas";
 export * from "./indicators";
 export * from "./toolbars";
+export * from "./data-editor";
+export * from "./editor-actions";
+export * from "./row-editor";

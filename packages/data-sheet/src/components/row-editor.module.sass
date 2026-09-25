@@ -1,0 +1,161 @@
+// The row editor: one row's fields as a form. Labels carry a marker for what
+// kind of value a field holds (derived, required) and a revert button once
+// it has been edited; the value or its editor sits beneath.
+
+.row-editor
+  display: flex
+  flex-direction: column
+  min-width: 0
+  min-height: 0
+
+// A field's actions, after its label
+.field-actions
+  display: inline-flex
+  gap: 0.1em
+  margin-left: 0.2em
+  :global(.bp6-button)
+    min-height: 0
+    min-width: 0
+    padding: 0 3px
+
+.editor-action-form
+  display: flex
+  flex-direction: column
+  gap: 0.5em
+  padding: 0.6em
+  min-width: 14em
+
+// The data editor's footer: its actions, then Reset and Save
+.data-editor-footer
+  flex: none
+  display: flex
+  align-items: center
+  gap: 0.3em
+  padding-top: 0.5em
+
+.data-editor-footer-spacer
+  flex: 1
+
+.row-editor.panel .data-editor-footer
+  padding: 0.4em 0.6em
+  border-top: 1px solid var(--pz-border-color, rgba(128, 128, 128, 0.3))
+
+.row-editor-body
+  display: flex
+  flex-direction: column
+  gap: 0.25em
+  min-width: 0
+
+// As a panel: bordered, a title bar over a body that scrolls on its own
+.row-editor.panel
+  max-height: 100%
+  border: 1px solid var(--pz-border-color, rgba(128, 128, 128, 0.3))
+  border-radius: 4px
+  background: var(--panel-background-color, var(--background-color, transparent))
+  overflow: hidden
+  .row-editor-body
+    flex: 1 1 auto
+    min-height: 0
+    overflow-y: auto
+    padding: 0.75em 0.9em
+
+// The title bar is the selection tag (minimal, large, primary) at full
+// width, squared off to the panel's top edge
+.row-editor-title-bar
+  flex: none
+  min-height: 36px !important
+  padding-left: 0.9em !important
+  border-radius: 0 !important
+  font-weight: 600
+  box-shadow: inset 0 -1px 0 var(--pz-border-color, rgba(128, 128, 128, 0.3))
+
+.row-editor-fields
+  display: flex
+  flex-direction: column
+  gap: 0.1em
+
+.row-editor-field
+  margin-bottom: 0.4em
+  min-width: 0
+  :global(.bp6-label)
+    margin-bottom: 0.15em
+  &.edited .field-name
+    color: var(--pz-intent-success, #0f9960)
+  &.derived .field-value
+    color: var(--pz-text-subtle-color, var(--secondary-color))
+    font-style: italic
+  &.read-only :global(.bp6-form-content)
+    padding: 0.15em 0
+
+.row-editor.inline .row-editor-field
+  align-items: baseline
+
+.field-label
+  display: inline-flex
+  align-items: center
+  gap: 0.35em
+  min-height: 1.4em
+
+.field-name
+  font-weight: 600
+  font-size: 0.85em
+  color: var(--secondary-color)
+
+.field-marker
+  font-size: 0.7em
+  line-height: 1
+  padding: 0 0.4em
+  min-height: 1.4em
+
+.required-marker
+  color: var(--pz-intent-danger, #cd4246)
+
+.reset-field
+  margin-left: -0.15em
+  min-height: 0
+  :global(.bp6-icon)
+    color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.field-value
+  display: inline-block
+  min-width: 0
+  overflow-wrap: anywhere
+  &.empty
+    color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.field-surface.cell-detail
+  min-width: 0
+
+.row-editor-non-ideal
+  padding: 1.5em 0
+
+// A cell selection's columns are the focus: marked as the table marks a
+// selected region — a light fill and a full outline in the selection colour —
+// and the only writable fields; the rest of the row is context.
+.row-editor-field.selected
+  // Padding for the outline, taken back by margins, so selecting a field
+  // moves nothing (fields sit 0.4em apart)
+  margin: -0.3em -0.4em 0.1em
+  padding: 0.3em 0.4em
+  border-radius: 3px
+  // A faint fill — enough to say "selected" without tinting what the field
+  // shows; the outline carries the selection
+  background: color-mix(in srgb, var(--pz-intent-primary, #2d72d2) 4%, transparent)
+  box-shadow: inset 0 0 0 1px var(--pz-intent-primary, #2d72d2)
+  // Tags keep an edge against the selection's fill
+  --tag-outline: 0 0 0 1px rgba(128, 128, 128, 0.35)
+  .field-name
+    color: var(--pz-intent-primary, #2d72d2)
+
+.mixed-values
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+  font-style: italic
+
+.selection-summary
+  font-size: 0.85em
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+  margin-bottom: 0.5em
+
+// Takes no space: it only catches a click on its field
+.row-editor-field-target
+  display: contents

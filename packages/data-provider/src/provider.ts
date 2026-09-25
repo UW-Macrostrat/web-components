@@ -24,7 +24,9 @@ import {
   fetchAllColumns,
   fetchEnvironments,
   fetchIntervals,
+  fetchLithAttributes,
   fetchLithologies,
+  fetchTimescales,
   fetchRefs,
   fetchStratNames,
   type ColumnStatusCode,
@@ -66,6 +68,10 @@ interface MacrostratStore extends RefsSlice {
   ): Promise<Interval[]>;
   environments: Map<number, Environment> | null;
   getEnvironments(ids: number[] | null): Promise<Environment[]>;
+  lithAttributes: Map<number, LithAttribute> | null;
+  getLithAttributes(ids: number[] | null): Promise<LithAttribute[]>;
+  timescales: Map<number, Timescale> | null;
+  getTimescales(ids: number[] | null): Promise<Timescale[]>;
   /** Keyed by `columnScopeKey(projectID)`, not by a raw project id. */
   columnFootprints: Map<string, ColumnFootprintsStorage>;
   getColumns(
@@ -75,6 +81,25 @@ interface MacrostratStore extends RefsSlice {
   // Strat names unify both "strat names" and "concepts"
   stratNames: Map<number, StratName> | null;
   getStratNames(ids: number[] | null): Promise<StratName[]>;
+}
+
+/** A lithology attribute definition, as `/defs/lithology_attributes` reports it. */
+export interface LithAttribute {
+  lith_att_id: number;
+  name: string;
+  /** What kind of attribute: `grains`, `bedform`, `sed structure`, `color`… */
+  type?: string;
+  t_units?: number;
+}
+
+/** A timescale, as `/defs/timescales` reports it (`timescale` is its name). */
+export interface Timescale {
+  timescale_id: number;
+  timescale: string;
+  n_intervals?: number;
+  max_age?: number;
+  min_age?: number;
+  ref_id?: number;
 }
 
 const globalStoreMap = new Map<string, StoreApi<MacrostratStore>>();
@@ -124,6 +149,22 @@ export function createMacrostratStore(
       ...createLithologiesSlice(set, get),
       ...createIntervalsSlice(set, get),
       ...createEnvironmentsSlice(set, get),
+      lithAttributes: null,
+      getLithAttributes: definitionsGetter<LithAttribute>(
+        set,
+        get,
+        "lithAttributes",
+        fetchLithAttributes,
+        (d) => d.lith_att_id,
+      ),
+      timescales: null,
+      getTimescales: definitionsGetter<Timescale>(
+        set,
+        get,
+        "timescales",
+        fetchTimescales,
+        (d) => d.timescale_id,
+      ),
       ...createColumnsSlice(set, get),
       ...createRefsSlice(set, get),
       ...createStratNamesSlice(set, get),
@@ -238,6 +279,29 @@ function createEnvironmentsSlice(set, get) {
       if (ids == null) return envMap.values();
       return ids.map((id) => envMap.get(id));
     },
+  };
+}
+
+/** The getter for a vocabulary fetched whole on first use and kept in the
+ * store as a map by id, under `key`. */
+function definitionsGetter<T>(
+  set,
+  get,
+  key: string,
+  fetcher: (opts: { fetch: any }) => Promise<T[] | null>,
+  idOf: (d: T) => number,
+) {
+  return async (ids: number[] | null): Promise<T[]> => {
+    const { fetch } = get();
+    let defs: Map<number, T> | null = get()[key];
+    if (defs == null) {
+      const data = await fetcher({ fetch });
+      if (data == null) return [];
+      defs = new Map(data.map((d) => [idOf(d), d]));
+      set({ [key]: defs });
+    }
+    if (ids == null) return Array.from(defs.values());
+    return ids.map((id) => defs.get(id)) as T[];
   };
 }
 
@@ -415,11 +479,15 @@ type DataTypeKey =
   | "intervals"
   | "columns"
   | "environments"
+  | "lithAttributes"
+  | "timescales"
   | "refs"
   | "strat_names";
 
 const dataTypeMapping = {
   lithologies: (store) => store.getLithologies,
+  lithAttributes: (store) => store.getLithAttributes,
+  timescales: (store) => store.getTimescales,
   intervals: (store) => store.getIntervals,
   columns: (store) => store.getColumns,
   environments: (store) => store.getEnvironments,
@@ -576,4 +644,22 @@ export function useIntervals() {
     if (intervals == null) getIntervals();
   }, [getIntervals]);
   return intervals;
+}
+
+export function useLithAttributes() {
+  const getLithAttributes = useMacrostratStore((s) => s.getLithAttributes);
+  const lithAttributes = useMacrostratStore((s) => s.lithAttributes);
+  useEffect(() => {
+    if (lithAttributes == null) getLithAttributes(null);
+  }, [lithAttributes, getLithAttributes]);
+  return lithAttributes;
+}
+
+export function useTimescales() {
+  const getTimescales = useMacrostratStore((s) => s.getTimescales);
+  const timescales = useMacrostratStore((s) => s.timescales);
+  useEffect(() => {
+    if (timescales == null) getTimescales(null);
+  }, [timescales, getTimescales]);
+  return timescales;
 }

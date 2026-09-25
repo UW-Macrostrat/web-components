@@ -91,9 +91,10 @@ export function ActionsToolbar<T>({
   // Reset); everything else is contextual and stays on the left. So the left
   // edge tracks the selection and the right edge is constant.
   const isGlobal = (a: TableAction<T>) =>
-    (a.targets.includes(RegionCardinality.FULL_TABLE) ||
+    a.placement === "end" ||
+    ((a.targets.includes(RegionCardinality.FULL_TABLE) ||
       a.targets.includes("none" as any)) &&
-    a.requiresEditable;
+      a.requiresEditable);
   const contextual = shownActions.filter((a) => !isGlobal(a));
   // Order the built-in global actions least→most impactful, left→right: reset
   // changes, then save. Any other global actions keep their natural order to

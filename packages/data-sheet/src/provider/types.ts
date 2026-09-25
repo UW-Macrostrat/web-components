@@ -147,7 +147,7 @@ export interface DataSheetState<T> {
   /** Whether selecting a cell automatically activates its surface (opens an
    * editor/detail panel and, for editors, focuses it). `"manual"` opens only
    * on click. */
-  cellInteraction: "auto" | "manual";
+  cellInteraction: "auto" | "manual" | "second-click";
   /** Runtime override of `cellInteraction`: while `false`, auto-activation is
    * suppressed (set by pressing Escape, re-armed by clicking a cell) so the
    * keyboard prioritizes navigation. */

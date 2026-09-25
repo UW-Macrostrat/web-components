@@ -16,7 +16,8 @@ import {
 } from "./selection.ts";
 import { Getter, Setter } from "jotai";
 import type { Store as JotaiStore } from "jotai/vanilla/store";
-import { storeAPIAtom } from "../provider";
+import { storeAPIAtom, TableElementStatus } from "../provider";
+import { isColumnWritable } from "../provider/column-spec.ts";
 import type { ColumnSpec } from "../provider";
 import type { TableAction } from "./types.ts";
 
@@ -208,7 +209,17 @@ export function buildActionContext<T>(
     getSelectedColumnKeys: () =>
       getSelectedColumnKeys(state.selection, state.columnSpec),
     onCellEdited: state.onCellEdited,
-    editCells(edits: CellEdit[]) {
+    editCells(rawEdits: CellEdit[]) {
+      // Only the cells that take writes: a paste or a fill that spans a locked
+      // or derived column, or a deleted row, writes around them — the same
+      // rule the inline editor applies (`isColumnWritable`).
+      const edits = rawEdits.filter((e) => {
+        const columnKey = (e as any).columnKey ?? e.column;
+        const col = state.columnSpec.find((c) => c.key === columnKey);
+        if (!isColumnWritable(col, state.editable)) return false;
+        return state.rowStatus?.[e.rowIndex] !== TableElementStatus.DELETED;
+      });
+      if (edits.length === 0) return;
       state.setUpdatedData((updatedData: T[]) => {
         const spec: Record<number, any> = {};
         for (const e of edits) {

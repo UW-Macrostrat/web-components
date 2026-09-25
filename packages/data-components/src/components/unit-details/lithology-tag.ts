@@ -18,6 +18,9 @@ interface LithologyTagProps
   size?: TagSize;
   features?: Set<LithologyTagFeature>;
   interactive?: boolean;
+  /** What the proportion feature shows in place of the percentage — a term
+   * such as "major" or "trace". */
+  proportionLabel?: ReactNode;
 }
 
 export enum LithologyTagFeature {
@@ -31,12 +34,15 @@ export function LithologyTag({
   features,
   className,
   interactive = true,
+  proportionLabel,
   ...rest
 }: LithologyTagProps) {
   let proportion: ReactNode = null;
   const showProportion = features?.has(LithologyTagFeature.Proportion) ?? false;
   const showAttributes = features?.has(LithologyTagFeature.Attributes) ?? false;
-  if (data.prop != null && showProportion) {
+  if (showProportion && proportionLabel != null) {
+    proportion = h("span.lithology-proportion", proportionLabel);
+  } else if (showProportion && data.prop != null) {
     const prop = Math.round(data.prop * 100);
     proportion = h("span.lithology-proportion", `${prop}%`);
   }

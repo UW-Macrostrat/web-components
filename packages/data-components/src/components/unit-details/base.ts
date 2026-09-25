@@ -117,29 +117,107 @@ export function Value({
 export interface IntervalTagProps
   extends Omit<BaseTagProps, "name">, ItemInteractionProps {
   interval: IntervalShort;
+  /** A position within the interval (0 at its base, 1 at its top), drawn as
+   * the tag's prefix: "base", "top" or a percent. */
+  proportion?: number | null;
+  /** An age, drawn as the tag's details. Takes the place of the age range. */
+  age?: number | null;
+  /** Draw the interval's age range as the tag's details. */
   showAgeRange?: boolean;
+  /** Link to the interval when an interaction manager is present (default). */
+  interactive?: boolean;
 }
 
+/** An interval as a tag in its own colour. A position within the interval
+ * goes in the prefix, and an age — or the interval's range — in the
+ * details, so a calibration reads "25% | Devonian | 404.4 Ma". */
 export function IntervalTag({
   interval,
+  proportion,
+  age,
   showAgeRange = false,
+  interactive = true,
   color,
+  prefix,
+  details,
   ...rest
 }: IntervalTagProps) {
-  const interactionProps = useInteractionProps({ int_id: interval.id });
+  const interactionProps = useInteractionProps(
+    { int_id: interval.id },
+    interactive,
+  );
 
-  let details = null;
-  if (showAgeRange) {
-    details = h(AgeRange, { b_age: interval.b_age, t_age: interval.t_age });
+  let _prefix = prefix;
+  if (_prefix == null && proportion != null) {
+    _prefix = h(IntervalProportion, { value: proportion });
+  }
+
+  let _details = details;
+  if (_details == null && age != null) {
+    _details = h(AgeLabel, { age });
+  } else if (_details == null && showAgeRange) {
+    _details = h(AgeRange, { b_age: interval.b_age, t_age: interval.t_age });
   }
 
   return h(Tag, {
     name: interval.name,
     color: color ?? interval.color,
-    details,
+    prefix: _prefix,
+    details: _details,
     ...interactionProps,
     ...rest,
   });
+}
+
+/** A position within an interval: "base" at 0, "top" at 1, else a percent. */
+export function IntervalProportion({ value }: { value: number }) {
+  return h("span.interval-proportion", formatIntervalProportion(value));
+}
+
+export function formatIntervalProportion(value: number): string {
+  if (value == 0) return "base";
+  if (value == 1) return "top";
+  return (value * 100).toFixed(1) + "%";
+}
+
+/** A single age, in Ma, ka or Ga as suits its size. */
+export function AgeLabel({
+  age,
+  maximumFractionDigits = 2,
+  minimumFractionDigits = 0,
+  className,
+}: {
+  age: number;
+  className?: string;
+  maximumFractionDigits?: number;
+  minimumFractionDigits?: number;
+}) {
+  const [value, unit] = getAge(age);
+
+  const _value = value.toLocaleString("en-US", {
+    maximumFractionDigits,
+    minimumFractionDigits,
+  });
+
+  return h(Value, { value: _value, unit, className });
+}
+
+/** An age in Ma as a value and the unit that suits it: Ma, ka, yr or Ga. */
+export function getAge(value: number): [number, string] {
+  let unit = "Ma";
+  if (value < 0.8) {
+    unit = "ka";
+    value *= 1000;
+    if (value < 5) {
+      unit = "yr";
+      value *= 1000;
+    }
+  } else if (value > 1000) {
+    unit = "Ga";
+    value /= 1000;
+  }
+
+  return [value, unit];
 }
 
 function uniqueIntervals(

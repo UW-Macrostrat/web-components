@@ -1,0 +1,38 @@
+// Story chrome for the data editor stories.
+.standalone
+  max-width: 32em
+  display: flex
+  flex-direction: column
+  gap: 1em
+
+.state
+  font-size: 11px
+  opacity: 0.7
+  margin: 0
+
+.panel-story
+  height: 100vh
+  display: flex
+  flex-direction: column
+
+.unit-card
+  display: flex
+  flex-direction: column
+  gap: 0.4em
+  padding: 0.6em 0.8em
+  border-bottom: 1px solid var(--pz-border-color, rgba(128, 128, 128, 0.25))
+  &.selected
+    background: var(--pz-intent-primary-surface, rgba(45, 114, 210, 0.08))
+
+.unit-card-header
+  font-weight: 600
+  cursor: pointer
+
+// The sidebar's editor: a fixed width, the panel scrolling its own body
+.sidebar-editor
+  width: 24em
+  height: 100%
+  display: flex
+  flex-direction: column
+  padding: 0.5em
+  box-sizing: border-box

@@ -1,0 +1,44 @@
+// Story chrome: frames and explanations around the components under test.
+.story
+  max-width: 40em
+  display: flex
+  flex-direction: column
+  gap: 1.25em
+
+.story-note
+  margin: 0
+  font-size: 0.85em
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.example
+  display: flex
+  flex-direction: column
+  gap: 0.35em
+  h4
+    margin: 0
+    font-size: 0.85em
+    font-weight: 600
+    color: var(--pz-text-subtle-color, var(--secondary-color))
+
+// The component under test, outlined so the story's chrome reads apart
+.component
+  position: relative
+  border: 1px dashed rgba(128, 128, 128, 0.45)
+  border-radius: 4px
+  padding: 0.6em 0.75em
+  &::before
+    content: "component"
+    position: absolute
+    top: -0.7em
+    right: 0.6em
+    padding: 0 0.3em
+    font-size: 0.65em
+    letter-spacing: 0.05em
+    text-transform: uppercase
+    color: var(--pz-text-subtle-color, var(--secondary-color))
+    background: var(--background-color, white)
+
+.state
+  font-size: 11px
+  opacity: 0.7
+  margin: 0

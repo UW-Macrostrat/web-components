@@ -1,0 +1,43 @@
+// Story chrome: what frames the components under test, not part of them.
+.story
+  padding: 1.5em
+  height: 100vh
+  box-sizing: border-box
+  display: flex
+  flex-direction: column
+  gap: 0.75em
+
+.story-note
+  margin: 0
+  font-size: 0.85em
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.split
+  display: flex
+  flex: 1
+  min-height: 0
+  gap: 1em
+
+.grid-pane
+  flex: 1
+  min-width: 0
+  display: flex
+  flex-direction: column
+
+// The row editor's column: the panel scrolls its own body
+.panel
+  flex: 0 0 24em
+  min-width: 0
+  min-height: 0
+  display: flex
+  flex-direction: column
+
+.panel.wide
+  flex: 1
+
+// Toggled off, the row editor renders nothing and its column goes with it
+.panel:empty
+  display: none
+
+.standalone
+  max-width: 30em

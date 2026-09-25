@@ -12,6 +12,7 @@
   ],
   "references": [
     { "path": "../color-utils" },
+    { "path": "../data-provider" },
     { "path": "../mapbox-utils" },
     { "path": "../scoped-store" },
     { "path": "../stratigraphy-utils" },

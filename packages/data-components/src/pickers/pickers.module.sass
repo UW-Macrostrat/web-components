@@ -1,0 +1,313 @@
+// Pickers: the chosen items as a row of tags, an add/change affordance, the
+// searchable vocabulary in its popover, and a selected tag's details editor.
+
+$ring: var(--pz-intent-primary, #2d72d2)
+
+// A container can pin the picker to a fixed height (`--tag-picker-height`,
+// e.g. a table cell's, less its border), which centres the row of tags in it,
+// clips what overflows and keeps the row to one line
+.tag-picker
+  display: flex
+  flex-direction: column
+  justify-content: center
+  gap: 0.5em
+  min-width: 0
+  max-width: 100%
+  height: var(--tag-picker-height)
+  overflow: var(--tag-picker-overflow, visible)
+
+.tag-row
+  position: relative
+  display: flex
+  flex-wrap: var(--tag-row-wrap, wrap)
+  align-items: center
+  gap: 0.3em
+  min-width: 0
+
+// A chosen item is its tag, and nothing more: selection and focus are a ring
+// drawn on the tag's own outline.
+.picker-tag
+  display: inline-flex
+  flex-shrink: 0
+  min-width: 0
+  border-radius: 0.3em
+  outline: none
+  &.editable
+    cursor: pointer
+  &.editable:focus-visible
+    box-shadow: 0 0 0 2px var(--pz-focus-ring-color, $ring)
+  &.selected
+    box-shadow: 0 0 0 2px $ring
+  // Past the end of a one-line row: out of the flow, keeping its width
+  &.overflowed
+    position: absolute
+    visibility: hidden
+    pointer-events: none
+  // Held by only some of the rows a picker stands for
+  &.partial
+    opacity: 0.5
+    &.selected, &:focus-visible
+      opacity: 0.8
+
+.add-item
+  font-size: 0.85em
+
+// "and n more", for the tags a one-line row has no room for
+.more-tags
+  flex: none
+  font-size: 0.85em
+  white-space: nowrap
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.picker-empty
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+// The vocabulary list
+.vocabulary-list
+  display: flex
+  flex-direction: column
+  gap: 6px
+  min-width: 260px
+  padding: 6px
+
+.item-rows
+  display: flex
+  flex-direction: column
+  max-height: 280px
+  overflow-y: auto
+
+.item-row
+  display: flex
+  align-items: center
+  gap: 8px
+  padding: 3px 6px
+  cursor: pointer
+  border-radius: 3px
+  &:hover
+    background: rgba(128, 128, 128, 0.12)
+  // Chosen: bold, in the selection colours of the item being edited
+  &.selected
+    color: var(--selected-color, inherit)
+    background: var(--selected-background-color, transparent)
+  // Held by only some of the rows: faded, and a click gives it to all
+  &.selected.partial
+    opacity: 0.55
+    .item-name
+      font-weight: 600
+    .item-description
+      color: inherit
+      opacity: 0.75
+
+.item-swatch
+  flex: none
+  width: 10px
+  height: 10px
+  border-radius: 2px
+  border: 1px solid rgba(128, 128, 128, 0.4)
+
+.item-text
+  display: flex
+  flex-direction: column
+  min-width: 0
+  line-height: 1.2
+
+.item-description
+  font-size: 0.8em
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.picker-empty-list
+  padding: 6px
+  font-size: 12px
+  opacity: 0.6
+
+// A selected tag's details editor. Stacked in the picker's place, it has the
+// popover's layout at the picker's width
+.tag-details-stacked
+  min-width: 240px
+  max-width: 320px
+  padding: 4px
+
+.popover-details
+  min-width: 220px
+
+// The bar across its top: the item's name in its tag's text colour, and the
+// ✕ at its right
+.details-header
+  display: flex
+  align-items: center
+  gap: 0.4em
+  min-height: 28px
+  padding: 2px 2px 2px 8px
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2)
+
+.details-back
+  margin-left: -6px
+
+.details-title
+  flex: 1 1 auto
+  display: flex
+  align-items: baseline
+  gap: 0.5em
+  min-width: 0
+  font-size: 0.9em
+  font-weight: 600
+  color: var(--item-color, inherit)
+
+.details-section
+  font-weight: 400
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.remove-button, .apply-to-all
+  flex: none
+
+// In a popover, the bar spans it, and the menu or a section's field below
+.tag-details-editor.popover-details
+  .details-menu
+    background: transparent
+  .details-field-body
+    padding: 8px
+    // The vocabulary list brings its own padding
+    & > .vocabulary-list
+      padding: 0
+
+// Inline: every field, below the row of tags
+.inline-details
+  display: flex
+  flex-direction: column
+  gap: 0.5em
+  .details-header
+    padding-left: 0
+  .vocabulary-list
+    padding: 0
+
+.details-field
+  display: flex
+  flex-direction: column
+  gap: 0.2em
+
+.details-field-header
+  display: flex
+  align-items: center
+  gap: 0.4em
+  min-height: 24px
+
+.details-field-label
+  flex: 1 1 auto
+  font-size: 0.75em
+  text-transform: uppercase
+  letter-spacing: 0.04em
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+// The ✕ after a selected tag that has no editor to open
+.tag-remove
+  min-height: 0
+  min-width: 0
+  padding: 0 2px
+
+// Lithology proportion: a percentage, and the terms of a vocabulary
+.proportion-editor
+  display: flex
+  flex-direction: column
+  gap: 0.4em
+
+.proportion-terms
+  display: flex
+  flex-wrap: wrap
+  gap: 0.25em
+  max-width: 22em
+
+// The chosen term, in the selection colours of the lithology
+.proportion-term.active
+  font-weight: 600
+  color: var(--selected-color, inherit) !important
+  background: var(--selected-background-color, rgba(128, 128, 128, 0.2)) !important
+
+.proportion-input
+  width: 9em
+  .percent-sign
+    font-size: 0.8em
+    line-height: 24px
+    padding-right: 0.4em
+    color: var(--pz-text-subtle-color, var(--secondary-color))
+
+// Interval position
+.interval-position
+  display: flex
+  flex-direction: column
+  gap: 0.25em
+  min-width: 0
+
+.unresolved-interval
+  color: var(--pz-intent-warning, #c87619)
+  font-style: italic
+  &.loading
+    color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.proportion-row
+  display: flex
+  align-items: center
+  gap: 0.75em
+  flex-wrap: wrap
+  .proportion-slider
+    flex: 1 1 10em
+    min-width: 10em
+    max-width: 18em
+    // Room for the slider's own labels, which sit below its track
+    margin: 0 0.5em 1.2em 0.5em
+
+.proportion-shortcuts
+  flex: none
+
+// The timescale matching is constrained to, above the interval, headed as the
+// control's other fields are (`details-field-header` / `-label`)
+.timescale-row
+  justify-content: flex-start
+
+.timescale-label
+  flex: none
+
+.timescale-constraint
+  font-size: 0.8em
+  padding: 0 0.45em
+  border-radius: 3px
+  background: rgba(128, 128, 128, 0.12)
+  white-space: nowrap
+  color: var(--pz-text-subtle-color, var(--secondary-color))
+
+.timescale-select
+  font-size: 0.8em
+  :global(select)
+    height: 22px
+    line-height: 22px
+    padding: 0 20px 0 6px
+    font-size: 1em
+
+// The interval as a target: a click changes the interval
+.interval-target
+  cursor: pointer
+
+// The caret in the interval tag's prefix, and the position it opens
+.position-toggle
+  all: unset
+  display: inline-flex
+  align-items: center
+  gap: 0.15em
+  cursor: pointer
+  border-radius: 2px
+  &:hover, &.open
+    background: rgba(128, 128, 128, 0.2)
+  &:focus-visible
+    outline: 2px solid var(--pz-focus-ring-color, $ring)
+  &.unset
+    opacity: 0.75
+
+.position-toggle-holder
+  display: inline-flex
+
+// Inline below the interval, set apart as the modal control it is
+.position-field
+  margin-top: 0.2em
+  padding: 0.35em 0.6em 0.5em
+  border: 1px solid var(--pz-border-color, rgba(128, 128, 128, 0.3))
+  border-radius: 4px
+  background: var(--panel-secondary-background-color, rgba(128, 128, 128, 0.06))

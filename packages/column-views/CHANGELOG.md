@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.12.1] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.12.0...@macrostrat/column-views-v3.12.1)
+
+### Patch Changes
+
+- - `Proportion`, `AgeLabel` and `getAge` are re-exported from
+    `@macrostrat/data-components`; surface calibration tags use `IntervalTag`'s
+    `proportion`
+    [5be3d4c9](https://github.com/UW-Macrostrat/web-components/commit/5be3d4c9f3fcf4442720a7ed3bdb72abca4db4ab)
+- Updated dependencies
+  [5be3d4c9](https://github.com/UW-Macrostrat/web-components/commit/5be3d4c9f3fcf4442720a7ed3bdb72abca4db4ab)
+- Updated dependencies
+  [dc1feb79](https://github.com/UW-Macrostrat/web-components/commit/dc1feb7961e6f901fe6a3dbb2d3f3bdba03cc32c)
+  - @macrostrat/data-provider@1.4.0
+  - @macrostrat/data-components@1.7.0
+
 ## [3.12.0] - 2026-09-21 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.11.0...@macrostrat/column-views-v3.12.0)
 
 ### Minor Changes

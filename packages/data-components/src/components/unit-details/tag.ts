@@ -90,13 +90,20 @@ export function Tag(props: BaseTagProps) {
   );
 }
 
-interface TagStyleProps {
+export interface TagStyleProps {
   color?: chroma.ChromaInput;
   size?: TagSize;
   inDarkMode?: boolean;
 }
 
-function buildTagStyle({ color, size, inDarkMode }: TagStyleProps = {}) {
+/** The CSS variables a tag is coloured by (`--text-color`,
+ * `--tag-background`, `--secondary-color`, `--tag-secondary-background`) and
+ * sized by (`--font-size`), so other elements can take on a tag's colours. */
+export function buildTagStyle({
+  color,
+  size,
+  inDarkMode,
+}: TagStyleProps = {}) {
   const scheme: any = getLuminanceAdjustedColorScheme(color, inDarkMode);
 
   let fontSize: string | null = null;
