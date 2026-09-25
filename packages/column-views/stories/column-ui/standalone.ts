@@ -4,15 +4,21 @@ import { Column } from "../../src";
 import { Spinner } from "@blueprintjs/core";
 import { ColumnProps } from "../../src";
 import "@macrostrat/style-system";
+import { useMacrostratStore } from "@macrostrat/data-provider";
+
+const baseURL =
+  import.meta.env.VITE_MACROSTRAT_BASE_URL ??
+  "https://dev.macrostrat.org/api/v2";
 
 function useColumnUnits(col_id, inProcess) {
   const status_codes = ["active"];
   if (inProcess) status_codes.push("in process");
   const status_code = status_codes.join(",");
+  const baseURL = useMacrostratStore((d) => d.baseURL);
 
   // show_position is needed to properly deal with `section` column types.
   return useAPIResult(
-    "https://dev.macrostrat.org/api/v2/units",
+    baseURL + "/units",
     { col_id, response: "long", status_code, show_position: true },
     (res) => res.success.data,
   );
@@ -23,13 +29,11 @@ function useColumnBasicInfo(col_id, inProcess = false) {
   if (inProcess) status_codes.push("in process");
   const status_code = status_codes.join(",");
 
-  return useAPIResult(
-    "https://dev.macrostrat.org/api/v2/columns",
-    { col_id, status_code },
-    (res) => {
-      return res.success.data[0];
-    },
-  );
+  const baseURL = useMacrostratStore((d) => d.baseURL);
+
+  return useAPIResult(baseURL + "/columns", { col_id, status_code }, (res) => {
+    return res.success.data[0];
+  });
 }
 
 export interface StandaloneColumnProps extends Omit<ColumnProps, "units"> {

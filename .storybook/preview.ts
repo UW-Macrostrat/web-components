@@ -17,6 +17,9 @@ import { MacrostratDataProvider } from "@macrostrat/data-provider";
 
 FocusStyleManager.onlyShowFocusOnTabs();
 
+const baseURL =
+  import.meta.env.VITE_MACROSTRAT_BASE_URL ?? "https://macrostrat.org";
+
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
   controls: {
@@ -65,6 +68,7 @@ export const decorators = [
         OverlaysProvider,
         h(
           MacrostratDataProvider,
+          { baseURL: baseURL + "/api/v2" },
           h(PatternProvider, h(DarkModeProvider, { isEnabled }, renderStory())),
         ),
       ),

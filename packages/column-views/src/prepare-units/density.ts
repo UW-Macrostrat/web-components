@@ -12,6 +12,8 @@ import type { UnitLong } from "@macrostrat/api-types";
 export interface SectionDensityContext {
   /** The section's extent, in axis units */
   extent: number;
+  /** The section's shown extent, in axis units */
+  visibleExtent: number;
   /** Extents of the units the render window actually shows, each clipped to
    * it. Measuring what's on screen is what makes a unit-height rule mean the
    * same thing at every zoom depth. */
@@ -28,23 +30,14 @@ export type SectionDensity = (ctx: SectionDensityContext) => number;
 
 export type SectionDensityLike = number | SectionDensity;
 
-/** Room for a typical unit on screen: `px` tall, whatever its duration.
- *
- * "Typical" is the median of the visible extents, which is the only summary
- * that survives both tails. Unit durations are spread over orders of
- * magnitude: the arithmetic mean sits above any unit you would point at, so a
- * couple of long ones squeeze everything else below the target — and the
- * geometric mean fails the other way, since a single hair-thin unit (a
- * Holocene sliver beside a Pliocene terrace, say) drags the log-average down
- * and stretches the whole section to give that sliver its 20 pixels.
- */
-export function unitHeight(px: number): SectionDensity {
-  return (ctx) => px / typicalExtent(ctx.unitExtents);
+enum UnitHeightMode {
+  MEDIAN = "median",
+  MEAN = "mean",
 }
 
 /** Room for the section: `px` tall, whatever its extent. */
 export function sectionHeight(px: number): SectionDensity {
-  return (ctx) => px / ctx.extent;
+  return (ctx) => px / ctx.visibleExtent;
 }
 
 /** A density stated outright, in pixels per axis unit. */
@@ -73,15 +66,6 @@ export function resolveDensity(
 ): number {
   if (typeof rule === "number") return rule;
   return rule(ctx);
-}
-
-function typicalExtent(extents: number[]): number {
-  const sorted = extents.filter((d) => d > 0).sort((a, b) => a - b);
-  if (sorted.length === 0) return NaN;
-  const mid = (sorted.length - 1) / 2;
-  const lower = Math.floor(mid);
-  const upper = Math.ceil(mid);
-  return (sorted[lower] + sorted[upper]) / 2;
 }
 
 /** Mirrors the default in `sectionDensity` */
@@ -131,8 +115,7 @@ export interface SectionSizeOptions {
  * holds. What it returns overrides the column-wide options for that section;
  * anything it leaves out keeps the column's value. */
 export type SectionOptionsLike =
-  | SectionSizeOptions
-  | ((ctx: SectionDensityContext) => SectionSizeOptions);
+  SectionSizeOptions | ((ctx: SectionDensityContext) => SectionSizeOptions);
 
 export interface SectionDensityOptions extends SectionSizeOptions {
   /** Sizing decided per section */
@@ -164,7 +147,7 @@ function densityRule(opts: SectionSizeOptions): SectionDensity {
   } = opts;
 
   const derived = atLeast(
-    unitHeight(targetUnitHeight),
+    unitHeight(targetUnitHeight, UnitHeightMode.MEAN),
     fixedDensity(minPixelScale),
     sectionHeight(minSectionHeight ?? targetUnitHeight ?? 0),
   );
@@ -180,6 +163,34 @@ function densityRule(opts: SectionSizeOptions): SectionDensity {
     if (stated != null) return stated;
     return derived(ctx);
   };
+}
+
+/** Room for a typical unit on screen: `px` tall, whatever its duration.
+ *
+ * "Typical" is the median of the visible extents, which is the only summary
+ * that survives both tails. Unit durations are spread over orders of
+ * magnitude: the arithmetic mean sits above any unit you would point at, so a
+ * couple of long ones squeeze everything else below the target — and the
+ * geometric mean fails the other way, since a single hair-thin unit (a
+ * Holocene sliver beside a Pliocene terrace, say) drags the log-average down
+ * and stretches the whole section to give that sliver its 20 pixels.
+ */
+export function unitHeight(px: number, mode: UnitHeightMode): SectionDensity {
+  return (ctx) => px / typicalExtent(ctx.unitExtents, mode);
+}
+
+function typicalExtent(extents: number[], mode: UnitHeightMode): number {
+  /** The typical extent for a unit, the median of its extents. */
+  const filtered = extents.filter((d) => d > 0);
+  if (filtered.length === 0) return NaN;
+  if (mode === UnitHeightMode.MEAN) {
+    return filtered.reduce((sum, val) => sum + val, 0) / filtered.length;
+  }
+  const sorted = filtered.sort((a, b) => a - b);
+  const mid = (sorted.length - 1) / 2;
+  const lower = Math.floor(mid);
+  const upper = Math.ceil(mid);
+  return (sorted[lower] + sorted[upper]) / 2;
 }
 
 /** The density this axis was given, if any. The axis-specific spellings win

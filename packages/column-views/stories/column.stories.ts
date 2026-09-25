@@ -1,5 +1,4 @@
-import hyper from "@macrostrat/hyper";
-import styles from "./column.stories.module.sass";
+import h from "./column.stories.module.sass";
 import { Meta, StoryObj } from "@storybook/react-vite";
 import { FlexRow, JSONView } from "@macrostrat/ui-components";
 
@@ -18,9 +17,10 @@ import {
 import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
 import { Button } from "@blueprintjs/core";
 import { BaseUnit, UnitLithology } from "@macrostrat/api-types";
-import { useGeologicPattern } from "@macrostrat/column-components";
-
-const h = hyper.styled(styles);
+import {
+  ColumnAxisType,
+  useGeologicPattern,
+} from "@macrostrat/column-components";
 
 type Story = StoryObj<typeof StandaloneColumn>;
 
@@ -266,6 +266,17 @@ export const eODPColumnV2: Story = {
     unitComponentProps: {
       nColumns: 5,
     },
+    showUnitPopover: true,
+    keyboardNavigation: true,
+  },
+};
+
+export const GBDBColumn: Story = {
+  args: {
+    id: 81284,
+    inProcess: true,
+    axisType: ColumnAxisType.HEIGHT,
+    collapseSmallUnconformities: true,
     showUnitPopover: true,
     keyboardNavigation: true,
   },
