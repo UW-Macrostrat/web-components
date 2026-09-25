@@ -1,4 +1,5 @@
 import {
+  CellEdit,
   DataSheetState,
   DataSheetStore,
   DataSheetStoreMain,
@@ -37,6 +38,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     editable: false,
     selection: [],
     fillValueBaseCell: null,
+    fillBaseData: null,
     focusedCell: null,
     topLeftCell: null,
     initialized: false,
@@ -235,10 +237,29 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       });
     },
     onDragValue(event: MouseEvent) {
-      set((state) => {
-        return { fillValueBaseCell: state.focusedCell };
-      });
       event.preventDefault();
+      const { focusedCell, updatedData } = get();
+      if (focusedCell == null) return;
+      // The fill is drawn from the overlay as it stood when the drag began, so
+      // shrinking the drag takes back the rows it leaves.
+      set({ fillValueBaseCell: focusedCell, fillBaseData: updatedData });
+      // A fill belongs to its drag alone, and the drag ends when the button is
+      // released, wherever that is. Left armed, the anchor would fill every
+      // later selection that isn't a single cell — a row picked by its header,
+      // say — with the anchor's value.
+      window.addEventListener("mouseup", () => get().finishFill(), {
+        once: true,
+      });
+    },
+    finishFill() {
+      const state = get();
+      if (state.fillValueBaseCell == null) return;
+      const { cells } = fillSelection(state, state.selection);
+      set({ fillValueBaseCell: null, fillBaseData: null });
+      // Reported like any other write, so a consumer that holds the edits
+      // (a controlled overlay) records the fill rather than having it drawn
+      // once and then overwritten.
+      if (cells.length > 0) get().onEdit?.({ type: "setCells", cells });
     },
     onCellEdited(rowIndex: number, columnName: string, value: any) {
       // The column decides whether it takes writes (see `isColumnWritable`):
@@ -354,7 +375,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
 
         let spec = updateSelection(selection);
         if (state.fillValueBaseCell != null) {
-          spec.updatedData = fillValues(state, selection);
+          spec.updatedData = fillSelection(state, selection).updatedData;
         }
         // A click (user selection) re-arms auto-activation and clears the
         // travel direction so the editor opens with a default cursor.
@@ -514,9 +535,6 @@ export function updateSelection<T>(selection: Region[]) {
     focusedCell,
     topLeftCell: topLeftCell(selection),
   };
-  if (focusedCell != null) {
-    spec.fillValueBaseCell = null;
-  }
   return spec;
 }
 
@@ -600,37 +618,42 @@ export function singleFocusedCell(
   return topLeftCell(sel, true);
 }
 
-function fillValues<T>(state: DataSheetStore<T>, selection: Region[]) {
-  const { updatedData, columnSpec, editable, fillValueBaseCell, data } = state;
+/** A fill-drag over `selection`: the anchor cell's value written down the
+ * anchor's column in every selected row. Drawn from the overlay as it stood
+ * when the drag began (`fillBaseData`), so the result is the fill alone, and
+ * returned with the cells it changed. */
+function fillSelection<T>(
+  state: DataSheetStore<T>,
+  selection: Region[],
+): { updatedData: T[]; cells: CellEdit[] } {
+  const { columnSpec, editable, fillValueBaseCell, data } = state;
+  const baseData = state.fillBaseData ?? state.updatedData;
+  const noFill = { updatedData: state.updatedData, cells: [] };
 
-  // Prepare regions by unnesting columns
-  let regions = selection.map((region) => {
-    const { cols, rows } = region;
-    // Get the first column (maybe should be the last)
-    const [col] = cols ?? [];
-    return { cols: [col, col], rows };
-  });
-
-  // Fill values downwards
-  if (!editable || fillValueBaseCell == null) return updatedData;
+  if (!editable || fillValueBaseCell == null) return noFill;
   const { col, row: baseVisibleRow } = fillValueBaseCell;
   // Dragging from a locked or derived column fills nothing
-  if (!isColumnWritable(columnSpec[col], editable)) return updatedData;
+  if (!isColumnWritable(columnSpec[col], editable)) return noFill;
   // The base cell and target rows are visible positions; map to data rows.
   const baseRow = toDataRowIndex(state, baseVisibleRow);
   const key = columnSpec[col].key;
-  const value = updatedData[baseRow]?.[key] ?? data[baseRow]?.[key];
+  const value = baseData[baseRow]?.[key] ?? data[baseRow]?.[key];
+
   const spec = {};
-  for (const region of regions) {
-    const { rows } = region;
-    for (const visibleRow of range(rows ?? [])) {
+  const cells: CellEdit[] = [];
+  for (const region of selection) {
+    for (const visibleRow of range(region.rows ?? [])) {
       const row = toDataRowIndex(state, visibleRow);
+      if (row === baseRow) continue;
       if (state.rowStatus[row] === TableElementStatus.DELETED) continue;
-      let op = updatedData[row] == null ? "$set" : "$merge";
+      const current = baseData[row]?.[key] ?? data[row]?.[key];
+      if (valuesAreEquivalent(value, current)) continue;
+      let op = baseData[row] == null ? "$set" : "$merge";
       spec[row] = { [op]: { [key]: value } };
+      cells.push({ rowIndex: row, column: key, value, row: data[row] });
     }
   }
-  return update(updatedData, spec);
+  return { updatedData: update(baseData, spec), cells };
 }
 
 /** Number of rows currently visible (post-filter/sort), or the full data

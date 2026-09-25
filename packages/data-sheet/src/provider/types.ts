@@ -115,7 +115,10 @@ export interface DataSheetState<T> {
    * suppressed — a function `columnSpec` derives it from the loaded rows
    * instead (in `_DataSheet`). Set at init from the prop's shape. */
   deferColumnSpec: boolean;
+  /** The cell a fill-drag copies from, while the drag lasts. */
   fillValueBaseCell: FocusedCellCoordinates | null;
+  /** The overlay as it stood when the fill-drag began. */
+  fillBaseData: T[] | null;
   focusedCell: FocusedCellCoordinates | null;
   topLeftCell: FocusedCellCoordinates | null;
   /**
@@ -204,6 +207,8 @@ export type StateUpdater<T> = T[] | ((state: T[]) => T[]);
 export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   setSelection(selection: Region[]): void;
   onDragValue(event: MouseEvent): void;
+  /** End a fill-drag: report the cells it wrote and disarm the anchor. */
+  finishFill(): void;
   setUpdatedData(data: StateUpdater<T>): void;
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
   onSelectionEdited(value: any): void;
