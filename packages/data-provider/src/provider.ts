@@ -306,6 +306,56 @@ function definitionsGetter<T>(
 }
 
 function createIntervalsSlice(set, get) {
+  // One request per scope ("all", or a timescale id) while it is in flight,
+  // so that the pickers mounting together — one per interval cell — share a
+  // fetch and write the store once, rather than once each.
+  const pending = new Map<string, Promise<boolean>>();
+
+  /** Fetch a scope's intervals and merge them into the store. Resolves to
+   * whether the fetch succeeded. */
+  function loadIntervals(timescaleID: number | null): Promise<boolean> {
+    const key = String(timescaleID ?? "all");
+    const inFlight = pending.get(key);
+    if (inFlight != null) return inFlight;
+    const request = (async () => {
+      let data: any[] | null;
+      try {
+        data = await fetchIntervals(timescaleID, { fetch: get().fetch });
+      } finally {
+        pending.delete(key);
+      }
+      if (data == null) return false;
+      // Merge into whatever is in the store *now*, not into the snapshot
+      // taken before the fetch. Several timescales are often requested at
+      // once, and each request would otherwise start from the map as it was
+      // before any of them resolved — so the last one to land drops the
+      // others' intervals, and the timescales they recorded as fetched.
+      set((state) => {
+        const merged = new Map(state.intervals ?? []);
+        for (const d of data) {
+          merged.set(d.int_id, mergeInterval(merged.get(d.int_id), d));
+        }
+        let fetchedTimescales = state.fetchedTimescales;
+        if (timescaleID != null) {
+          fetchedTimescales = new Set(state.fetchedTimescales);
+          fetchedTimescales.add(timescaleID);
+        }
+        // A request without a timescale is for every interval, so once it
+        // lands nothing more needs fetching. Without recording that, every
+        // call fetched them all again and replaced the store's map,
+        // re-rendering everything that reads it.
+        return {
+          intervals: merged,
+          fetchedAll: timescaleID == null || state.fetchedAll,
+          fetchedTimescales,
+        };
+      });
+      return true;
+    })();
+    pending.set(key, request);
+    return request;
+  }
+
   return {
     intervals: null,
     fetchedTimescales: new Set(),
@@ -314,52 +364,21 @@ function createIntervalsSlice(set, get) {
       /** We can either fetch by timescale (if requesting a specific timescale)
        * or request all
        * */
-      const { intervals, fetch, fetchedTimescales, fetchedAll } = get();
+      const { intervals, fetchedTimescales, fetchedAll } = get();
       let _intervals = intervals ?? new Map();
 
       let mustFetch = !fetchedAll;
-      let newFetchedAll = fetchedAll;
-
       if (timescaleID != null) {
         mustFetch = !(fetchedAll || fetchedTimescales.has(timescaleID));
       }
       if (ids != null) {
+        // If any ids are not found, we fetch all
         mustFetch = !(fetchedAll || ids.every((d) => _intervals.has(d)));
-        // If any ids are not found, we automatically fetch all
-        newFetchedAll = fetchedAll;
-      }
-      if (ids == null && timescaleID == null) {
-        mustFetch = !fetchedAll;
       }
 
-      /** Fetch intervals: we can either fetch by timescale or fetch all together */
       if (mustFetch) {
-        // Fetch the intervals
-        const data = await fetchIntervals(timescaleID, { fetch });
-        if (data == null) {
-          return [];
-        }
-        // Merge into whatever is in the store *now*, not into the snapshot
-        // taken before the fetch. Several timescales are often requested at
-        // once, and each request would otherwise start from the map as it was
-        // before any of them resolved — so the last one to land drops the
-        // others' intervals, and the timescales they recorded as fetched.
-        set((state) => {
-          const merged = new Map(state.intervals ?? []);
-          for (const d of data) {
-            merged.set(d.int_id, mergeInterval(merged.get(d.int_id), d));
-          }
-          let newFetchedTimescales = state.fetchedTimescales;
-          if (timescaleID != null) {
-            newFetchedTimescales = new Set(state.fetchedTimescales);
-            newFetchedTimescales.add(timescaleID);
-          }
-          return {
-            intervals: merged,
-            fetchedAll: newFetchedAll || state.fetchedAll,
-            fetchedTimescales: newFetchedTimescales,
-          };
-        });
+        const loaded = await loadIntervals(timescaleID);
+        if (!loaded) return [];
         _intervals = get().intervals;
       }
 
