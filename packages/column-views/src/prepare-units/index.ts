@@ -228,7 +228,6 @@ export function prepareColumnUnits(
     const natural = (section) =>
       scales.get(section) ?? section.scaleInfo.pixelScale;
 
-
     const scaleFor = natural;
 
     const window =

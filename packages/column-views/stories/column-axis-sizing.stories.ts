@@ -35,6 +35,7 @@ import h from "./column-axis-sizing.stories.module.sass";
 
 interface AxisSizingProps {
   columnID: number;
+  inProcess: boolean;
   axisType?: ColumnAxisType;
   t_age?: number | null;
   b_age?: number | null;
@@ -85,6 +86,7 @@ function AxisSizingColumn(props: AxisSizingProps) {
   const {
     columnID,
     axisType = ColumnAxisType.AGE,
+    inProcess,
     t_age,
     b_age,
     targetUnitHeight = 20,
@@ -106,8 +108,8 @@ function AxisSizingColumn(props: AxisSizingProps) {
     setWindow,
   } = props;
 
-  const units = useColumnUnits(columnID) as any as UnitLong[] | null;
-  const info = useColumnBasicInfo(columnID);
+  const units = useColumnUnits(columnID, inProcess) as any as UnitLong[] | null;
+  const info = useColumnBasicInfo(columnID, inProcess);
 
   // 0 is how this story spells "leave it to the units". Both densities are
   // held at once: the axis picks, so toggling it keeps each meaningful.
@@ -370,7 +372,11 @@ const meta: Meta<AxisSizingProps> = {
         "A scale that isn't a density: surfaces spaced evenly, or units placed by measured thickness. Either replaces targetUnitHeight and the floors, and changes what pixelScale means (px per surface, px per metre).",
     },
     heightMethod: {
-      options: [HeightMethod.Minimum, HeightMethod.Average, HeightMethod.Maximum],
+      options: [
+        HeightMethod.Minimum,
+        HeightMethod.Average,
+        HeightMethod.Maximum,
+      ],
       control: { type: "radio" },
       description: "Which recorded thickness the height scale believes",
     },
@@ -381,7 +387,9 @@ const meta: Meta<AxisSizingProps> = {
       description:
         "A unit drawn thinner than this gets no label. 0 labels everything, however thin.",
     },
-    unconformityHeight: { control: { type: "range", min: 0, max: 120, step: 5 } },
+    unconformityHeight: {
+      control: { type: "range", min: 0, max: 120, step: 5 },
+    },
     windowPadding: { control: { type: "range", min: 0, max: 300, step: 10 } },
     collapseSmallUnconformities: { control: { type: "boolean" } },
     timescaleLevels: { control: { type: "object" } },

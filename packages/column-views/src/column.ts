@@ -169,6 +169,22 @@ export function Column(props: ColumnProps) {
     _axisType = ColumnAxisType.AGE;
   }
 
+  let _sectionOptions = sectionOptions;
+  if (_sectionOptions == undefined) {
+    // Build our own section options function based on targetUnitHeight
+    _sectionOptions = (ctx) => {
+      /** Scale targetUnitHeight by the number of units, so that a section with just a few units
+       * is drawn taller than a section with many units.
+       */
+      const n = ctx.units.length;
+      const expansionFactor = 8 / Math.min(Math.max(n, 1), 8);
+
+      return {
+        targetUnitHeight: targetUnitHeight * expansionFactor,
+      };
+    };
+  }
+
   const { sections, units, totalHeight } = usePreparedColumnUnits(rawUnits, {
     axisType: _axisType,
     t_age,
@@ -177,7 +193,7 @@ export function Column(props: ColumnProps) {
     b_pos,
     mergeSections,
     targetUnitHeight,
-    sectionOptions,
+    sectionOptions: _sectionOptions,
     unconformityHeight,
     pixelScale,
     pixelsPerMyr,
