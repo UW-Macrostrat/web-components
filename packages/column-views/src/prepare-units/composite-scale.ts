@@ -4,7 +4,6 @@ import { ScaleContinuousNumeric, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
 import { buildHybridScale } from "./dynamic-scales";
 import { sectionDensity } from "./density";
-import { ExtUnit, HybridScaleType, SectionInfo } from "./types";
 import type {
   ColumnScaleOptions,
   CompositeColumnData,
@@ -14,6 +13,8 @@ import type {
   PackageScaleLayoutData,
   SectionScaleOptions,
 } from "./types";
+import { ExtUnit, HybridScaleType, SectionInfo } from "./types";
+import { mergeAgeRanges, MergeMode } from "@macrostrat/stratigraphy-utils";
 
 // Composite scale information augmented with units in each package
 
@@ -144,7 +145,13 @@ function buildSectionScale<T extends UnitLong>(
   } = opts;
   const domain = opts.domain ?? findSectionHeightRange(data, axisType);
 
-  const dAge = Math.abs(domain[0] - domain[1]);
+  const dAge = dx(domain);
+  let visibleExtent = dAge; // full section is visible
+  if (visibleWindow != null) {
+    visibleExtent = dx(
+      mergeAgeRanges([domain, visibleWindow], MergeMode.Inner),
+    );
+  }
 
   let _pixelScale: any = opts.pixelScale;
   let pixelHeight: number;
@@ -177,6 +184,7 @@ function buildSectionScale<T extends UnitLong>(
      * is what it's for, and never a sliver the window happens to cut. */
     _pixelScale = sectionDensity(opts)({
       extent: dAge,
+      visibleExtent,
       unitExtents: visibleUnitExtents(data, axisType, visibleWindow),
       units: data,
       sectionID,
@@ -192,6 +200,10 @@ function buildSectionScale<T extends UnitLong>(
     { scale, domain, pixelHeight, pixelScale: _pixelScale },
     0,
   );
+}
+
+function dx(range: [number, number]) {
+  return Math.abs(range[0] - range[1]);
 }
 
 /**
@@ -275,9 +287,12 @@ function spendOutward<T extends UnitLong>(
   // Sections ordered outward from the edge, keeping only what lies beyond it.
   const beyond = sections
     .filter(
-      (s) => direction * (s.b_age - edge) > 0 || direction * (s.t_age - edge) > 0,
+      (s) =>
+        direction * (s.b_age - edge) > 0 || direction * (s.t_age - edge) > 0,
     )
-    .sort((a, b) => direction * (nearEdge(a, direction) - nearEdge(b, direction)));
+    .sort(
+      (a, b) => direction * (nearEdge(a, direction) - nearEdge(b, direction)),
+    );
 
   let bound = edge;
   let budget = padding;
@@ -290,7 +305,8 @@ function spendOutward<T extends UnitLong>(
       direction > 0
         ? Math.max(section.t_age, bound)
         : Math.min(section.b_age, bound);
-    const available = direction > 0 ? section.b_age - from : from - section.t_age;
+    const available =
+      direction > 0 ? section.b_age - from : from - section.t_age;
     if (available <= 0) continue;
 
     const cost = available * pixelScale;
@@ -451,10 +467,7 @@ function visibleUnitExtents(
         const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
         if (!clip) return Math.abs(b_pos - t_pos);
         const [b_win, t_win] = visibleWindow;
-        return Math.max(
-          0,
-          Math.min(b_pos, b_win) - Math.max(t_pos, t_win),
-        );
+        return Math.max(0, Math.min(b_pos, b_win) - Math.max(t_pos, t_win));
       })
       .filter((d) => d > 0);
 

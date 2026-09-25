@@ -282,7 +282,7 @@ export function groupUnitsIntoSectionsByOverlap<T extends BaseUnit>(
     }
   }
 
-  return finalSectionList.map((section, i) => {
+  const s1 = finalSectionList.map((section, i) => {
     const [b_age, t_age] = getSectionAgeRange(section.units);
     const [b_pos, t_pos] = getSectionPosRange(section.units, axisType);
     return {
@@ -295,6 +295,8 @@ export function groupUnitsIntoSectionsByOverlap<T extends BaseUnit>(
       units: section.units as T[],
     };
   });
+
+  return sortUnits(s1, axisType);
 }
 
 export function getSectionPosRange(
@@ -336,6 +338,38 @@ export function getSectionPosRange(
 export function getSectionAgeRange(units: BaseUnit[]): [number, number] {
   /** Get the overall age range of a set of units. */
   return getSectionPosRange(units, ColumnAxisType.AGE);
+}
+
+function forEachSection(fn, sections, ...args) {
+  return sections.map((section) => {
+    return {
+      ...section,
+      units: fn(section.units, ...args),
+    };
+  });
+}
+
+function sortUnits(units: BaseUnit[], axisType: ColumnAxisType) {
+  return units.sort((a, b) => {
+    if (
+      axisType === ColumnAxisType.HEIGHT &&
+      b.t_pos !== undefined &&
+      a.t_pos !== undefined
+    ) {
+      return b.t_pos - a.t_pos;
+    }
+    if (
+      axisType === ColumnAxisType.DEPTH &&
+      b.t_pos !== undefined &&
+      a.t_pos !== undefined
+    ) {
+      return a.t_pos - b.t_pos;
+    }
+    if (axisType === ColumnAxisType.AGE) {
+      return a.t_age - b.t_age;
+    }
+    return 0;
+  });
 }
 
 export function mergeOverlappingSections<T extends UnitLong>(

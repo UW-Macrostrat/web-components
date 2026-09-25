@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.1] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.4.0...@macrostrat/data-provider-v1.4.1)
+
+### Patch Changes
+
+- `getIntervals` records a full fetch (`fetchedAll`), so later calls no longer
+  refetch every interval and replace the store's map; concurrent requests for
+  the same scope share one fetch
+  [bdcb8223](https://github.com/UW-Macrostrat/web-components/commit/bdcb82232b87da5b1dbb922c9258b24eba66529c)
+
 ## [1.4.0] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.3.1...@macrostrat/data-provider-v1.4.0)
 
 ### Minor Changes

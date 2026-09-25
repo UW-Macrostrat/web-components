@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.12.2] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.12.1...@macrostrat/column-views-v3.12.2)
+
+### Patch Changes
+
+- Fix unit ordering for height axes
+  [bdcb8223](https://github.com/UW-Macrostrat/web-components/commit/bdcb82232b87da5b1dbb922c9258b24eba66529c)
+- Add a default sectionOptions that increases scale when sections are zoomed
+  [bdcb8223](https://github.com/UW-Macrostrat/web-components/commit/bdcb82232b87da5b1dbb922c9258b24eba66529c)
+- Updated dependencies
+  [bdcb8223](https://github.com/UW-Macrostrat/web-components/commit/bdcb82232b87da5b1dbb922c9258b24eba66529c)
+  - @macrostrat/data-provider@1.4.1
+
 ## [3.12.1] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.12.0...@macrostrat/column-views-v3.12.1)
 
 ### Patch Changes

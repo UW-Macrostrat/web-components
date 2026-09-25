@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.9.1] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.9.0...@macrostrat/data-sheet-v4.9.1)
+
+### Patch Changes
+
+- A fill-drag ends when the mouse button is released: the anchor no longer fills
+  later selections, the fill is reported through `onEdit`, and shrinking a drag
+  restores the rows it leaves
+  [bdcb8223](https://github.com/UW-Macrostrat/web-components/commit/bdcb82232b87da5b1dbb922c9258b24eba66529c)
+
 ## [4.9.0] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.8.0...@macrostrat/data-sheet-v4.9.0)
 
 ### Minor Changes
