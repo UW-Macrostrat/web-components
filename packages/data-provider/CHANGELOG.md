@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.3.1...@macrostrat/data-provider-v1.4.0)
+
+### Minor Changes
+
+- - Lithology attributes and timescales in the store — `useLithAttributes`,
+    `useTimescales`, `fetchLithAttributes`, `fetchTimescales`
+    [5be3d4c9](https://github.com/UW-Macrostrat/web-components/commit/5be3d4c9f3fcf4442720a7ed3bdb72abca4db4ab)
+
 ## [1.3.1] - 2026-09-21 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.3.0...@macrostrat/data-provider-v1.3.1)
 
 ### Patch Changes

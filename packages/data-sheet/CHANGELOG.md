@@ -1,5 +1,38 @@
 # Changelog
 
+## [4.9.0] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.8.0...@macrostrat/data-sheet-v4.9.0)
+
+### Minor Changes
+
+- Column roles, a row editor, and a standalone data editor
+  [dc1feb79](https://github.com/UW-Macrostrat/web-components/commit/dc1feb7961e6f901fe6a3dbb2d3f3bdba03cc32c)
+
+  - `ColumnSpec.derived` / `hidden` — computed, read-only columns and columns
+    kept out of the table; writability enforced on every write path
+  - `RowEditor` / `SelectedRowEditor` — the selection's fields as a form, over
+    one row or several, in a panel titled "Editing 3 rows"
+  - `rowEditorOpenAtom`, `ShowRowEditor`, `showRowEditorAction` — toggle the row
+    editor from the toolbar
+  - `DataEditor` — standalone form over one record from a data spec, with
+    Reset/Save and table actions scoped to the record and its fields
+  - `SelectedDataEditor` — a `DataEditor` over a panel's selected row, saving
+    through the provider
+  - `CellDetailContext` — `surface`, `onChangeCells`;
+    `ColumnSpec.detailPlacement`, `cellLabel`
+  - `cellInteraction: "second-click"`; `TableAction.placement: "end"`
+  - Selection indicator names single-column cells by column ("3 lithologies");
+    `pluralize` handles more English plurals
+  - Tags in cells are pinned to the row height
+  - Fix: Backspace in a cell popover's text field cleared the cell
+  - Fix: edits to object- and array-valued cells (an interval, a list of
+    lithologies) were dropped as unchanged
+
+### Patch Changes
+
+- Updated dependencies
+  [dc1feb79](https://github.com/UW-Macrostrat/web-components/commit/dc1feb7961e6f901fe6a3dbb2d3f3bdba03cc32c)
+  - @macrostrat/data-components@1.7.0
+
 ## [4.8.0] - 2026-09-06 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.7.0...@macrostrat/data-sheet-v4.8.0)
 
 ### Minor Changes
