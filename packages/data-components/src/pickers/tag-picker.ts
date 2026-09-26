@@ -463,9 +463,14 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
 
 /** On a row kept to one line (`flex-wrap: nowrap`), the index of the first
  * tag that doesn't fit, leaving room for the adder and "and n more"; `null`
- * when all fit, or when the row wraps. Tags keep their widths whether shown
- * or not (the hidden ones are taken out of the flow, not resized), so the
- * measure is stable; it re-runs when the tags or the row's width change. */
+ * when all fit, or when the row wraps. The first tag always stays, clipped if
+ * it must be: "and 1 more" in place of the only tag says less than the tag.
+ *
+ * Tags keep their widths whether shown or not (the hidden ones are taken out
+ * of the flow at their full width, not resized), so the measure is stable. It
+ * re-runs when the tags or the row's *width* change — not its height, which
+ * hiding tags can change, and which would otherwise re-measure the row's own
+ * reaction to the measure. */
 function useOverflowFrom(
   rowRef: RefObject<HTMLElement | null>,
   tagsKey: string,
@@ -474,7 +479,9 @@ function useOverflowFrom(
   useLayoutEffect(() => {
     const row = rowRef.current;
     if (row == null) return;
+    let measuredWidth: number | null = null;
     const measure = () => {
+      measuredWidth = row.clientWidth;
       const style = getComputedStyle(row);
       if (style.flexWrap !== "nowrap") {
         setFrom(null);
@@ -509,10 +516,13 @@ function useOverflowFrom(
         used = next;
         fit += 1;
       }
-      setFrom(fit);
+      setFrom(Math.max(fit, 1));
     };
     measure();
-    const observer = new ResizeObserver(measure);
+    const observer = new ResizeObserver(() => {
+      if (row.clientWidth === measuredWidth) return;
+      measure();
+    });
     observer.observe(row);
     return () => observer.disconnect();
   }, [rowRef, tagsKey]);

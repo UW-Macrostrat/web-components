@@ -38,9 +38,13 @@ $ring: var(--pz-intent-primary, #2d72d2)
     box-shadow: 0 0 0 2px var(--pz-focus-ring-color, $ring)
   &.selected
     box-shadow: 0 0 0 2px $ring
-  // Past the end of a one-line row: out of the flow, keeping its width
+  // Past the end of a one-line row: out of the flow, keeping its width. An
+  // absolutely positioned box shrinks to fit the row, so without
+  // `max-content` a tag wider than the row would measure narrower once hidden
+  // than while shown, and the measure would alternate between the two.
   &.overflowed
     position: absolute
+    width: max-content
     visibility: hidden
     pointer-events: none
   // Held by only some of the rows a picker stands for
