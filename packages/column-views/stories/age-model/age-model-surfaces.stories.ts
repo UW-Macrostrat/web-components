@@ -90,6 +90,8 @@ function SurfacesStoryUI(props: SurfacesStoryProps) {
           onUnitSelected: setSelectedUnit,
           columnWidth: 250,
           width: 400,
+          // The surface labels take the unit labels' place
+          showLabelColumn: surfaceProps.showLabels === false,
         },
         h(ColumnSurfaces, {
           ...surfaceProps,

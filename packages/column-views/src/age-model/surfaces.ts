@@ -3,7 +3,9 @@
  * `ColumnSurfaces` is dropped into a `Column` as a child. It draws one line
  * per surface across the units (`ColumnSurfaceLines`) and a notes column of
  * labels beside them (`ColumnSurfaceLabels`), styled by `boundary_status` and
- * `boundary_type`, with hover and selection.
+ * `boundary_type`, with hover and selection. The labels sit where the unit
+ * labels would, so pass `showLabelColumn: false` to the `Column` while they
+ * are shown.
  */
 import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
@@ -24,11 +26,7 @@ import {
   TagSize,
 } from "@macrostrat/data-components";
 import { useMacrostratDefs } from "@macrostrat/data-provider";
-import {
-  useClaimLabelColumn,
-  useCompositeScale,
-  useMacrostratColumnData,
-} from "../data-provider";
+import { useCompositeScale, useMacrostratColumnData } from "../data-provider";
 import { ColumnNotes } from "../notes";
 import { AgeLabel } from "../unit-details/age-range";
 import columnStyles from "../column.module.sass";
@@ -247,8 +245,8 @@ interface SurfaceNote extends NoteData {
 }
 
 /** A notes column of surface labels, laid out beside the units with the
- * collision avoidance of `NotesColumn`. It takes the label column over from
- * the unit labels while mounted: labels are one or the other. */
+ * collision avoidance of `NotesColumn`. It draws over the unit labels, so the
+ * `Column` should hide its label column (`showLabelColumn: false`). */
 export function ColumnSurfaceLabels(props: ColumnSurfaceLabelsProps) {
   const {
     surfaces,
@@ -263,7 +261,6 @@ export function ColumnSurfaceLabels(props: ColumnSurfaceLabelsProps) {
   const { axisType } = useMacrostratColumnData();
   const scale = useCompositeScale();
   const intervalMap = useSurfaceIntervalDefs(surfaces);
-  useClaimLabelColumn();
 
   const labeled = useMemo(() => {
     const byStatus = filterByStatus(surfaces, labelStatuses);

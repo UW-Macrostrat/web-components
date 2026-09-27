@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.14.0] - 2026-09-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.13.0...@macrostrat/column-views-v3.14.0)
+
+### Minor Changes
+
+- Remove the label-column claim (`useClaimLabelColumn`, `useLabelColumnClaimed`
+  [ca5ff733](https://github.com/UW-Macrostrat/web-components/commit/ca5ff73328471627d6cb3638f1b85336f9fefcc3)
+  and the layout-overrides context behind them). `ColumnSurfaceLabels` no longer
+  hides the unit labels on its own: pass `showLabelColumn: false` to the
+  `Column` while surface labels are shown, as the facet columns already do.
+
+  Remove height easing functions for sections with few units.
+
 ## [3.13.0] - 2026-09-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.12.2...@macrostrat/column-views-v3.13.0)
 
 ### Minor Changes

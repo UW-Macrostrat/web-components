@@ -30,7 +30,6 @@ import {
 import {
   MacrostratColumnDataProvider,
   useCompositeScale,
-  useLabelColumnClaimed,
   useMacrostratColumnData,
 } from "./data-provider";
 import {
@@ -175,22 +174,6 @@ export function Column(props: ColumnProps) {
     _axisType = ColumnAxisType.AGE;
   }
 
-  let _sectionOptions = sectionOptions;
-  if (_sectionOptions == undefined) {
-    // Build our own section options function based on targetUnitHeight
-    _sectionOptions = (ctx) => {
-      /** Scale targetUnitHeight by the number of units, so that a section with just a few units
-       * is drawn taller than a section with many units.
-       */
-      const n = ctx.units.length;
-      const expansionFactor = 8 / Math.min(Math.max(n, 1), 8);
-
-      return {
-        targetUnitHeight: targetUnitHeight * expansionFactor,
-      };
-    };
-  }
-
   const { sections, units, totalHeight } = usePreparedColumnUnits(rawUnits, {
     axisType: _axisType,
     t_age,
@@ -199,7 +182,7 @@ export function Column(props: ColumnProps) {
     b_pos,
     mergeSections,
     targetUnitHeight,
-    sectionOptions: _sectionOptions,
+    sectionOptions,
     unconformityHeight,
     pixelScale,
     pixelsPerMyr,
@@ -286,9 +269,6 @@ function ColumnInner(props: ColumnInnerProps) {
   } = props;
 
   const { axisType } = useMacrostratColumnData();
-  // A child layer drawing its own labels (the surfaces view) takes the label
-  // column over from the unit labels
-  const labelColumnClaimed = useLabelColumnClaimed();
 
   const columnRef = useColumnRef();
 
@@ -307,13 +287,14 @@ function ColumnInner(props: ColumnInnerProps) {
     columnWidth = width;
   }
   let showLabelColumn = _showLabelColumn;
-  if (columnWidth > width - 10 || labelColumnClaimed) {
+  if (columnWidth > width - 10) {
     showLabelColumn = false;
   }
 
   // On unless turned off outright: passing levels or timescales no longer
   // overrides an explicit `false`
-  const _showTimescale = axisType == ColumnAxisType.AGE && (showTimescale ?? true);
+  const _showTimescale =
+    axisType == ColumnAxisType.AGE && (showTimescale ?? true);
 
   return h(
     ColumnContainer,

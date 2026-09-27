@@ -648,8 +648,13 @@ function DefaultFieldEditor({ ctx }: { ctx: CellDetailContext }) {
       className: "field-switch",
     });
   }
+  // A text field starts from the value as the column draws it, when that is
+  // text — as a grid cell's inline editor does — so a structured value the
+  // column shows as a string (a list written out, a record by name) is edited
+  // as that string, not as `[object Object]`
+  const text = editableText(ctx);
   if (type === "text") {
-    return h(CommittedTextArea, { value, placeholder, onCommit: onChange });
+    return h(CommittedTextArea, { value: text, placeholder, onCommit: onChange });
   }
   if (type === "number" || type === "integer") {
     return h(CommittedInput, {
@@ -665,7 +670,17 @@ function DefaultFieldEditor({ ctx }: { ctx: CellDetailContext }) {
     // `cellDetail`. Show the value so the form is still complete.
     return h(FieldValue, { ctx });
   }
-  return h(CommittedInput, { value, placeholder, onCommit: onChange });
+  return h(CommittedInput, { value: text, placeholder, onCommit: onChange });
+}
+
+/** The text a field's editor starts from: the column's rendering of the
+ * value when it renders to a string, else the value itself. */
+function editableText(ctx: CellDetailContext): any {
+  const { value, column } = ctx;
+  if (value == null || column.valueRenderer == null) return value;
+  const rendered = column.valueRenderer(value, ctx);
+  if (typeof rendered === "string") return rendered;
+  return value;
 }
 
 function parseNumber(text: string, type: "number" | "integer") {
