@@ -1,5 +1,25 @@
 # Changelog
 
+## [3.13.0] - 2026-09-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.12.2...@macrostrat/column-views-v3.13.0)
+
+### Minor Changes
+
+- - `Column` takes `showAgeAxis` (default `true`), to leave out the axis for a
+    column whose coordinates aren't a measure
+    [ccb88cad](https://github.com/UW-Macrostrat/web-components/commit/ccb88cad7400784437d346c1d3e3c4f969f3fa2a)
+  - An explicit `showTimescale: false` wins over `timescaleLevels` /
+    `timescales`, which used to turn the timescale back on
+  - The unit details panel skips references `/defs/refs` doesn't know instead of
+    throwing
+
+### Patch Changes
+
+- Updated dependencies
+  [ccb88cad](https://github.com/UW-Macrostrat/web-components/commit/ccb88cad7400784437d346c1d3e3c4f969f3fa2a)
+- Updated dependencies
+  [e9f9084e](https://github.com/UW-Macrostrat/web-components/commit/e9f9084ee66e5a8da3ff4bcaeba1eee17b986042)
+  - @macrostrat/data-components@1.8.0
+
 ## [3.12.2] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.12.1...@macrostrat/column-views-v3.12.2)
 
 ### Patch Changes

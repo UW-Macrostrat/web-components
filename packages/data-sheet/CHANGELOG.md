@@ -1,5 +1,35 @@
 # Changelog
 
+## [4.10.0] - 2026-09-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.9.1...@macrostrat/data-sheet-v4.10.0)
+
+### Minor Changes
+
+- `requiresEditable` defaults to `true` everywhere, as its type documents (the
+  toolbar and data editor read an unset flag as `false`, the hotkeys as `true`);
+  filter and sort controls say `false` explicitly. An action meant for view mode
+  must now set `requiresEditable: false`
+  [ccb88cad](https://github.com/UW-Macrostrat/web-components/commit/ccb88cad7400784437d346c1d3e3c4f969f3fa2a)
+- The actions toolbar rebuilds its action context when the rows change, not only
+  the selection, so `getSelectedRows()` is current just after a row is added and
+  selected
+- The `deleteRows` edit event carries the deleted `rows`: rows the table added
+  are spliced out before it is reported, so their indices can't be looked up
+  afterwards
+- `CellRenderContext` carries the cell's `width` and `height` (the column's
+  width, resizes included, and the row's height), so a renderer that fits itself
+  to the cell needn't measure; cell content re-renders when they change
+- Cell background colors are now settable with the
+  `--data-sheet-cell-background-color` and `--data-sheet-divider-color` CSS
+  variables
+
+### Patch Changes
+
+- Updated dependencies
+  [ccb88cad](https://github.com/UW-Macrostrat/web-components/commit/ccb88cad7400784437d346c1d3e3c4f969f3fa2a)
+- Updated dependencies
+  [e9f9084e](https://github.com/UW-Macrostrat/web-components/commit/e9f9084ee66e5a8da3ff4bcaeba1eee17b986042)
+  - @macrostrat/data-components@1.8.0
+
 ## [4.9.1] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.9.0...@macrostrat/data-sheet-v4.9.1)
 
 ### Patch Changes
@@ -13,28 +43,28 @@
 
 ### Minor Changes
 
-- Column roles, a row editor, and a standalone data editor
-  [dc1feb79](https://github.com/UW-Macrostrat/web-components/commit/dc1feb7961e6f901fe6a3dbb2d3f3bdba03cc32c)
+Column roles, a row editor, and a standalone data editor
+[dc1feb79](https://github.com/UW-Macrostrat/web-components/commit/dc1feb7961e6f901fe6a3dbb2d3f3bdba03cc32c)
 
-  - `ColumnSpec.derived` / `hidden` — computed, read-only columns and columns
-    kept out of the table; writability enforced on every write path
-  - `RowEditor` / `SelectedRowEditor` — the selection's fields as a form, over
-    one row or several, in a panel titled "Editing 3 rows"
-  - `rowEditorOpenAtom`, `ShowRowEditor`, `showRowEditorAction` — toggle the row
-    editor from the toolbar
-  - `DataEditor` — standalone form over one record from a data spec, with
-    Reset/Save and table actions scoped to the record and its fields
-  - `SelectedDataEditor` — a `DataEditor` over a panel's selected row, saving
-    through the provider
-  - `CellDetailContext` — `surface`, `onChangeCells`;
-    `ColumnSpec.detailPlacement`, `cellLabel`
-  - `cellInteraction: "second-click"`; `TableAction.placement: "end"`
-  - Selection indicator names single-column cells by column ("3 lithologies");
-    `pluralize` handles more English plurals
-  - Tags in cells are pinned to the row height
-  - Fix: Backspace in a cell popover's text field cleared the cell
-  - Fix: edits to object- and array-valued cells (an interval, a list of
-    lithologies) were dropped as unchanged
+- `ColumnSpec.derived` / `hidden` — computed, read-only columns and columns kept
+  out of the table; writability enforced on every write path
+- `RowEditor` / `SelectedRowEditor` — the selection's fields as a form, over one
+  row or several, in a panel titled "Editing 3 rows"
+- `rowEditorOpenAtom`, `ShowRowEditor`, `showRowEditorAction` — toggle the row
+  editor from the toolbar
+- `DataEditor` — standalone form over one record from a data spec, with
+  Reset/Save and table actions scoped to the record and its fields
+- `SelectedDataEditor` — a `DataEditor` over a panel's selected row, saving
+  through the provider
+- `CellDetailContext` — `surface`, `onChangeCells`;
+  `ColumnSpec.detailPlacement`, `cellLabel`
+- `cellInteraction: "second-click"`; `TableAction.placement: "end"`
+- Selection indicator names single-column cells by column ("3 lithologies");
+  `pluralize` handles more English plurals
+- Tags in cells are pinned to the row height
+- Fix: Backspace in a cell popover's text field cleared the cell
+- Fix: edits to object- and array-valued cells (an interval, a list of
+  lithologies) were dropped as unchanged
 
 ### Patch Changes
 
@@ -46,15 +76,15 @@
 
 ### Minor Changes
 
-- - Keyset cursor in the provider contract: `FetchDataParams.after`;
-    `createLocalProvider` slices past it (`rowsAfter` exported)
-    [98e127f5](https://github.com/UW-Macrostrat/web-components/commit/98e127f51463a57bd2d1f93320a8d5e30c2cefdd)
-  - `startAfter` starts a view after a row (seeded into the store, passed to the
-    provider on every chunk, dropped on the first view change)
-  - `pageLinks` renders a visually hidden `rel="next"` link after the loaded
-    rows and a "Return to top" notice for a mid-list start, so a list is
-    crawlable from its server-rendered HTML
-  - Story: Data panel / Crawlable pages
+- Keyset cursor in the provider contract: `FetchDataParams.after`;
+  `createLocalProvider` slices past it (`rowsAfter` exported)
+  [98e127f5](https://github.com/UW-Macrostrat/web-components/commit/98e127f51463a57bd2d1f93320a8d5e30c2cefdd)
+- `startAfter` starts a view after a row (seeded into the store, passed to the
+  provider on every chunk, dropped on the first view change)
+- `pageLinks` renders a visually hidden `rel="next"` link after the loaded rows
+  and a "Return to top" notice for a mid-list start, so a list is crawlable from
+  its server-rendered HTML
+- Story: Data panel / Crawlable pages
 
 ## [4.7.0] - 2026-09-06 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.6.0...@macrostrat/data-sheet-v4.7.0)
 

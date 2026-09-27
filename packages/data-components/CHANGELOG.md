@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.8.0] - 2026-09-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.7.0...@macrostrat/data-components-v1.8.0)
+
+### Minor Changes
+
+- Cheaper pickers in table cells:
+  [ccb88cad](https://github.com/UW-Macrostrat/web-components/commit/ccb88cad7400784437d346c1d3e3c4f969f3fa2a)
+  - `TagPicker` (and the lithology, environment and interval pickers) take
+    `layoutWidth`: given the width its container lays it out in — a table
+    cell's, from `CellRenderContext.width` — a one-line row re-fits when that
+    changes instead of observing its own size. Without it, rows share a single
+    `ResizeObserver`, and wrapping rows aren't observed
+  - A single-valued picker skips the overflow measure: its one tag is shown,
+    clipped if need be
+  - Vocabularies are indexed once per version and shared by every picker
+    (`useVocabularyIndex`), so a cell looks its item up by id instead of copying
+    and searching the whole list; the interval editor's age-sorted list is built
+    once per timescale, and only for an editor
+
+### Patch Changes
+
+- A one-line tag row no longer alternates between a tag and "and n more": hidden
+  tags keep their full width, the row re-measures only when its width changes,
+  and the first tag always stays, clipped if need be
+  [e9f9084e](https://github.com/UW-Macrostrat/web-components/commit/e9f9084ee66e5a8da3ff4bcaeba1eee17b986042)
+
 ## [1.7.0] - 2026-09-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.6.0...@macrostrat/data-components-v1.7.0)
 
 ### Minor Changes
