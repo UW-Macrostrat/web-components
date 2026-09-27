@@ -1,3 +1,10 @@
+@use '@blueprintjs/core/lib/scss/variables' as bp
+
+:global(.bp6-dark)
+  .data-sheet-container, .data-sheet-holder
+    --data-sheet-cell-background-color-internal: var(--data-sheet-cell-background-color, #{bp.$pt-dark-app-elevated-background-color})
+    --data-sheet-divider-color-internal: var(--data-sheet-divider-color, #{bp.$pt-dark-divider-black})
+
 .data-sheet-container, .data-sheet-holder
   flex: 1
   min-height: 0
@@ -6,6 +13,8 @@
   line-height: var(--data-sheet-row-height, 20px)
 
   --data-sheet-cell-padding: 0px 8px
+  --data-sheet-divider-color-internal: var(--data-sheet-divider-color, #{bp.$pt-divider-black})
+  --data-sheet-cell-background-color-internal: var(--data-sheet-cell-background-color, #{bp.$pt-app-elevated-background-color})
 
   :global
     // Tags drawn in a cell (a tag picker as a value renderer, say) are pinned
@@ -24,6 +33,11 @@
     .bp6-table-cell, .bp6-table-row-name
       font-size: var(--data-sheet-font-size)
       line-height: var(--data-sheet-row-height)
+
+    .bp6-table-cell
+      box-shadow: inset 0 -1px 0 var(--data-sheet-divider-color-internal), inset -1px 0 0 var(--data-sheet-divider-color-internal)
+    .bp6-table-cell-client
+      background-color: var(--data-sheet-cell-background-color-internal)
 
     .bp6-table-row-name
       color: var(--secondary-color)
