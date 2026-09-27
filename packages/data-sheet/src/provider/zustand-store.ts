@@ -35,6 +35,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     columnSpec: [],
     deferColumnSpec: false,
     defaultColumnWidth: 150,
+    rowHeight: 20,
     editable: false,
     selection: [],
     fillValueBaseCell: null,
@@ -166,10 +167,12 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       if (!get().canDeleteRows) return;
       // Remove selected rows from the data and updatedData arrays
       let deletedIndices: number[] = [];
+      let deletedRows: T[] = [];
       set((state) => {
-        const { selection, deletedRows } = state;
+        const { selection } = state;
         const rowIndices = getRowIndices(selection);
         deletedIndices = rowIndices;
+        deletedRows = rowIndices.map((i) => state.data[i]);
 
         // Delete rows from both updatedData and data
 
@@ -219,7 +222,11 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         };
       });
       if (deletedIndices.length > 0) {
-        get().onEdit?.({ type: "deleteRows", rowIndices: deletedIndices });
+        get().onEdit?.({
+          type: "deleteRows",
+          rowIndices: deletedIndices,
+          rows: deletedRows,
+        });
       }
     },
     resetChanges(regions?: Region[]) {

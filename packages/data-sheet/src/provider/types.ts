@@ -28,7 +28,14 @@ export type NavDirection = "up" | "down" | "left" | "right";
  */
 export type EditEvent<T = any> =
   | { type: "setCells"; cells: CellEdit[] }
-  | { type: "deleteRows"; rowIndices: number[] }
+  | {
+      type: "deleteRows";
+      rowIndices: number[];
+      /** The rows deleted, as they were. Rows the table added are spliced out
+       * of its arrays before this is reported, so the indices alone can no
+       * longer be looked up. */
+      rows?: T[];
+    }
   | { type: "restoreRows"; rowIndices: number[] }
   | { type: "addRow"; rowIndex: number; value: Partial<T> }
   | { type: "resetChanges" };
@@ -250,6 +257,8 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   tableRef: React.MutableRefObject<Table2> | null;
   columnWidthsIndex: Map<string, number>;
   defaultColumnWidth: number;
+  /** The grid's row height in pixels, from its density. */
+  rowHeight: number;
   // Editable is not optional on store
   editable: boolean;
 }

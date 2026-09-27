@@ -65,6 +65,14 @@ export interface CellRenderContext<T = any> {
   /** Validation result for this cell, or `null` when valid. Orthogonal to the
    * edit status — a cell can be both edited and invalid. */
   validation: CellValidation | null;
+  /** The cell's size in pixels, border and padding included, when it is a
+   * grid cell — the column's width and the row's height, which the table
+   * knows and a renderer would otherwise have to measure. Absent on surfaces
+   * that aren't laid out in the cell (a popover, the row editor). A value
+   * renderer that lays itself out to fit — a row of tags — can re-fit when
+   * these change instead of observing its own size. */
+  width?: number;
+  height?: number;
 }
 
 /**

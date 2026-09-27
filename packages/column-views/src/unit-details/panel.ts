@@ -406,7 +406,8 @@ export function ThicknessField({ unit, label = "Thickness" }) {
 }
 
 function BibInfo({ refs }) {
-  const refData = useMacrostratData("refs", refs);
+  // A reference the server doesn't know comes back as a hole, not a record
+  const refData = useMacrostratData("refs", refs)?.filter((d) => d != null);
 
   if (refData == null || refData.length === 0) {
     return null;

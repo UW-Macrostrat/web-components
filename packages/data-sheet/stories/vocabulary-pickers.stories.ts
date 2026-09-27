@@ -24,7 +24,14 @@
  * there is room, they open in a popover (`ctx.surface`). The toolbar's
  * Row editor toggle shows and hides the panel.
  *
- * Vocabularies come from the pickers' default Macrostrat data store.
+ * In a cell the tags are one line, and those past the cell's width give way
+ * to "and n more". Each renderer is handed the cell's size
+ * (`CellRenderContext.width` / `height`) and passes it on as `layoutWidth`,
+ * so the row re-fits when a column is resized instead of every cell watching
+ * its own size. Drag a column edge to see it.
+ *
+ * Vocabularies come from the pickers' default Macrostrat data store, indexed
+ * once and shared by every cell's picker.
  */
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";

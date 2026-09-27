@@ -99,6 +99,7 @@ export function useDataPanelControls(
       name: filter.name,
       icon: filter.icon,
       targets: ALL_CARDINALITIES,
+      requiresEditable: false,
       render: () => h(InlineFilterControl, { filter }),
     });
   }
@@ -303,6 +304,7 @@ function useFilterMenuAction(entries: FilterEntry[]): TableAction | null {
     icon: "filter",
     description: "Add a filter to the data panel.",
     targets: ALL_CARDINALITIES,
+    requiresEditable: false,
     render: (ctx) =>
       h(
         MenuDropdown,
@@ -341,6 +343,7 @@ function useSortAction(): TableAction | null {
     icon: "sort",
     description: "Add a sort to the data panel.",
     targets: ALL_CARDINALITIES,
+    requiresEditable: false,
     render: (ctx) =>
       h(MenuDropdown, { content: sortMenu }, [
         h(

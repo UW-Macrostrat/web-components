@@ -65,7 +65,13 @@ interface BaseColumnProps extends Omit<
   keyboardNavigation?: boolean;
   showLabels?: boolean;
   maxInternalColumns?: number;
+  /** Draw the age (or height) axis beside the column (default). Off for a
+   * column whose coordinates aren't a measure — one laid out by surface order
+   * alone, say. */
+  showAgeAxis?: boolean;
   // Timescale properties
+  /** Draw the timescale. Defaults to on for an age column; an explicit value
+   * wins over `timescaleLevels` / `timescales`, which otherwise turn it on. */
   showTimescale?: boolean;
   timescaleLevels?: number | [number, number];
   /** Regional or project timescales drawn as extra columns beside the
@@ -276,6 +282,7 @@ function ColumnInner(props: ColumnInnerProps) {
     onClickTimescaleInterval,
     timescaleIntervalStyle,
     ageAxisComponent = CompositeAgeAxis,
+    showAgeAxis = true,
   } = props;
 
   const { axisType } = useMacrostratColumnData();
@@ -304,11 +311,9 @@ function ColumnInner(props: ColumnInnerProps) {
     showLabelColumn = false;
   }
 
-  let _showTimescale = showTimescale ?? true;
-  if (timescaleLevels != null || timescales != null) {
-    _showTimescale = true;
-  }
-  _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;
+  // On unless turned off outright: passing levels or timescales no longer
+  // overrides an explicit `false`
+  const _showTimescale = axisType == ColumnAxisType.AGE && (showTimescale ?? true);
 
   return h(
     ColumnContainer,
@@ -318,7 +323,7 @@ function ColumnInner(props: ColumnInnerProps) {
       className,
     },
     h("div.column", { ref: columnRef }, [
-      h(ageAxisComponent),
+      h.if(showAgeAxis)(ageAxisComponent),
       h.if(_showTimescale)(CompositeTimescale, {
         levels: timescaleLevels,
         additionalTimescales,
