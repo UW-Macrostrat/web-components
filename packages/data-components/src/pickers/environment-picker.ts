@@ -12,7 +12,11 @@ import type { Environment } from "@macrostrat/api-types";
 import { LithologyTag } from "../components/unit-details";
 import { TagSize } from "../components/unit-details/tag";
 import { type PickerItem, TagPicker } from "./tag-picker";
-import { useVocabulary, type Vocabulary } from "./vocabularies";
+import {
+  derivedFromVocabulary,
+  useVocabularyIndex,
+  type Vocabulary,
+} from "./vocabularies";
 import {
   addToAll,
   applyUnionChange,
@@ -53,6 +57,9 @@ export interface EnvironmentPickerProps {
   size?: TagSize;
   disabled?: boolean;
   className?: string;
+  /** The width the picker is laid out in, when its container knows it (a
+   * table cell's); see `TagPicker`. */
+  layoutWidth?: number | null;
 }
 
 export function EnvironmentPicker(props: EnvironmentPickerProps) {
@@ -66,25 +73,25 @@ export function EnvironmentPicker(props: EnvironmentPickerProps) {
     size = TagSize.Small,
     disabled,
     className,
+    layoutWidth,
   } = props;
-  const defs = useVocabulary<EnvironmentDef>(
+  // Shared with every other environment picker (see `./vocabularies`)
+  const { list: defs, byID } = useVocabularyIndex<EnvironmentDef>(
     "environments",
     props.environments,
-  );
-  const byID = useMemo(
-    () => new Map(defs.map((d) => [d.environ_id, d])),
-    [defs],
   );
 
   const items: EnvItem[] = useMemo(
     () =>
-      defs.map((def) => ({
-        id: def.environ_id,
-        name: def.name,
-        color: def.color,
-        description: [def.class, def.type].filter(Boolean).join(" · "),
-        def,
-      })),
+      derivedFromVocabulary(defs, "items", () =>
+        defs.map((def) => ({
+          id: def.environ_id,
+          name: def.name,
+          color: def.color,
+          description: [def.class, def.type].filter(Boolean).join(" · "),
+          def,
+        })),
+      ),
     [defs],
   );
 
@@ -133,6 +140,7 @@ export function EnvironmentPicker(props: EnvironmentPickerProps) {
 
   return h(TagPicker<EnvItem>, {
     className,
+    layoutWidth,
     items,
     value: picked,
     onChange: change,

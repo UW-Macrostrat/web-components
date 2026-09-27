@@ -257,6 +257,8 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   tableRef: React.MutableRefObject<Table2> | null;
   columnWidthsIndex: Map<string, number>;
   defaultColumnWidth: number;
+  /** The grid's row height in pixels, from its density. */
+  rowHeight: number;
   // Editable is not optional on store
   editable: boolean;
 }

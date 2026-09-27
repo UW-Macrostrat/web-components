@@ -41,7 +41,12 @@ import {
 import { TagSize } from "../components/unit-details/tag";
 import { type PickerItem, TagPicker, VocabularyList } from "./tag-picker";
 import { type DetailsMode, RemoveButton } from "./tag-details-editor";
-import { useVocabulary, type Vocabulary } from "./vocabularies";
+import {
+  derivedFromVocabulary,
+  useVocabulary,
+  useVocabularyIndex,
+  type Vocabulary,
+} from "./vocabularies";
 import h from "./pickers.module.sass";
 
 /** A timescale as `/defs/timescales` reports it (`timescale` is its name;
@@ -118,6 +123,9 @@ export interface IntervalPositionEditorProps {
   size?: TagSize;
   disabled?: boolean;
   className?: string;
+  /** The width the editor is laid out in, when its container knows it (a
+   * table cell's); see `TagPicker`. */
+  layoutWidth?: number | null;
 }
 
 /** The age at a proportion of an interval: base at 0, top at 1. */
@@ -147,11 +155,16 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
     size = TagSize.Small,
     disabled,
     className,
+    layoutWidth,
   } = props;
 
   const editable = onChange != null && !disabled;
   const [positionOpen, setPositionOpen] = useState(false);
-  const defs = useVocabulary<IntervalDefLike>("intervals", props.intervals);
+  // Shared with every other interval editor: one per cell of a table, often
+  const { list: defs, byID } = useVocabularyIndex<IntervalDefLike>(
+    "intervals",
+    props.intervals,
+  );
 
   // Timescales are only needed to offer a choice of them
   const offerTimescales = timescaleChoice && timescale == null;
@@ -170,29 +183,19 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
   // whole vocabulary.
   const items: IntervalItem[] = useMemo(() => {
     if (!editable) return [];
-    let list = defs;
-    if (timescaleID != null) {
-      list = defs.filter((d) => inTimescale(d, timescaleID));
-    }
-    return [...list]
-      .sort((a, b) => b.b_age - a.b_age)
-      .map((def) => ({
-        id: def.int_id,
-        name: def.name,
-        color: def.color,
-        description: `${formatAge(def.b_age)}–${formatAge(def.t_age)} Ma`,
-        def,
-      }));
+    return derivedFromVocabulary(defs, `items:${timescaleID ?? "all"}`, () =>
+      intervalItems(defs, timescaleID),
+    );
   }, [defs, timescaleID, editable]);
 
   // The current interval is looked up in the whole vocabulary: a constraint
   // narrows what can be picked, not what is already there.
   const current: IntervalItem | null = useMemo(() => {
     if (value?.int_id == null) return null;
-    const def = defs.find((d) => d.int_id === value.int_id);
+    const def = byID.get(value.int_id);
     if (def == null) return null;
     return { id: def.int_id, name: def.name, color: def.color, def };
-  }, [defs, value?.int_id]);
+  }, [byID, value?.int_id]);
 
   const prop = value?.prop ?? null;
   const age = ageAtProportion(current?.def, prop);
@@ -202,7 +205,7 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
     if (next.int_id !== undefined) int_id = next.int_id;
     let nextProp = prop;
     if (next.prop !== undefined) nextProp = next.prop;
-    const def = defs.find((d) => d.int_id === int_id) ?? null;
+    const def = byID.get(int_id) ?? null;
     let int_name = def?.name ?? null;
     if (int_id === value?.int_id) int_name ??= value?.int_name ?? null;
     onChange?.({
@@ -268,6 +271,7 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
         items,
         value: picked,
         multi: false,
+        layoutWidth,
         renderTag: (item) =>
           h(IntervalTag, {
             interval: toIntervalShort(item.def),
@@ -553,6 +557,27 @@ function TimescaleHeader({ children }: { children: ReactNode }) {
     h("span.details-field-label.timescale-label", "Timescale"),
     children,
   ]);
+}
+
+/** The choosable intervals, oldest first — within a timescale, if one is
+ * given. Built once per vocabulary and timescale, and shared. */
+function intervalItems(
+  defs: IntervalDefLike[],
+  timescaleID: number | null,
+): IntervalItem[] {
+  let list = defs;
+  if (timescaleID != null) {
+    list = defs.filter((d) => inTimescale(d, timescaleID));
+  }
+  return [...list]
+    .sort((a, b) => b.b_age - a.b_age)
+    .map((def) => ({
+      id: def.int_id,
+      name: def.name,
+      color: def.color,
+      description: `${formatAge(def.b_age)}–${formatAge(def.t_age)} Ma`,
+      def,
+    }));
 }
 
 function inTimescale(def: IntervalDefLike, timescaleID: number): boolean {

@@ -40,7 +40,12 @@ import {
   TagDetailsEditor,
   type TagDetailsSection,
 } from "./tag-details-editor";
-import { useVocabulary, type Vocabulary } from "./vocabularies";
+import {
+  derivedFromVocabulary,
+  useVocabulary,
+  useVocabularyIndex,
+  type Vocabulary,
+} from "./vocabularies";
 import {
   addToAll,
   applyUnionChange,
@@ -138,6 +143,9 @@ export interface LithologyPickerProps {
   removable?: boolean;
   disabled?: boolean;
   className?: string;
+  /** The width the picker is laid out in, when its container knows it (a
+   * table cell's); see `TagPicker`. */
+  layoutWidth?: number | null;
 }
 
 const tagFeatures = new Set([
@@ -158,6 +166,7 @@ export function LithologyPicker(props: LithologyPickerProps) {
     size = TagSize.Small,
     disabled,
     className,
+    layoutWidth,
   } = props;
 
   const proportions = proportionOptions(props.proportions ?? true);
@@ -168,7 +177,11 @@ export function LithologyPicker(props: LithologyPickerProps) {
     resolve = props.resolveProportions;
   }
 
-  const defs = useVocabulary<LithologyDef>("lithologies", props.lithologies);
+  // Shared with every other lithology picker (see `./vocabularies`)
+  const { list: defs, byID } = useVocabularyIndex<LithologyDef>(
+    "lithologies",
+    props.lithologies,
+  );
   // Attributes switched off need no vocabulary, so none is fetched
   let attributeSource = props.lithAttributes;
   if (!attributes) attributeSource = null;
@@ -177,17 +190,17 @@ export function LithologyPicker(props: LithologyPickerProps) {
     attributeSource,
   );
 
-  const byID = useMemo(() => new Map(defs.map((d) => [d.lith_id, d])), [defs]);
-
   const items: LithItem[] = useMemo(
     () =>
-      defs.map((def) => ({
-        id: def.lith_id,
-        name: def.name,
-        color: def.color,
-        description: [def.class, def.type].filter(Boolean).join(" · "),
-        def,
-      })),
+      derivedFromVocabulary(defs, "items", () =>
+        defs.map((def) => ({
+          id: def.lith_id,
+          name: def.name,
+          color: def.color,
+          description: [def.class, def.type].filter(Boolean).join(" · "),
+          def,
+        })),
+      ),
     [defs],
   );
 
@@ -361,6 +374,7 @@ export function LithologyPicker(props: LithologyPickerProps) {
 
   return h(TagPicker<LithItem>, {
     className,
+    layoutWidth,
     items,
     value: picked,
     onChange: editable ? emit : undefined,

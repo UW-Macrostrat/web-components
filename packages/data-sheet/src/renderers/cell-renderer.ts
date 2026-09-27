@@ -40,6 +40,8 @@ function cellContentsEqual(
     x.isEdited === y.isEdited &&
     x.isDeleted === y.isDeleted &&
     x.status === y.status &&
+    x.width === y.width &&
+    x.height === y.height &&
     validationEqual(x.validation, y.validation)
   );
 }
@@ -149,6 +151,13 @@ export function basicCellRenderer<T>(
     isDeleted,
     status: statusVal,
     validation,
+    // The size the table gives the cell (resized columns included), so a
+    // renderer that fits itself to it needn't measure
+    width:
+      state.columnWidthsIndex?.get(col.key) ??
+      col.width ??
+      state.defaultColumnWidth,
+    height: state.rowHeight,
   };
 
   // Only allocate a new style object when a row-status style must be layered on
@@ -225,6 +234,9 @@ export function basicCellRenderer<T>(
   // Build the detail context for the unified `cellDetail` surface.
   const makeDetailCtx = (editableFlag: boolean): CellDetailContext<T> => ({
     ...cellContext,
+    // A popover isn't laid out in the cell
+    width: undefined,
+    height: undefined,
     surface: "cell",
     editable: editableFlag,
     onChange(v: any) {

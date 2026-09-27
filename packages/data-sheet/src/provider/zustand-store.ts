@@ -35,6 +35,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     columnSpec: [],
     deferColumnSpec: false,
     defaultColumnWidth: 150,
+    rowHeight: 20,
     editable: false,
     selection: [],
     fillValueBaseCell: null,

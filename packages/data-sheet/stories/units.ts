@@ -48,7 +48,10 @@ export function buildColumnSpec(): ColumnSpec[] {
       width: 280,
       multiCell: true,
       detailPlacement: "bottom-start",
-      valueRenderer: (value) => h(LithologyPicker, { value }),
+      // The cell's width lets a one-line row of tags fit itself without
+      // observing its own size (see `CellRenderContext.width`)
+      valueRenderer: (value, ctx) =>
+        h(LithologyPicker, { value, layoutWidth: ctx?.width }),
       cellDetail: (ctx) =>
         h(LithologyPicker, {
           ...tagListProps(ctx),
@@ -64,7 +67,8 @@ export function buildColumnSpec(): ColumnSpec[] {
       width: 200,
       multiCell: true,
       detailPlacement: "bottom-start",
-      valueRenderer: (value) => h(EnvironmentPicker, { value }),
+      valueRenderer: (value, ctx) =>
+        h(EnvironmentPicker, { value, layoutWidth: ctx?.width }),
       cellDetail: (ctx) => h(EnvironmentPicker, tagListProps(ctx)),
     },
     intervalColumn("base", "Base"),
@@ -93,8 +97,12 @@ function intervalColumn(
     width: 170,
     multiCell: true,
     detailPlacement: "bottom-start",
-    valueRenderer: (value) =>
-      h(IntervalPositionEditor, { value, showAge: false }),
+    valueRenderer: (value, ctx) =>
+      h(IntervalPositionEditor, {
+        value,
+        showAge: false,
+        layoutWidth: ctx?.width,
+      }),
     cellDetail: (ctx) =>
       h(IntervalPositionEditor, {
         value: ctx.value,

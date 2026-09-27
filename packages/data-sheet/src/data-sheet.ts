@@ -330,6 +330,12 @@ export function DataSheetRenderer<T>({
     storeState.setState({ tableElement: tableElementRef.current });
   }, [storeState]);
 
+  // The row height is the density's; cells report it to their renderers
+  const densityRowHeight = styleParamsForDensity(density).rowHeight;
+  useEffect(() => {
+    storeState.setState({ rowHeight: densityRowHeight });
+  }, [storeState, densityRowHeight]);
+
   useEffect(() => {
     storeState.setState({ onEdit });
   }, [storeState, onEdit]);
