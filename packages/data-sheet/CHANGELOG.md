@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.10.1] - 2026-09-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.10.0...@macrostrat/data-sheet-v4.10.1)
+
+### Patch Changes
+
+- A data editor's text field starts from the column's rendering of the value
+  when that is a string, as a grid cell's inline editor does — so a structured
+  value shown as text (a list written out, a record by name) is edited as that
+  text rather than as `[object Object]`
+  [ca5ff733](https://github.com/UW-Macrostrat/web-components/commit/ca5ff73328471627d6cb3638f1b85336f9fefcc3)
+
 ## [4.10.0] - 2026-09-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.9.1...@macrostrat/data-sheet-v4.10.0)
 
 ### Minor Changes
