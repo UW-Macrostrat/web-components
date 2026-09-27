@@ -165,7 +165,11 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
   );
   const timescaleID = timescale?.timescale_id ?? chosenTimescaleID;
 
+  // The choosable intervals, in age order. Only an editor offers the list: a
+  // read-only position — one per cell of a table, often — skips sorting the
+  // whole vocabulary.
   const items: IntervalItem[] = useMemo(() => {
+    if (!editable) return [];
     let list = defs;
     if (timescaleID != null) {
       list = defs.filter((d) => inTimescale(d, timescaleID));
@@ -179,7 +183,7 @@ export function IntervalPositionEditor(props: IntervalPositionEditorProps) {
         description: `${formatAge(def.b_age)}–${formatAge(def.t_age)} Ma`,
         def,
       }));
-  }, [defs, timescaleID]);
+  }, [defs, timescaleID, editable]);
 
   // The current interval is looked up in the whole vocabulary: a constraint
   // narrows what can be picked, not what is already there.

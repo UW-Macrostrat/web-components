@@ -9,6 +9,7 @@ import {
 } from "../provider";
 import { atom } from "jotai";
 import { runActionWrapper } from "../actions";
+import { actionRequiresEditable } from "../actions/selection.ts";
 import { HotkeyConfig } from "@blueprintjs/core";
 import { toasterAtom } from "../notifications.ts";
 
@@ -92,7 +93,7 @@ export const tableHotkeysAtom = atom<null, [], HotkeyConfig[]>(
           label: action.name,
           group: action.group ?? "Actions",
           preventDefault: true,
-          disabled: action.requiresEditable !== false && !editable,
+          disabled: actionRequiresEditable(action) && !editable,
           onKeyDown(event: KeyboardEvent<any>): any {
             runActionWrapper(action, get, set, toaster);
           },

@@ -3,6 +3,7 @@ import { type ReactNode, useCallback, useMemo, useState } from "react";
 import h from "./actions-toolbar.module.sass";
 import { ctx, selectionAtom, useSelector } from "../../provider";
 import {
+  actionRequiresEditable,
   getApplicableActions,
   getSelectionCardinality,
   mergeColumnActions,
@@ -58,11 +59,16 @@ export function ActionsToolbar<T>({
   );
 
   const store = ctx.useStore();
-  // Context for `render`-style controls (they subscribe to the store
-  // themselves; this resolves the selected column/rows).
+  // The context snapshots the store, so it is rebuilt when what it resolves
+  // changes: the selection (through `allActions`), and the rows. Keyed on the
+  // selection alone, a selection made together with new rows — an inserted
+  // row, selected as it arrives — resolved against the rows before it.
+  const data = useSelector((state) => state.data);
+  const updatedData = useSelector((state) => state.updatedData);
+  const filteredRowIndices = useSelector((state) => state.filteredRowIndices);
   const actionContext = useMemo(() => {
     return buildActionContext(store.get, store.set);
-  }, [allActions]);
+  }, [allActions, data, updatedData, filteredRowIndices]);
 
   // The toolbar is for actions that AREN'T keyboard-accessible: any action
   // with a `hotkey` (copy/cut/paste, etc.) is reachable from the keyboard and
@@ -94,7 +100,7 @@ export function ActionsToolbar<T>({
     a.placement === "end" ||
     ((a.targets.includes(RegionCardinality.FULL_TABLE) ||
       a.targets.includes("none" as any)) &&
-      a.requiresEditable);
+      actionRequiresEditable(a));
   const contextual = shownActions.filter((a) => !isGlobal(a));
   // Order the built-in global actions least→most impactful, left→right: reset
   // changes, then save. Any other global actions keep their natural order to

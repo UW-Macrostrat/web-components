@@ -470,7 +470,11 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
  * of the flow at their full width, not resized), so the measure is stable. It
  * re-runs when the tags or the row's *width* change — not its height, which
  * hiding tags can change, and which would otherwise re-measure the row's own
- * reaction to the measure. */
+ * reaction to the measure.
+ *
+ * A picker is often one of hundreds — one per cell of a table — so the rows
+ * share one `ResizeObserver`, and a row that wraps (a form's, which never
+ * overflows) isn't observed at all. */
 function useOverflowFrom(
   rowRef: RefObject<HTMLElement | null>,
   tagsKey: string,
@@ -479,14 +483,15 @@ function useOverflowFrom(
   useLayoutEffect(() => {
     const row = rowRef.current;
     if (row == null) return;
+    // A wrapping row shows every tag; there is nothing to measure or watch
+    if (getComputedStyle(row).flexWrap !== "nowrap") {
+      setFrom(null);
+      return;
+    }
     let measuredWidth: number | null = null;
     const measure = () => {
       measuredWidth = row.clientWidth;
       const style = getComputedStyle(row);
-      if (style.flexWrap !== "nowrap") {
-        setFrom(null);
-        return;
-      }
       const gap = parseFloat(style.columnGap) || 0;
       const widths = Array.from(
         row.querySelectorAll<HTMLElement>("[data-picker-item]"),
@@ -519,14 +524,30 @@ function useOverflowFrom(
       setFrom(Math.max(fit, 1));
     };
     measure();
-    const observer = new ResizeObserver(() => {
+    return observeRowWidth(row, () => {
       if (row.clientWidth === measuredWidth) return;
       measure();
     });
-    observer.observe(row);
-    return () => observer.disconnect();
   }, [rowRef, tagsKey]);
   return from;
+}
+
+/* One observer for every picker's row: each row's callback by element. */
+const rowCallbacks = new WeakMap<Element, () => void>();
+let rowObserver: ResizeObserver | null = null;
+
+/** Call `onResize` when `row` changes size; returns the unsubscribe. */
+function observeRowWidth(row: Element, onResize: () => void): () => void {
+  if (typeof ResizeObserver === "undefined") return () => {};
+  rowObserver ??= new ResizeObserver((entries) => {
+    for (const entry of entries) rowCallbacks.get(entry.target)?.();
+  });
+  rowCallbacks.set(row, onResize);
+  rowObserver.observe(row);
+  return () => {
+    rowObserver?.unobserve(row);
+    rowCallbacks.delete(row);
+  };
 }
 
 /** Around a details editor: Delete removes the tag and Escape closes the

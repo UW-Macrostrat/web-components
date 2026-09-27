@@ -27,7 +27,10 @@ import { type ReactNode, useState } from "react";
 import { Button, PopoverNext } from "@blueprintjs/core";
 import { type Region, RegionCardinality } from "@blueprintjs/table";
 import type { TableAction, TableActionContext } from "../actions";
-import { computeSelectionShape } from "../actions/selection.ts";
+import {
+  actionRequiresEditable,
+  computeSelectionShape,
+} from "../actions/selection.ts";
 import type { CellEdit, ColumnSpec } from "../provider";
 import styles from "./row-editor.module.sass";
 
@@ -69,7 +72,7 @@ export function editorActionsFor<T>(
     if (action.render != null || action.hotkey != null) return false;
     if (action.targets.includes(RegionCardinality.FULL_TABLE)) return false;
     if (!cardinalities.some((c) => action.targets.includes(c))) return false;
-    if (action.requiresEditable && !target.editable) return false;
+    if (actionRequiresEditable(action) && !target.editable) return false;
     return action.appliesTo?.(ctx) ?? true;
   });
   return { actions: applicable, ctx };

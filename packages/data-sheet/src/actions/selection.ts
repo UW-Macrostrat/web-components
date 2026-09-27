@@ -127,14 +127,15 @@ export function computeSelectionShape(regions: Region[]): SelectionShape {
 }
 
 /** Filter actions to those applicable for the current selection cardinality
- * and edit mode. */
+ * and edit mode. An action takes edits unless it says otherwise
+ * (`requiresEditable` defaults to `true`). */
 export function getApplicableActions<T>(
   actions: TableAction<T>[],
   cardinality: RegionCardinality,
   editable: boolean,
 ): TableAction<T>[] {
   return actions.filter((action) => {
-    if (action.requiresEditable && !editable) return false;
+    if (actionRequiresEditable(action) && !editable) return false;
     return action.targets.includes(cardinality);
   });
 }
@@ -241,4 +242,12 @@ export function range(arr: number[]) {
   if (arr.length != 2) throw new Error("Range must have two elements");
   const [start, end] = arr;
   return Array.from({ length: end - start + 1 }, (_, i) => i + start);
+}
+
+/** Whether an action needs the table to be editable: unless it says it
+ * doesn't, as its type documents — and as the hotkeys have always read it. */
+export function actionRequiresEditable(action: {
+  requiresEditable?: boolean;
+}): boolean {
+  return action.requiresEditable ?? true;
 }
