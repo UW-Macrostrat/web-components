@@ -240,6 +240,8 @@ function SurfaceTimescalesColumn(props: SurfaceTimescalesProps) {
         // Room above the column for the timescale names
         paddingTop: labelPadding,
         windowPadding: 20,
+        // The surface labels take the unit labels' place
+        showLabelColumn: false,
       },
       h(ColumnSurfaces, {
         surfaces,

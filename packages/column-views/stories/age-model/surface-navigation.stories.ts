@@ -326,6 +326,8 @@ function ColumnPane(props: ColumnPaneProps) {
         ...zoom.columnProps,
         windowPadding,
         targetUnitHeight,
+        // The surface labels take the unit labels' place
+        showLabelColumn: showLabels === false,
       },
       h(ColumnSurfaces, {
         surfaces,
