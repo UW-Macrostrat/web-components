@@ -1,4 +1,5 @@
 import h from "@macrostrat/hyper";
+import { useMemo } from "react";
 import { FlexRow, useAPIResult } from "@macrostrat/ui-components";
 import { Column } from "../../src";
 import { Spinner } from "@blueprintjs/core";
@@ -39,12 +40,18 @@ function useColumnBasicInfo(col_id, inProcess = false) {
 export interface StandaloneColumnProps extends Omit<ColumnProps, "units"> {
   id: number;
   inProcess?: boolean;
+  /** Adjust the fetched units before drawing — to mark some covered, say */
+  transformUnits?: (units: any[]) => any[];
 }
 
 export function StandaloneColumn(props: StandaloneColumnProps) {
-  const { id, inProcess, ...rest } = props;
+  const { id, inProcess, transformUnits, ...rest } = props;
   const info = useColumnBasicInfo(id, inProcess);
-  const units = useColumnUnits(id, inProcess);
+  const fetched = useColumnUnits(id, inProcess);
+  const units = useMemo(() => {
+    if (fetched == null || transformUnits == null) return fetched;
+    return transformUnits(fetched);
+  }, [fetched, transformUnits]);
 
   if (units == null || info == null) {
     return h(Spinner);

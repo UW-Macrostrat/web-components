@@ -1,9 +1,12 @@
 import { hyperStyled } from "@macrostrat/hyper";
 import {
   ColumnContext,
+  CoveredOverlay,
   LithologyColumn,
   SVG,
+  useColumn,
 } from "@macrostrat/column-components";
+import { getUnitHeightRange } from "../prepare-units/utils";
 import { defaultNameFunction, UnitNamesColumn } from "./names";
 import {
   createContext,
@@ -149,7 +152,23 @@ export function CompositeUnitsColumn(props: CompositeUnitProps) {
       unitComponentProps,
       ...rest,
     }),
+    h(CoveredUnits),
   ]);
+}
+
+/** Hatching over the units marked `covered` — present, but unexposed, so
+ * what is described of them is uncertain. Column-components' `CoveredOverlay`,
+ * handed the units sized on the column's own axis. */
+function CoveredUnits() {
+  const { divisions, axisType } = useColumn();
+  const covered = (divisions ?? [])
+    .filter((d: any) => d.covered)
+    .map((d: any) => {
+      const [bottom, top] = getUnitHeightRange(d, axisType);
+      return { id: d.unit_id, top, bottom, covered: true };
+    });
+  if (covered.length === 0) return null;
+  return h(CoveredOverlay, { divisions: covered });
 }
 
 export function AnnotatedUnitsColumn(props: ICompositeUnitProps) {
