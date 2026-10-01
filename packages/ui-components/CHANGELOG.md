@@ -1,5 +1,41 @@
 # Changelog
 
+## [5.3.0] - 2026-10-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.2.0...@macrostrat/ui-components-v5.3.0)
+
+### Minor Changes
+
+- Add `PageHeader` (logo, breadcrumbs, title, identifier, actions) with
+  expanded,
+  [a068aa9](https://github.com/UW-Macrostrat/web-components/commit/a068aa9a60a8a3edb77f537ce1713b2c75219b57)
+  compact and hybrid variants, optional sticky bar, and full or constrained
+  width; opt-in folding of the actions into a "more" dropdown
+  (`collapseActions`, `actionsMenu`); and `PageHeaderButton`, whose label
+  collapses to its icon in a narrow header (renders as a link when given `href`)
+- `PageHeader`: `prioritizeTitle` (default on; `false` restores fixed bar-width
+  breakpoints) lets the inline title decide when secondary content gives way
+  (action labels, then identifier, then folded actions) before it shortens or
+  truncates. Crumbs now fold into "…" before the current title starts
+  truncating.
+  [6b83383](https://github.com/UW-Macrostrat/web-components/commit/6b833836a37cf0d19a66b5dfe346569203cfa020)
+- Add progressive text shortening (`Shortener`, `shortenedForms`,
+  [075ede5](https://github.com/UW-Macrostrat/web-components/commit/075ede5c37005832569f6db977f3bbd4d3591302)
+  `composeShorteners`, `fittingFormIndex`, and standard `dropParenthetical`,
+  `dropAfter`, `dropPrefix`, `dropSuffix` shorteners), and use it for
+  `PageHeader`'s inline title via `shortTitle` (string, list or shortener) and
+  `shortenTitle` (`never` | `narrow` | `always`). The expanded title now scales
+  with the header's width (`--page-header-title-min-font-size`)
+- Add `Toolbar`, a layout-only bar of controls for any page or content model:
+  [dd274e3](https://github.com/UW-Macrostrat/web-components/commit/dd274e3045f7a973377e9a21bde189c1d51d776b)
+  `placement` (`inline` | `sticky` | `floating` | `fixed`), `anchor`, `align`,
+  `surface` (`plain` | `bordered` | `raised`), `density` (`expanded` | `compact`
+  | `collapsed`, shared with its contents through `useToolbarDensity`) and
+  `collapse` (`narrow` | `never`). Items keep their order, may be `pinned` or
+  `grow` (a search field that shrinks in step as labels drop and items fold into
+  a "more" popover by priority). Also `ToolbarButton` (`PageHeaderButton` is now
+  an alias), `ToolbarDropdown` (a non-focus-trapping dropdown), `FilterTag` (the
+  shared filter/sort/view-control tag) and `MenuFormItem`, and the
+  `useIsomorphicLayoutEffect` helper.
+
 ## [5.2.0] - 2026-08-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.1.0...@macrostrat/ui-components-v5.2.0)
 
 ### Minor Changes
