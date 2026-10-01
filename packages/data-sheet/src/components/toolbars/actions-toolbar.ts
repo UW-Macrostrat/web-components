@@ -119,9 +119,9 @@ export function ActionsToolbar<T>({
 
   const globalActions = shownActions.filter(isGlobal);
 
-  // Laid out by the shared `Toolbar`: the selection title and contextual
-  // actions lead, `children` take the flexible middle, and the global actions
-  // sit at the end as one group.
+  // Laid out by the shared `Toolbar`: the selection title, contextual actions
+  // and any custom chrome (`children`, at its natural width) lead; the global
+  // actions sit at the end as one group.
   const start: ToolbarItem[] = [
     {
       id: "selection",
@@ -133,6 +133,9 @@ export function ActionsToolbar<T>({
       content: h(ActionButton, { action, ctx: actionContext }),
     })),
   ];
+  if (children != null) {
+    start.push({ id: "toolbar-children", pinned: true, content: children });
+  }
   const end: ToolbarItem[] = [];
   if (globalActions.length > 0) {
     end.push({
@@ -148,16 +151,12 @@ export function ActionsToolbar<T>({
     });
   }
 
-  return h(
-    Toolbar,
-    {
-      className: classNames("actions-toolbar", className),
-      collapse,
-      start,
-      end,
-    },
-    children,
-  );
+  return h(Toolbar, {
+    className: classNames("actions-toolbar", className),
+    collapse,
+    start,
+    end,
+  });
 }
 
 function isActionDisabled(action: TableAction, state: any): boolean {

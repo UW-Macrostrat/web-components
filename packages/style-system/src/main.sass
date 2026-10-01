@@ -40,10 +40,11 @@ body
     @each $name, $color in $dark-colors
       --#{$name}: #{$color}
 
+    // Colour only: a box-shadow here draws a second, inner border around the
+    // placeholder text itself (the input already has Blueprint's own).
     .bp6-input
       &::placeholder
         color: var(--secondary-color)
-        box-shadow: 0 0 0 0 color.change($light-gray3, $alpha: 0), 0 0 0 0 color.change($light-gray3, $alpha: 0), inset 0 0 0 1px color.change($light-gray1, $alpha: 0.15), inset 0 1px 1px color.change($light-gray1, $alpha: 0.2)
 
 .bp6-card, .bp6-navbar
   border-radius: 4px
