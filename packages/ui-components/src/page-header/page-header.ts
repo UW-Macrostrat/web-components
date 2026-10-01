@@ -11,9 +11,16 @@ import {
   RefObject,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
+import {
+  fittingFormIndex,
+  ShortenMode,
+  ShortForms,
+  shortenedForms,
+} from "../util/shorten";
 import styles from "./page-header.module.sass";
 import { BreadcrumbTrail, Crumb } from "./trail";
 
@@ -41,6 +48,14 @@ export interface PageHeaderProps {
   breadcrumbs?: Crumb[];
   /** The current page's title. */
   title?: ReactNode;
+  /** Shorter forms of the title for the single-row (inline) title: a string,
+   * a list (longest first), or a `Shortener` applied to a string `title`. The
+   * large expanded title always shows `title` in full. */
+  shortTitle?: ShortForms;
+  /** When the inline title uses `shortTitle`: `narrow` (default) steps down
+   * to the longest form that fits once crumbs have collapsed; `always` starts
+   * from the first short form; `never` keeps the full title (truncating). */
+  shortenTitle?: ShortenMode;
   /** A short identifier for the current item, e.g. `#3712`. */
   identifier?: ReactNode;
   /** Right-aligned toolbar content: buttons, view switchers, login. */
@@ -68,6 +83,8 @@ export function PageHeader(props: PageHeaderProps) {
     logo,
     breadcrumbs = [],
     title,
+    shortTitle,
+    shortenTitle = "narrow",
     identifier,
     actions,
     collapseActions = "never",
@@ -88,6 +105,12 @@ export function PageHeader(props: PageHeaderProps) {
   const barRef = useRef<HTMLDivElement>(null);
   const barInnerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const trailContainerRef = useRef<HTMLDivElement>(null);
+  const inlineIdentifierRef = useRef<HTMLSpanElement>(null);
+  // A callback ref held in state: the title crumb can mount a render after
+  // the header's own (`OverflowList` keeps its visible items in state), and
+  // measuring must follow it rather than the header's commit.
+  const [titleMeasure, setTitleMeasure] = useState<HTMLElement | null>(null);
   const { isStuck, isTitleTucked } = useHeaderScrollState(
     { sentinel: sentinelRef, bar: barRef, title: titleRef },
     isSticky,
@@ -104,10 +127,24 @@ export function PageHeader(props: PageHeaderProps) {
 
   const isCollapsed = variant == "hybrid" && isTitleTucked;
   const isTitleInline = title != null && (variant == "compact" || isCollapsed);
+  const titleForms = useTitleForms(title, shortTitle);
+  // Measured here rather than in the title: a parent's DOM refs are attached
+  // only after its children's layout effects have run.
+  const titleIndex = useFittingTitle(titleForms, shortenTitle, isTitleInline, {
+    measure: titleMeasure,
+    container: trailContainerRef,
+    identifier: inlineIdentifierRef,
+    // Crumbs that can fold into the "…" menu leave that menu (and its
+    // chevron) behind; a lone root beside a logo vanishes outright.
+    hasCollapsedCrumbs: breadcrumbs.length > (logo != null ? 1 : 0),
+  });
   let current: ReactNode = null;
   if (isTitleInline) {
     current = h(InlineTitle, {
       title,
+      forms: titleForms,
+      index: titleIndex,
+      measureRef: setTitleMeasure,
       // In hybrid mode the large title remains the page's heading.
       isHeading: variant == "compact",
     });
@@ -130,7 +167,7 @@ export function PageHeader(props: PageHeaderProps) {
         { ref: barRef },
         h("div.bar-inner", { ref: barInnerRef }, [
           h.if(logo != null)("div.logo", logo),
-          h("div.trail-container", [
+          h("div.trail-container", { ref: trailContainerRef }, [
             h(BreadcrumbTrail, {
               crumbs: breadcrumbs,
               current,
@@ -139,7 +176,7 @@ export function PageHeader(props: PageHeaderProps) {
             // Right-aligned, where it sits in the expanded title row.
             h.if(isTitleInline && identifier != null)(
               "span.identifier.inline-identifier",
-              { "aria-hidden": variant == "hybrid" },
+              { "aria-hidden": variant == "hybrid", ref: inlineIdentifierRef },
               identifier,
             ),
           ]),
@@ -164,15 +201,123 @@ export function PageHeader(props: PageHeaderProps) {
   );
 }
 
-function InlineTitle({ title, isHeading }) {
-  let headingProps = {};
-  if (isHeading) {
-    headingProps = { role: "heading", "aria-level": 1 };
-  } else {
-    headingProps = { "aria-hidden": true };
-  }
-  return h("span.inline-title", headingProps, title);
+interface InlineTitleProps {
+  title: ReactNode;
+  /** `title` and its strictly shorter forms. */
+  forms: ReactNode[];
+  index: number;
+  measureRef: (el: HTMLElement | null) => void;
+  isHeading: boolean;
 }
+
+/** The title as the trail's current crumb, showing the form the header has
+ * measured to fit (truncating if even the shortest doesn't). */
+function InlineTitle(props: InlineTitleProps) {
+  const { title, forms, index, measureRef, isHeading } = props;
+
+  let fullText: string | undefined = undefined;
+  if (typeof title == "string") {
+    fullText = title;
+  }
+  let headingProps: object = { "aria-hidden": true };
+  if (isHeading) {
+    // A shortened heading still announces the full title.
+    headingProps = { role: "heading", "aria-level": 1, "aria-label": fullText };
+  }
+  let tooltip: string | undefined = undefined;
+  if (index > 0) {
+    tooltip = fullText;
+  }
+
+  return h([
+    h("span.inline-title", { ...headingProps, title: tooltip }, forms[index]),
+    // Every form, laid out unseen, so each can be measured at the crumb's own
+    // type size without ever rendering it in place.
+    h.if(forms.length > 1)(
+      "span.title-measure",
+      { ref: measureRef, "aria-hidden": true },
+      forms.map((form, i) => h("span", { key: i }, form)),
+    ),
+  ]);
+}
+
+/** `title` followed by its strictly shorter forms. */
+function useTitleForms(title: ReactNode, shortTitle?: ShortForms) {
+  return useMemo(() => {
+    if (typeof title == "string") {
+      return shortenedForms(title, shortTitle);
+    }
+    return [title, ...shortenedForms(null, shortTitle)];
+  }, [title, shortTitle]);
+}
+
+interface FittingTitleRefs {
+  measure: HTMLElement | null;
+  container: RefObject<HTMLElement | null>;
+  identifier: RefObject<HTMLElement | null>;
+  hasCollapsedCrumbs: boolean;
+}
+
+/** Index of the longest title form that fits the trail once its crumbs have
+ * collapsed, re-measured whenever the trail or a form changes size. */
+function useFittingTitle(
+  forms: ReactNode[],
+  mode: ShortenMode,
+  enabled: boolean,
+  refs: FittingTitleRefs,
+) {
+  const [index, setIndex] = useState(0);
+  const count = forms.length;
+  // Re-measure when the forms' text changes, not on every new array identity.
+  const formsKey = forms
+    .map((form) => (typeof form == "string" ? form : "\u0000"))
+    .join("\u0001");
+
+  useIsomorphicLayoutEffect(() => {
+    const measurer = refs.measure;
+    const container = refs.container.current;
+    if (!enabled || count <= 1 || measurer == null || container == null) {
+      setIndex(0);
+      return;
+    }
+    const measureEl: HTMLElement = measurer;
+    const containerEl: HTMLElement = container;
+    const formEls = Array.from(measureEl.children) as HTMLElement[];
+
+    function update() {
+      const fontSize = parseFloat(getComputedStyle(measureEl).fontSize);
+      let available = containerEl.getBoundingClientRect().width;
+      const ident = refs.identifier.current;
+      if (ident != null) {
+        const margin = parseFloat(getComputedStyle(ident).marginLeft) || 0;
+        available -= ident.getBoundingClientRect().width + margin;
+      }
+      if (refs.hasCollapsedCrumbs) {
+        available -= collapsedTrailWidth * fontSize;
+      }
+      const ix = fittingFormIndex(
+        formEls.map((el) => el.textContent ?? ""),
+        (_, i) => formEls[i].getBoundingClientRect().width,
+        available,
+        mode,
+      );
+      setIndex(ix);
+    }
+
+    update();
+    // Forms change width as web fonts load; the trail as the page resizes.
+    const observer = new ResizeObserver(update);
+    observer.observe(containerEl);
+    formEls.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [enabled, count, formsKey, mode, refs.measure, refs.hasCollapsedCrumbs]);
+
+  return Math.min(index, count - 1);
+}
+
+/** Width of a fully collapsed trail ahead of the title — the "…" menu button
+ * and the chevron after it — in ems of the trail's type size. */
+const collapsedTrailWidth = 3.75;
 
 /** The header's actions folded behind a single "more" button. */
 function ActionsDropdown({ content }) {

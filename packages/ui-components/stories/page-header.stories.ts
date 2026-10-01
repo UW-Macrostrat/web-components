@@ -3,7 +3,18 @@ import hyper from "@macrostrat/hyper";
 import { Menu, MenuDivider, MenuItem, PopoverNext } from "@blueprintjs/core";
 import { LoremIpsum } from "lorem-ipsum";
 import { ReactNode, useState } from "react";
-import { PageHeader, PageHeaderButton, PageHeaderProps } from "../src";
+import {
+  composeShorteners,
+  dropAfter,
+  dropParenthetical,
+  dropPrefix,
+  dropSuffix,
+  PageHeader,
+  PageHeaderButton,
+  PageHeaderProps,
+  shortenedForms,
+  Shortener,
+} from "../src";
 import styles from "./page-header.stories.module.sass";
 
 const h = hyper.styled(styles);
@@ -50,6 +61,11 @@ const meta: Meta<typeof PageHeader> = {
       control: { type: "range", min: 240, max: 1200, step: 20 },
     },
     title: { control: "text" },
+    shortTitle: { control: "object" },
+    shortenTitle: {
+      control: "inline-radio",
+      options: ["never", "narrow", "always"],
+    },
     identifier: { control: "text" },
     logo: { control: false },
     actions: { control: false },
@@ -89,6 +105,8 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     sticky: false,
     collapseActions: "never",
     collapseActionsBelow: 640,
+    shortenTitle: "narrow",
+    shortTitle: ["Sierra Estrella", "Estrella"],
     logo: h(MacrostratLogo),
     breadcrumbs: [root, { text: "Maps", href: "#" }],
     title: "Sierra Estrella, Arizona",
@@ -283,6 +301,135 @@ export const FoldedActions: Story = {
       }),
     ]),
 };
+
+/** A geologic-map title shortener built from the standard pieces: each step
+ * works on the shortest form so far. */
+const mapTitleShortener: Shortener = composeShorteners(
+  dropPrefix("Geologic map of the", "Geologic map of"),
+  dropAfter(","),
+  dropParenthetical,
+  dropSuffix("and adjacent ranges", "Formation", "Group"),
+);
+
+const longMapTitle =
+  "Geologic map of the Sierra Estrella and adjacent ranges, Maricopa County, Arizona";
+
+/** Inline titles can step down through shorter forms before truncating.
+ * `shortTitle` takes one string, a list (longest first), or a shortener
+ * function; `shortenTitle` says when: `narrow` (default) uses the longest form
+ * that fits once crumbs have collapsed, `always` starts from the first short
+ * form, `never` keeps the full title. Hover a shortened title for the full one.
+ * The large expanded title is never shortened. */
+export const ShortTitles: Story = {
+  render: () =>
+    h(
+      "div.width-frames",
+      [1100, 760, 520, 380].map((width) =>
+        h("div", { key: width }, [
+          h("div.frame-label", `${width}px`),
+          h("div.width-frame", { style: { width } }, [
+            h(ShortTitleRow, {
+              label: "shortTitle: shortener function",
+              title: longMapTitle,
+              shortTitle: mapTitleShortener,
+              identifier: "#3712",
+            }),
+            h(ShortTitleRow, {
+              label: "shortTitle: list",
+              title: "Tapeats Sandstone (Tonto Group)",
+              shortTitle: ["Tapeats Sandstone", "Tapeats"],
+              identifier: "#1205",
+            }),
+            h(ShortTitleRow, {
+              label: "shortenTitle: always",
+              title: "Sierra Estrella, Arizona",
+              shortTitle: "Sierra Estrella",
+              shortenTitle: "always",
+            }),
+            h(ShortTitleRow, {
+              label: "shortenTitle: never",
+              title: longMapTitle,
+              shortTitle: mapTitleShortener,
+              shortenTitle: "never",
+              identifier: "#3712",
+            }),
+          ]),
+        ]),
+      ),
+    ),
+};
+
+/** What the standard shorteners produce, as `shortenedForms(title, shortener)`:
+ * the full text, then each strictly shorter form. The same shape is meant for
+ * other labels that must fit a measured space, such as column unit labels. */
+export const Shorteners: Story = {
+  render: () => {
+    const cases: [string, string, Shortener][] = [
+      ["composeShorteners(…)", longMapTitle, mapTitleShortener],
+      [
+        'dropAfter(",")',
+        "Sierra Estrella, Maricopa County, Arizona",
+        dropAfter(","),
+      ],
+      [
+        "dropParenthetical",
+        "Tapeats Sandstone (Tonto Group)",
+        dropParenthetical,
+      ],
+      ['dropSuffix("Formation")', "Kaibab Formation", dropSuffix("Formation")],
+      [
+        'dropPrefix("Geologic map of the")',
+        "Geologic map of the Grand Canyon",
+        dropPrefix("Geologic map of the"),
+      ],
+    ];
+    return h("div.width-frames", [
+      h("table.shortener-table", [
+        h(
+          "thead",
+          h("tr", [h("th", "Shortener"), h("th", "Forms, longest first")]),
+        ),
+        h(
+          "tbody",
+          cases.map(([name, text, shortener]) =>
+            h("tr", { key: name }, [
+              h("td", h("code", name)),
+              h(
+                "td",
+                h(
+                  "ol",
+                  shortenedForms(text, shortener).map((form) =>
+                    h("li", { key: form }, form),
+                  ),
+                ),
+              ),
+            ]),
+          ),
+        ),
+      ]),
+    ]);
+  },
+};
+
+function ShortTitleRow({
+  label,
+  ...props
+}: PageHeaderProps & { label: string }) {
+  return h("div.short-title-row", [
+    h("div.row-label", label),
+    h(PageHeader, {
+      variant: "compact",
+      logo: h(MacrostratLogo),
+      breadcrumbs: [root, { text: "Maps", href: "#" }],
+      actions: h(PageHeaderButton, {
+        icon: "download",
+        variant: "minimal",
+        text: "Download",
+      }),
+      ...props,
+    }),
+  ]);
+}
 
 /** The same components under a second brand, restyled only through tokens
  * on an ancestor: Rockd's logo, background, accent and title weight. */

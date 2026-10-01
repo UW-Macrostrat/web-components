@@ -192,6 +192,20 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
   text-overflow: ellipsis
   white-space: nowrap
 
+// Every title form, laid out at the crumb's type size for measuring: zero-size
+// and clipped so it neither shows nor widens the page.
+.title-measure
+  position: absolute
+  width: 0
+  height: 0
+  overflow: hidden
+  visibility: hidden
+
+  & > span
+    display: block
+    width: max-content
+    white-space: nowrap
+
 // Once the title is inline, the identifier sits at the right end of the trail
 // (the trail takes all the leftover width), where it sits in the title row.
 .inline-identifier
