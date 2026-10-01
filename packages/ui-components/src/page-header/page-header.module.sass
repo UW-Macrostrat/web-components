@@ -1,0 +1,276 @@
+// Page header: logo, breadcrumb trail, title, identifier and actions, in
+// expanded, compact and hybrid arrangements.
+//
+// Local knobs use weak names and default to Paleozoic globals, so a brand
+// (Macrostrat, Rockd) restyles every header from its `--pz-` tokens, and a
+// single page can still diverge by setting a `--page-header-*` value.
+
+// The crumb that visually ends the trail. Usually the DOM-last one, but the
+// root is placed DOM-last when there is no current crumb (it collapses last),
+// and `order` moves it back to the head — so the crumb before it is the one
+// that actually ends the trail.
+$trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type)"
+
+.page-header
+  --page-header-bar-height: 3rem
+  --page-header-logo-size: 1.75rem
+  --page-header-gap: var(--pz-inline-gap)
+  --page-header-padding-x: var(--pz-content-padding)
+  --page-header-content-width: var(--pz-content-width, 60rem)
+  --page-header-background: var(--pz-background-color)
+  --page-header-rule-color: var(--pz-border-muted-color)
+  --page-header-sticky-top: 0px
+  --page-header-z-index: 10
+
+  --page-header-crumb-font-size: var(--pz-font-size-md)
+  --page-header-crumb-color: var(--pz-text-subtle-color)
+  --page-header-crumb-hover-color: var(--pz-link-hover-color)
+  --page-header-current-color: var(--pz-text-emphasized-color)
+  --page-header-current-weight: var(--pz-font-weight-semibold)
+
+  --page-header-title-font: var(--pz-heading-font)
+  --page-header-title-font-size: var(--pz-font-size-2xl)
+  --page-header-title-weight: var(--pz-font-weight-medium)
+  --page-header-title-color: var(--pz-text-color)
+  // Space between the breadcrumb row and the large title's cap height.
+  --page-header-title-spacing: 0rem
+  // Large type carries a wider side bearing than the trail's; nudge the title
+  // left so the strokes, not the boxes, line up with the trail's text.
+  --page-header-title-optical-offset: -0.04em
+  --page-header-title-block-padding-bottom: var(--pz-space-4)
+
+  --page-header-identifier-font: var(--pz-font-mono)
+  --page-header-identifier-color: var(--pz-text-subtle-color)
+
+  display: flow-root
+  color: var(--pz-text-color)
+
+// Sticky: the header's box steps aside so the bar's sticky boundary is the
+// page itself, not a header that ends right after the title.
+.page-header.sticky
+  display: contents
+
+.sentinel
+  height: 0
+
+.bar
+  // Container queries inside the bar react to its width, not the viewport's,
+  // so a header in a side panel collapses like one on a phone.
+  container: page-header-bar / inline-size
+
+.sticky .bar
+  position: sticky
+  top: var(--page-header-sticky-top)
+  z-index: var(--page-header-z-index)
+  background: var(--page-header-background)
+  transition: box-shadow 150ms ease
+
+.stuck .bar
+  box-shadow: 0 1px 0 var(--page-header-rule-color)
+
+.bar-inner,
+.title-block-inner
+  box-sizing: border-box
+  padding: 0 var(--page-header-padding-x)
+
+.constrained
+  .bar-inner,
+  .title-block-inner
+    max-width: calc(var(--page-header-content-width) + 2 * var(--page-header-padding-x))
+    margin: 0 auto
+
+.bar-inner
+  display: flex
+  flex-direction: row
+  align-items: center
+  gap: var(--page-header-gap)
+  height: var(--page-header-bar-height)
+
+// Logo
+
+.logo
+  flex: 0 0 auto
+  display: flex
+  width: var(--page-header-logo-size)
+  height: var(--page-header-logo-size)
+
+  // Flex, not inline: an inline image sits on the baseline and leaves a
+  // descender's worth of dead space below it.
+  & > a
+    display: flex
+    width: 100%
+    height: 100%
+
+  img, svg
+    display: block
+    width: 100%
+    height: 100%
+
+// Breadcrumb trail
+
+// The trail takes the leftover space outright rather than sizing to its crumbs.
+// `OverflowList` collapses by measuring against its container, so a container
+// that in turn sized to the collapsed content would oscillate.
+.trail-container
+  display: flex
+  flex: 1 1 0
+  min-width: 0
+  height: 100%
+  align-items: center
+
+  nav
+    display: flex
+    flex: 1 1 0
+    min-width: 0
+
+.trail
+  flex: 1
+  min-width: 0
+  height: auto
+  flex-wrap: nowrap
+  font-size: var(--page-header-crumb-font-size)
+
+  // Crumbs hold their natural width. `OverflowList` decides to collapse by
+  // watching a trailing 1px spacer, so if crumbs squished instead, the list
+  // would always appear to fit and nothing would collapse.
+  li
+    flex: 0 0 auto
+    min-width: 0
+    display: flex
+    align-items: center
+
+    &::after
+      opacity: 0.6
+
+  :global(.bp6-breadcrumb)
+    font-size: inherit
+    white-space: nowrap
+    color: var(--page-header-crumb-color)
+
+  a:global(.bp6-breadcrumb):hover
+    color: var(--page-header-crumb-hover-color)
+
+  :global(.bp6-breadcrumb-current)
+    font-size: inherit
+    color: var(--page-header-current-color)
+    font-weight: var(--page-header-current-weight)
+
+  :global(.bp6-breadcrumbs-collapsed)
+    margin-right: 0
+
+  // Handed to `OverflowList` last so it outlives the crumbs below it; brought
+  // back to the head of the trail here.
+  .root-crumb
+    order: -1
+
+    // Blueprint hides the chevron after the DOM-last crumb. The root is only
+    // ever *visually* last when it is the trail's only crumb.
+    &:not(:only-of-type)::after
+      display: block
+
+  // Once the menu has swallowed everything it can, the crumb ending the trail
+  // is all that's left to give, so it is the only shrinkable item in the row.
+  #{$trail-end}
+    flex: 0 1 auto
+
+    &::after
+      display: none
+
+    :global(.bp6-breadcrumb),
+    :global(.bp6-breadcrumb-current)
+      // `text-overflow` needs a block box; Blueprint's default is inline-flex.
+      display: block
+      min-width: 0
+      overflow: hidden
+      text-overflow: ellipsis
+
+// The current crumb carries the title and, inline, the identifier. Only the
+// title truncates; the identifier stays whole until the bar is very narrow.
+.trail .current-crumb :global(.bp6-breadcrumb-current)
+  display: flex
+  align-items: baseline
+  gap: var(--page-header-gap)
+  overflow: visible
+
+.inline-title
+  min-width: 0
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
+
+.hybrid .current-crumb
+  animation: inline-title-in 180ms ease-out
+
+@keyframes inline-title-in
+  from
+    opacity: 0
+    transform: translateY(0.4em)
+
+// Actions
+
+.actions
+  flex: 0 0 auto
+  display: flex
+  flex-direction: row
+  align-items: center
+  gap: var(--page-header-gap)
+
+// Title block (expanded and hybrid)
+
+.title-block-inner
+  padding-bottom: var(--page-header-title-block-padding-bottom)
+
+// The title starts where the trail's text does: past the logo and its gap.
+.has-logo .title-block-inner
+  padding-left: calc(var(--page-header-padding-x) + var(--page-header-logo-size) + var(--page-header-gap))
+
+.title-row
+  display: flex
+  flex-direction: row
+  align-items: baseline
+  justify-content: space-between
+  gap: 1em
+  min-width: 0
+  margin-top: var(--page-header-title-spacing)
+
+.page-title
+  margin: 0
+  margin-left: var(--page-header-title-optical-offset)
+  min-width: 0
+  font-family: var(--page-header-title-font)
+  font-size: var(--page-header-title-font-size)
+  font-weight: var(--page-header-title-weight)
+  line-height: var(--pz-line-height-tight)
+  color: var(--page-header-title-color)
+  overflow-wrap: anywhere
+  // Trim the line box to the cap height, so "snug" is measured from the
+  // letters themselves rather than from the leading above them.
+  text-box: trim-both cap alphabetic
+
+.identifier
+  flex: 0 0 auto
+  font-family: var(--page-header-identifier-font)
+  font-size: var(--pz-font-size-sm)
+  font-weight: var(--pz-font-weight-normal)
+  color: var(--page-header-identifier-color)
+  font-variant-numeric: tabular-nums
+  white-space: nowrap
+
+.supporting
+  margin-top: var(--pz-space-3)
+  color: var(--pz-text-subtle-color)
+
+// Narrow bars shed width in order: action labels, then the inline identifier.
+// Crumbs collapse into the "…" menu on their own, and the title truncates last.
+
+@container page-header-bar (max-width: 40rem)
+  .action-label
+    display: none
+
+  // Blueprint keeps the (now empty) text span, with its margin, beside the icon.
+  .page-header-button :global(.bp6-button-text):has(> .action-label)
+    display: none
+
+@container page-header-bar (max-width: 26rem)
+  .inline-identifier
+    display: none
