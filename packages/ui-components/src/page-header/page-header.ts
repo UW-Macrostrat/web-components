@@ -1,7 +1,19 @@
-import { Button, ButtonProps, PopoverNext } from "@blueprintjs/core";
+import {
+  AnchorButton,
+  Button,
+  ButtonProps,
+  PopoverNext,
+} from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
-import { ReactNode, RefObject, useEffect, useRef, useState } from "react";
+import {
+  ReactNode,
+  RefObject,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import styles from "./page-header.module.sass";
 import { BreadcrumbTrail, Crumb } from "./trail";
 
@@ -183,6 +195,9 @@ export interface PageHeaderButtonProps extends ButtonProps {
   /** Label that is dropped (leaving the icon) when the header runs short of
    * room. Strings also become the button's accessible name. */
   text?: ReactNode;
+  /** Render as a link (Blueprint `AnchorButton`) rather than a button. */
+  href?: string;
+  target?: string;
 }
 
 /**
@@ -195,7 +210,11 @@ export function PageHeaderButton(props: PageHeaderButtonProps) {
   if (typeof text == "string") {
     ariaLabel = text;
   }
-  return h(Button, {
+  let component: React.ComponentType<any> = Button;
+  if (props.href != null) {
+    component = AnchorButton;
+  }
+  return h(component, {
     "aria-label": ariaLabel,
     ...rest,
     className: classNames("page-header-button", className),
@@ -210,12 +229,16 @@ function useIsNarrower(
   enabled: boolean,
 ) {
   const [isNarrow, setIsNarrow] = useState(false);
-  useEffect(() => {
+  // Measured before paint, so a narrow bar never shows its unfolded actions
+  // for a frame (on the client; a server render can't know the width).
+  useIsomorphicLayoutEffect(() => {
     const el = ref.current;
     if (!enabled || el == null) return;
-    const observer = new ResizeObserver(([entry]) => {
-      setIsNarrow(entry.contentRect.width < threshold);
-    });
+    const measure = () => {
+      setIsNarrow(el.getBoundingClientRect().width < threshold);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
     observer.observe(el);
     return () => observer.disconnect();
   }, [enabled, threshold]);
@@ -234,7 +257,7 @@ interface HeaderRefs {
 function useHeaderScrollState(refs: HeaderRefs, enabled: boolean) {
   const [state, setState] = useState({ isStuck: false, isTitleTucked: false });
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!enabled) {
       setState({ isStuck: false, isTitleTucked: false });
       return;
@@ -281,3 +304,7 @@ function useHeaderScrollState(refs: HeaderRefs, enabled: boolean) {
 
   return state;
 }
+
+// `useLayoutEffect` warns during server rendering, where it never runs anyway.
+const useIsomorphicLayoutEffect =
+  typeof window == "undefined" ? useEffect : useLayoutEffect;

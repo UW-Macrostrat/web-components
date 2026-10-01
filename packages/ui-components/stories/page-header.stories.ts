@@ -396,6 +396,7 @@ function ColumnsActions() {
     h(PageHeaderButton, {
       icon: "user",
       intent: "success",
+      href: "#",
       text: "Log out",
     }),
     h(ViewSwitcher, { initial: "List and map" }),

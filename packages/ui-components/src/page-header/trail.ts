@@ -59,7 +59,11 @@ export function BreadcrumbTrail({
       return h(
         "li.current-crumb",
         { key: "current" },
-        h("span", { className: Classes.BREADCRUMB_CURRENT }, item.text),
+        h(
+          "span",
+          { className: Classes.BREADCRUMB_CURRENT, "aria-current": "page" },
+          item.text,
+        ),
       );
     }
     return h(
