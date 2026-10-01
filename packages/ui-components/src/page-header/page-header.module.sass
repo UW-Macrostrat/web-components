@@ -29,7 +29,10 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
   --page-header-current-weight: var(--pz-font-weight-semibold)
 
   --page-header-title-font: var(--pz-heading-font)
+  // The expanded title scales with the title block's width, between these.
   --page-header-title-font-size: var(--pz-font-size-2xl)
+  --page-header-title-min-font-size: var(--pz-font-size-xl)
+  --page-header-title-fluid-size: 6cqi
   --page-header-title-weight: var(--pz-font-weight-medium)
   --page-header-title-color: var(--pz-text-color)
   // Space between the breadcrumb row and the large title's cap height.
@@ -252,6 +255,11 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
 
 // Title block (expanded and hybrid)
 
+// A container of its own, so the title sizes to the space the header is given
+// (a side panel, a phone) rather than to the viewport.
+.title-block
+  container-type: inline-size
+
 .title-block-inner
   padding-bottom: var(--page-header-title-block-padding-bottom)
 
@@ -273,7 +281,7 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
   margin-left: var(--page-header-title-optical-offset)
   min-width: 0
   font-family: var(--page-header-title-font)
-  font-size: var(--page-header-title-font-size)
+  font-size: clamp(var(--page-header-title-min-font-size), var(--page-header-title-fluid-size), var(--page-header-title-font-size))
   font-weight: var(--page-header-title-weight)
   line-height: var(--pz-line-height-tight)
   color: var(--page-header-title-color)
