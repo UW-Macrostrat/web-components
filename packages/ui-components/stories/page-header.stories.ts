@@ -108,7 +108,7 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     collapseActionsBelow: 640,
     shortenTitle: "narrow",
     shortTitle: ["Sierra Estrella", "Estrella"],
-    prioritizeTitle: false,
+    prioritizeTitle: true,
     logo: h(MacrostratLogo),
     breadcrumbs: [root, { text: "Maps", href: "#" }],
     title: "Sierra Estrella, Arizona",
@@ -208,11 +208,12 @@ export const Widths: Story = {
 };
 
 /** The pathological case: a deep trail and a wide view switcher. Each frame
- * is a fixed width and can also be dragged from its corner. In order, the bar
- * drops action labels, collapses crumbs into "…" (the root last), hides the
- * inline identifier, and finally truncates the title. The last header in each
- * frame opts in to `collapseActions: "narrow"`, folding its actions into a
- * "more" dropdown below 640px instead of dropping labels. */
+ * is a fixed width and can also be dragged from its corner. Crumbs collapse
+ * into "…" first (the root last); then, while the title still lacks room,
+ * action labels drop, the inline identifier hides, and finally the title
+ * truncates. The expanded header has no inline title, so it drops labels at
+ * fixed bar widths. The last header opts in to `collapseActions: "narrow"`,
+ * making the "more" dropdown the final step before the title gives. */
 export const Overflow: Story = {
   render: () =>
     h(
@@ -361,12 +362,12 @@ export const ShortTitles: Story = {
     ),
 };
 
-/** `prioritizeTitle` lets the title decide when secondary content goes. In
- * each frame the first header uses the default fixed bar widths (labels drop
- * at 40rem, the identifier at 26rem); the second steps down as soon as its
- * title lacks room: labels, then identifier, then (with `collapseActions`)
- * the dropdown, and only then shortens or truncates the title. A number sets
- * how many ems of title to protect (default 20). */
+/** The inline title decides when secondary content goes (`prioritizeTitle`,
+ * on by default). In each frame the first header opts out, dropping labels
+ * and identifier at fixed bar widths (40rem, 26rem); the others step down as
+ * soon as the title lacks room: labels, then identifier, then (with
+ * `collapseActions`) the dropdown, and only then shorten or truncate the
+ * title. A number sets how many ems of title to protect (default 20). */
 export const TitleFirst: Story = {
   render: () =>
     h(
@@ -375,14 +376,13 @@ export const TitleFirst: Story = {
         h("div", { key: width }, [
           h("div.frame-label", `${width}px`),
           h("div.width-frame", { style: { width } }, [
-            h(TitleFirstRow, { label: "default (fixed widths)" }),
             h(TitleFirstRow, {
-              label: "prioritizeTitle",
-              prioritizeTitle: true,
+              label: "prioritizeTitle: false (fixed widths)",
+              prioritizeTitle: false,
             }),
+            h(TitleFirstRow, { label: "default (title first)" }),
             h(TitleFirstRow, {
-              label: 'prioritizeTitle + collapseActions: "narrow"',
-              prioritizeTitle: true,
+              label: 'collapseActions: "narrow"',
               collapseActions: "narrow",
             }),
           ]),

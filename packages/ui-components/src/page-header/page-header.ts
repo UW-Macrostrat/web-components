@@ -62,7 +62,9 @@ export interface PageHeaderProps {
   actions?: ReactNode;
   /** Opt in to folding `actions` into a dropdown. Default `never`. */
   collapseActions?: PageHeaderActionsCollapse;
-  /** Bar width (px) below which `narrow` folds the actions. Default 640. */
+  /** Bar width (px) below which `narrow` folds the actions, when folding
+   * isn't title-driven (no inline title, or `prioritizeTitle: false`).
+   * Default 640. */
   collapseActionsBelow?: number;
   /** What the dropdown shows once folded, e.g. a Blueprint `Menu`. Defaults to
    * `actions` itself, stacked, with every label shown. */
@@ -73,7 +75,8 @@ export interface PageHeaderProps {
    * `collapseActions` isn't `never`) actions into the dropdown — before the
    * title shortens or truncates. `true` protects up to 20em of title; a number
    * sets that reserve in ems, so a very long title doesn't strip the bar bare.
-   * Off by default, where labels and identifier drop at fixed bar widths. */
+   * On by default. `false`, or a bar with no inline title (expanded, or hybrid
+   * at rest), drops labels and identifier at fixed bar widths instead. */
   prioritizeTitle?: boolean | number;
   variant?: PageHeaderVariant;
   /** Keep the breadcrumb row in view while scrolling. Always on for `hybrid`.
@@ -98,7 +101,7 @@ export function PageHeader(props: PageHeaderProps) {
     collapseActions = "never",
     collapseActionsBelow = 640,
     actionsMenu,
-    prioritizeTitle = false,
+    prioritizeTitle = true,
     variant = "expanded",
     sticky = false,
     width = "full",
@@ -125,13 +128,16 @@ export function PageHeader(props: PageHeaderProps) {
     isSticky,
   );
 
+  const isCollapsed = variant == "hybrid" && isTitleTucked;
+  const isTitleInline = title != null && (variant == "compact" || isCollapsed);
+  // Title-first adaptation applies while the title is in the bar; otherwise
+  // (and when opted out) labels and identifier drop at fixed bar widths.
+  const isTitleFirst = prioritizeTitle !== false && isTitleInline;
   const isNarrow = useIsNarrower(
     barInnerRef,
     collapseActionsBelow,
-    collapseActions == "narrow" && prioritizeTitle === false,
+    collapseActions == "narrow" && !isTitleFirst,
   );
-  const isCollapsed = variant == "hybrid" && isTitleTucked;
-  const isTitleInline = title != null && (variant == "compact" || isCollapsed);
   const titleForms = useTitleForms(title, shortTitle);
   const titleSpace: TitleSpaceRefs = {
     measure: titleMeasure,
@@ -142,9 +148,6 @@ export function PageHeader(props: PageHeaderProps) {
     hasCollapsedCrumbs: breadcrumbs.length > (logo != null ? 1 : 0),
   };
 
-  // Title-first adaptation applies while the title is in the bar; otherwise
-  // (and when not opted in) labels and identifier drop at fixed bar widths.
-  const isTitleFirst = prioritizeTitle !== false && isTitleInline;
   let titleReserve = defaultTitleReserve;
   if (typeof prioritizeTitle == "number") {
     titleReserve = prioritizeTitle;
