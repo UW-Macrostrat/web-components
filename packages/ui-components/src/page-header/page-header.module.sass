@@ -41,6 +41,8 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
 
   --page-header-identifier-font: var(--pz-font-mono)
   --page-header-identifier-color: var(--pz-text-subtle-color)
+  // Minimum space between an inline title and the identifier after it.
+  --page-header-identifier-spacing: var(--pz-space-4)
 
   display: flow-root
   color: var(--pz-text-color)
@@ -184,22 +186,27 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
       overflow: hidden
       text-overflow: ellipsis
 
-// The current crumb carries the title and, inline, the identifier. Only the
-// title truncates; the identifier stays whole until the bar is very narrow.
-.trail .current-crumb :global(.bp6-breadcrumb-current)
-  display: flex
-  align-items: baseline
-  gap: var(--page-header-gap)
-  overflow: visible
-
 .inline-title
   min-width: 0
   overflow: hidden
   text-overflow: ellipsis
   white-space: nowrap
 
-.hybrid .current-crumb
-  animation: inline-title-in 180ms ease-out
+// Once the title is inline, the identifier sits at the right end of the trail
+// (the trail takes all the leftover width), where it sits in the title row.
+.inline-identifier
+  margin-left: var(--page-header-identifier-spacing)
+
+.hybrid
+  .current-crumb,
+  .inline-identifier
+    animation: inline-title-in 180ms ease-out
+
+@media (prefers-reduced-motion: reduce)
+  .hybrid
+    .current-crumb,
+    .inline-identifier
+      animation: none
 
 @keyframes inline-title-in
   from
@@ -214,6 +221,20 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
   flex-direction: row
   align-items: center
   gap: var(--page-header-gap)
+
+// Folded actions: the dropdown that replaces the action row when opted in.
+// Rendered in a popover portal, outside the bar's container, so labels that
+// collapse in the bar are shown here in full.
+.actions-menu
+  display: flex
+  flex-direction: column
+  align-items: stretch
+  gap: var(--pz-space-1)
+  padding: var(--pz-space-2)
+  min-width: 10rem
+
+  :global(.bp6-button)
+    justify-content: flex-start
 
 // Title block (expanded and hybrid)
 

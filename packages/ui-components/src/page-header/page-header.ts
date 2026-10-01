@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from "@blueprintjs/core";
+import { Button, ButtonProps, PopoverNext } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
 import { ReactNode, RefObject, useEffect, useRef, useState } from "react";
@@ -18,6 +18,10 @@ export type PageHeaderVariant = "expanded" | "compact" | "hybrid";
 /** `full` spans its container; `constrained` centres on the content column. */
 export type PageHeaderWidth = "full" | "constrained";
 
+/** Whether the actions fold into a single "more" dropdown: `never`, below
+ * `collapseActionsBelow` (`narrow`), or `always`. */
+export type PageHeaderActionsCollapse = "never" | "narrow" | "always";
+
 export interface PageHeaderProps {
   /** Brand mark, usually a link home. Sized by `--page-header-logo-size`. */
   logo?: ReactNode;
@@ -29,6 +33,13 @@ export interface PageHeaderProps {
   identifier?: ReactNode;
   /** Right-aligned toolbar content: buttons, view switchers, login. */
   actions?: ReactNode;
+  /** Opt in to folding `actions` into a dropdown. Default `never`. */
+  collapseActions?: PageHeaderActionsCollapse;
+  /** Bar width (px) below which `narrow` folds the actions. Default 640. */
+  collapseActionsBelow?: number;
+  /** What the dropdown shows once folded, e.g. a Blueprint `Menu`. Defaults to
+   * `actions` itself, stacked, with every label shown. */
+  actionsMenu?: ReactNode;
   variant?: PageHeaderVariant;
   /** Keep the breadcrumb row in view while scrolling. Always on for `hybrid`.
    * The header's parent is the sticky boundary, so render it as a direct child
@@ -47,6 +58,9 @@ export function PageHeader(props: PageHeaderProps) {
     title,
     identifier,
     actions,
+    collapseActions = "never",
+    collapseActionsBelow = 640,
+    actionsMenu,
     variant = "expanded",
     sticky = false,
     width = "full",
@@ -60,18 +74,28 @@ export function PageHeader(props: PageHeaderProps) {
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
+  const barInnerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const { isStuck, isTitleTucked } = useHeaderScrollState(
     { sentinel: sentinelRef, bar: barRef, title: titleRef },
     isSticky,
   );
 
+  const isNarrow = useIsNarrower(
+    barInnerRef,
+    collapseActionsBelow,
+    collapseActions == "narrow",
+  );
+  const foldActions =
+    actions != null &&
+    (collapseActions == "always" || (collapseActions == "narrow" && isNarrow));
+
   const isCollapsed = variant == "hybrid" && isTitleTucked;
+  const isTitleInline = title != null && (variant == "compact" || isCollapsed);
   let current: ReactNode = null;
-  if (title != null && (variant == "compact" || isCollapsed)) {
+  if (isTitleInline) {
     current = h(InlineTitle, {
       title,
-      identifier,
       // In hybrid mode the large title remains the page's heading.
       isHeading: variant == "compact",
     });
@@ -92,7 +116,7 @@ export function PageHeader(props: PageHeaderProps) {
       h(
         "div.bar",
         { ref: barRef },
-        h("div.bar-inner", [
+        h("div.bar-inner", { ref: barInnerRef }, [
           h.if(logo != null)("div.logo", logo),
           h("div.trail-container", [
             h(BreadcrumbTrail, {
@@ -100,8 +124,18 @@ export function PageHeader(props: PageHeaderProps) {
               current,
               hasLogo: logo != null,
             }),
+            // Right-aligned, where it sits in the expanded title row.
+            h.if(isTitleInline && identifier != null)(
+              "span.identifier.inline-identifier",
+              { "aria-hidden": variant == "hybrid" },
+              identifier,
+            ),
           ]),
-          h.if(actions != null)("div.actions", actions),
+          h.if(actions != null && !foldActions)("div.actions", actions),
+          h.if(foldActions)(
+            "div.actions",
+            h(ActionsDropdown, { content: actionsMenu ?? actions }),
+          ),
         ]),
       ),
       h.if(hasTitleBlock)(
@@ -118,17 +152,31 @@ export function PageHeader(props: PageHeaderProps) {
   );
 }
 
-function InlineTitle({ title, identifier, isHeading }) {
+function InlineTitle({ title, isHeading }) {
   let headingProps = {};
   if (isHeading) {
     headingProps = { role: "heading", "aria-level": 1 };
   } else {
     headingProps = { "aria-hidden": true };
   }
-  return h([
-    h("span.inline-title", headingProps, title),
-    h.if(identifier != null)("span.identifier.inline-identifier", identifier),
-  ]);
+  return h("span.inline-title", headingProps, title);
+}
+
+/** The header's actions folded behind a single "more" button. */
+function ActionsDropdown({ content }) {
+  return h(
+    PopoverNext,
+    {
+      content: h("div.actions-menu", content),
+      placement: "bottom-end",
+    },
+    h(Button, {
+      className: "actions-menu-button",
+      icon: "more",
+      variant: "minimal",
+      "aria-label": "More actions",
+    }),
+  );
 }
 
 export interface PageHeaderButtonProps extends ButtonProps {
@@ -153,6 +201,25 @@ export function PageHeaderButton(props: PageHeaderButtonProps) {
     className: classNames("page-header-button", className),
     text: h.if(text != null)("span.action-label", text),
   });
+}
+
+/** Whether an element is narrower than `threshold` px; false when disabled. */
+function useIsNarrower(
+  ref: RefObject<HTMLElement | null>,
+  threshold: number,
+  enabled: boolean,
+) {
+  const [isNarrow, setIsNarrow] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!enabled || el == null) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setIsNarrow(entry.contentRect.width < threshold);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [enabled, threshold]);
+  return enabled && isNarrow;
 }
 
 interface HeaderRefs {

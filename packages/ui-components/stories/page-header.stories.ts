@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
-import { Menu, MenuItem, PopoverNext } from "@blueprintjs/core";
+import { Menu, MenuDivider, MenuItem, PopoverNext } from "@blueprintjs/core";
 import { LoremIpsum } from "lorem-ipsum";
 import { ReactNode, useState } from "react";
 import { PageHeader, PageHeaderButton, PageHeaderProps } from "../src";
@@ -41,10 +41,16 @@ const meta: Meta<typeof PageHeader> = {
     },
     width: { control: "inline-radio", options: ["full", "constrained"] },
     sticky: { control: "boolean" },
+    collapseActions: {
+      control: "inline-radio",
+      options: ["never", "narrow", "always"],
+    },
+    collapseActionsBelow: { control: { type: "number", step: 40 } },
     title: { control: "text" },
     identifier: { control: "text" },
     logo: { control: false },
     actions: { control: false },
+    actionsMenu: { control: false },
     breadcrumbs: { control: "object" },
     children: { control: false },
   },
@@ -61,6 +67,8 @@ export const Playground: Story = {
     variant: "hybrid",
     width: "constrained",
     sticky: false,
+    collapseActions: "never",
+    collapseActionsBelow: 640,
     logo: h(MacrostratLogo),
     breadcrumbs: [root, { text: "Maps", href: "#" }],
     title: "Sierra Estrella, Arizona",
@@ -162,7 +170,9 @@ export const Widths: Story = {
 /** The pathological case: a deep trail and a wide view switcher. Each frame
  * is a fixed width and can also be dragged from its corner. In order, the bar
  * drops action labels, collapses crumbs into "…" (the root last), hides the
- * inline identifier, and finally truncates the title. */
+ * inline identifier, and finally truncates the title. The last header in each
+ * frame opts in to `collapseActions: "narrow"`, folding its actions into a
+ * "more" dropdown below 640px instead of dropping labels. */
 export const Overflow: Story = {
   render: () =>
     h(
@@ -203,10 +213,55 @@ export const Overflow: Story = {
               identifier: "#1205",
               actions: h(MapActions),
             }),
+            h(PageHeader, {
+              variant: "compact",
+              logo: h(MacrostratLogo),
+              breadcrumbs: [root, { text: "Dev", href: "#" }],
+              title: "Columns",
+              actions: h(ColumnsActions),
+              collapseActions: "narrow",
+            }),
           ]),
         ]),
       ),
     ),
+};
+
+/** Opt-in super-compact actions: the whole right side folds behind one
+ * "more" button. `always` here; `narrow` folds only below
+ * `collapseActionsBelow`. By default the dropdown shows `actions` stacked with
+ * full labels; `actionsMenu` replaces that with purpose-built content. */
+export const FoldedActions: Story = {
+  render: () =>
+    h(DemoPage, { width: "constrained" }, [
+      h(PageHeader, {
+        variant: "compact",
+        sticky: true,
+        width: "constrained",
+        logo: h(MacrostratLogo),
+        breadcrumbs: [root],
+        title: "Columns (actions stacked in the dropdown)",
+        actions: h(ColumnsActions),
+        collapseActions: "always",
+      }),
+      h(PageHeader, {
+        variant: "compact",
+        width: "constrained",
+        logo: h(MacrostratLogo),
+        breadcrumbs: [root, { text: "Maps", href: "#" }],
+        title: "Sierra Estrella, Arizona (custom menu)",
+        identifier: "#3712",
+        actions: h(MapActions),
+        collapseActions: "always",
+        actionsMenu: h(Menu, [
+          h(MenuItem, { icon: "download", text: "Download" }),
+          h(MenuDivider, { title: "View" }),
+          h(MenuItem, { icon: "map", text: "Map and legend", active: true }),
+          h(MenuItem, { icon: "list", text: "List only" }),
+          h(MenuItem, { icon: "map", text: "Map only" }),
+        ]),
+      }),
+    ]),
 };
 
 /** The same components under a second brand, restyled only through tokens
@@ -229,7 +284,7 @@ export const SecondBrand: Story = {
           actions: [
             h(PageHeaderButton, {
               icon: "share",
-              minimal: true,
+              variant: "minimal",
               text: "Share",
             }),
             h(PageHeaderButton, {
@@ -278,7 +333,7 @@ function MacrostratLogo() {
   // Falls back to an inline stand-in where the asset host is unreachable
   // (e.g. a sandboxed static build).
   const [failed, setFailed] = useState(false);
-  let mark = h("img", {
+  let mark: ReactNode = h("img", {
     src: logoURL,
     alt: "",
     onError: () => setFailed(true),
@@ -329,7 +384,11 @@ function ColumnsActions() {
 
 function MapActions() {
   return h([
-    h(PageHeaderButton, { icon: "download", minimal: true, text: "Download" }),
+    h(PageHeaderButton, {
+      icon: "download",
+      variant: "minimal",
+      text: "Download",
+    }),
     h(ViewSwitcher, { initial: "Map and legend" }),
   ]);
 }
@@ -361,7 +420,7 @@ function ViewSwitcher({ initial }: { initial: string }) {
     PopoverNext,
     { content: menu, placement: "bottom-end" },
     h(PageHeaderButton, {
-      minimal: true,
+      variant: "minimal",
       icon: viewModes[mode],
       endIcon: "caret-down",
       text: mode,
