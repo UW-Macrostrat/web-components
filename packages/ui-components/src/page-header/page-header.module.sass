@@ -173,11 +173,9 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
     &:not(:only-of-type)::after
       display: block
 
-  // Once the menu has swallowed everything it can, the crumb ending the trail
-  // is all that's left to give, so it is the only shrinkable item in the row.
+  // The crumb ending the trail truncates rather than overflowing, once it is
+  // allowed to shrink (below).
   #{$trail-end}
-    flex: 0 1 auto
-
     &::after
       display: none
 
@@ -188,6 +186,14 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
       min-width: 0
       overflow: hidden
       text-overflow: ellipsis
+
+// Only once the "…" menu has swallowed every crumb it can is the one crumb
+// left (the current page's, in compact mode) allowed to shrink. Were it
+// shrinkable earlier, it would absorb most of any overflow — flex shrink is
+// shared in proportion to width — leaving `OverflowList`'s 1px spacer almost
+// untouched, so the title would truncate while crumbs stayed visible.
+.trail:not(:has(> li:not(.overflow-crumb) ~ li:not(.overflow-crumb))) > li:not(.overflow-crumb)
+  flex-shrink: 1
 
 .inline-title
   min-width: 0
@@ -307,13 +313,25 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
 // Crumbs collapse into the "…" menu on their own, and the title truncates last.
 
 @container page-header-bar (max-width: 40rem)
-  .action-label
+  .adapt-width
+    .action-label
+      display: none
+
+    // Blueprint keeps the (now empty) text span, with its margin, beside the
+    // icon.
+    .page-header-button :global(.bp6-button-text):has(> .action-label)
+      display: none
+
+@container page-header-bar (max-width: 26rem)
+  .adapt-width .inline-identifier
     display: none
 
-  // Blueprint keeps the (now empty) text span, with its margin, beside the icon.
+// Title-first adaptation (`prioritizeTitle`): the same steps, taken whenever
+// the inline title lacks room rather than at fixed widths.
+.hide-labels
+  .action-label,
   .page-header-button :global(.bp6-button-text):has(> .action-label)
     display: none
 
-@container page-header-bar (max-width: 26rem)
-  .inline-identifier
-    display: none
+.hide-identifier .inline-identifier
+  display: none

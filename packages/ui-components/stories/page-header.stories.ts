@@ -62,6 +62,7 @@ const meta: Meta<typeof PageHeader> = {
     },
     title: { control: "text" },
     shortTitle: { control: "object" },
+    prioritizeTitle: { control: "boolean" },
     shortenTitle: {
       control: "inline-radio",
       options: ["never", "narrow", "always"],
@@ -107,6 +108,7 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     collapseActionsBelow: 640,
     shortenTitle: "narrow",
     shortTitle: ["Sierra Estrella", "Estrella"],
+    prioritizeTitle: false,
     logo: h(MacrostratLogo),
     breadcrumbs: [root, { text: "Maps", href: "#" }],
     title: "Sierra Estrella, Arizona",
@@ -358,6 +360,55 @@ export const ShortTitles: Story = {
       ),
     ),
 };
+
+/** `prioritizeTitle` lets the title decide when secondary content goes. In
+ * each frame the first header uses the default fixed bar widths (labels drop
+ * at 40rem, the identifier at 26rem); the second steps down as soon as its
+ * title lacks room: labels, then identifier, then (with `collapseActions`)
+ * the dropdown, and only then shortens or truncates the title. A number sets
+ * how many ems of title to protect (default 20). */
+export const TitleFirst: Story = {
+  render: () =>
+    h(
+      "div.width-frames",
+      [1000, 820, 680, 560, 440].map((width) =>
+        h("div", { key: width }, [
+          h("div.frame-label", `${width}px`),
+          h("div.width-frame", { style: { width } }, [
+            h(TitleFirstRow, { label: "default (fixed widths)" }),
+            h(TitleFirstRow, {
+              label: "prioritizeTitle",
+              prioritizeTitle: true,
+            }),
+            h(TitleFirstRow, {
+              label: 'prioritizeTitle + collapseActions: "narrow"',
+              prioritizeTitle: true,
+              collapseActions: "narrow",
+            }),
+          ]),
+        ]),
+      ),
+    ),
+};
+
+function TitleFirstRow({
+  label,
+  ...props
+}: Partial<PageHeaderProps> & { label: string }) {
+  return h("div.short-title-row", [
+    h("div.row-label", label),
+    h(PageHeader, {
+      variant: "compact",
+      logo: h(MacrostratLogo),
+      breadcrumbs: [root, { text: "Maps", href: "#" }],
+      title: "Sierra Estrella and adjacent ranges, Arizona",
+      shortTitle: ["Sierra Estrella and adjacent ranges", "Sierra Estrella"],
+      identifier: "#3712",
+      actions: h(ColumnsActions),
+      ...props,
+    }),
+  ]);
+}
 
 /** What the standard shorteners produce, as `shortenedForms(title, shortener)`:
  * the full text, then each strictly shorter form. The same shape is meant for

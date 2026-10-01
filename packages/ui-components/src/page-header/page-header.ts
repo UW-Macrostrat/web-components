@@ -67,6 +67,14 @@ export interface PageHeaderProps {
   /** What the dropdown shows once folded, e.g. a Blueprint `Menu`. Defaults to
    * `actions` itself, stacked, with every label shown. */
   actionsMenu?: ReactNode;
+  /** Let the inline title, not fixed bar widths, decide when secondary content
+   * gives way. Whenever the title lacks room for its full form, the bar steps
+   * down — action labels to icons, then the inline identifier, then (if
+   * `collapseActions` isn't `never`) actions into the dropdown — before the
+   * title shortens or truncates. `true` protects up to 20em of title; a number
+   * sets that reserve in ems, so a very long title doesn't strip the bar bare.
+   * Off by default, where labels and identifier drop at fixed bar widths. */
+  prioritizeTitle?: boolean | number;
   variant?: PageHeaderVariant;
   /** Keep the breadcrumb row in view while scrolling. Always on for `hybrid`.
    * The header's parent is the sticky boundary, so render it as a direct child
@@ -90,6 +98,7 @@ export function PageHeader(props: PageHeaderProps) {
     collapseActions = "never",
     collapseActionsBelow = 640,
     actionsMenu,
+    prioritizeTitle = false,
     variant = "expanded",
     sticky = false,
     width = "full",
@@ -119,25 +128,57 @@ export function PageHeader(props: PageHeaderProps) {
   const isNarrow = useIsNarrower(
     barInnerRef,
     collapseActionsBelow,
-    collapseActions == "narrow",
+    collapseActions == "narrow" && prioritizeTitle === false,
   );
-  const foldActions =
-    actions != null &&
-    (collapseActions == "always" || (collapseActions == "narrow" && isNarrow));
-
   const isCollapsed = variant == "hybrid" && isTitleTucked;
   const isTitleInline = title != null && (variant == "compact" || isCollapsed);
   const titleForms = useTitleForms(title, shortTitle);
-  // Measured here rather than in the title: a parent's DOM refs are attached
-  // only after its children's layout effects have run.
-  const titleIndex = useFittingTitle(titleForms, shortenTitle, isTitleInline, {
+  const titleSpace: TitleSpaceRefs = {
     measure: titleMeasure,
     container: trailContainerRef,
     identifier: inlineIdentifierRef,
     // Crumbs that can fold into the "…" menu leave that menu (and its
     // chevron) behind; a lone root beside a logo vanishes outright.
     hasCollapsedCrumbs: breadcrumbs.length > (logo != null ? 1 : 0),
-  });
+  };
+
+  // Title-first adaptation applies while the title is in the bar; otherwise
+  // (and when not opted in) labels and identifier drop at fixed bar widths.
+  const isTitleFirst = prioritizeTitle !== false && isTitleInline;
+  let titleReserve = defaultTitleReserve;
+  if (typeof prioritizeTitle == "number") {
+    titleReserve = prioritizeTitle;
+  }
+  let maxYield = YieldLevel.HideIdentifier;
+  if (collapseActions != "never" && actions != null) {
+    maxYield = YieldLevel.FoldActions;
+  }
+  const yieldLevel = useYieldLevel(
+    isTitleFirst,
+    maxYield,
+    titleReserve,
+    titleSpace,
+  );
+
+  let foldActions =
+    actions != null &&
+    (collapseActions == "always" || (collapseActions == "narrow" && isNarrow));
+  if (isTitleFirst && collapseActions == "narrow") {
+    // Folding becomes the last rung of the ladder instead of a fixed width.
+    foldActions = yieldLevel >= YieldLevel.FoldActions;
+  }
+
+  // Measured here rather than in the title: a parent's DOM refs are attached
+  // only after its children's layout effects have run.
+  const titleIndex = useFittingTitle(
+    titleForms,
+    shortenTitle,
+    isTitleInline,
+    titleSpace,
+    // Hiding the inline identifier frees room inside the trail without
+    // resizing it, so each step of the ladder needs a fresh measure.
+    yieldLevel,
+  );
   let current: ReactNode = null;
   if (isTitleInline) {
     current = h(InlineTitle, {
@@ -145,6 +186,7 @@ export function PageHeader(props: PageHeaderProps) {
       forms: titleForms,
       index: titleIndex,
       measureRef: setTitleMeasure,
+      alwaysMeasure: prioritizeTitle !== false,
       // In hybrid mode the large title remains the page's heading.
       isHeading: variant == "compact",
     });
@@ -158,6 +200,10 @@ export function PageHeader(props: PageHeaderProps) {
         stuck: isStuck,
         collapsed: isCollapsed,
         "has-logo": logo != null,
+        "adapt-width": !isTitleFirst,
+        "hide-labels": isTitleFirst && yieldLevel >= YieldLevel.HideLabels,
+        "hide-identifier":
+          isTitleFirst && yieldLevel >= YieldLevel.HideIdentifier,
       }),
     },
     [
@@ -207,13 +253,16 @@ interface InlineTitleProps {
   forms: ReactNode[];
   index: number;
   measureRef: (el: HTMLElement | null) => void;
+  /** Lay out the measurer even for a single form (title-first adaptation
+   * needs the full title's width). */
+  alwaysMeasure: boolean;
   isHeading: boolean;
 }
 
 /** The title as the trail's current crumb, showing the form the header has
  * measured to fit (truncating if even the shortest doesn't). */
 function InlineTitle(props: InlineTitleProps) {
-  const { title, forms, index, measureRef, isHeading } = props;
+  const { title, forms, index, measureRef, alwaysMeasure, isHeading } = props;
 
   let fullText: string | undefined = undefined;
   if (typeof title == "string") {
@@ -233,7 +282,7 @@ function InlineTitle(props: InlineTitleProps) {
     h("span.inline-title", { ...headingProps, title: tooltip }, forms[index]),
     // Every form, laid out unseen, so each can be measured at the crumb's own
     // type size without ever rendering it in place.
-    h.if(forms.length > 1)(
+    h.if(forms.length > 1 || alwaysMeasure)(
       "span.title-measure",
       { ref: measureRef, "aria-hidden": true },
       forms.map((form, i) => h("span", { key: i }, form)),
@@ -251,11 +300,113 @@ function useTitleForms(title: ReactNode, shortTitle?: ShortForms) {
   }, [title, shortTitle]);
 }
 
-interface FittingTitleRefs {
+interface TitleSpaceRefs {
+  /** The unseen layout of every title form. */
   measure: HTMLElement | null;
   container: RefObject<HTMLElement | null>;
   identifier: RefObject<HTMLElement | null>;
   hasCollapsedCrumbs: boolean;
+}
+
+/** Room for the inline title once crumbs have collapsed: the trail's width
+ * less the inline identifier (when shown) and the collapsed trail ahead of it. */
+function titleSpace(refs: TitleSpaceRefs, fontSize: number): number | null {
+  const container = refs.container.current;
+  if (container == null) return null;
+  let available = container.getBoundingClientRect().width;
+  const ident = refs.identifier.current;
+  if (ident != null && ident.getClientRects().length > 0) {
+    const margin = parseFloat(getComputedStyle(ident).marginLeft) || 0;
+    available -= ident.getBoundingClientRect().width + margin;
+  }
+  if (refs.hasCollapsedCrumbs) {
+    available -= collapsedTrailWidth * fontSize;
+  }
+  return available;
+}
+
+/** Rungs of the title-first ladder: each gives the title more room. */
+enum YieldLevel {
+  None = 0,
+  HideLabels = 1,
+  HideIdentifier = 2,
+  FoldActions = 3,
+}
+
+/** Default title reserve for `prioritizeTitle: true`, in ems. */
+const defaultTitleReserve = 20;
+
+/**
+ * How far secondary content has stepped down so the title gets room for its
+ * full form (or `reserve` ems, if that's less). Steps up while the title is
+ * short of room. Steps down when the gain from the current rung — measured as
+ * the title space it actually freed when it was taken — is no longer needed,
+ * so the ladder settles without oscillating.
+ */
+function useYieldLevel(
+  enabled: boolean,
+  maxLevel: YieldLevel,
+  reserve: number,
+  refs: TitleSpaceRefs,
+): YieldLevel {
+  const [level, setLevel] = useState<YieldLevel>(YieldLevel.None);
+  const gains = useRef<number[]>([]);
+  const pending = useRef<{ from: YieldLevel; space: number } | null>(null);
+
+  useIsomorphicLayoutEffect(() => {
+    const measurer = refs.measure;
+    const container = refs.container.current;
+    if (!enabled || measurer == null || container == null) {
+      pending.current = null;
+      setLevel(YieldLevel.None);
+      return;
+    }
+    const measureEl: HTMLElement = measurer;
+    const fullTitle = measureEl.children[0] as HTMLElement | undefined;
+
+    function update() {
+      const fontSize = parseFloat(getComputedStyle(measureEl).fontSize);
+      const space = titleSpace(refs, fontSize);
+      if (space == null || fullTitle == null) return;
+      const titleWidth = fullTitle.getBoundingClientRect().width;
+      const needed = Math.min(titleWidth, reserve * fontSize);
+
+      // Record what the rung just taken actually freed.
+      const step = pending.current;
+      if (step != null && step.from == level - 1) {
+        gains.current[level] = Math.max(space - step.space, 0);
+      }
+      pending.current = null;
+
+      if (space < needed && level < maxLevel) {
+        pending.current = { from: level, space };
+        setLevel(level + 1);
+        return;
+      }
+      if (level > YieldLevel.None) {
+        const gain = gains.current[level] ?? Infinity;
+        if (space - gain >= needed) {
+          setLevel(level - 1);
+        }
+      }
+    }
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(container);
+    if (fullTitle != null) observer.observe(fullTitle);
+    return () => observer.disconnect();
+  }, [
+    enabled,
+    level,
+    maxLevel,
+    reserve,
+    refs.measure,
+    refs.hasCollapsedCrumbs,
+  ]);
+
+  if (!enabled) return YieldLevel.None;
+  return Math.min(level, maxLevel);
 }
 
 /** Index of the longest title form that fits the trail once its crumbs have
@@ -264,7 +415,8 @@ function useFittingTitle(
   forms: ReactNode[],
   mode: ShortenMode,
   enabled: boolean,
-  refs: FittingTitleRefs,
+  refs: TitleSpaceRefs,
+  remeasureKey?: unknown,
 ) {
   const [index, setIndex] = useState(0);
   const count = forms.length;
@@ -286,15 +438,8 @@ function useFittingTitle(
 
     function update() {
       const fontSize = parseFloat(getComputedStyle(measureEl).fontSize);
-      let available = containerEl.getBoundingClientRect().width;
-      const ident = refs.identifier.current;
-      if (ident != null) {
-        const margin = parseFloat(getComputedStyle(ident).marginLeft) || 0;
-        available -= ident.getBoundingClientRect().width + margin;
-      }
-      if (refs.hasCollapsedCrumbs) {
-        available -= collapsedTrailWidth * fontSize;
-      }
+      const available = titleSpace(refs, fontSize);
+      if (available == null) return;
       const ix = fittingFormIndex(
         formEls.map((el) => el.textContent ?? ""),
         (_, i) => formEls[i].getBoundingClientRect().width,
@@ -310,7 +455,15 @@ function useFittingTitle(
     observer.observe(containerEl);
     formEls.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [enabled, count, formsKey, mode, refs.measure, refs.hasCollapsedCrumbs]);
+  }, [
+    enabled,
+    count,
+    formsKey,
+    mode,
+    refs.measure,
+    refs.hasCollapsedCrumbs,
+    remeasureKey,
+  ]);
 
   return Math.min(index, count - 1);
 }
