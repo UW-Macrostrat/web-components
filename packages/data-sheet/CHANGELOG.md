@@ -1,5 +1,29 @@
 # Changelog
 
+## [4.11.0] - 2026-10-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.10.1...@macrostrat/data-sheet-v4.11.0)
+
+### Minor Changes
+
+- The data panel's toolbar and filter/sort tags render through
+  [dd274e3](https://github.com/UW-Macrostrat/web-components/commit/dd274e3045f7a973377e9a21bde189c1d51d776b)
+  `@macrostrat/ui-components`' `Toolbar` and `FilterTag`, so they share one look
+  with toolbars elsewhere; state and selection-aware actions are unchanged. New
+  `DataPanel` `toolbarCollapse` prop (default `never`). `MenuDropdown` and
+  `MenuFormItem` remain exported, now backed by `ToolbarDropdown` and
+  `MenuFormItem` from ui-components.
+
+### Patch Changes
+
+- Updated dependencies
+  [a068aa9](https://github.com/UW-Macrostrat/web-components/commit/a068aa9a60a8a3edb77f537ce1713b2c75219b57)
+- Updated dependencies
+  [6b83383](https://github.com/UW-Macrostrat/web-components/commit/6b833836a37cf0d19a66b5dfe346569203cfa020)
+- Updated dependencies
+  [075ede5](https://github.com/UW-Macrostrat/web-components/commit/075ede5c37005832569f6db977f3bbd4d3591302)
+- Updated dependencies
+  [dd274e3](https://github.com/UW-Macrostrat/web-components/commit/dd274e3045f7a973377e9a21bde189c1d51d776b)
+  - @macrostrat/ui-components@5.3.0
+
 ## [4.10.1] - 2026-09-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.10.0...@macrostrat/data-sheet-v4.10.1)
 
 ### Patch Changes

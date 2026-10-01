@@ -13,7 +13,8 @@ import {
 } from "../../provider";
 import { type ReactNode, useMemo } from "react";
 import h from "../../data-panel.module.sass";
-import { Button, Menu, MenuDivider, Tag } from "@blueprintjs/core";
+import { Button, Menu, MenuDivider } from "@blueprintjs/core";
+import { FilterTag } from "@macrostrat/ui-components";
 import {
   ColumnFilterMenuItem,
   ColumnSortMenu,
@@ -208,10 +209,8 @@ function useExitSelectionAction(): TableAction | null {
     requiresEditable: false,
     render: () =>
       h(
-        Tag,
+        FilterTag,
         {
-          minimal: true,
-          large: true,
           interactive: true,
           icon: "filter",
           title: "Filter and sort (leaves select mode)",
@@ -250,28 +249,12 @@ function useFilterSubsetState(entries: FilterEntry[]): [boolean, () => void] {
   return [hasActive, clear as () => void];
 }
 
-function useDisplayIntent([hasActive, clearActive]: [boolean, () => void]) {
-  const intent = hasActive ? "primary" : "none";
-
-  let rightIcon: "caret-down" | undefined = "caret-down";
-  let onRemove: any = undefined;
-  if (hasActive) {
-    rightIcon = undefined;
-    onRemove = (evt) => {
-      clearActive();
-      evt.stopPropagation();
-    };
-  }
-
-  return { intent, rightIcon, onRemove, hasActive };
-}
-
 function useFilterMenuAction(entries: FilterEntry[]): TableAction | null {
   // Scoped to the filters this menu actually holds. An `"inline"` filter has
   // its own always-visible control, so it must not light up the Filter tag —
   // nor be wiped by its clear button, which reads as "clear the filters in
   // here".
-  const rest = useDisplayIntent(useFilterSubsetState(entries));
+  const [hasActive, clearActive] = useFilterSubsetState(entries);
 
   if (entries.length === 0) return null;
 
@@ -287,17 +270,6 @@ function useFilterMenuAction(entries: FilterEntry[]): TableAction | null {
     }),
   );
 
-  const filterIndicator = h(
-    Tag,
-    {
-      minimal: true,
-      large: true,
-      icon: "filter",
-      ...rest,
-    },
-    "Filter",
-  );
-
   return {
     id: "filter",
     name: "Filter",
@@ -305,14 +277,16 @@ function useFilterMenuAction(entries: FilterEntry[]): TableAction | null {
     description: "Add a filter to the data panel.",
     targets: ALL_CARDINALITIES,
     requiresEditable: false,
-    render: (ctx) =>
+    render: () =>
       h(
-        MenuDropdown,
+        FilterTag,
         {
+          icon: "filter",
+          active: hasActive,
+          onClear: clearActive,
           content: filterMenu,
-          placement: "bottom-start",
         },
-        [filterIndicator],
+        "Filter",
       ),
   };
 }
@@ -320,7 +294,7 @@ function useFilterMenuAction(entries: FilterEntry[]): TableAction | null {
 function useSortAction(): TableAction | null {
   const columnSpec = useSelector((s) => s.columnSpec);
 
-  const rest = useDisplayIntent(ctx.use(hasActiveSortsAtom));
+  const [hasActive, clearSorts] = ctx.use(hasActiveSortsAtom);
 
   const sortableCols = useMemo(
     () => columnSpec.filter((c) => c.sortable),
@@ -344,19 +318,17 @@ function useSortAction(): TableAction | null {
     description: "Add a sort to the data panel.",
     targets: ALL_CARDINALITIES,
     requiresEditable: false,
-    render: (ctx) =>
-      h(MenuDropdown, { content: sortMenu }, [
-        h(
-          Tag,
-          {
-            minimal: true,
-            large: true,
-            icon: "sort",
-            ...rest,
-          },
-          "Sort",
-        ),
-      ]),
+    render: () =>
+      h(
+        FilterTag,
+        {
+          icon: "sort",
+          active: hasActive,
+          onClear: clearSorts as () => void,
+          content: sortMenu,
+        },
+        "Sort",
+      ),
   };
 }
 

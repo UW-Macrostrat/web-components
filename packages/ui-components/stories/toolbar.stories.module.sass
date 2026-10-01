@@ -1,0 +1,73 @@
+// A scroll container and positioned ancestor for the toolbar to sit in.
+.stage
+  position: relative
+  height: 80vh
+  overflow: auto
+  background: var(--pz-background-color)
+  color: var(--pz-text-color)
+  border-right: 1px dashed var(--pz-border-color)
+
+  &.short
+    height: 16rem
+    border: 1px solid var(--pz-border-muted-color)
+    border-radius: var(--pz-radius-md)
+
+// A stand-in for a map under a floating bar.
+.map-stage
+  background: linear-gradient(135deg, #a7e8cd 0%, #b8c9e7 45%, #7e66a9 100%)
+
+.stage-content
+  padding: var(--pz-space-4) var(--pz-content-padding)
+  font-family: var(--pz-prose-font)
+  line-height: var(--pz-body-line-height)
+
+  p
+    margin: 0 0 var(--pz-paragraph-spacing)
+
+.placements, .width-frames, .tag-gallery
+  display: flex
+  flex-direction: column
+  gap: var(--pz-space-5)
+  padding: var(--pz-space-5)
+  padding-bottom: var(--pz-space-8)
+  background: var(--pz-background-color)
+  min-height: 100vh
+  box-sizing: border-box
+
+.tag-gallery
+  flex-direction: row
+  flex-wrap: wrap
+  align-items: flex-start
+
+.width-frame
+  resize: horizontal
+  overflow: hidden
+  max-width: 100%
+  min-width: 12rem
+  background: var(--pz-panel-background-color)
+  border: 1px dashed var(--pz-border-color)
+  border-radius: var(--pz-radius-md)
+
+.frame-label
+  font-family: var(--pz-font-mono)
+  font-size: var(--pz-font-size-xs)
+  color: var(--pz-text-subtle-color)
+  margin-bottom: var(--pz-space-1)
+
+.search, .unified-search
+  width: 100%
+
+.tag-subject
+  opacity: 0.75
+
+.page
+  min-height: 100vh
+  background: var(--pz-background-color)
+  color: var(--pz-text-color)
+
+// Held under the page header's sticky bar.
+.under-header
+  --toolbar-offset: 3rem
+
+.demo-logo
+  display: flex

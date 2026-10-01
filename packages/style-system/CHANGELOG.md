@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.1] - 2026-10-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/style-system-v1.0.0...@macrostrat/style-system-v1.0.1)
+
+### Patch Changes
+
+- Fix a second, inner border drawn around the placeholder text of Blueprint
+  inputs
+  [5530dc3](https://github.com/UW-Macrostrat/web-components/commit/5530dc3c867911d5e9f97ac1de482e39f85cabdf)
+  in dark mode (the dark-mode placeholder rule carried a box-shadow).
+
 ## [1.0.0] - 2026-08-25 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/style-system-v0.4.0...@macrostrat/style-system-v1.0.0)
 
 ### Major Changes
