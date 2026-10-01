@@ -21,6 +21,7 @@ export * from "./collapse-card";
 export * from "./modal-panel";
 export * from "./page-layouts";
 export * from "./page-header";
+export * from "./toolbar";
 export * from "./dev-panel";
 export * from "./data";
 export * from "./image";

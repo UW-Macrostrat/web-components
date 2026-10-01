@@ -1,28 +1,21 @@
-import {
-  AnchorButton,
-  Button,
-  ButtonProps,
-  PopoverNext,
-} from "@blueprintjs/core";
+import { Button } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
-import {
-  ReactNode,
-  RefObject,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { ReactNode, RefObject, useMemo, useRef, useState } from "react";
 import {
   fittingFormIndex,
   ShortenMode,
   ShortForms,
   shortenedForms,
 } from "../util/shorten";
+import { useIsomorphicLayoutEffect } from "../util/isomorphic-layout-effect";
 import styles from "./page-header.module.sass";
 import { BreadcrumbTrail, Crumb } from "./trail";
+import {
+  ToolbarButton,
+  ToolbarButtonProps,
+  ToolbarDropdown,
+} from "../toolbar/toolbar";
 
 const h = hyper.styled(styles);
 
@@ -478,7 +471,7 @@ const collapsedTrailWidth = 3.75;
 /** The header's actions folded behind a single "more" button. */
 function ActionsDropdown({ content }) {
   return h(
-    PopoverNext,
+    ToolbarDropdown,
     {
       content: h("div.actions-menu", content),
       placement: "bottom-end",
@@ -492,36 +485,12 @@ function ActionsDropdown({ content }) {
   );
 }
 
-export interface PageHeaderButtonProps extends ButtonProps {
-  /** Label that is dropped (leaving the icon) when the header runs short of
-   * room. Strings also become the button's accessible name. */
-  text?: ReactNode;
-  /** Render as a link (Blueprint `AnchorButton`) rather than a button. */
-  href?: string;
-  target?: string;
-}
+export type PageHeaderButtonProps = ToolbarButtonProps;
 
-/**
- * A header action whose label collapses to its icon when the header is
- * narrow, so actions give up width before the title has to.
- */
-export function PageHeaderButton(props: PageHeaderButtonProps) {
-  const { text, className, ...rest } = props;
-  let ariaLabel: string | undefined = undefined;
-  if (typeof text == "string") {
-    ariaLabel = text;
-  }
-  let component: React.ComponentType<any> = Button;
-  if (props.href != null) {
-    component = AnchorButton;
-  }
-  return h(component, {
-    "aria-label": ariaLabel,
-    ...rest,
-    className: classNames("page-header-button", className),
-    text: h.if(text != null)("span.action-label", text),
-  });
-}
+/** A header action whose label collapses to its icon when the header is
+ * narrow, so actions give up width before the title has to. The same button
+ * as `ToolbarButton`. */
+export const PageHeaderButton = ToolbarButton;
 
 /** Whether an element is narrower than `threshold` px; false when disabled. */
 function useIsNarrower(
@@ -605,7 +574,3 @@ function useHeaderScrollState(refs: HeaderRefs, enabled: boolean) {
 
   return state;
 }
-
-// `useLayoutEffect` warns during server rendering, where it never runs anyway.
-const useIsomorphicLayoutEffect =
-  typeof window == "undefined" ? useEffect : useLayoutEffect;

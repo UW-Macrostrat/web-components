@@ -14,8 +14,12 @@ import {
   MenuDivider,
   MenuItem,
   PopoverNext,
-  Tag,
 } from "@blueprintjs/core";
+import {
+  FilterTag,
+  MenuFormItem,
+  ToolbarDropdown,
+} from "@macrostrat/ui-components";
 import { FilterOperator, OPERATOR_LABELS } from "../../filters/operators";
 import classNames from "classnames";
 import { atom } from "jotai";
@@ -74,13 +78,7 @@ export function FilterIndicator({
   showSubject: boolean;
 }) {
   const props = useFilterProps(filter);
-
-  const { valueText, filterForm, icon, intent, isActive, onRemove } = props;
-
-  let rightIcon: string | undefined = "caret-down";
-  if (isActive) {
-    rightIcon = undefined;
-  }
+  const { valueText, filterForm, icon, isActive, clear } = props;
 
   const label = buildFilterTagLabel(filter, valueText, {
     minimal,
@@ -88,69 +86,22 @@ export function FilterIndicator({
     isActive,
   });
 
+  // The shared bar look: caret while inactive, primary + ✕ once in effect.
   return h(
-    MenuDropdown,
-    {
-      content: filterForm,
-    },
-    h(
-      Tag,
-      {
-        minimal: true,
-        large,
-        icon,
-        rightIcon,
-        intent,
-        onRemove,
-        className: classNames("filter-tag", { active: isActive }),
-      },
-      h("span.filter-label", label),
-    ),
+    FilterTag,
+    { icon, large, active: isActive, onClear: clear, content: filterForm },
+    h("span.filter-label", label),
   );
 }
 
-/**
- * A dropdown for a panel of controls (not just menu items).
- *
- * Deliberately **not** focus-trapping. These panels hold real form controls,
- * and a control whose own typeahead renders in a separate portal (a
- * `MultiSelect`, a date picker) has focus yanked back out of it by an enclosing
- * trap — which is what makes a nested filter submenu feel unstable. Caller
- * props are passed through (`placement`, `isOpen`, …).
- */
-export function MenuDropdown({ children, content, ...props }: any) {
-  return h(
-    PopoverNext,
-    {
-      content,
-      placement: "bottom-start",
-      enforceFocus: false,
-      autoFocus: false,
-      arrow: false,
-      ...props,
-    },
-    children,
-  );
-}
+/** A dropdown for a panel of controls (not just menu items), not focus-
+ * trapping. Now `ToolbarDropdown` in `@macrostrat/ui-components`; kept here
+ * under its old name. */
+export const MenuDropdown = ToolbarDropdown;
 
-/**
- * A titled block *inside* a menu holding an arbitrary form, rather than a menu
- * item that opens a submenu — one click away instead of two, with no nested
- * popover to lose focus to. The building block behind `MenuInlineFilterItem`,
- * exported so a custom control panel can use the same idiom.
- */
-export function MenuFormItem({
-  title,
-  children,
-}: {
-  title?: ReactNode;
-  children: ReactNode;
-}) {
-  return h("li.menu-form-item", [
-    h.if(title != null)(MenuDivider, { title }),
-    h("div.menu-form-body", children),
-  ]);
-}
+/** A titled form block inside a menu. Now in `@macrostrat/ui-components`;
+ * re-exported here under its old home. */
+export { MenuFormItem };
 
 function buildFilterTagLabel(
   filter: TableFilter,
@@ -295,6 +246,7 @@ function useFilterProps(filter: TableFilter) {
     nameText: filter.name,
     valueText: summary,
     onRemove: isActive ? onRemove : undefined,
+    clear: () => setState(null),
   };
 }
 
@@ -433,34 +385,20 @@ export function ColumnSortIndicator({
   const { icon, label, intent } = displayParamsForSort(sort);
 
   const columnLabel = showColumnKey ? `${columnKey}: ` : "";
-  let onRemove: any = undefined;
-  let rightIcon: string | undefined = "caret-down";
-  if (sort != null) {
-    rightIcon = undefined;
-    onRemove = () => setSort(null);
-  }
-
   let valLabel = label;
   valLabel ??= showColumnKey ? columnKey : "Sort";
 
   return h(
-    MenuDropdown,
+    FilterTag,
     {
+      small,
+      large: large ?? false,
+      icon,
+      active: sort != null,
+      onClear: () => setSort(null),
       content: h(Menu, h(ColumnSortActions, { sort, setSort })),
     },
-    h(
-      Tag,
-      {
-        small,
-        large,
-        minimal: true,
-        icon,
-        rightIcon,
-        intent,
-        onRemove,
-      },
-      h([columnLabel, valLabel]),
-    ),
+    h([columnLabel, valLabel]),
   );
 }
 

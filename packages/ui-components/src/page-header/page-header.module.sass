@@ -314,12 +314,10 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
 
 @container page-header-bar (max-width: 40rem)
   .adapt-width
-    .action-label
-      display: none
-
-    // Blueprint keeps the (now empty) text span, with its margin, beside the
-    // icon.
-    .page-header-button :global(.bp6-button-text):has(> .action-label)
+    // Labels of `ToolbarButton`s, found by attribute (it survives module
+    // scoping). Blueprint keeps the (now empty) text span, with its margin.
+    [data-toolbar-label],
+    :global(.bp6-button-text):has(> [data-toolbar-label])
       display: none
 
 @container page-header-bar (max-width: 26rem)
@@ -329,8 +327,8 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
 // Title-first adaptation (`prioritizeTitle`): the same steps, taken whenever
 // the inline title lacks room rather than at fixed widths.
 .hide-labels
-  .action-label,
-  .page-header-button :global(.bp6-button-text):has(> .action-label)
+  [data-toolbar-label],
+  :global(.bp6-button-text):has(> [data-toolbar-label])
     display: none
 
 .hide-identifier .inline-identifier

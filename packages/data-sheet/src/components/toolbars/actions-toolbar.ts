@@ -1,5 +1,11 @@
 import { Button, ButtonGroup, PopoverNext } from "@blueprintjs/core";
 import { type ReactNode, useCallback, useMemo, useState } from "react";
+import {
+  Toolbar,
+  type ToolbarCollapse,
+  type ToolbarItem,
+} from "@macrostrat/ui-components";
+import classNames from "classnames";
 import h from "./actions-toolbar.module.sass";
 import { ctx, selectionAtom, useSelector } from "../../provider";
 import {
@@ -28,12 +34,17 @@ export function ActionsToolbar<T>({
   children,
   className,
   compact = false,
+  collapse = "never",
 }: {
   actions: TableAction<T>[];
   tableName?: string;
   children: ReactNode;
   className?: string;
   compact: boolean;
+  /** How the bar sheds width (see `Toolbar`): contextual actions fold into a
+   * "more" popover when `narrow`; the selection title and the global actions
+   * stay. Default `never`. */
+  collapse?: ToolbarCollapse;
 }) {
   const selection = ctx.useValue(selectionAtom);
   const editable = useSelector((state) => state.editable);
@@ -108,24 +119,45 @@ export function ActionsToolbar<T>({
 
   const globalActions = shownActions.filter(isGlobal);
 
-  return h("div.actions-toolbar", { className }, [
-    h(SelectionIndicator, { minimal: compact }),
-    h(
-      "div.toolbar-group.contextual",
-      contextual.map((action) =>
-        h(ActionButton, { key: action.id, action, ctx: actionContext }),
+  // Laid out by the shared `Toolbar`: the selection title and contextual
+  // actions lead, `children` take the flexible middle, and the global actions
+  // sit at the end as one group.
+  const start: ToolbarItem[] = [
+    {
+      id: "selection",
+      pinned: true,
+      content: h(SelectionIndicator, { minimal: compact }),
+    },
+    ...contextual.map((action) => ({
+      id: action.id,
+      content: h(ActionButton, { action, ctx: actionContext }),
+    })),
+  ];
+  const end: ToolbarItem[] = [];
+  if (globalActions.length > 0) {
+    end.push({
+      id: "global-actions",
+      pinned: true,
+      content: h(
+        ButtonGroup,
+        { minimal: true },
+        globalActions.map((action) =>
+          h(ActionButton, { key: action.id, action, ctx: actionContext }),
+        ),
       ),
-    ),
+    });
+  }
+
+  return h(
+    Toolbar,
+    {
+      className: classNames("actions-toolbar", className),
+      collapse,
+      start,
+      end,
+    },
     children,
-    h("div.toolbar-spacer", { style: { flex: 1 } }),
-    h(
-      ButtonGroup,
-      { minimal: true },
-      globalActions.map((action) =>
-        h(ActionButton, { key: action.id, action, ctx: actionContext }),
-      ),
-    ),
-  ]);
+  );
 }
 
 function isActionDisabled(action: TableAction, state: any): boolean {
