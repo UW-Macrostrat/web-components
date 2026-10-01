@@ -45,7 +45,10 @@ const meta: Meta<typeof PageHeader> = {
       control: "inline-radio",
       options: ["never", "narrow", "always"],
     },
-    collapseActionsBelow: { control: { type: "number", step: 40 } },
+    collapseActionsBelow: {
+      description: "Bar width (px) below which `narrow` folds the actions.",
+      control: { type: "range", min: 240, max: 1200, step: 20 },
+    },
     title: { control: "text" },
     identifier: { control: "text" },
     logo: { control: false },
@@ -61,9 +64,26 @@ export default meta;
 
 type Story = StoryObj<typeof PageHeader>;
 
-/** All controls exposed, over a scrolling page. */
-export const Playground: Story = {
+type PlaygroundArgs = PageHeaderProps & { previewWidth: number };
+
+/** All controls exposed, over a scrolling page. `previewWidth` narrows the
+ * page itself, so width-dependent behaviour (`collapseActions: "narrow"`,
+ * crumb collapse, label dropping) can be tried without resizing the window. */
+export const Playground: StoryObj<PlaygroundArgs> = {
+  argTypes: {
+    previewWidth: {
+      description: "Story only: width of the page the header sits in (px).",
+      control: { type: "range", min: 240, max: 1400, step: 20 },
+    },
+  },
+  render: ({ previewWidth, ...args }) =>
+    h(
+      "div.preview-frame",
+      { style: { maxWidth: previewWidth } },
+      h(DemoPage, { width: args.width }, h(PageHeader, args)),
+    ),
   args: {
+    previewWidth: 1400,
     variant: "hybrid",
     width: "constrained",
     sticky: false,
