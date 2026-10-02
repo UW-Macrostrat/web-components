@@ -51,6 +51,18 @@ export const Primary: Story = {
   },
 };
 
+/** Units marked `covered` — present but unexposed — are hatched over their
+ * fill (column-components' `CoveredOverlay`). Every fourth unit here. */
+export const CoveredUnits: Story = {
+  args: {
+    id: 432,
+    showLabelColumn: true,
+    unitComponent: ColoredUnitComponent,
+    transformUnits: (units) =>
+      units.map((d, i) => ({ ...d, covered: i % 4 === 0 })),
+  },
+};
+
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 
 export const FilteredToAgeRange: Story = {

@@ -94,14 +94,16 @@ function ColumnRect(props: ColumnRectProps) {
   let { division: d, padWidth = false, key, width, ...rest } = props;
   const scale = useContext(ColumnContext).scale;
   const [bottom, top] = __divisionSize(d);
-  const y = scale(top);
+  // Whichever end is higher on the page: the top on a height axis, but the
+  // smaller value on an age or depth axis, which grow downwards
+  const y = Math.min(scale(top), scale(bottom));
   let x = 0;
   if (padWidth) {
     x -= 5;
     width += 10;
   }
 
-  const height = scale(bottom) - y;
+  const height = Math.abs(scale(bottom) - scale(top));
   if (key == null) {
     key = d.id;
   }
@@ -171,17 +173,28 @@ const FaciesIntervals = function (props) {
 
 const FaciesColumnInner = FaciesIntervals;
 
+/** Hatching over the covered divisions of a column. The divisions are the
+ * column's own unless given — divisions sized by `top`/`bottom`, as
+ * `ColumnRect` reads them. The hatching is drawn over the column, so it lets
+ * pointer events through to what is beneath. */
 function CoveredOverlay({
   color = "rgba(0,0,0,0.5)",
   patternSize = 9,
   strokeWidth = 3,
+  divisions: _divisions,
+}: {
+  color?: string;
+  patternSize?: number;
+  strokeWidth?: number;
+  divisions?: any[];
 }) {
   const UUID = useUUID();
-  const { divisions, width } = useColumnLayout();
+  const { divisions: contextDivisions, width } = useColumnLayout();
+  const divisions = _divisions ?? contextDivisions;
   const fill = `url(#${UUID}-covered)`;
   const coveredDivs = divisions.filter((d) => d.covered);
 
-  return h("g.covered-overlay", {}, [
+  return h("g.covered-overlay", { style: { pointerEvents: "none" } }, [
     h("defs", [
       h(Lines, {
         id: `${UUID}-covered`,
