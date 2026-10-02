@@ -1,10 +1,11 @@
-.actions-toolbar
-  display: flex
-  flex-direction: row
-  gap: 8px
-  align-items: center
-  padding: 0.2em
-  min-height: var(--panel-header-height, 40px)
+// The shared `Toolbar` (ui-components) lays this out; these knobs keep the
+// data panel's compact metrics. Set on the inner bar, which consumes them, so
+// they outrank the toolbar's own defaults whatever the stylesheet order.
+.actions-toolbar > [role="toolbar"]
+  --toolbar-gap: 8px
+  --toolbar-padding-x: 0.2em
+  --toolbar-padding-y: 0.2em
+  --toolbar-height: var(--panel-header-height, 40px)
 
 // Leading label naming the current selection shape (no icon) — reads as the
 // toolbar's title.
@@ -18,9 +19,6 @@
   flex-direction: row
   gap: 4px
   align-items: center
-
-.spacer
-  flex-grow: 1
 
 .action-popover-content, .filter-config
   padding: 12px

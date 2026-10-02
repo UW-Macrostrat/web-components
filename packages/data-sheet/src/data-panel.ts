@@ -22,6 +22,7 @@
  *
  * See [[Data list editors]] in the Macrostrat workbench for the design.
  */
+import type { ToolbarCollapse } from "@macrostrat/ui-components";
 import h from "./data-panel.module.sass";
 import {
   ComponentType,
@@ -164,6 +165,10 @@ export interface DataPanelProps<T = any> extends DataViewSharedProps<T> {
    * Ignored while a modal view is selecting: the toolbar then carries a single
    * control that leaves select mode. */
   viewControls?: ViewControlsPresentation;
+  /** How the toolbar sheds width (the shared `Toolbar`'s `collapse`): with
+   * `"narrow"`, button labels drop to icons and then contextual controls fold
+   * into a "more" popover as the panel narrows. Default `"never"`. */
+  toolbarCollapse?: ToolbarCollapse;
   /** Arbitrary children rendered inside the provider, after the panel. */
   children?: ReactNode;
 }
@@ -216,6 +221,7 @@ export function DataPanelRenderer<T>({
   className,
   toolbarStyle = DataPanelToolbarStyle.BORDERED,
   viewControls = "inline",
+  toolbarCollapse = "never",
   children,
 }: Omit<DataPanelProps<T>, "provider" | "fetchData" | "data" | "identity">) {
   const {
@@ -487,6 +493,7 @@ export function DataPanelRenderer<T>({
           // so only render it when modal selection is toggle-able (or a
           // selection is active) — not as a bare label otherwise.
           compact: true,
+          collapse: toolbarCollapse,
         },
         toolbar,
       ),

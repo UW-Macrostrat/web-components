@@ -1,0 +1,191 @@
+// Toolbar: a bar of controls placed inline, sticky, floating or fixed, with a
+// plain, bordered or raised surface, shedding width by dropping labels and
+// folding items into a popover.
+//
+// Local knobs use weak names and default to Paleozoic globals; a page sets a
+// `--toolbar-*` value to diverge (e.g. `--toolbar-offset` to sit under a
+// sticky page header).
+
+.toolbar
+  --toolbar-height: 2.5rem
+  --toolbar-gap: var(--pz-control-gap)
+  --toolbar-padding-x: var(--pz-space-2)
+  --toolbar-padding-y: var(--pz-space-1)
+  // Distance from the anchored edge while sticky or fixed.
+  --toolbar-offset: 0px
+  // Margin from the container's (or viewport's) edges while floating or fixed.
+  --toolbar-inset: var(--pz-space-3)
+  --toolbar-z-index: 10
+  --toolbar-background: transparent
+  --toolbar-rule-color: var(--pz-panel-rule-color)
+  --toolbar-radius: 0
+  --toolbar-shadow: none
+  // Growing fields (a search box) sit between these: the ideal while there's
+  // room, giving way toward the minimum in step with items collapsing.
+  --toolbar-grow-ideal-width: 18rem
+  --toolbar-grow-min-width: 8rem
+
+  display: flex
+  flex-direction: row
+  box-sizing: border-box
+  min-width: 0
+
+.toolbar.compact
+  --toolbar-height: 2rem
+  --toolbar-gap: var(--pz-space-1)
+  --toolbar-padding-y: var(--pz-space-0)
+
+.toolbar-inner
+  display: flex
+  flex-direction: row
+  align-items: center
+  gap: var(--toolbar-gap)
+  box-sizing: border-box
+  min-width: 0
+  max-width: 100%
+  min-height: var(--toolbar-height)
+  padding: var(--toolbar-padding-y) var(--toolbar-padding-x)
+  background: var(--toolbar-background)
+  border-radius: var(--toolbar-radius)
+  box-shadow: var(--toolbar-shadow)
+
+.toolbar-item
+  display: flex
+  align-items: center
+  flex: 0 0 auto
+  min-width: 0
+
+  // An item whose content rendered nothing takes no gap.
+  &:empty
+    display: none
+
+  // The first trailing item takes the slack, pushing `end` to the far edge.
+  &.end-start
+    margin-left: auto
+
+  // A growing field fills the leftover width (so the margin above has none to
+  // take) and shrinks toward its minimum.
+  &.grow
+    flex: 1 1 var(--toolbar-grow-ideal-width)
+    min-width: var(--toolbar-grow-min-width)
+
+    & > *
+      flex: 1 1 auto
+      min-width: 0
+
+// Alignment along the edge: stretch spans it; the others size to the content.
+.align-stretch .toolbar-inner
+  flex: 1 1 auto
+
+.align-start
+  justify-content: flex-start
+
+.align-center
+  justify-content: center
+
+.align-end
+  justify-content: flex-end
+
+:is(.align-start, .align-center, .align-end) .toolbar-inner
+  flex: 0 1 auto
+
+// Surfaces
+
+.bordered
+  --toolbar-background: var(--pz-panel-secondary-background-color)
+
+  &.top .toolbar-inner
+    box-shadow: inset 0 -1px 0 var(--toolbar-rule-color)
+
+  &.bottom .toolbar-inner
+    box-shadow: inset 0 1px 0 var(--toolbar-rule-color)
+
+.raised
+  --toolbar-background: var(--pz-panel-background-color)
+  --toolbar-radius: var(--pz-radius-md)
+  --toolbar-shadow: 0 0 0 1px var(--toolbar-rule-color), var(--pz-shadow-md)
+
+// A plain bar that content scrolls beneath still needs to hide it.
+.sticky.plain
+  --toolbar-background: var(--pz-background-color)
+
+// Placements
+
+.sticky
+  position: sticky
+  z-index: var(--toolbar-z-index)
+
+  &.top
+    top: var(--toolbar-offset)
+
+  &.bottom
+    bottom: var(--toolbar-offset)
+
+// Floating and fixed bars are layers spanning their edge; only the bar itself
+// takes pointer events, so what's beneath stays usable around it.
+.floating, .fixed
+  left: var(--toolbar-inset)
+  right: var(--toolbar-inset)
+  z-index: var(--toolbar-z-index)
+  pointer-events: none
+
+  .toolbar-inner
+    pointer-events: auto
+
+.floating
+  position: absolute
+
+  &.top
+    top: calc(var(--toolbar-inset) + var(--toolbar-offset))
+
+  &.bottom
+    bottom: calc(var(--toolbar-inset) + var(--toolbar-offset))
+
+.fixed
+  position: fixed
+  left: calc(var(--toolbar-inset) + env(safe-area-inset-left, 0px))
+  right: calc(var(--toolbar-inset) + env(safe-area-inset-right, 0px))
+
+  &.top
+    top: calc(var(--toolbar-inset) + var(--toolbar-offset) + env(safe-area-inset-top, 0px))
+
+  &.bottom
+    bottom: calc(var(--toolbar-inset) + var(--toolbar-offset) + env(safe-area-inset-bottom, 0px))
+
+// Shedding width: labels first (found by attribute, which survives module
+// scoping), then items into the overflow popover.
+
+.labels-hidden
+  [data-toolbar-label],
+  :global(.bp6-button-text):has(> [data-toolbar-label])
+    display: none
+
+.toolbar-overflow-menu
+  display: flex
+  flex-direction: column
+  align-items: stretch
+  gap: var(--pz-space-1)
+  padding: var(--pz-space-2)
+  min-width: 10rem
+  max-width: 22rem
+
+.toolbar-overflow-item
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  align-items: center
+  gap: var(--pz-space-1)
+
+  :global(.bp6-button)
+    justify-content: flex-start
+
+// Filter tags and menu forms
+
+.filter-tag
+  white-space: nowrap
+
+.menu-form-item
+  list-style: none
+
+.menu-form-body
+  min-width: 15rem

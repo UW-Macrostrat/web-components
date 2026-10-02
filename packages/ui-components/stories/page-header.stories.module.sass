@@ -1,0 +1,99 @@
+@import url("https://fonts.googleapis.com/css2?family=Geologica:wght@100..900&display=swap")
+
+// A stand-in content page, so headers can be judged against something to
+// scroll beneath them.
+.demo-page
+  min-height: 100vh
+  background: var(--pz-background-color)
+  color: var(--pz-text-color)
+  font-family: var(--pz-body-font)
+
+.demo-content
+  box-sizing: border-box
+  padding: var(--pz-space-4) var(--pz-content-padding) var(--pz-space-8)
+  font-family: var(--pz-prose-font)
+  line-height: var(--pz-body-line-height)
+
+  &.constrained
+    max-width: calc(var(--pz-content-width, 60rem) + 2 * var(--pz-content-padding))
+    margin: 0 auto
+
+  p
+    margin: 0 0 var(--pz-paragraph-spacing)
+
+  h2
+    font-family: var(--pz-heading-font)
+    font-weight: var(--pz-font-weight-medium)
+    font-size: var(--pz-font-size-lg)
+    margin: var(--pz-space-5) 0 var(--pz-space-2)
+
+// The Playground's adjustable page width, with its edge marked.
+.preview-frame
+  border-right: 1px dashed var(--pz-border-color)
+
+.demo-logo
+  display: flex
+
+// Several fixed-width frames, for judging overflow at a glance. Each frame is
+// also drag-resizable from its bottom-right corner.
+.width-frames
+  display: flex
+  flex-direction: column
+  gap: var(--pz-space-5)
+  padding: var(--pz-space-5)
+  background: var(--pz-background-color)
+  min-height: 100vh
+  box-sizing: border-box
+
+.width-frame
+  resize: horizontal
+  overflow: hidden
+  max-width: 100%
+  min-width: 12rem
+  background: var(--pz-panel-background-color)
+  border: 1px dashed var(--pz-border-color)
+  border-radius: var(--pz-radius-md)
+
+.frame-label
+  font-family: var(--pz-font-mono)
+  font-size: var(--pz-font-size-xs)
+  color: var(--pz-text-subtle-color)
+  margin-bottom: var(--pz-space-1)
+
+// A second brand over the same components, set entirely through tokens.
+.rockd-brand
+  --pz-heading-font: "Geologica", var(--pz-font-sans)
+  --pz-link-hover-color: #c2410c
+  --pz-background-color: #fbf8f3
+  --page-header-title-weight: var(--pz-font-weight-bold)
+  --page-header-current-color: #9a3412
+  --page-header-logo-size: 2rem
+
+:global(.bp6-dark) .rockd-brand
+  --pz-background-color: #1d1a17
+  --pz-link-hover-color: #fdba74
+  --page-header-current-color: #fdba74
+
+.short-title-row + .short-title-row
+  border-top: 1px solid var(--pz-border-muted-color)
+
+.row-label
+  padding: var(--pz-space-2) var(--pz-content-padding) 0
+  font-family: var(--pz-font-mono)
+  font-size: var(--pz-font-size-xs)
+  color: var(--pz-text-subtle-color)
+
+.shortener-table
+  border-collapse: collapse
+  font-size: var(--pz-font-size-sm)
+  color: var(--pz-text-color)
+
+  th, td
+    text-align: left
+    vertical-align: top
+    padding: var(--pz-space-2) var(--pz-space-3)
+    border-bottom: 1px solid var(--pz-border-muted-color)
+
+  ol
+    margin: 0
+    padding-left: 1.25em
