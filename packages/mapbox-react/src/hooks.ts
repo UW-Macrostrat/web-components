@@ -5,7 +5,7 @@ import { useCallback } from "react";
 
 /** A newer and more flexible version of useMapConditionalStyle */
 export function useMapStyleOperator(
-  operator: (map: mapboxgl.Map) => void,
+  operator: (map: mapboxgl.Map) => void | (() => void),
   dependencies: any[] = [],
 ) {
   const mapRef = useMapRef();
@@ -13,16 +13,17 @@ export function useMapStyleOperator(
 
   const callback = useCallback((map) => {
     if (map == null) return;
-    operator(map);
+    return operator(map);
   }, dependencies);
 
   useEffect(() => {
     const map = mapRef.current;
     if (map == null) return;
     // TODO: figure out what is wrong with the isStyleLoaded state
-    if (isStyleLoaded) {
-      callback(map);
-    }
+    if (!isStyleLoaded) return;
+    const cleanup = callback(map);
+    // An operator may return a cleanup, e.g. to remove a listener it added.
+    if (typeof cleanup === "function") return cleanup;
   }, [callback, isStyleLoaded]);
 }
 

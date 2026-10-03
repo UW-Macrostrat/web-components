@@ -11,7 +11,6 @@ import React from "react";
 import {
   mapViewInfo,
   MapPosition,
-  setMapPosition,
   getMapboxStyle,
   mergeStyles,
 } from "@macrostrat/mapbox-utils";
@@ -28,8 +27,14 @@ import {
 import "mapbox-gl/dist/mapbox-gl.css";
 import { getMapPadding } from "./utils";
 import { useAsyncEffect } from "@macrostrat/ui-components";
+import {
+  defaultInitializeMap,
+  type MapboxCoreOptions,
+  type MapboxOptionsExt,
+} from "./initialize-map";
+import { type MapPool, useMapPool } from "./map-pool";
 
-type MapboxCoreOptions = Omit<mapboxgl.MapboxOptions, "container">;
+export type { MapboxOptionsExt };
 
 export interface MapViewProps extends MapboxCoreOptions {
   showLineSymbols?: boolean;
@@ -45,6 +50,9 @@ export interface MapViewProps extends MapboxCoreOptions {
     container: HTMLElement,
     args: MapboxOptionsExt,
   ) => mapboxgl.Map;
+  /** Reuse maps from this pool (see `createMapPool`). Defaults to the nearest
+   * `MapPoolProvider`'s; `null` opts out. Ignored with a custom `initializeMap`. */
+  pool?: MapPool | null;
   onMapLoaded?: (map: mapboxgl.Map) => void;
   onStyleLoaded?: (map: mapboxgl.Map) => void;
   onMapMoved?: (mapPosition: MapPosition, map: mapboxgl.Map) => void;
@@ -65,47 +73,6 @@ export interface MapViewProps extends MapboxCoreOptions {
   width?: number | string;
 }
 
-export interface MapboxOptionsExt extends MapboxCoreOptions {
-  mapPosition?: MapPosition;
-}
-
-function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
-  const { mapPosition, ...rest } = args;
-
-  const map = new mapboxgl.Map({
-    container,
-    maxZoom: 18,
-    logoPosition: "bottom-left",
-    trackResize: false,
-    antialias: true,
-    // This is a legacy option for Mapbox GL v2
-    // @ts-ignore
-    optimizeForTerrain: true,
-    ...rest,
-  });
-
-  let _mapPosition = mapPosition;
-  if (_mapPosition == null && rest.center == null && rest.bounds == null) {
-    // If no map positioning information is provided, we use the default
-    _mapPosition = defaultMapPosition;
-  }
-
-  // set initial map position
-  if (_mapPosition != null) {
-    setMapPosition(map, _mapPosition);
-  }
-
-  return map;
-}
-
-const defaultMapPosition: MapPosition = {
-  camera: {
-    lat: 34,
-    lng: -120,
-    altitude: 300000,
-  },
-};
-
 export function MapView(props: MapViewProps) {
   let { terrainSourceID } = props;
   const {
@@ -114,7 +81,8 @@ export function MapView(props: MapViewProps) {
     enableTerrain = true,
     style = "mapbox://styles/mapbox/streets-v11",
     mapPosition,
-    initializeMap = defaultInitializeMap,
+    initializeMap,
+    pool,
     children,
     mapboxToken,
     // Deprecated
@@ -155,6 +123,10 @@ export function MapView(props: MapViewProps) {
   const parentRef = useRef<HTMLDivElement>();
 
   const [baseStyle, setBaseStyle] = useState<mapboxgl.Style>(null);
+
+  const activePool = useActivePool(pool, initializeMap);
+  const poolRef = useRef<MapPool | null>(null);
+  useReleaseToPool(poolRef);
 
   /** Get overlay styles from map context. These are added after the base style is loaded, and can be used
    * to add layers to the map at runtime, even after initialization. They are merged with any overlay styles
@@ -201,7 +173,10 @@ export function MapView(props: MapViewProps) {
       dispatch({ type: "set-style-loaded", payload: false });
       map.setStyle(newStyle);
     } else {
-      const map = initializeMap(ref.current, {
+      let initialize = initializeMap ?? defaultInitializeMap;
+      if (activePool != null) initialize = activePool.acquire;
+      poolRef.current = activePool;
+      const map = initialize(ref.current, {
         style: newStyle,
         projection,
         mapPosition,
@@ -272,6 +247,38 @@ export function MapView(props: MapViewProps) {
       children,
     ],
   );
+}
+
+/** The pool this view draws from, if any: an explicit `pool` prop wins over the
+ * context's, and a custom initializer can't be pooled. */
+function useActivePool(
+  pool: MapPool | null | undefined,
+  initializeMap: MapViewProps["initializeMap"],
+): MapPool | null {
+  const contextPool = useMapPool();
+  if (initializeMap != null) return null;
+  if (pool !== undefined) return pool;
+  return contextPool;
+}
+
+/** Hands a pooled map back when the view unmounts. */
+function useReleaseToPool(poolRef: React.MutableRefObject<MapPool | null>) {
+  const mapRef = useMapRef();
+  useEffect(() => {
+    return () => {
+      const pool = poolRef.current;
+      const map = mapRef.current;
+      if (pool == null || map == null) return;
+      // Deferred until the view's children have removed their listeners.
+      queueMicrotask(() => {
+        // Still on screen: a rehearsal unmount (StrictMode, Fast Refresh).
+        if (map.getContainer().isConnected) return;
+        // A provider that outlives this view must not hand the parked map on.
+        if (mapRef.current === map) mapRef.current = null;
+        pool.release(map);
+      });
+    };
+  }, []);
 }
 
 function StyleLoadedReporter({ onStyleLoaded = null }) {

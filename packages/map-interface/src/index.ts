@@ -3,6 +3,7 @@ export * from "./location-panel";
 export * from "./dev";
 export * from "./container";
 export * from "./map-view";
+export * from "./map-pool";
 export * from "./controls";
 export * from "./helpers";
 export * from "./utils";

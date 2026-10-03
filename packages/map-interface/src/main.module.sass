@@ -119,6 +119,11 @@
     // override the default mapbox position: relative in all cases
     position: absolute
 
+  // A pooled map lives in a child element, moved between views
+  & > :global(.mapboxgl-map)
+    position: absolute
+    inset: 0
+
 
   /** These styles seem to help with weird map zooming behavior */
   :global(.mapboxgl-canvas), :global(.mapboxgl-canvas-container)

@@ -67,6 +67,7 @@ export function FeatureSelectionHandler({
   const mapRef = useMapRef();
   const isLoading = useMapStatus((s) => s.isLoading);
   const isInitialized = useMapStatus((s) => s.isInitialized);
+  const isStyleLoaded = useMapStatus((s) => s.isStyleLoaded);
   const prevLocation = useRef(null);
   const prevFeatures = useRef([]);
 
@@ -79,6 +80,11 @@ export function FeatureSelectionHandler({
     }
 
     if (!isInitialized) return;
+    // Querying a map mid-`setStyle` throws; re-query once the new style is in.
+    if (!isStyleLoaded) {
+      prevLocation.current = null;
+      return;
+    }
 
     const hasPreviouslyLoadedFeatures = prevFeatures.current.length > 0;
 
@@ -101,7 +107,7 @@ export function FeatureSelectionHandler({
     const features = map.queryRenderedFeatures(bbox);
     prevFeatures.current = features ?? [];
     setFeatures(features);
-  }, [isInitialized, selectedLocation, isLoading]);
+  }, [isInitialized, isStyleLoaded, selectedLocation, isLoading]);
 
   return null;
 }
