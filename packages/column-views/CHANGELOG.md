@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.15.0] - 2026-10-03 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.14.0...@macrostrat/column-views-v3.15.0)
+
+### Minor Changes
+
+- `Column` hatches units marked `covered` (present but unexposed), drawing
+  [65a0be8e](https://github.com/UW-Macrostrat/web-components/commit/65a0be8eb0c6d3fbec441db31f0cdc03181c60a3)
+  column-components' `CoveredOverlay` over each section's units.
+
+### Patch Changes
+
+- Updated dependencies
+  [ca0fb175](https://github.com/UW-Macrostrat/web-components/commit/ca0fb1752d783ab7fad7cb4ed52a1905591ef5c8)
+- Updated dependencies
+  [ca0fb175](https://github.com/UW-Macrostrat/web-components/commit/ca0fb1752d783ab7fad7cb4ed52a1905591ef5c8)
+  - @macrostrat/column-components@2.2.1
+
 ## [3.14.0] - 2026-09-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.13.0...@macrostrat/column-views-v3.14.0)
 
 ### Minor Changes

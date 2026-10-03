@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.2.1] - 2026-10-03 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.2.0...@macrostrat/column-components-v2.2.1)
+
+### Patch Changes
+
+- `ColumnRect` draws a division the right way up on an age or depth axis (which
+  [ca0fb175](https://github.com/UW-Macrostrat/web-components/commit/ca0fb1752d783ab7fad7cb4ed52a1905591ef5c8)
+  grow downwards), not only on a height axis.
+- `CoveredOverlay` takes its `divisions` as a prop when given (sized by `top` /
+  [ca0fb175](https://github.com/UW-Macrostrat/web-components/commit/ca0fb1752d783ab7fad7cb4ed52a1905591ef5c8)
+  `bottom`), and lets pointer events through to what is beneath.
+
 ## [2.2.0] - 2026-09-21 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.1.0...@macrostrat/column-components-v2.2.0)
 
 ### Minor Changes
