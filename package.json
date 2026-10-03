@@ -20,7 +20,7 @@
     "update-versions": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-versions.ts",
     "publish:storybook": "./scripts/publish-storybook.sh",
     "format": "prettier --write .",
-    "check-types": "tsc --noEmit",
+    "check-types": "tsc -p tsconfig.check.json",
     "check-circular": "madge --exclude __archive --exclude .yarn --circular --extensions ts,tsx ."
   },
   "author": "Daven Quinn",
