@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.4.1] - 2026-10-03 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.4.0...@macrostrat/mapbox-react-v3.4.1)
+
+### Patch Changes
+
+- `useMapStyleOperator` runs a cleanup returned by its operator, so listeners
+  [ca0fb175](https://github.com/UW-Macrostrat/web-components/commit/ca0fb1752d783ab7fad7cb4ed52a1905591ef5c8)
+  added there (e.g. by `useMapClickHandler`) are removed rather than
+  accumulating on each style load.
+
 ## [3.4.0] - 2026-09-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.3.3...@macrostrat/mapbox-react-v3.4.0)
 
 ### Minor Changes

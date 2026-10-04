@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.5.1] - 2026-10-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.5.0...@macrostrat/map-interface-v2.5.1)
+
+### Patch Changes
+
+- A map pool reuses maps for views that set `maxBounds`, `minZoom`, `maxZoom`,
+  `minPitch` or `maxPitch`, which previously each got a map of their own. Each
+  adopting view sets all of these limits, so one view's don't carry over to the
+  next.
+
+## [2.5.0] - 2026-10-03 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.4.0...@macrostrat/map-interface-v2.5.0)
+
+### Minor Changes
+
+- `createMapPool` and `MapPoolProvider` let `MapView` reuse its `mapboxgl.Map`
+  [65a0be8e](https://github.com/UW-Macrostrat/web-components/commit/65a0be8eb0c6d3fbec441db31f0cdc03181c60a3)
+  across mounts — e.g. client-side page navigations — instead of constructing a
+  new map, which Mapbox bills as a map load. Opt in with the provider or a
+  `pool` prop; `pool: null` opts a view out. Without a pool, nothing changes.
+
+### Patch Changes
+
+- `FeatureSelectionHandler` waits for the style to load before querying, and
+  [ca0fb175](https://github.com/UW-Macrostrat/web-components/commit/ca0fb1752d783ab7fad7cb4ed52a1905591ef5c8)
+  re-queries after a style change, instead of throwing mid-`setStyle`.
+- Updated dependencies
+  [ca0fb175](https://github.com/UW-Macrostrat/web-components/commit/ca0fb1752d783ab7fad7cb4ed52a1905591ef5c8)
+  - @macrostrat/mapbox-react@3.4.1
+
 ## [2.4.0] - 2026-09-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.3.3...@macrostrat/map-interface-v2.4.0)
 
 ### Minor Changes

@@ -15,6 +15,7 @@ import { createContext, ReactNode, useContext } from "react";
 import {
   defaultInitializeMap,
   defaultMapPosition,
+  defaultMaxZoom,
   type MapboxOptionsExt,
 } from "./initialize-map";
 
@@ -70,6 +71,7 @@ export function createMapPool({ maxParked = 2 }: MapPoolOptions = {}): MapPool {
     map.setProjection(projection ?? null);
     map.setStyle(style);
     setTransformRequest(map.getContainer(), transformRequest);
+    applyConstraints(map, options);
     positionAdoptedMap(map, mapPosition, options);
     return map;
   }
@@ -97,6 +99,11 @@ const ADOPTABLE = new Set([
   "zoom",
   "bounds",
   "fitBoundsOptions",
+  "maxBounds",
+  "minZoom",
+  "maxZoom",
+  "minPitch",
+  "maxPitch",
   "terrainSourceID",
   "showLineSymbols",
 ]);
@@ -117,6 +124,22 @@ function buildPooledMap(container: HTMLElement, args: MapboxOptionsExt) {
   });
   baselineListeners.set(map, listenerSnapshot(map));
   return map;
+}
+
+/** Every adoption sets all the limits, so one view's don't carry over to the
+ * next: an option left out resets to `MapView`'s default. */
+function applyConstraints(
+  map: mapboxgl.Map,
+  options: Partial<mapboxgl.MapboxOptions>,
+) {
+  map.setMaxBounds(options.maxBounds ?? null);
+  // Mapbox rejects a minimum above the current maximum, so widen first.
+  map.setMinZoom(null);
+  map.setMaxZoom(options.maxZoom ?? defaultMaxZoom);
+  map.setMinZoom(options.minZoom ?? null);
+  map.setMinPitch(null);
+  map.setMaxPitch(options.maxPitch ?? null);
+  map.setMinPitch(options.minPitch ?? null);
 }
 
 /** In the order a new map applies them: `mapPosition` over `bounds` over
