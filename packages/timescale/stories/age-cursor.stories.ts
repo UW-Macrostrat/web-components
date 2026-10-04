@@ -29,6 +29,17 @@ export const Primary = {
   },
 };
 
+export const VerticalWithAbsoluteAges = {
+  args: {
+    orientation: TimescaleOrientation.VERTICAL,
+    levels: [0, 5],
+    absoluteAgeScale: true,
+    length: 1200,
+    ageRange: [2000, 0],
+    cursorPosition: 1500,
+  },
+};
+
 export const HorizontalWithAbsoluteAges = {
   args: {
     orientation: TimescaleOrientation.HORIZONTAL,

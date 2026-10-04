@@ -4,6 +4,9 @@ import { TimescaleOrientation } from "./types";
 import { useTimescale } from "./provider";
 import { CSSProperties } from "react";
 import { AxisProps } from "@visx/axis/lib/axis/Axis";
+import { format } from "d3-format";
+
+const breakpointFormat = format("~r");
 
 type AgeAxisProps = {
   width?: number;
@@ -23,10 +26,20 @@ function AgeAxis(props: AgeAxisProps) {
   let height = 25;
 
   let style: CSSProperties = {};
+  const numTicks = Math.floor(length / 50);
   let axisProps: AxisProps<any> = {
     scale: scale as any,
-    numTicks: Math.floor(length / 50),
+    numTicks,
+    // visx's default formatter assumes ~10 ticks, so denser ticks repeat labels.
+    tickFormat: scale.tickFormat(numTicks),
   };
+
+  // Round-number ticks are unevenly spaced on a piecewise scale; label its breakpoints.
+  const domain = scale.domain();
+  if (domain.length > 2) {
+    axisProps.tickValues = domain;
+    axisProps.tickFormat = breakpointFormat;
+  }
 
   let tickLabelProps: TickLabelProps<any> = {
     fontSize: 10,
@@ -48,7 +61,6 @@ function AgeAxis(props: AgeAxisProps) {
     axisProps.top = margin;
     axisProps.left = width - 1;
     axisProps.orientation = "left";
-    axisProps.scale.range([length, 0]);
     tickLabelProps.dy = -8;
     tickLabelProps.dx = "-1em";
   }

@@ -1,5 +1,6 @@
 import { Timescale, TimescaleProps, TimescaleOrientation } from "../src";
 import chroma from "chroma-js";
+import { scaleLinear } from "@visx/scale";
 
 export default {
   title: "Timescale/Timescale",
@@ -102,6 +103,30 @@ export const HorizontalAbsoluteSuperCondensed = {
     levels: [0, 5],
     absoluteAgeScale: true,
     length: 1000,
+  },
+};
+
+/** Each Phanerozoic era gets the same length, so the axis labels era
+ * boundaries rather than evenly spaced ages. */
+export const VerticalPiecewise = {
+  args: {
+    orientation: TimescaleOrientation.VERTICAL,
+    levels: [1, 3],
+    scale: scaleLinear({
+      domain: [0, 66, 252.2, 541],
+      range: [0, 300, 600, 900],
+    }),
+  },
+};
+
+export const HorizontalPiecewise = {
+  args: {
+    orientation: TimescaleOrientation.HORIZONTAL,
+    levels: [1, 3],
+    scale: scaleLinear({
+      domain: [541, 252.2, 66, 0],
+      range: [0, 400, 800, 1200],
+    }),
   },
 };
 

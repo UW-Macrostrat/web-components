@@ -35,11 +35,13 @@ function AnimatedTimescale(props: {
 
   // The full extent we can zoom back out to. Range is pixels along the axis;
   // the hook only ever changes the *domain* under a transform, so `length`
-  // stays fixed as the span animates.
-  const baseScale = useMemo(
-    () => scaleLinear({ domain: ageRange, range: [0, length] }),
-    [ageRange.join(","), length],
-  );
+  // stays fixed as the span animates. Vertically, younger ages are at the top.
+  const isVertical = orientation === TimescaleOrientation.VERTICAL;
+  const baseScale = useMemo(() => {
+    let range = [0, length];
+    if (isVertical) range = [length, 0];
+    return scaleLinear({ domain: ageRange, range });
+  }, [ageRange.join(","), length, isVertical]);
 
   // `padding` is in pixels, so the gutter around a zoom target looks the same
   // at every zoom level; it collapses at the ends of the full extent.
@@ -51,7 +53,6 @@ function AnimatedTimescale(props: {
   };
 
   const [older, younger] = zoom.domain;
-  const isVertical = orientation === TimescaleOrientation.VERTICAL;
 
   return h("div", { style: { display: "flex", flexDirection: "column", gap: 12, padding: 16 } }, [
     h("div", { style: { display: "flex", alignItems: "center", gap: 12 } }, [

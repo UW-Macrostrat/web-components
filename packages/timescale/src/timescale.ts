@@ -43,6 +43,8 @@ export interface TimescaleProps extends TimescaleDisplayProps {
   axisProps?: Partial<AgeAxisProps>;
   cursorPosition?: number | null;
   cursorComponent?: any;
+  /** Maps age to pixels from the top (vertical) or left (horizontal) edge.
+   * May be piecewise, in which case the age axis labels its breakpoints. */
   scale?: ScaleContinuousNumeric<number, number>;
   rotateLabels?: boolean;
 }

@@ -28,8 +28,8 @@ export interface TimescaleSpec {
 
 export interface SharedScaleTimescalesProps {
   timescales: TimescaleSpec[];
-  /** The scale the columns are drawn against. Give this, or `ageRange` and
-   * `length` for a linear one. */
+  /** The scale the columns are drawn against, mapping age to pixels down
+   * from the top. Give this, or `ageRange` and `length` for a linear one. */
   scale?: AgeScale;
   /** Oldest and youngest age of the window, in Ma */
   ageRange?: [number, number];
@@ -45,8 +45,8 @@ export interface SharedScaleTimescalesProps {
  * Alignment comes from the scale: each `Timescale` clips its intervals to the
  * scale's domain and sizes every box from it, so columns drawn from unrelated
  * timescales line up age-for-age. The scale need not be linear — a piecewise
- * one gives each boundary the same spacing whatever its duration — but an age
- * axis only makes sense for a linear scale.
+ * one gives each boundary the same spacing whatever its duration, and the age
+ * axis then labels its breakpoints.
  *
  * Only the first column draws the axis; the rest would draw the same ticks on
  * top of each other.
@@ -68,7 +68,8 @@ export function SharedScaleTimescales(props: SharedScaleTimescalesProps) {
   const scale = useMemo(() => {
     if (_scale != null) return _scale;
     if (ageRange == null || length == null) return null;
-    return scaleLinear({ domain: ageRange, range: [0, length] });
+    const domain = [Math.max(...ageRange), Math.min(...ageRange)];
+    return scaleLinear({ domain, range: [length, 0] });
   }, [_scale, ageRange?.[0], ageRange?.[1], length]);
 
   const showLabels = timescales.some((d) => d.label != null);
@@ -109,10 +110,6 @@ export function SharedScaleTimescaleColumn(
   const { spec, scale, intervals, showLabel = true, showAgeAxis = false } = props;
   const { label, levels = [1, 1], wideLabels = false } = spec;
 
-  // `AgeAxis` reverses the range of the scale it is handed, so each column
-  // works from its own copy rather than the one they are aligned to.
-  const columnScale = useMemo(() => scale.copy(), [scale]);
-
   let size = spec.size;
   if (size == null && wideLabels) {
     size = "14em";
@@ -127,7 +124,7 @@ export function SharedScaleTimescaleColumn(
     h.if(showLabel)("div.column-label", label ?? ""),
     h(Timescale, {
       intervals,
-      scale: columnScale,
+      scale,
       style,
       orientation: TimescaleOrientation.VERTICAL,
       absoluteAgeScale: true,

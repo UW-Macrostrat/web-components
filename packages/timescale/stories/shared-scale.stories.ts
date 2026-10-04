@@ -129,8 +129,7 @@ interface Surface {
  * a `d3` linear scale is happy to be piecewise — the domain is every distinct
  * boundary age in either timescale, and the range steps by `spacing` for each
  * one — so both timescales can be handed the same scale and drawn the way they
- * always are. An age axis would be meaningless here, so the surfaces carry
- * their own ages instead.
+ * always are. The surfaces carry their own ages across both columns.
  */
 function EquidistantSurfaceTimescales(props: EquidistantSurfacesProps) {
   const {
@@ -138,7 +137,9 @@ function EquidistantSurfaceTimescales(props: EquidistantSurfacesProps) {
     ageRange = DEFAULT_MISALIGNED_RANGE,
     spacing = 44,
   } = props;
-  const intervals = useMacrostratTimescales(timescaleIDs(timescales));
+  const intervals = useMacrostratTimescales(
+    useMemo(() => timescales.map((d) => d.timescaleID), [timescales]),
+  );
 
   const { scale, surfaces } = useMemo(
     () =>
@@ -210,8 +211,7 @@ function equidistantScale(
 
   // Intervals stack youngest-first from the top of the column, so the
   // youngest surface is at y = 0 and each older one is `spacing` px further
-  // down. (Direction is immaterial to `Timescale`, which only ever takes
-  // differences of the scale, but the overlay positions from it directly.)
+  // down.
   const range = ages.map((_, i) => i * spacing);
 
   const surfaces = ages.map((age) => ({

@@ -33,13 +33,8 @@ function TimescaleProvider(props: TimescaleProviderProps) {
     ageRange2 = [timescale.eag, timescale.lag];
   }
 
-  if (
-    orientation == TimescaleOrientation.VERTICAL &&
-    increaseDirection == IncreaseDirection.DOWN_LEFT &&
-    ageRange2[0] < ageRange2[1]
-  ) {
-    ageRange2.reverse();
-  }
+  // Domain is always [older, younger], which the zoom helpers rely on.
+  ageRange2 = [Math.max(...ageRange2), Math.min(...ageRange2)];
 
   let length2 = length;
 
@@ -52,10 +47,15 @@ function TimescaleProvider(props: TimescaleProviderProps) {
 
   let scale2 = scale;
   if (length && absoluteAgeScale && scale2 == null) {
-    scale2 = scaleLinear({
-      range: [0, length],
-      domain: ageRange2,
-    });
+    let range = [0, length];
+    // Younger boxes come first in the DOM, at the top when increasing downward.
+    if (
+      orientation == TimescaleOrientation.VERTICAL &&
+      increaseDirection == IncreaseDirection.DOWN_LEFT
+    ) {
+      range = [length, 0];
+    }
+    scale2 = scaleLinear({ range, domain: ageRange2 });
   }
 
   const value = {
