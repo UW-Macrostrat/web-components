@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.3.1] - 2026-10-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/timescale-v3.3.0...@macrostrat/timescale-v3.3.1)
+
+### Patch Changes
+
+- Horizontal timescales with a scale (`absoluteAgeScale` + `length`, or `scale`)
+  [8119473](https://github.com/UW-Macrostrat/web-components/commit/8119473ef72362f0b02db8fa8219f513e06275e1)
+  now size intervals by age instead of sharing the row evenly.
+
 ## [3.3.0] - 2026-09-21 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/timescale-v3.2.0...@macrostrat/timescale-v3.3.0)
 
 ### Minor Changes
