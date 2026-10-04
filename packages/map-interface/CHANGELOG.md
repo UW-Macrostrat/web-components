@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.5.1] - 2026-10-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.5.0...@macrostrat/map-interface-v2.5.1)
+
+### Patch Changes
+
+- A map pool reuses maps for views that set `maxBounds`, `minZoom`, `maxZoom`,
+  `minPitch` or `maxPitch`, which previously each got a map of their own. Each
+  adopting view sets all of these limits, so one view's don't carry over to the
+  next.
+
 ## [2.5.0] - 2026-10-03 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.4.0...@macrostrat/map-interface-v2.5.0)
 
 ### Minor Changes

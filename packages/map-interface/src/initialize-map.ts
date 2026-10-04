@@ -7,12 +7,15 @@ export interface MapboxOptionsExt extends MapboxCoreOptions {
   mapPosition?: MapPosition;
 }
 
+/** Lower than Mapbox's own default (22): past this, Macrostrat data is empty. */
+export const defaultMaxZoom = 18;
+
 export function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
   const { mapPosition, ...rest } = args;
 
   const map = new mapboxgl.Map({
     container,
-    maxZoom: 18,
+    maxZoom: defaultMaxZoom,
     logoPosition: "bottom-left",
     trackResize: false,
     antialias: true,
