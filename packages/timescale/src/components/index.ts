@@ -150,7 +150,7 @@ function TimescaleBoxes(props: {
 
   const { children, nam: name } = interval;
 
-  const className = slugify(name);
+  const className = classNames(slugify(name), { scaled: length != null });
 
   return h("div.interval", { className, style }, [
     h.if(lvl >= minLevel)(IntervalBox, {
