@@ -44,11 +44,27 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
 
   --page-header-identifier-font: var(--pz-font-mono)
   --page-header-identifier-color: var(--pz-text-subtle-color)
+  // The identifier in the title row, and the one in the bar once the title is
+  // inline. A brand may scale the first with its title.
+  --page-header-identifier-font-size: var(--pz-font-size-sm)
+  --page-header-inline-identifier-font-size: var(--pz-font-size-sm)
   // Minimum space between an inline title and the identifier after it.
   --page-header-identifier-spacing: var(--pz-space-4)
 
   display: flow-root
   color: var(--pz-text-color)
+
+// A smaller header for tight spaces, such as a map's context panel. Two
+// classes, so it outranks a brand's own `.page-header` values.
+.page-header.small
+  --page-header-bar-height: 2.25rem
+  --page-header-logo-size: 1.25rem
+  --page-header-gap: var(--pz-space-1)
+  --page-header-crumb-font-size: var(--pz-font-size-sm)
+  --page-header-title-font-size: var(--pz-font-size-xl)
+  --page-header-title-min-font-size: var(--pz-font-size-lg)
+  --page-header-title-block-padding-bottom: var(--pz-space-2)
+  --page-header-identifier-spacing: var(--pz-space-2)
 
 // Sticky: the header's box steps aside so the bar's sticky boundary is the
 // page itself, not a header that ends right after the title.
@@ -299,11 +315,15 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
 .identifier
   flex: 0 0 auto
   font-family: var(--page-header-identifier-font)
-  font-size: var(--pz-font-size-sm)
+  font-size: var(--page-header-identifier-font-size)
   font-weight: var(--pz-font-weight-normal)
   color: var(--page-header-identifier-color)
   font-variant-numeric: tabular-nums
   white-space: nowrap
+
+// After `.identifier`, which the inline one also carries
+.identifier.inline-identifier
+  font-size: var(--page-header-inline-identifier-font-size)
 
 .supporting
   margin-top: var(--pz-space-3)
