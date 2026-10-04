@@ -1,5 +1,6 @@
 import { Timescale, TimescaleProps, TimescaleOrientation } from "../src";
 import chroma from "chroma-js";
+import { scaleLinear } from "@visx/scale";
 
 export default {
   title: "Timescale/Timescale",
@@ -102,6 +103,16 @@ export const HorizontalAbsoluteSuperCondensed = {
     levels: [0, 5],
     absoluteAgeScale: true,
     length: 1000,
+  },
+};
+
+/** Phanerozoic on an externally supplied scale: interval widths follow age. */
+export const HorizontalWithScale = {
+  args: {
+    orientation: TimescaleOrientation.HORIZONTAL,
+    levels: [1, 4],
+    ageRange: [541, 0],
+    scale: scaleLinear({ domain: [541, 0], range: [0, 1200] }),
   },
 };
 
