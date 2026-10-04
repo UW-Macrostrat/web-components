@@ -75,6 +75,10 @@
       flex-direction: column
       flex: 1
 
+      // A zero flex-basis would override the scale-derived width.
+      &.scaled
+        flex: 0 1 auto
+
     .interval-box
       min-height: var(--timescale-level-height)
 
