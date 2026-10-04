@@ -30,6 +30,10 @@ export type PageHeaderVariant = "expanded" | "compact" | "hybrid";
 /** `full` spans its container; `constrained` centres on the content column. */
 export type PageHeaderWidth = "full" | "constrained";
 
+/** `small` shrinks the bar, logo, trail and title for tight spaces, such as a
+ * map's context panel. */
+export type PageHeaderSize = "default" | "small";
+
 /** Whether the actions fold into a single "more" dropdown: `never`, below
  * `collapseActionsBelow` (`narrow`), or `always`. */
 export type PageHeaderActionsCollapse = "never" | "narrow" | "always";
@@ -77,6 +81,7 @@ export interface PageHeaderProps {
    * of the page (or scroll container). */
   sticky?: boolean;
   width?: PageHeaderWidth;
+  size?: PageHeaderSize;
   className?: string;
   /** Supporting content under the large title (description, tabs…). */
   children?: ReactNode;
@@ -98,6 +103,7 @@ export function PageHeader(props: PageHeaderProps) {
     variant = "expanded",
     sticky = false,
     width = "full",
+    size = "default",
     className,
     children,
   } = props;
@@ -192,6 +198,7 @@ export function PageHeader(props: PageHeaderProps) {
     "header.page-header",
     {
       className: classNames(variant, width, className, {
+        small: size == "small",
         sticky: isSticky,
         stuck: isStuck,
         collapsed: isCollapsed,

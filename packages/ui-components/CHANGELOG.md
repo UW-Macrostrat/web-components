@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.4.0] - 2026-10-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.3.0...@macrostrat/ui-components-v5.4.0)
+
+### Minor Changes
+
+- `PageHeader` takes `size: "small"`, a smaller bar, logo, trail and title for
+  [cb6b71ba](https://github.com/UW-Macrostrat/web-components/commit/cb6b71ba9eb8eeaafa97f74311fb3dc62ee00616)
+  tight spaces such as a map's context panel. The identifier's size is now a
+  custom property — `--page-header-identifier-font-size` in the title row and
+  `--page-header-inline-identifier-font-size` in the bar — so a brand can scale
+  it with its title.
+
 ## [5.3.0] - 2026-10-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.2.0...@macrostrat/ui-components-v5.3.0)
 
 ### Minor Changes

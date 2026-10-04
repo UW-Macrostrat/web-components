@@ -51,6 +51,7 @@ const meta: Meta<typeof PageHeader> = {
       options: ["expanded", "compact", "hybrid"],
     },
     width: { control: "inline-radio", options: ["full", "constrained"] },
+    size: { control: "inline-radio", options: ["default", "small"] },
     sticky: { control: "boolean" },
     collapseActions: {
       control: "inline-radio",
@@ -174,6 +175,19 @@ export const Hybrid: Story = {
     identifier: "#3712",
     actions: h(MapActions),
   },
+};
+
+/** The hybrid header at `size: "small"`, for a narrow panel beside a map. */
+export const Small: Story = {
+  args: {
+    ...Hybrid.args,
+    size: "small",
+    width: "full",
+  },
+  render: (args) =>
+    h("div.preview-frame", { style: { maxWidth: 420 } }, [
+      h(DemoPage, { width: args.width }, h(PageHeader, args)),
+    ]),
 };
 
 /** Full width for app-like pages; constrained to the content column for
