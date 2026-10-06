@@ -20,6 +20,8 @@ import {
   useState,
 } from "react";
 import type { NoteData } from "@macrostrat/column-components";
+import { getLuminanceAdjustedColorScheme } from "@macrostrat/color-utils";
+import { useInDarkMode } from "@macrostrat/ui-components";
 import {
   type IntervalShort,
   IntervalTag,
@@ -146,6 +148,7 @@ export function ColumnSurfaceLines(props: ColumnSurfaceLinesProps) {
   const scale = useCompositeScale();
   const { axisType, totalHeight } = useMacrostratColumnData();
   const intervalMap = useSurfaceIntervalDefs(surfaces);
+  const inDarkMode = useInDarkMode();
 
   const ref = useRef<HTMLDivElement>(null);
   const unitsExtent = useUnitsColumnExtent(ref, extent === "units");
@@ -168,7 +171,7 @@ export function ColumnSurfaceLines(props: ColumnSurfaceLinesProps) {
         key: surface.id,
         surface,
         y,
-        color: surfaceIntervalColor(surface, intervalMap),
+        color: surfaceIntervalColor(surface, intervalMap, inDarkMode),
         selected: surface.id === selectedSurface,
         onSelect: onSelectSurface,
       });
@@ -261,6 +264,7 @@ export function ColumnSurfaceLabels(props: ColumnSurfaceLabelsProps) {
   const { axisType } = useMacrostratColumnData();
   const scale = useCompositeScale();
   const intervalMap = useSurfaceIntervalDefs(surfaces);
+  const inDarkMode = useInDarkMode();
 
   const labeled = useMemo(() => {
     const byStatus = filterByStatus(surfaces, labelStatuses);
@@ -290,14 +294,15 @@ export function ColumnSurfaceLabels(props: ColumnSurfaceLabelsProps) {
         note: surfaceLabel(surface),
         // The note's color reaches its connector, so a label's leader line
         // matches the surface line it points at
-        color: surfaceIntervalColor(surface, intervalMap) ?? undefined,
+        color:
+          surfaceIntervalColor(surface, intervalMap, inDarkMode) ?? undefined,
         surface,
         interval: calibrationInterval(surface, intervalMap),
         selected: surface.id === selectedSurface,
       });
     }
     return _notes;
-  }, [labeled, axisType, selectedSurface, intervalMap]);
+  }, [labeled, axisType, selectedSurface, intervalMap, inDarkMode]);
 
   const onClickNote = useCallback(
     (note: NoteData) => {
@@ -384,14 +389,19 @@ function useSurfaceIntervalDefs(
 /** The color a surface is drawn in: its calibration interval's, so the line
  * and its label's leader read as the interval the surface is tied to. `null`
  * for an uncalibrated surface, or before the definitions load — the status
- * color stands in. */
+ * color stands in. In light mode it is darkened as an interval tag's text is,
+ * since pale interval colors vanish against the background. */
 function surfaceIntervalColor(
   surface: ColumnSurface,
   intervalMap: Map<number, any> | null,
+  inDarkMode: boolean,
 ): string | null {
   const id = surface.calibration?.id;
   if (id == null) return null;
-  return intervalMap?.get(id)?.color ?? null;
+  const color = intervalMap?.get(id)?.color;
+  if (color == null) return null;
+  if (inDarkMode) return color;
+  return getLuminanceAdjustedColorScheme(color, false)?.mainColor ?? color;
 }
 
 /** The calibration interval in the shape the interval tag takes, colored
