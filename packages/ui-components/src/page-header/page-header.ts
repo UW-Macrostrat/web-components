@@ -34,6 +34,12 @@ export type PageHeaderWidth = "full" | "constrained";
  * map's context panel. */
 export type PageHeaderSize = "default" | "small";
 
+/** Where the large title starts, when there's a logo: `trail` (default)
+ * indents it past the logo, in line with the breadcrumbs' text, so a hybrid
+ * header's title moves straight up into the trail; `logo` starts it at the
+ * logo's edge, which can read better with looser vertical spacing. */
+export type PageHeaderTitleAlignment = "trail" | "logo";
+
 /** Whether the actions fold into a single "more" dropdown: `never`, below
  * `collapseActionsBelow` (`narrow`), or `always`. */
 export type PageHeaderActionsCollapse = "never" | "narrow" | "always";
@@ -82,6 +88,8 @@ export interface PageHeaderProps {
   sticky?: boolean;
   width?: PageHeaderWidth;
   size?: PageHeaderSize;
+  /** Where the large title starts when there's a logo. Default `trail`. */
+  titleAlignment?: PageHeaderTitleAlignment;
   className?: string;
   /** Supporting content under the large title (description, tabs…). */
   children?: ReactNode;
@@ -104,6 +112,7 @@ export function PageHeader(props: PageHeaderProps) {
     sticky = false,
     width = "full",
     size = "default",
+    titleAlignment = "trail",
     className,
     children,
   } = props;
@@ -203,6 +212,7 @@ export function PageHeader(props: PageHeaderProps) {
         stuck: isStuck,
         collapsed: isCollapsed,
         "has-logo": logo != null,
+        "title-aligned-to-trail": logo != null && titleAlignment == "trail",
         "adapt-width": !isTitleFirst,
         "hide-labels": isTitleFirst && yieldLevel >= YieldLevel.HideLabels,
         "hide-identifier":

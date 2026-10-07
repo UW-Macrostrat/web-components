@@ -52,6 +52,7 @@ const meta: Meta<typeof PageHeader> = {
     },
     width: { control: "inline-radio", options: ["full", "constrained"] },
     size: { control: "inline-radio", options: ["default", "small"] },
+    titleAlignment: { control: "inline-radio", options: ["trail", "logo"] },
     sticky: { control: "boolean" },
     collapseActions: {
       control: "inline-radio",
@@ -174,6 +175,15 @@ export const Hybrid: Story = {
     title: "Sierra Estrella, Arizona",
     identifier: "#3712",
     actions: h(MapActions),
+  },
+};
+
+/** The hybrid header with `titleAlignment: "logo"`: the large title starts at
+ * the logo's edge rather than in line with the breadcrumbs' text. */
+export const TitleAlignedToLogo: Story = {
+  args: {
+    ...Hybrid.args,
+    titleAlignment: "logo",
   },
 };
 
