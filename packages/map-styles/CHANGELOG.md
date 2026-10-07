@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.10] - 2026-10-07 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-styles-v2.2.9...@macrostrat/map-styles-v2.2.10)
+
+### Patch Changes
+
+- Updated dependencies
+  [3e7770fe](https://github.com/UW-Macrostrat/web-components/commit/3e7770fe5e373fcfa2f1a9442b89eefb19417e61)
+  - @macrostrat/ui-components@5.5.0
+
 ## [2.2.9] - 2026-10-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-styles-v2.2.8...@macrostrat/map-styles-v2.2.9)
 
 ### Patch Changes

@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.9.0] - 2026-10-07 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.8.0...@macrostrat/data-components-v1.9.0)
+
+### Minor Changes
+
+- Add `IntervalAgeRange`, which shows a span of time as the interval(s) it runs
+  [3e7770fe](https://github.com/UW-Macrostrat/web-components/commit/3e7770fe5e373fcfa2f1a9442b89eefb19417e61)
+  between. A `flavor` picks what goes with the interval names: positions within
+  the intervals (`proportion`), ages (`ages`), positions and ages together
+  (`both`), or nothing (`none`). Positions, and ages on an interval's boundary,
+  go in the details of the interval's tag; an age within the interval is the
+  span's own and follows the tag. Ages always print when the flavor includes
+  them; `verbose` also prints positions where an interval boundary implies them
+  (`Cretaceous | base to top`).
+
+### Patch Changes
+
+- `TagPicker` and `LithologyPicker` handle an item chosen more than once (a
+  lithology with different attributes): tags have unique keys and are selected,
+  edited and removed individually
+  [3e7770fe](https://github.com/UW-Macrostrat/web-components/commit/3e7770fe5e373fcfa2f1a9442b89eefb19417e61)
+- Updated dependencies
+  [3e7770fe](https://github.com/UW-Macrostrat/web-components/commit/3e7770fe5e373fcfa2f1a9442b89eefb19417e61)
+  - @macrostrat/ui-components@5.5.0
+
 ## [1.8.0] - 2026-09-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.7.0...@macrostrat/data-components-v1.8.0)
 
 ### Minor Changes
