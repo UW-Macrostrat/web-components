@@ -24,7 +24,9 @@ export enum AgeRangeFlavor {
    * in its tag (with `verbose`); any other age is the span's own, and follows
    * the tag: "Norian 216.5 Ma to Rhaetian | 201.4 Ma". */
   Ages = "ages",
-  /** Positions in the tags, followed by the span's age range. */
+  /** Positions and ages together. Ages follow the `ages` rules, but an age
+   * on an interval boundary is always shown in the tag: "Norian | 50% to
+   * Rhaetian | 201.4 Ma". */
   Both = "both",
 }
 
@@ -64,7 +66,8 @@ export interface IntervalAgeRangeProps extends Omit<
  * - `[Cretaceous | base to top]` (one interval, verbose)
  * - `[Norian] 216.5 Ma to [Rhaetian]` (ages)
  * - `[Norian] 216.5 Ma to [Rhaetian | 201.4 Ma]` (ages, verbose)
- * - `[Norian | 50%] to [Rhaetian] 216.5–201.4 Ma` (both)
+ * - `[Norian | 50%] 216.5 Ma to [Rhaetian | 201.4 Ma]` (both)
+ * - `[Berriasian | 143.1 Ma] to [Santonian | 83.6 Ma]` (both, whole intervals)
  *
  * Interval colors and ages come from the Macrostrat interval definitions. */
 export function IntervalAgeRange({
@@ -115,7 +118,6 @@ export function IntervalAgeRange({
         h(IntervalTag, { interval: int1, details: spec.topDetails, ...rest }),
         spec.topAfter,
       ]),
-      h.if(spec.ages != null)(TrailingAgeRange, { ages: spec.ages }),
     ],
   );
 }
@@ -130,8 +132,6 @@ export interface IntervalAgeRangeSpec {
   baseAfter: ReactNode;
   /** Shown right after the top interval's tag */
   topAfter: ReactNode;
-  /** The span's age range, shown after everything */
-  ages: [number, number] | null;
 }
 
 /** Decide what each part of an interval range shows. Interval ages may be
@@ -152,14 +152,7 @@ export function buildIntervalAgeRange(
   } = {},
 ): IntervalAgeRangeSpec {
   const singleInterval = int0.id === int1.id;
-  const spec: IntervalAgeRangeSpec = {
-    singleInterval,
-    baseDetails: null,
-    topDetails: null,
-    baseAfter: null,
-    topAfter: null,
-    ages: null,
-  };
+  const spec = emptySpec(singleInterval);
 
   if (flavor == AgeRangeFlavor.Ages) {
     return buildAgesSpec(spec, unit, int0, int1, verbose);
@@ -173,10 +166,39 @@ export function buildIntervalAgeRange(
   }
 
   if (flavor == AgeRangeFlavor.Both) {
-    spec.ages = spanAges(unit, int0, int1);
+    // Ages always show here, so an age on an interval boundary is printed in
+    // its tag even when the position ("base", "top") is left implied
+    const ages = buildAgesSpec(
+      emptySpec(singleInterval),
+      unit,
+      int0,
+      int1,
+      true,
+    );
+    spec.baseDetails = joinDetails(spec.baseDetails, ages.baseDetails);
+    spec.topDetails = joinDetails(spec.topDetails, ages.topDetails);
+    spec.baseAfter = ages.baseAfter;
+    spec.topAfter = ages.topAfter;
   }
 
   return spec;
+}
+
+function emptySpec(singleInterval: boolean): IntervalAgeRangeSpec {
+  return {
+    singleInterval,
+    baseDetails: null,
+    topDetails: null,
+    baseAfter: null,
+    topAfter: null,
+  };
+}
+
+/** A position and an age in one tag's details: "base · 237 Ma" */
+function joinDetails(position: ReactNode, age: ReactNode): ReactNode {
+  if (position == null) return age;
+  if (age == null) return position;
+  return h("span.joint-details", [position, h("span.sep", "·"), age]);
 }
 
 function buildProportionSpec(
@@ -264,13 +286,6 @@ function buildAgesSpec(
   return spec;
 }
 
-function TrailingAgeRange({ ages }: { ages: [number, number] }) {
-  return h(
-    "span.span-age",
-    h(AgeRangeValue, { b_age: ages[0], t_age: ages[1] }),
-  );
-}
-
 function AgeRangeValue({ b_age, t_age }: { b_age: number; t_age: number }) {
   const [b, t, unit] = getAgeRange({ b_age, t_age });
   let value = formatAge(b);
@@ -278,18 +293,6 @@ function AgeRangeValue({ b_age, t_age }: { b_age: number; t_age: number }) {
     value += "–" + formatAge(t);
   }
   return h(Value, { className: "age-range", value, unit });
-}
-
-/** The span's own ages, falling back to the intervals' where it has none */
-function spanAges(
-  unit: IntervalAgeRangeData,
-  int0: Partial<IntervalShort>,
-  int1: Partial<IntervalShort>,
-): [number, number] | null {
-  const b_age = unit.b_age ?? int0.b_age;
-  const t_age = unit.t_age ?? int1.t_age;
-  if (b_age == null || t_age == null) return null;
-  return [b_age, t_age];
 }
 
 function getProportion(
