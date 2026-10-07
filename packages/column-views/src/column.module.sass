@@ -67,6 +67,16 @@ body:global(.dark-mode) .column-container
     stroke: var(--selection-overlay-color, var(--column-selection-color))
     stroke-width: var(--selection-overlay-stroke-width, 2px)
     vector-effect: non-scaling-stroke
+    // Let clicks reach the unit, so a selected unit can be toggled off
+    pointer-events: none
+
+    // The outline alone, for selection styles other than the overlay
+    &.outline-only
+      fill: none
+
+  // Units outside the selection, in the `dim-others` selection style
+  .unit.dimmed
+    opacity: var(--column-dimmed-unit-opacity, 0.3)
 
   // Units sharing a stratigraphic name with the selection: a subtler highlight
   .linked-overlay

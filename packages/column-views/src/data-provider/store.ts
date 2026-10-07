@@ -13,8 +13,10 @@ import {
 import { ColumnAxisType, ColumnProvider } from "@macrostrat/column-components";
 import type { ExtUnit, PackageLayoutData } from "../prepare-units";
 import {
+  allowMultipleSelectionAtom,
   allowUnitSelectionAtom,
   selectedUnitIDAtom,
+  selectedUnitIDsAtom,
   UnitSelectionCallbacks,
   UnitSelectionCallbackManager,
   selectedUnitElementAtom,
@@ -49,14 +51,23 @@ export interface ColumnStateProviderProps<
   units: T[];
   selectedUnit: number | null;
   allowUnitSelection?: boolean;
+  /** Select several units at once: ⌘/Ctrl-click toggles a unit, Shift-click
+   * selects a run of units in a column. */
+  allowMultipleSelection?: boolean;
+  /** Controlled multiple selection (memoize it: a new array resets the
+   * selection) */
+  selectedUnits?: number[] | null;
 }
 
 export function MacrostratColumnStateProvider<T extends BaseUnit>({
   children,
   units,
   allowUnitSelection = false,
+  allowMultipleSelection = false,
   onUnitSelected,
+  onUnitsSelected,
   selectedUnit,
+  selectedUnits,
 }: ColumnStateProviderProps<T>) {
   /** Top-level provider for Macrostrat column data.
    * It is either provided by the Column component itself, or
@@ -70,13 +81,26 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
     if (allowUnitSelection) {
       return true;
     }
-    return selectedUnit != null || onUnitSelected != null;
+    return (
+      selectedUnit != null ||
+      onUnitSelected != null ||
+      allowMultipleSelection ||
+      selectedUnits != null ||
+      onUnitsSelected != null
+    );
   }, []);
 
   // Check if we're already in a columnStateProvider, and render a no-op if so
   const existingUnits = scope.useAtomValueIfExists(columnUnitsAtom);
   if (existingUnits != null) {
-    if (allowUnitSelection || onUnitSelected || selectedUnit != null) {
+    if (
+      allowUnitSelection ||
+      onUnitSelected ||
+      selectedUnit != null ||
+      allowMultipleSelection ||
+      onUnitsSelected ||
+      selectedUnits != null
+    ) {
       console.warn(
         "MacrostratColumnStateProvider: unit selection props are ignored because a provider already exists in the tree",
       );
@@ -88,11 +112,16 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
     [columnUnitsAtom, units],
     [allowUnitSelectionAtom, _allowSelection],
     [selectedUnitIDAtom, selectedUnit],
+    [allowMultipleSelectionAtom, allowMultipleSelection],
+    [selectedUnitIDsAtom, selectedUnits],
   ];
 
   let selectionHandlers: ReactNode = null;
   if (_allowSelection) {
-    selectionHandlers = h(UnitSelectionCallbackManager, { onUnitSelected });
+    selectionHandlers = h(UnitSelectionCallbackManager, {
+      onUnitSelected,
+      onUnitsSelected,
+    });
   }
 
   return h(
@@ -141,8 +170,11 @@ export function MacrostratColumnDataProvider<T extends BaseUnit>({
   totalHeight,
   axisType,
   allowUnitSelection,
+  allowMultipleSelection,
   onUnitSelected,
+  onUnitsSelected,
   selectedUnit,
+  selectedUnits,
   isTransitioning,
   hideLabelsWhileTransitioning,
   ref,
@@ -182,8 +214,11 @@ export function MacrostratColumnDataProvider<T extends BaseUnit>({
     {
       units,
       allowUnitSelection,
+      allowMultipleSelection,
       onUnitSelected,
+      onUnitsSelected,
       selectedUnit,
+      selectedUnits,
       ref,
     },
     [

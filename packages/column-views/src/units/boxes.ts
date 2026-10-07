@@ -11,7 +11,7 @@ import {
 import { SizeAwareLabel, Clickable } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import { ReactNode, useContext, useMemo } from "react";
-import { useUnitSelectionTarget } from "../data-provider";
+import { useHasUnitSelection, useUnitSelectionTarget } from "../data-provider";
 import { useLithologies } from "@macrostrat/data-provider";
 import { IUnit } from "./types";
 import styles from "./boxes.module.sass";
@@ -39,6 +39,20 @@ interface UnitRectOptions {
   padding?: number;
 }
 
+/** How a unit shows that it is selected. Pass it to a unit component (e.g.
+ * through a column's `unitComponentProps`). */
+export enum UnitSelectionStyle {
+  /** A wash of the selection color over the unit, and an outline (default) */
+  Overlay = "overlay",
+  /** An outline in the selection color */
+  Outline = "outline",
+  /** An outline, with the units that aren't selected faded */
+  DimOthers = "dim-others",
+  /** An outline, with the units that aren't selected drawn without their
+   * background color */
+  ColorSelected = "color-selected",
+}
+
 interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
   division: IUnit;
   resolveID?(IUnit): string;
@@ -51,6 +65,7 @@ interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
   backgroundColor?: string;
   patternColor?: string;
   patternID?: string | number;
+  selectionStyle?: UnitSelectionStyle | `${UnitSelectionStyle}`;
 }
 
 export interface LabeledUnitProps
@@ -62,6 +77,7 @@ export interface LabeledUnitProps
   halfWidth?: boolean;
   showLabel?: boolean;
   backgroundColor?: string;
+  selectionStyle?: UnitSelectionStyle | `${UnitSelectionStyle}`;
 }
 
 function useUnitRect(
@@ -97,6 +113,7 @@ export function MinimalUnit(props) {
     widthFraction = 1,
     axisType: _, // not sure why this is brought in...
     nColumns: __,
+    selectionStyle,
     ...baseBounds
   } = props;
 
@@ -107,17 +124,21 @@ export function MinimalUnit(props) {
     ...baseBounds,
   };
 
-  const backgroundColor = getMixedUnitColor(d, lithMap, null, false);
-
   const [ref, selected, onClick, linked] = useUnitSelectionTarget(d);
+  const selection = useSelectionStyle(selectionStyle, selected, linked);
+
+  // Without its color, a unit keeps its outline in that color
+  const color = getMixedUnitColor(d, lithMap, null, false);
+  let backgroundColor = color;
+  if (selection.uncolored) backgroundColor = "transparent";
 
   return h(
     "g.unit",
     {
-      className,
+      className: classNames(className, selection.className),
       style: {
         "--column-unit-background-color": backgroundColor,
-        "--column-stroke-color": backgroundColor,
+        "--column-stroke-color": color,
       },
     },
     [
@@ -126,11 +147,14 @@ export function MinimalUnit(props) {
         ...bounds,
         fill: backgroundColor,
         fillOpacity: 0.8,
-        stroke: backgroundColor,
+        stroke: color,
         onClick,
       }),
       h.if(linked)("rect.linked-overlay", bounds),
-      h.if(selected)("rect.selection-overlay", bounds),
+      h.if(selected)("rect.selection-overlay", {
+        ...bounds,
+        className: selection.overlayClassName,
+      }),
     ],
   );
 }
@@ -146,6 +170,7 @@ function Unit(props: UnitProps) {
     backgroundColor,
     patternColor,
     patternID,
+    selectionStyle,
     axisType: _, // not sure why this is brought in...
     ...baseBounds
   } = props;
@@ -164,24 +189,29 @@ function Unit(props: UnitProps) {
   const _patternID = patternID ?? getBestFGDCPatternForUnit(d);
   let _fill = fill ?? useGeologicPattern(_patternID, defaultFill);
 
-  const hasBackgroundColor = backgroundColor != null;
-
-  const _className = classNames(className, { colored: hasBackgroundColor });
-
   const [ref, selected, onClick, linked] = useUnitSelectionTarget(d);
+  const selection = useSelectionStyle(selectionStyle, selected, linked);
+
+  let _backgroundColor = backgroundColor;
+  if (selection.uncolored) _backgroundColor = null;
+  const hasBackgroundColor = _backgroundColor != null;
+
+  const _className = classNames(className, selection.className, {
+    colored: hasBackgroundColor,
+  });
 
   return h(
     "g.unit",
     {
       className: _className,
       style: {
-        "--column-unit-background-color": backgroundColor,
+        "--column-unit-background-color": _backgroundColor,
       },
     },
     [
       h(ClippableRect, {
         ...bounds,
-        fill: backgroundColor,
+        fill: _backgroundColor ?? "transparent",
         onClick,
         className: cls("background"),
       }),
@@ -199,7 +229,10 @@ function Unit(props: UnitProps) {
       }),
       h.if(selected)(ClippableRect, {
         ...bounds,
-        className: cls("selection-overlay"),
+        className: classNames(
+          cls("selection-overlay"),
+          selection.overlayClassName,
+        ),
       }),
       //defs,
       children,
@@ -216,6 +249,7 @@ function LabeledUnit(props: LabeledUnitProps) {
     showLabel = true,
     backgroundColor,
     patternID,
+    selectionStyle,
     axisType: _, // not sure why this is brought in...
     ...baseBounds
   } = props;
@@ -238,6 +272,7 @@ function LabeledUnit(props: LabeledUnitProps) {
       division,
       backgroundColor,
       patternID,
+      selectionStyle,
       ...bounds,
     },
     [
@@ -298,3 +333,25 @@ function UnitBoxes<T>(props: {
 }
 
 export { LabeledUnit, Unit, UnitBoxes, UnitProps };
+
+/** Classes that draw a unit's selection in the chosen style. The styles live
+ * with the column's (`column.module.sass`). */
+function useSelectionStyle(
+  style:
+    UnitSelectionStyle | `${UnitSelectionStyle}` = UnitSelectionStyle.Overlay,
+  selected: boolean,
+  linked: boolean,
+) {
+  const hasSelection = useHasUnitSelection();
+  // Linked units (sharing the selection's name) stand out with the selection
+  const backgrounded = hasSelection && !selected && !linked;
+  const dimmed = backgrounded && style == UnitSelectionStyle.DimOthers;
+  const uncolored = backgrounded && style == UnitSelectionStyle.ColorSelected;
+  return {
+    uncolored,
+    className: classNames({ dimmed, uncolored }),
+    overlayClassName: classNames({
+      "outline-only": style != UnitSelectionStyle.Overlay,
+    }),
+  };
+}

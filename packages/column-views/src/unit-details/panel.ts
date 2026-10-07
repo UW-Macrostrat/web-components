@@ -130,8 +130,10 @@ export function UnitDetailsPanel({
               "Unit selection: onClickItem is defined but onSelectUnit is not; ignoring click",
             );
           }
-          // Don't allow event to propagate further (e.g., to open a link)
+          // Don't follow the link, and don't let the click reach the column
+          // (whose background click clears the selection)
           event.preventDefault();
+          event.stopPropagation();
         };
       }
       return undefined;

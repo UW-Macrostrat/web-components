@@ -3,7 +3,7 @@ import { useKeyHandler } from "@macrostrat/ui-components";
 import { useEffect, useRef, useCallback, useMemo } from "react";
 import type { RectBounds, IUnit } from "../units/types";
 import { atom } from "jotai";
-import { scope, columnUnitsMapAtom } from "./store";
+import { scope, columnUnitsAtom, columnUnitsMapAtom } from "./store";
 import {
   AgeRangeQuantifiedDifference,
   ageRangeQuantifiedDifference,
@@ -11,9 +11,18 @@ import {
 } from "@macrostrat/stratigraphy-utils";
 import type { ColumnData } from "@macrostrat/data-provider";
 
+/** How a selection request combines with the current selection.
+ * - `replace` (default): select only this unit
+ * - `toggle`: add the unit to the selection, or remove it if already selected
+ * - `range`: select every unit between the anchor (the last unit selected
+ *   on its own or toggled on) and this one, in the same column
+ * `toggle` and `range` act like `replace` unless multiple selection is on. */
+export type UnitSelectionMode = "replace" | "toggle" | "range";
+
 type UnitSelectDispatch = (
   unit: number | BaseUnit | null,
   target: HTMLElement | null,
+  mode?: UnitSelectionMode,
 ) => void;
 
 export function useUnitSelection() {
@@ -26,6 +35,18 @@ export function useUnitSelectionDispatch(): UnitSelectDispatch {
 
 export function useSelectedUnit() {
   return scope.useAtomValue(selectedUnitAtom);
+}
+
+/** Every selected unit, in selection order. The last is the "primary"
+ * selection that `useSelectedUnit` returns (the one the popover and keyboard
+ * navigation follow). */
+export function useSelectedUnits(): BaseUnit[] {
+  return scope.useAtomValue(selectedUnitsAtom);
+}
+
+/** Whether any unit is selected (e.g., to dim the units that aren't) */
+export function useHasUnitSelection(): boolean {
+  return scope.useAtomValue(hasUnitSelectionAtom);
 }
 
 export interface ColumnClickData {
@@ -43,12 +64,61 @@ export interface UnitSelectionCallbacks {
     unitID: number | null,
     unit: T | null,
   ) => void;
+  /** Called with every selected unit when the selection changes (with
+   * `allowMultipleSelection`). */
+  onUnitsSelected?: <T extends BaseUnit>(unitIDs: number[], units: T[]) => void;
 }
 
 export const allowUnitSelectionAtom = atom<boolean>(true);
 
+export const allowMultipleSelectionAtom = atom<boolean>(false);
+
+/** The primary selected unit */
 export const selectedUnitIDAtom = atom<number | null>();
+/** Every selected unit, with the primary last. Unused (null) for single
+ * selection, where the primary unit is the whole selection. */
+export const selectedUnitIDsAtom = atom<number[] | null>();
 export const selectedUnitElementAtom = atom<HTMLElement | null>();
+/** Where a `range` selection starts from */
+const selectionAnchorIDAtom = atom<number | null>();
+
+/** The primary selected unit. Under multiple selection, it must be one of
+ * the selected units: if a controlled selection leaves it out, the last of
+ * them takes its place. */
+const primaryUnitIDAtom = atom<number | null>((get) => {
+  if (!get(allowUnitSelectionAtom)) return null;
+  const primary = get(selectedUnitIDAtom) ?? null;
+  const ids = get(selectedUnitIDsAtom);
+  if (!get(allowMultipleSelectionAtom) || ids == null) return primary;
+  if (ids.includes(primary)) return primary;
+  return ids[ids.length - 1] ?? null;
+});
+
+/** The IDs of every selected unit, primary last */
+export const selectedUnitIDListAtom = atom<number[]>((get) => {
+  const primary = get(primaryUnitIDAtom);
+  let list: number[] = [];
+  if (get(allowMultipleSelectionAtom)) {
+    list = (get(selectedUnitIDsAtom) ?? []).filter((id) => id != primary);
+  }
+  if (primary != null) list.push(primary);
+  return list;
+});
+
+const hasUnitSelectionAtom = atom(
+  (get) => get(selectedUnitIDListAtom).length > 0,
+);
+
+const selectedUnitIDSetAtom = atom(
+  (get) => new Set<number>(get(selectedUnitIDListAtom)),
+);
+
+const selectedUnitsAtom = atom<BaseUnit[]>((get) => {
+  const unitsMap = get(columnUnitsMapAtom);
+  return get(selectedUnitIDListAtom)
+    .map((id) => unitsMap?.get(id))
+    .filter((d) => d != null);
+});
 
 const overlayPositionAtom = atom<RectBounds | null>();
 
@@ -60,9 +130,7 @@ export function useColumnRef() {
 
 const selectedUnitAtom = atom(
   (get) => {
-    if (!get(allowUnitSelectionAtom)) return null;
-
-    const unitID = get(selectedUnitIDAtom);
+    const unitID = get(primaryUnitIDAtom);
     if (unitID == null) return null;
     const unitsMap = get(columnUnitsMapAtom);
     return unitsMap?.get(unitID) || null;
@@ -72,53 +140,90 @@ const selectedUnitAtom = atom(
     set,
     selectedUnit: number | BaseUnit | null,
     target: HTMLElement | null = null,
+    mode: UnitSelectionMode = "replace",
   ): BaseUnit | null => {
     if (!get(allowUnitSelectionAtom)) {
       console.error("Unit selection is disabled.");
       return null;
     }
 
-    let unitID: number | null = null;
-    let unit: BaseUnit | null = null;
-    if (selectedUnit == null) {
-      unitID = null;
-    } else if (typeof selectedUnit === "number") {
-      unitID = selectedUnit;
-    } else if ("unit_id" in selectedUnit) {
-      unitID = selectedUnit.unit_id;
+    const unitID = getUnitID(selectedUnit);
+    const unitsMap = get(columnUnitsMapAtom);
+    // Verify that the unit exists in the current column, else throw
+    if (unitID != null && !unitsMap?.has(unitID)) {
+      throw new Error(
+        `Unit with ID ${unitID} not found in current column units.`,
+      );
     }
 
-    if (unitID != null) {
-      const unitsMap = get(columnUnitsMapAtom);
-      // Verify that the unit exists in the current colum, else throw
-      if (!unitsMap?.has(unitID)) {
-        throw new Error(
-          `Unit with ID ${unitID} not found in current column units.`,
-        );
+    let _mode = mode;
+    if (!get(allowMultipleSelectionAtom) || unitID == null) {
+      _mode = "replace";
+    }
+
+    let ids: number[] = [];
+    let primary = unitID;
+    const current = get(selectedUnitIDListAtom);
+
+    if (_mode == "replace") {
+      if (primary != null) ids = [primary];
+      set(selectionAnchorIDAtom, primary);
+    } else if (_mode == "toggle") {
+      if (current.includes(unitID)) {
+        // Deselect, handing the primary selection to the last one left
+        ids = current.filter((id) => id != unitID);
+        primary = ids[ids.length - 1] ?? null;
+        target = null;
+      } else {
+        ids = [...current, unitID];
+        set(selectionAnchorIDAtom, unitID);
       }
-      unit = unitsMap.get(unitID) ?? null;
+    } else if (_mode == "range") {
+      const anchor = get(selectionAnchorIDAtom) ?? current[current.length - 1];
+      ids = unitsBetween(get(columnUnitsAtom), anchor, unitID);
+      // Keep the clicked unit as the primary selection
+      ids = [...ids.filter((id) => id != unitID), unitID];
     }
 
-    let overlayPosition: RectBounds | null = null;
-
-    const columnEl = get(columnRefAtom)?.current;
-
-    if (unit != null && columnEl != null && target != null) {
-      const rect = columnEl.getBoundingClientRect();
-      const targetRect = target.getBoundingClientRect();
-      overlayPosition = {
-        x: targetRect.left - rect.left,
-        y: targetRect.top - rect.top,
-        width: targetRect.width,
-        height: targetRect.height,
-      };
-    }
-
-    set(selectedUnitElementAtom, target);
-    set(selectedUnitIDAtom, unitID);
-    set(overlayPositionAtom, overlayPosition);
+    const unit = unitsMap?.get(primary) ?? null;
+    set(selectedUnitIDsAtom, ids);
+    setPrimaryUnit(get, set, unit, target);
 
     return unit;
+  },
+);
+
+/** Point the primary selection at a unit and its element, which places the
+ * popover. */
+function setPrimaryUnit(get, set, unit: BaseUnit | null, target: HTMLElement) {
+  let overlayPosition: RectBounds | null = null;
+
+  const columnEl = get(columnRefAtom)?.current;
+
+  if (unit != null && columnEl != null && target != null) {
+    const rect = columnEl.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    overlayPosition = {
+      x: targetRect.left - rect.left,
+      y: targetRect.top - rect.top,
+      width: targetRect.width,
+      height: targetRect.height,
+    };
+  }
+
+  set(selectedUnitElementAtom, target);
+  set(selectedUnitIDAtom, unit?.unit_id ?? null);
+  set(overlayPositionAtom, overlayPosition);
+}
+
+/** Attach the primary unit's element once it renders, without changing the
+ * selection */
+const syncSelectedElementAtom = atom(
+  null,
+  (get, set, unitID: number, target: HTMLElement | null) => {
+    if (get(primaryUnitIDAtom) != unitID) return;
+    const unit = get(columnUnitsMapAtom)?.get(unitID) ?? null;
+    setPrimaryUnit(get, set, unit, target);
   },
 );
 
@@ -128,11 +233,21 @@ export function useAtomOverlayPosition() {
 
 export function UnitSelectionCallbackManager({
   onUnitSelected,
+  onUnitsSelected,
 }: UnitSelectionCallbacks) {
   const selectedUnit = scope.useAtomValue(selectedUnitAtom);
   useEffect(() => {
     onUnitSelected?.(selectedUnit?.unit_id ?? null, selectedUnit ?? null);
   }, [selectedUnit?.unit_id]);
+
+  const selectedUnits = scope.useAtomValue(selectedUnitsAtom);
+  const key = selectedUnits.map((d) => d.unit_id).join(",");
+  useEffect(() => {
+    onUnitsSelected?.(
+      selectedUnits.map((d) => d.unit_id),
+      selectedUnits as any[],
+    );
+  }, [key]);
   return null;
 }
 
@@ -156,10 +271,13 @@ if (props.onClickedColumn) {
 
 export function useUnitSelectionTarget(
   unit: IUnit,
-): [React.RefObject<HTMLElement>, boolean, (evt: Event) => void, boolean] {
+): [React.RefObject<HTMLElement>, boolean, (evt: MouseEvent) => void, boolean] {
   const ref = useRef<HTMLElement>(null);
   const [selectedUnit, selectUnit] = useUnitSelection();
-  const selected = selectedUnit?.unit_id == unit.unit_id;
+  const syncElement = scope.useSetAtom(syncSelectedElementAtom);
+  const allowMultiple = scope.useAtomValue(allowMultipleSelectionAtom);
+  const isPrimary = selectedUnit?.unit_id == unit.unit_id;
+  const selected = scope.useAtomValue(selectedUnitIDSetAtom).has(unit.unit_id);
   const selectedUnitElement = scope.useAtomValue(selectedUnitElementAtom);
 
   // "Linked" units share a stratigraphic name with the selected unit (e.g.
@@ -174,18 +292,24 @@ export function useUnitSelectionTarget(
     unitStratName === selectedStratName;
 
   const onClick = useCallback(
-    (evt: Event) => {
-      selectUnit?.(unit, ref.current);
+    (evt: MouseEvent) => {
+      let mode: UnitSelectionMode = "replace";
+      if (allowMultiple && evt.shiftKey) {
+        mode = "range";
+      } else if (allowMultiple && (evt.metaKey || evt.ctrlKey)) {
+        mode = "toggle";
+      }
+      selectUnit?.(unit, ref.current, mode);
       evt.stopPropagation();
     },
-    [unit, selectUnit],
+    [unit, selectUnit, allowMultiple],
   );
 
   useEffect(() => {
-    // Sync selection with unit element...
-    if (!selected) return;
-    selectUnit?.(unit, ref.current);
-  }, [ref.current, selected, selectUnit]);
+    // Sync the primary selection with this unit's element...
+    if (!isPrimary) return;
+    syncElement(unit.unit_id, ref.current);
+  }, [ref.current, isPrimary, syncElement]);
 
   useEffect(() => {
     // Scroll the unit into view
@@ -351,4 +475,32 @@ function getMostOverlappingUnit(
     return bestOverlaps[0].unit;
   }
   return null;
+}
+
+function getUnitID(unit: number | BaseUnit | null): number | null {
+  if (unit == null) return null;
+  if (typeof unit === "number") return unit;
+  if ("unit_id" in unit) return unit.unit_id;
+  return null;
+}
+
+/** IDs of the units from one to another (inclusive), in column order. Units
+ * in other columns (e.g., of a correlation chart) are left out. */
+function unitsBetween(
+  units: BaseUnit[] | undefined,
+  fromID: number | null,
+  toID: number,
+): number[] {
+  const all = units ?? [];
+  const to = all.find((d) => d.unit_id == toID);
+  const from = all.find((d) => d.unit_id == fromID);
+  if (from == null || to == null) return [toID];
+  const colID = (to as any).col_id;
+  const column = all.filter((d) => (d as any).col_id == colID);
+  const i0 = column.indexOf(from);
+  const i1 = column.indexOf(to);
+  if (i0 == -1) return [toID];
+  return column
+    .slice(Math.min(i0, i1), Math.max(i0, i1) + 1)
+    .map((d) => d.unit_id);
 }

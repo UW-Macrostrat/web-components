@@ -6,6 +6,7 @@ import {
 import { UnitNamesColumn } from "./names";
 import { ICompositeUnitProps } from "./composite";
 import { UnitBoxes } from "./boxes";
+export { UnitSelectionStyle } from "./boxes";
 import { useColumnLayout } from "@macrostrat/column-components";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import {
