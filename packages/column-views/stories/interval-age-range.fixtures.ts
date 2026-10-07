@@ -62,6 +62,18 @@ export const examples: Example[] = [
     },
   },
   {
+    name: "Cretaceous",
+    note: "One interval, the whole of it",
+    unit: {
+      b_int_id: 33,
+      b_int_name: "Cretaceous",
+      t_int_id: 33,
+      t_int_name: "Cretaceous",
+      b_age: 143.1,
+      t_age: 66,
+    },
+  },
+  {
     name: "Moenkopi Fm",
     note: "One interval, spanning all of it",
     unit: {
@@ -109,6 +121,7 @@ export function examplesByName(): Record<string, Example> {
 export const intervals = (
   [
     [4, "Pleistocene", 2.58, 0.0117, "#FFF2AE"],
+    [33, "Cretaceous", 143.1, 66, "#7FC64E"],
     [25, "Priabonian", 37.71, 33.9, "#FDCDA1"],
     [26, "Bartonian", 41.03, 37.71, "#FDC091"],
     [37, "Santonian", 85.7, 83.6, "#D9EF74"],

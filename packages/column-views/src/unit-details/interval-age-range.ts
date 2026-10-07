@@ -20,10 +20,11 @@ export enum AgeRangeFlavor {
   None = "none",
   /** The position within each interval: "Norian to Rhaetian | 75%". */
   Proportion = "proportion",
-  /** The intervals' bounding ages: "Norian | 227 Ma to Rhaetian | 201.4 Ma",
-   * with the span's own ages after in parentheses when they differ. */
+  /** Ages. An age on its interval's boundary belongs to the interval and goes
+   * in its tag (with `verbose`); any other age is the span's own, and follows
+   * the tag: "Norian 216.5 Ma to Rhaetian | 201.4 Ma". */
   Ages = "ages",
-  /** Positions in the tags and the span's ages, always, in parentheses. */
+  /** Positions in the tags, followed by the span's age range. */
   Both = "both",
 }
 
@@ -47,9 +48,8 @@ export interface IntervalAgeRangeProps extends Omit<
 > {
   unit: IntervalAgeRangeData;
   flavor?: AgeRangeFlavor | `${AgeRangeFlavor}`;
-  /** Say everything, even when it's implied: "base"/"top" positions that
-   * coincide with an interval boundary, and the span's ages when they match
-   * the intervals'. */
+  /** Always print the position or age, even where the span reaches an
+   * interval boundary and it's implied: "Cretaceous | base to top". */
   verbose?: boolean;
   /** Derive positions within the intervals from `b_age`/`t_age` when
    * `b_prop`/`t_prop` aren't given (default true). */
@@ -61,9 +61,10 @@ export interface IntervalAgeRangeProps extends Omit<
  * - `[Norian] to [Rhaetian]`
  * - `[Norian] to [Rhaetian | 75%]` (proportion)
  * - `[Norian | base] to [Rhaetian | 75%]` (proportion, verbose)
- * - `[Norian | base to top]` (one interval, verbose)
- * - `[Norian | 227 Ma] to [Rhaetian | 201.4 Ma] (220–205 Ma)` (ages)
- * - `[Norian] to [Rhaetian | 75%] (227–205 Ma)` (both)
+ * - `[Cretaceous | base to top]` (one interval, verbose)
+ * - `[Norian] 216.5 Ma to [Rhaetian]` (ages)
+ * - `[Norian] 216.5 Ma to [Rhaetian | 201.4 Ma]` (ages, verbose)
+ * - `[Norian | 50%] to [Rhaetian] 216.5–201.4 Ma` (both)
  *
  * Interval colors and ages come from the Macrostrat interval definitions. */
 export function IntervalAgeRange({
@@ -105,12 +106,16 @@ export function IntervalAgeRange({
     ItemList,
     { className: classNames("interval-age-range", className) },
     [
-      h(IntervalTag, { interval: int0, details: spec.baseDetails, ...rest }),
+      h("span.discourage-break", [
+        h(IntervalTag, { interval: int0, details: spec.baseDetails, ...rest }),
+        spec.baseAfter,
+      ]),
       h.if(spec.singleInterval == false)("span.discourage-break", [
         h("span.sep", "to"),
         h(IntervalTag, { interval: int1, details: spec.topDetails, ...rest }),
+        spec.topAfter,
       ]),
-      h.if(spec.ages != null)(AgeParenthetical, { ages: spec.ages }),
+      h.if(spec.ages != null)(TrailingAgeRange, { ages: spec.ages }),
     ],
   );
 }
@@ -121,7 +126,11 @@ export interface IntervalAgeRangeSpec {
   baseDetails: ReactNode;
   /** Shown inside the top interval's tag */
   topDetails: ReactNode;
-  /** The span's age range, shown in parentheses after the tags */
+  /** Shown right after the base (or only) interval's tag */
+  baseAfter: ReactNode;
+  /** Shown right after the top interval's tag */
+  topAfter: ReactNode;
+  /** The span's age range, shown after everything */
   ages: [number, number] | null;
 }
 
@@ -147,6 +156,8 @@ export function buildIntervalAgeRange(
     singleInterval,
     baseDetails: null,
     topDetails: null,
+    baseAfter: null,
+    topAfter: null,
     ages: null,
   };
 
@@ -214,35 +225,50 @@ function buildAgesSpec(
   int1: Partial<IntervalShort>,
   verbose: boolean,
 ): IntervalAgeRangeSpec {
-  // The cards carry the intervals' bounding ages. If those aren't known, the
-  // span's own ages take their place, and there's nothing to add after.
-  const b_age = int0.b_age ?? unit.b_age;
-  const t_age = int1.t_age ?? unit.t_age;
+  // An age on its interval's boundary belongs to the interval: it goes in the
+  // interval's tag, and only when verbose (otherwise the interval implies it).
+  // An age within the interval is the span's own, and follows the tag. A span
+  // without an age at one end is taken to reach the interval's boundary.
+  const baseOwned = unit.b_age == null || agesMatch(unit.b_age, int0.b_age);
+  const topOwned = unit.t_age == null || agesMatch(unit.t_age, int1.t_age);
 
   if (spec.singleInterval) {
-    spec.baseDetails = h.if(b_age != null && t_age != null)(AgeRangeValue, {
-      b_age,
-      t_age,
-    });
-  } else {
-    spec.baseDetails = h.if(b_age != null)(AgeLabel, { age: b_age });
-    spec.topDetails = h.if(t_age != null)(AgeLabel, { age: t_age });
+    if (!baseOwned || !topOwned) {
+      spec.baseAfter = h(
+        "span.span-age",
+        h(AgeRangeValue, {
+          b_age: unit.b_age ?? int0.b_age,
+          t_age: unit.t_age ?? int0.t_age,
+        }),
+      );
+    } else if (verbose && int0.b_age != null && int0.t_age != null) {
+      spec.baseDetails = h(AgeRangeValue, {
+        b_age: int0.b_age,
+        t_age: int0.t_age,
+      });
+    }
+    return spec;
   }
 
-  if (unit.b_age == null || unit.t_age == null) return spec;
-  const matches = agesMatch(unit.b_age, b_age) && agesMatch(unit.t_age, t_age);
-  if (verbose || !matches) {
-    spec.ages = [unit.b_age, unit.t_age];
+  if (!baseOwned) {
+    spec.baseAfter = h("span.span-age", h(AgeLabel, { age: unit.b_age }));
+  } else if (verbose && int0.b_age != null) {
+    spec.baseDetails = h(AgeLabel, { age: int0.b_age });
+  }
+
+  if (!topOwned) {
+    spec.topAfter = h("span.span-age", h(AgeLabel, { age: unit.t_age }));
+  } else if (verbose && int1.t_age != null) {
+    spec.topDetails = h(AgeLabel, { age: int1.t_age });
   }
   return spec;
 }
 
-function AgeParenthetical({ ages }: { ages: [number, number] }) {
-  return h("span.age-parenthetical", [
-    "(",
+function TrailingAgeRange({ ages }: { ages: [number, number] }) {
+  return h(
+    "span.span-age",
     h(AgeRangeValue, { b_age: ages[0], t_age: ages[1] }),
-    ")",
-  ]);
+  );
 }
 
 function AgeRangeValue({ b_age, t_age }: { b_age: number; t_age: number }) {

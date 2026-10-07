@@ -24,10 +24,11 @@ const h = hyper.styled(styles);
 
 /**
  * A span of time as the interval(s) it runs between. `flavor` picks what
- * accompanies the interval names — positions within the intervals, the
- * intervals' bounding ages, or both — and `verbose` says it even when it's
- * implied (a position at an interval boundary, ages that match the
- * intervals').
+ * accompanies the interval names: positions within the intervals, ages, or
+ * positions followed by the span's age range. An age on its interval's
+ * boundary belongs to the interval and goes in the tag; an age within the
+ * interval is the span's own, and follows the tag. `verbose` always prints
+ * the position or age, even where the interval boundary implies it.
  *
  * These stories run from fixtures (interval definitions and units copied from
  * the Macrostrat API), so they need no network.
