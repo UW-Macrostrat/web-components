@@ -160,16 +160,18 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
   const editable = onChange != null && !disabled;
   const canRemove = editable && removable;
   const chosen = new Set(value.map((d) => d.id));
+  // An item can be chosen twice (a lithology with different attributes), so a
+  // tag is known by its id and occurrence
+  const tagKeys = occurrenceKeys(value);
   const hasDetails = renderDetails != null;
   let removeButton = props.removeButton ?? "details";
   if (!hasDetails) removeButton = "tag";
 
-  const [selectedID, setSelectedID] = useState<number | string | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   // A selection outlives neither its item nor the picker's editability
-  let selected: T | null = null;
-  if (editable && selectedID != null) {
-    selected = value.find((d) => d.id === selectedID) ?? null;
-  }
+  let selectedIndex = -1;
+  if (editable && selectedKey != null) selectedIndex = tagKeys.indexOf(selectedKey);
+  const selected: T | null = value[selectedIndex] ?? null;
 
   const rowRef = useRef<HTMLDivElement>(null);
   // Where focus goes once a removal has rendered: the tag that took the
@@ -188,11 +190,18 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
     rowRef.current?.querySelector<HTMLElement>(".add-item")?.focus();
   }, [value]);
 
-  const remove = (item: T) => {
+  const remove = (index: number) => {
     if (!canRemove) return;
-    const index = value.findIndex((d) => d.id === item.id);
     pendingFocus.current = index;
-    if (selectedID === item.id) setSelectedID(null);
+    if (index === selectedIndex) setSelectedKey(null);
+    onChange?.(value.filter((_, i) => i !== index));
+  };
+
+  // Unpicking from the list takes every occurrence of the item
+  const removeAll = (item: T) => {
+    if (!canRemove) return;
+    pendingFocus.current = value.findIndex((d) => d.id === item.id);
+    if (selected?.id === item.id) setSelectedKey(null);
     onChange?.(value.filter((d) => d.id !== item.id));
   };
 
@@ -203,31 +212,35 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
     }
     if (chosen.has(item.id)) {
       // A chosen item that can't be removed can't be toggled off either
-      remove(item);
+      removeAll(item);
       return;
     }
     onChange?.([...value, item]);
   };
 
-  const toggleSelected = (item: T) => {
-    if (selectedID === item.id) {
-      setSelectedID(null);
+  const toggleSelected = (key: string) => {
+    if (selectedKey === key) {
+      setSelectedKey(null);
       return;
     }
-    setSelectedID(item.id);
+    setSelectedKey(key);
   };
 
-  const onTagKeyDown = (evt: KeyboardEvent<HTMLElement>, item: T) => {
+  const onTagKeyDown = (
+    evt: KeyboardEvent<HTMLElement>,
+    index: number,
+    key: string,
+  ) => {
     // A picker can sit inside another's details editor; its keys are its own
     if (handledKeys.has(evt.key)) evt.stopPropagation();
     if (evt.key === "Delete" || evt.key === "Backspace") {
       evt.preventDefault();
-      remove(item);
+      remove(index);
     } else if (evt.key === "Enter" || evt.key === " ") {
       evt.preventDefault();
-      toggleSelected(item);
+      toggleSelected(key);
     } else if (evt.key === "Escape") {
-      setSelectedID(null);
+      setSelectedKey(null);
     } else if (evt.key === "ArrowLeft" || evt.key === "ArrowRight") {
       evt.preventDefault();
       const tags = tagElements(rowRef.current);
@@ -244,21 +257,21 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
     return () => onApplyToAll(item);
   };
 
-  const details = (item: T, mode: DetailsMode) => {
+  const details = (item: T, index: number, mode: DetailsMode) => {
     let removeItem: (() => void) | undefined;
     if (canRemove && removeButton === "details")
-      removeItem = () => remove(item);
+      removeItem = () => remove(index);
     let applyToAll: (() => void) | undefined;
     if (removeButton === "details") applyToAll = applyToAllFor(item);
     const ctx: TagDetailsContext<T> = {
       item,
       mode,
       remove: removeItem,
-      close: () => setSelectedID(null),
+      close: () => setSelectedKey(null),
       partial: isPartial(item),
       applyToAll,
     };
-    if (mode === "stack") ctx.back = () => setSelectedID(null);
+    if (mode === "stack") ctx.back = () => setSelectedKey(null);
     return renderDetails?.(ctx);
   };
 
@@ -267,12 +280,13 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
   // no "and n more" to fit, so nothing to measure
   const overflowFrom = useOverflowFrom(
     rowRef,
-    value.map((d) => d.id).join("\u0000"),
+    tagKeys.join("\u0000"),
     { enabled: multi, layoutWidth },
   );
 
   const tags = value.map((item, index) => {
-    const isSelected = selected?.id === item.id;
+    const key = tagKeys[index];
+    const isSelected = index === selectedIndex;
     const tag =
       renderTag?.(item) ??
       h(Tag, { name: item.name, color: item.color ?? undefined, size });
@@ -284,7 +298,7 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
       return h(
         "span.picker-tag",
         {
-          key: item.id,
+          key,
           "data-picker-item": true,
           className: classNames({ partial: partialItem, overflowed }),
         },
@@ -293,7 +307,7 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
     }
 
     const targetProps = {
-      key: item.id,
+      key,
       tabIndex: 0,
       role: "button",
       "aria-pressed": isSelected,
@@ -305,8 +319,8 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
         partial: partialItem,
         overflowed,
       }),
-      onClick: () => toggleSelected(item),
-      onKeyDown: (evt) => onTagKeyDown(evt, item),
+      onClick: () => toggleSelected(key),
+      onKeyDown: (evt) => onTagKeyDown(evt, index, key),
     };
 
     // The ✕ after the tag, while it is selected, when that's where it goes —
@@ -314,7 +328,7 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
     let tagRemove: ReactNode = null;
     if (isSelected && removeButton === "tag") {
       let onRemove: (() => void) | undefined;
-      if (canRemove) onRemove = () => remove(item);
+      if (canRemove) onRemove = () => remove(index);
       tagRemove = [
         h(ApplyToAllButton, {
           className: "tag-remove",
@@ -329,7 +343,7 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
     }
 
     if (detailsMode !== "popover" || !hasDetails) {
-      return h(Fragment, { key: item.id }, [
+      return h(Fragment, { key }, [
         h("span.picker-tag", targetProps, tag),
         tagRemove,
       ]);
@@ -337,7 +351,7 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
 
     // Every tag carries its popover, open only while it is selected, so that
     // selecting a tag doesn't remount it and take its focus away
-    return h(Fragment, { key: item.id }, [
+    return h(Fragment, { key }, [
       h(PopoverNext, {
         isOpen: isSelected,
         placement: "bottom-start",
@@ -348,15 +362,15 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
         lazy: true,
         onInteraction(nextOpen) {
           // Outside clicks and Escape; a click on the tag is its own toggle
-          if (!nextOpen) setSelectedID(null);
+          if (!nextOpen) setSelectedKey(null);
         },
         content: h(
           DetailsKeyBoundary,
           {
-            onRemove: () => remove(item),
-            onClose: () => setSelectedID(null),
+            onRemove: () => remove(index),
+            onClose: () => setSelectedKey(null),
           },
-          details(item, "popover"),
+          details(item, index, "popover"),
         ),
         renderTarget: ({ ref }) =>
           h("span.picker-tag", { ...targetProps, key: undefined, ref }, tag),
@@ -437,10 +451,10 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
       DetailsKeyBoundary,
       {
         className: "tag-details-inline",
-        onRemove: () => remove(selected),
-        onClose: () => setSelectedID(null),
+        onRemove: () => remove(selectedIndex),
+        onClose: () => setSelectedKey(null),
       },
-      details(selected, "inline"),
+      details(selected, selectedIndex, "inline"),
     );
   }
 
@@ -453,10 +467,10 @@ export function TagPicker<T extends PickerItem>(props: TagPickerProps<T>) {
         DetailsKeyBoundary,
         {
           className: "tag-details-stacked",
-          onRemove: () => remove(selected),
-          onClose: () => setSelectedID(null),
+          onRemove: () => remove(selectedIndex),
+          onClose: () => setSelectedKey(null),
         },
-        details(selected, "stack"),
+        details(selected, selectedIndex, "stack"),
       ),
     );
   }
@@ -720,4 +734,14 @@ function swatchColor(color: chroma.ChromaInput | null | undefined): string {
   } catch {
     return "transparent";
   }
+}
+
+/** `id:n` for the nth occurrence of each id in the value. */
+function occurrenceKeys(value: PickerItem[]): string[] {
+  const seen = new Map<number | string, number>();
+  return value.map((d) => {
+    const n = seen.get(d.id) ?? 0;
+    seen.set(d.id, n + 1);
+    return `${d.id}:${n}`;
+  });
 }
