@@ -4,13 +4,8 @@ import { useMemo, useState } from "react";
 import { Button } from "@blueprintjs/core";
 import classNames from "classnames";
 import "@macrostrat/style-system";
-import {
-  AgeRangeFlavor,
-  BasicUnitComponent,
-  Column,
-  IntervalAgeRange,
-  UnitSelectionStyle,
-} from "../src";
+import { AgeRangeFlavor, IntervalAgeRange } from "@macrostrat/data-components";
+import { BasicUnitComponent, Column, UnitSelectionStyle } from "../src";
 import res from "./data/illinois-432.json";
 import styles from "./multiple-unit-selection.stories.module.sass";
 

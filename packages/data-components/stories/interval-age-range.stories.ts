@@ -1,17 +1,16 @@
 import hyper from "@macrostrat/hyper";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import "@macrostrat/style-system";
 import {
   createMacrostratStore,
   MacrostratDataProvider,
 } from "@macrostrat/data-provider";
-import { TagSize } from "@macrostrat/data-components";
 import {
   AgeRangeFlavor,
   IntervalAgeRange,
   type IntervalAgeRangeData,
   type IntervalAgeRangeProps,
+  TagSize,
 } from "../src";
 import styles from "./interval-age-range.stories.module.sass";
 import {
@@ -35,7 +34,7 @@ const h = hyper.styled(styles);
  * the Macrostrat API), so they need no network.
  */
 const meta: Meta<IntervalAgeRangeProps> = {
-  title: "Column views/Unit details/Interval age range",
+  title: "Data components/Interval age range",
   component: IntervalAgeRange,
   decorators: [(Story) => h(FixtureIntervalsProvider, null, h(Story))],
 };

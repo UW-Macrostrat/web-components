@@ -1,17 +1,17 @@
+import { useMacrostratDefs } from "@macrostrat/data-provider";
+import classNames from "classnames";
+import { type ReactNode, useMemo } from "react";
 import {
   AgeLabel,
+  getAgeRange,
   IntervalProportion,
   type IntervalShort,
   IntervalTag,
   type IntervalTagProps,
-  ItemList,
   Value,
-} from "@macrostrat/data-components";
-import { useMacrostratDefs } from "@macrostrat/data-provider";
-import classNames from "classnames";
-import { type ReactNode, useMemo } from "react";
-import h from "./age-range.module.sass";
-import { getAgeRange } from "./age-range";
+} from "./base";
+import { ItemList } from "./tag";
+import h from "./interval-range.module.sass";
 
 /** What an interval range says about where, within its intervals, a span of
  * time sits. */

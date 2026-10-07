@@ -220,6 +220,26 @@ export function getAge(value: number): [number, string] {
   return [value, unit];
 }
 
+/** An age range as its ends in a unit that suits both, with that unit:
+ * ka, Ma or Ga */
+export function getAgeRange(_unit) {
+  let b_age = _unit.b_age;
+  let t_age = _unit.t_age;
+  let unit = "Ma";
+
+  if (b_age < 0.8 && t_age < 1.2) {
+    b_age *= 1000;
+    t_age *= 1000;
+    unit = "ka";
+  } else if (b_age > 800 && t_age > 1200) {
+    b_age /= 1000;
+    t_age /= 1000;
+    unit = "Ga";
+  }
+
+  return [b_age, t_age, unit];
+}
+
 function uniqueIntervals(
   ...intervals: (IntervalShort | undefined)[]
 ): IntervalShort[] {

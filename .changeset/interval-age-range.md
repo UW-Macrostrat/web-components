@@ -1,5 +1,5 @@
 ---
-"@macrostrat/column-views": minor
+"@macrostrat/data-components": minor
 ---
 
 Add `IntervalAgeRange`, which shows a span of time as the interval(s) it runs
