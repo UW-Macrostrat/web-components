@@ -113,6 +113,12 @@ export interface ColumnProps
   allowUnitSelection?: boolean;
   selectedUnit?: number | null;
   onUnitSelected?: (unitID: number | null, unit: any) => void;
+  /** Select several units at once (⌘/Ctrl-click to toggle, Shift-click for a
+   * run of units). Implies `allowUnitSelection`. */
+  allowMultipleSelection?: boolean;
+  /** Controlled multiple selection; memoize it. */
+  selectedUnits?: number[] | null;
+  onUnitsSelected?: (unitIDs: number[], units: any[]) => void;
   // Unconformity height in pixels
   unconformityHeight?: number;
   scale?: ScaleContinuousNumeric<number, number>;
@@ -132,6 +138,9 @@ export function Column(props: ColumnProps) {
     mergeSections,
     onUnitSelected,
     selectedUnit,
+    allowMultipleSelection = false,
+    selectedUnits,
+    onUnitsSelected,
     children,
     units: rawUnits,
     t_age,
@@ -214,9 +223,13 @@ export function Column(props: ColumnProps) {
       sections,
       totalHeight,
       axisType: _axisType,
-      allowUnitSelection: showUnitPopover || allowUnitSelection,
+      allowUnitSelection:
+        showUnitPopover || allowUnitSelection || allowMultipleSelection,
+      allowMultipleSelection,
       onUnitSelected,
       selectedUnit,
+      onUnitsSelected,
+      selectedUnits,
       isTransitioning,
       hideLabelsWhileTransitioning,
       ref,
