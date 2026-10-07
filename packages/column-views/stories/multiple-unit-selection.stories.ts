@@ -9,6 +9,7 @@ import {
   BasicUnitComponent,
   Column,
   IntervalAgeRange,
+  UnitSelectionStyle,
 } from "../src";
 import res from "./data/illinois-432.json";
 import styles from "./multiple-unit-selection.stories.module.sass";
@@ -24,6 +25,13 @@ const h = hyper.styled(styles);
  * "primary" selection that `onUnitSelected`, the popover and keyboard
  * navigation follow.
  *
+ * Unit components take a `selectionStyle` (passed here through
+ * `unitComponentProps`): a wash and outline (`overlay`, the default), an
+ * outline alone (`outline`), an outline with the other units faded
+ * (`dim-others`), or an outline with the other units drawn without their
+ * background color (`color-selected`). The last two apply only while
+ * something is selected.
+ *
  * Runs from a fixture of the Illinois Basin column (#432).
  */
 const meta: Meta<StoryProps> = {
@@ -32,11 +40,16 @@ const meta: Meta<StoryProps> = {
   args: {
     flavor: AgeRangeFlavor.Proportion,
     verbose: false,
+    selectionStyle: UnitSelectionStyle.Overlay,
   },
   argTypes: {
     flavor: {
       control: "inline-radio",
       options: Object.values(AgeRangeFlavor),
+    },
+    selectionStyle: {
+      control: "inline-radio",
+      options: Object.values(UnitSelectionStyle),
     },
   },
   parameters: {
@@ -56,6 +69,22 @@ type Story = StoryObj<StoryProps>;
 /** Select units in the column; the sidebar lists them with their age ranges. */
 export const Primary: Story = {};
 
+/** The selection drawn as an outline alone. */
+export const OutlineStyle: Story = {
+  args: { selectionStyle: UnitSelectionStyle.Outline },
+};
+
+/** Units outside the selection fade while something is selected. */
+export const DimOthersStyle: Story = {
+  args: { selectionStyle: UnitSelectionStyle.DimOthers },
+};
+
+/** Only the selected units keep their background color while something is
+ * selected. */
+export const ColorSelectedStyle: Story = {
+  args: { selectionStyle: UnitSelectionStyle.ColorSelected },
+};
+
 /** Single selection, for comparison: modifier keys do nothing special. */
 export const SingleSelection: Story = {
   args: { allowMultipleSelection: false },
@@ -65,12 +94,14 @@ interface StoryProps {
   flavor?: AgeRangeFlavor;
   verbose?: boolean;
   allowMultipleSelection?: boolean;
+  selectionStyle?: UnitSelectionStyle;
 }
 
 function MultipleSelectionDemo({
   flavor,
   verbose,
   allowMultipleSelection = true,
+  selectionStyle,
 }: StoryProps) {
   const units = res.success.data as any[];
   const [selectedIDs, setSelectedIDs] = useState<number[]>([]);
@@ -81,6 +112,11 @@ function MultipleSelectionDemo({
     [units],
   );
   const selected = selectedIDs.map((id) => unitsByID.get(id));
+  // Memoized: the column re-renders its units when these props change
+  const unitComponentProps = useMemo(
+    () => ({ selectionStyle }),
+    [selectionStyle],
+  );
 
   // A preset, to show the selection being controlled from outside
   const silurian = useMemo(
@@ -95,6 +131,7 @@ function MultipleSelectionDemo({
     h(Column, {
       units,
       unitComponent: BasicUnitComponent,
+      unitComponentProps,
       allowUnitSelection: true,
       allowMultipleSelection,
       selectedUnits: selectedIDs,

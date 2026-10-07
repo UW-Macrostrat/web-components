@@ -259,6 +259,7 @@ function ColumnInner(props: ColumnInnerProps) {
 
   const {
     unitComponent = UnitComponent,
+    unitComponentProps,
     unconformityLabels = "minimal",
     showLabels = true,
     width: _width = 300,
@@ -329,6 +330,7 @@ function ColumnInner(props: ColumnInnerProps) {
       }),
       h(SectionsColumn, {
         unitComponent,
+        unitComponentProps,
         showLabels,
         width,
         columnWidth,

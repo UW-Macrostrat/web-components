@@ -44,6 +44,11 @@ export function useSelectedUnits(): BaseUnit[] {
   return scope.useAtomValue(selectedUnitsAtom);
 }
 
+/** Whether any unit is selected (e.g., to dim the units that aren't) */
+export function useHasUnitSelection(): boolean {
+  return scope.useAtomValue(hasUnitSelectionAtom);
+}
+
 export interface ColumnClickData {
   unitID: number | null;
   unit: BaseUnit | null;
@@ -99,6 +104,10 @@ export const selectedUnitIDListAtom = atom<number[]>((get) => {
   if (primary != null) list.push(primary);
   return list;
 });
+
+const hasUnitSelectionAtom = atom(
+  (get) => get(selectedUnitIDListAtom).length > 0,
+);
 
 const selectedUnitIDSetAtom = atom(
   (get) => new Set<number>(get(selectedUnitIDListAtom)),
