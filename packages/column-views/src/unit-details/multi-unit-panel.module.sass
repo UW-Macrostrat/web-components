@@ -1,0 +1,80 @@
+.multi-unit-panel
+  display: flex
+  flex-direction: column
+  min-height: 0
+
+.multi-unit-content
+  display: flex
+  flex-direction: column
+  gap: 0.75em
+  padding: 0.75em 1em 1em
+  overflow-y: auto
+  min-height: 0
+
+.selection-span
+  display: flex
+  flex-wrap: wrap
+  align-items: baseline
+  gap: 0.5em
+
+.span-label
+  color: var(--secondary-color)
+  font-size: 0.9em
+
+.unit-list
+  list-style: none
+  margin: 0
+  padding: 0
+  display: flex
+  flex-direction: column
+
+.unit-row
+  display: grid
+  grid-template-columns: auto minmax(0, 1fr)
+  align-items: baseline
+  gap: 0.15em 0.5em
+  padding: 0.35em 0.5em
+  border-radius: 4px
+  border-left: 3px solid transparent
+
+  &.interactive
+    cursor: pointer
+
+    &:hover
+      background-color: var(--panel-secondary-background-color, rgba(128, 128, 128, 0.1))
+
+    &:focus-visible
+      outline: 2px solid var(--column-selection-color, var(--pz-accent-color, #7961db))
+      outline-offset: -2px
+
+  // The last unit picked
+  &.primary
+    border-left-color: var(--column-selection-color, var(--pz-accent-color, #7961db))
+
+.unit-swatch
+  width: 0.8em
+  height: 0.8em
+  border-radius: 2px
+  background-color: var(--unit-swatch-color, transparent)
+  border: 1px solid var(--panel-rule-color, rgba(128, 128, 128, 0.4))
+  align-self: center
+
+.unit-title
+  display: flex
+  flex-wrap: wrap
+  align-items: baseline
+  gap: 0 0.5em
+  min-width: 0
+
+.unit-name
+  font-weight: 500
+
+.unit-id
+  font-size: 0.85em
+  color: var(--secondary-color)
+
+  &::before
+    content: "#"
+
+.unit-range
+  grid-column: 2

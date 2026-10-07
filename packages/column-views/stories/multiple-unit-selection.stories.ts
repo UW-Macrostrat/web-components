@@ -2,10 +2,14 @@ import hyper from "@macrostrat/hyper";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useMemo, useState } from "react";
 import { Button } from "@blueprintjs/core";
-import classNames from "classnames";
 import "@macrostrat/style-system";
-import { AgeRangeFlavor, IntervalAgeRange } from "@macrostrat/data-components";
-import { BasicUnitComponent, Column, UnitSelectionStyle } from "../src";
+import { AgeRangeFlavor } from "@macrostrat/data-components";
+import {
+  BasicUnitComponent,
+  Column,
+  MultiUnitPanel,
+  UnitSelectionStyle,
+} from "../src";
 import res from "./data/illinois-432.json";
 import styles from "./multiple-unit-selection.stories.module.sass";
 
@@ -34,7 +38,6 @@ const meta: Meta<StoryProps> = {
   component: MultipleSelectionDemo,
   args: {
     flavor: AgeRangeFlavor.Proportion,
-    verbose: false,
     selectionStyle: UnitSelectionStyle.Overlay,
   },
   argTypes: {
@@ -61,7 +64,8 @@ export default meta;
 
 type Story = StoryObj<StoryProps>;
 
-/** Select units in the column; the sidebar lists them with their age ranges. */
+/** Select units in the column; the sidebar lists them in a `MultiUnitPanel`,
+ * where clicking a unit narrows the selection to it. */
 export const Primary: Story = {};
 
 /** The selection drawn as an outline alone. */
@@ -80,6 +84,13 @@ export const ColorSelectedStyle: Story = {
   args: { selectionStyle: UnitSelectionStyle.ColorSelected },
 };
 
+/** With the column's unit popover: several selected units show as a
+ * condensed `MultiUnitPanel`, where clicking a unit narrows the selection to
+ * it (and so back to its details). */
+export const WithUnitPopover: Story = {
+  args: { showUnitPopover: true },
+};
+
 /** Single selection, for comparison: modifier keys do nothing special. */
 export const SingleSelection: Story = {
   args: { allowMultipleSelection: false },
@@ -87,26 +98,23 @@ export const SingleSelection: Story = {
 
 interface StoryProps {
   flavor?: AgeRangeFlavor;
-  verbose?: boolean;
   allowMultipleSelection?: boolean;
   selectionStyle?: UnitSelectionStyle;
+  showUnitPopover?: boolean;
 }
 
 function MultipleSelectionDemo({
   flavor,
-  verbose,
   allowMultipleSelection = true,
   selectionStyle,
+  showUnitPopover = false,
 }: StoryProps) {
   const units = res.success.data as any[];
   const [selectedIDs, setSelectedIDs] = useState<number[]>([]);
   const [primaryID, setPrimaryID] = useState<number | null>(null);
 
-  const unitsByID = useMemo(
-    () => new Map(units.map((u) => [u.unit_id, u])),
-    [units],
-  );
-  const selected = selectedIDs.map((id) => unitsByID.get(id));
+  // Listed top to bottom, as in the column
+  const selected = units.filter((u) => selectedIDs.includes(u.unit_id));
   // Memoized: the column re-renders its units when these props change
   const unitComponentProps = useMemo(
     () => ({ selectionStyle }),
@@ -133,26 +141,18 @@ function MultipleSelectionDemo({
       onUnitsSelected: setSelectedIDs,
       onUnitSelected: setPrimaryID,
       keyboardNavigation: true,
+      showUnitPopover,
       showLabelColumn: true,
       width: 450,
       columnWidth: 150,
     }),
     h("div.sidebar", [
       h("div.toolbar", [
-        h("span.count", selectionLabel(selected.length)),
         h(Button, {
           size: "small",
           disabled: !allowMultipleSelection,
           onClick: () => setSelectedIDs(silurian),
           text: "Select Silurian units",
-        }),
-        h(Button, {
-          size: "small",
-          variant: "minimal",
-          icon: "cross",
-          disabled: selected.length == 0,
-          onClick: () => setSelectedIDs([]),
-          text: "Clear",
         }),
       ]),
       h.if(selected.length == 0)("p.hint", [
@@ -164,27 +164,13 @@ function MultipleSelectionDemo({
         h("kbd", "Shift"),
         "-click selects a run of units.",
       ]),
-      h(
-        "ul.selected-units",
-        selected.map((unit) =>
-          h(
-            "li.selected-unit",
-            {
-              key: unit.unit_id,
-              className: classNames({ primary: unit.unit_id == primaryID }),
-            },
-            [
-              h("span.unit-name", unit.unit_name),
-              h(IntervalAgeRange, { unit, flavor, verbose }),
-            ],
-          ),
-        ),
-      ),
+      h.if(selected.length > 0)(MultiUnitPanel, {
+        units: selected,
+        primaryUnitID: primaryID,
+        ageRangeFlavor: flavor,
+        onSelectUnit: (id: number) => setSelectedIDs([id]),
+        onClose: () => setSelectedIDs([]),
+      }),
     ]),
   ]);
-}
-
-function selectionLabel(n: number): string {
-  if (n == 1) return "1 unit selected";
-  return `${n} units selected`;
 }
