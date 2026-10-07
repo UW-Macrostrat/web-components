@@ -72,6 +72,20 @@ export const LithologiesInline: StoryObj<any> = {
   render: () => h(LithologyDemo, { detailsMode: "inline" }),
 };
 
+/** A unit can hold a lithology twice, told apart by its attributes; each
+ * tag is selected, edited and removed on its own. */
+export const RepeatedLithologies: StoryObj<any> = {
+  render: () =>
+    h(LithologyDemo, {
+      detailsMode: "popover",
+      initialValue: [
+        { lith_id: 30, name: "limestone", prop: 0.5, atts: ["gray"] },
+        { lith_id: 30, name: "limestone", prop: 0.3, atts: ["red"] },
+        { lith_id: 8, name: "shale", prop: 0.2 },
+      ],
+    }),
+};
+
 /** An environment carries nothing of its own, so there is no editor to
  * open: a selected environment is followed by its ✕. */
 export const Environments: StoryObj<any> = {
@@ -414,8 +428,14 @@ export const TagDetailsEditorPattern: StoryObj<any> = {
 
 /* ------------------------------------------------------------ story chrome */
 
-function LithologyDemo({ detailsMode }: { detailsMode: "popover" | "inline" }) {
-  const [liths, setLiths] = useState<UnitLithologyValue[]>(unitLithologies);
+function LithologyDemo({
+  detailsMode,
+  initialValue = unitLithologies,
+}: {
+  detailsMode: "popover" | "inline";
+  initialValue?: UnitLithologyValue[];
+}) {
+  const [liths, setLiths] = useState<UnitLithologyValue[]>(initialValue);
   return h(Story, { state: liths }, [
     h(Example, {
       title: "Lithology",

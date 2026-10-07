@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.5.0] - 2026-10-07 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.4.0...@macrostrat/ui-components-v5.5.0)
+
+### Minor Changes
+
+- PageHeader: `titleAlignment` sets where the large title starts when there's a
+  [3e7770fe](https://github.com/UW-Macrostrat/web-components/commit/3e7770fe5e373fcfa2f1a9442b89eefb19417e61)
+  logo — `logo-end` (default, unchanged) past the logo, in line with the
+  breadcrumbs' text, or `left` at the left edge, under the logo.
+
 ## [5.4.0] - 2026-10-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.3.0...@macrostrat/ui-components-v5.4.0)
 
 ### Minor Changes

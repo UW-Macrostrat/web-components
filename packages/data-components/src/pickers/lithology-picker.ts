@@ -259,18 +259,22 @@ export function LithologyPicker(props: LithologyPickerProps) {
     commit(entries);
   };
 
-  const updateEntry = (lith_id: number, patch: Partial<UnitLithologyValue>) => {
+  // One unit's list can hold a lithology twice, so its entry is matched by
+  // identity; over several units they are merged by lith_id
+  const updateEntry = (
+    entry: UnitLithologyValue,
+    patch: Partial<UnitLithologyValue>,
+  ) => {
     if (values != null) {
       commitEach(
-        updateInEach(values, lithID, lith_id, (d) => ({ ...d, ...patch })),
+        updateInEach(values, lithID, entry.lith_id, (d) => ({
+          ...d,
+          ...patch,
+        })),
       );
       return;
     }
-    commit(
-      current.map((entry) =>
-        entry.lith_id === lith_id ? { ...entry, ...patch } : entry,
-      ),
-    );
+    commit(current.map((d) => (d === entry ? { ...d, ...patch } : d)));
   };
 
   const applyToAll = (item: LithItem) => {
@@ -280,14 +284,14 @@ export function LithologyPicker(props: LithologyPickerProps) {
 
   // A lithology's attributes: over several units, a change to the merged
   // list is made to each unit's own list
-  const setAttributes = (lith_id: number, next: string[]) => {
+  const setAttributes = (entry: UnitLithologyValue, next: string[]) => {
     if (values == null || combined == null) {
-      updateEntry(lith_id, { atts: next });
+      updateEntry(entry, { atts: next });
       return;
     }
-    const prev = combined.merged.get(lith_id)?.value.atts ?? [];
+    const prev = combined.merged.get(entry.lith_id)?.value.atts ?? [];
     commitEach(
-      updateInEach(values, lithID, lith_id, (d) => ({
+      updateInEach(values, lithID, entry.lith_id, (d) => ({
         ...d,
         atts: applyUnionChange([d.atts ?? []], attID, prev, next)[0],
       })),
@@ -317,7 +321,7 @@ export function LithologyPicker(props: LithologyPickerProps) {
       let clearProportion: (() => void) | undefined;
       if (proportions.clearable) {
         clearProportion = () =>
-          updateEntry(entry.lith_id, { prop: null, prop_term: null });
+          updateEntry(entry, { prop: null, prop_term: null });
       }
       sections.push({
         key: "proportion",
@@ -330,7 +334,7 @@ export function LithologyPicker(props: LithologyPickerProps) {
           options: proportions,
           autoFocus: ctx.mode !== "inline",
           onChange: ({ prop, term }) =>
-            updateEntry(entry.lith_id, { prop, prop_term: term }),
+            updateEntry(entry, { prop, prop_term: term }),
         }),
         onRemove: clearProportion,
       });
@@ -351,10 +355,10 @@ export function LithologyPicker(props: LithologyPickerProps) {
           partial: merged?.partial?.atts,
           mode: ctx.mode,
           color: ctx.item.color,
-          onChange: (next) => setAttributes(entry.lith_id, next),
+          onChange: (next) => setAttributes(entry, next),
           onApplyToAll: (att) => applyAttributeToAll(entry.lith_id, att),
         }),
-        onRemove: () => updateEntry(entry.lith_id, { atts: [] }),
+        onRemove: () => updateEntry(entry, { atts: [] }),
       });
     }
     return h(TagDetailsEditor, {

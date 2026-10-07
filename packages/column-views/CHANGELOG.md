@@ -1,5 +1,49 @@
 # Changelog
 
+## [3.16.0] - 2026-10-07 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.15.0...@macrostrat/column-views-v3.16.0)
+
+### Minor Changes
+
+- Add `MultiUnitPanel`, a condensed view of several selected units: one row
+  each, with the interval range it spans, and the span of the whole selection.
+  Clicking a row narrows the selection to that unit. `UnitSelectionPopover`
+  shows it when more than one unit is selected.
+  [3e7770fe](https://github.com/UW-Macrostrat/web-components/commit/3e7770fe5e373fcfa2f1a9442b89eefb19417e61)
+- Columns can select several units at once with `allowMultipleSelection`:
+  [3e7770fe](https://github.com/UW-Macrostrat/web-components/commit/3e7770fe5e373fcfa2f1a9442b89eefb19417e61)
+  ⌘/Ctrl-click toggles a unit and Shift-click selects a run of units in a
+  column. `onUnitsSelected` reports the selection, `selectedUnits` controls it,
+  and `useSelectedUnits()` / `useHasUnitSelection()` read it. The selection
+  dispatch takes an optional `mode` (`replace`, `toggle` or `range`). The
+  selection highlight no longer intercepts clicks, so a selected unit can be
+  clicked again.
+
+  Unit components take a `selectionStyle` (`UnitSelectionStyle`): `overlay` (a
+  wash and outline, the default), `outline`, `dim-others` (fades the units that
+  aren't selected) or `color-selected` (draws the units that aren't selected
+  without their background color). `Column` now passes `unitComponentProps`
+  through to its unit components; it was previously dropped.
+
+### Patch Changes
+
+- `IntervalProportions` and `getAgeRange` move to `@macrostrat/data-components`,
+  alongside the new `IntervalAgeRange`. All three are still exported from here.
+  [3e7770fe](https://github.com/UW-Macrostrat/web-components/commit/3e7770fe5e373fcfa2f1a9442b89eefb19417e61)
+- Darken surface lines and label leaders in light mode, matching interval tag
+  text
+  [5f44414c](https://github.com/UW-Macrostrat/web-components/commit/5f44414cc28f04a3f1454b6bdca885b891a3fa81)
+- Clicking a unit inside `UnitDetailsPanel` (e.g., an adjacent unit) no longer
+  propagates, so it can't reach the column and clear the selection.
+  [3e7770fe](https://github.com/UW-Macrostrat/web-components/commit/3e7770fe5e373fcfa2f1a9442b89eefb19417e61)
+- Updated dependencies
+  [3e7770fe](https://github.com/UW-Macrostrat/web-components/commit/3e7770fe5e373fcfa2f1a9442b89eefb19417e61)
+- Updated dependencies
+  [3e7770fe](https://github.com/UW-Macrostrat/web-components/commit/3e7770fe5e373fcfa2f1a9442b89eefb19417e61)
+- Updated dependencies
+  [3e7770fe](https://github.com/UW-Macrostrat/web-components/commit/3e7770fe5e373fcfa2f1a9442b89eefb19417e61)
+  - @macrostrat/data-components@1.9.0
+  - @macrostrat/ui-components@5.5.0
+
 ## [3.15.0] - 2026-10-03 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.14.0...@macrostrat/column-views-v3.15.0)
 
 ### Minor Changes
