@@ -286,8 +286,8 @@ $trail-end: "li:last-of-type:not(.root-crumb), li:has(+ .root-crumb:last-of-type
   padding-bottom: var(--page-header-title-block-padding-bottom)
 
 // The title starts where the trail's text does: past the logo and its gap
-// (unless `titleAlignment: "logo"` starts it at the logo's edge).
-.title-aligned-to-trail .title-block-inner
+// (unless `titleAlignment: "left"` starts it at the left edge, under the logo).
+.title-after-logo .title-block-inner
   padding-left: calc(var(--page-header-padding-x) + var(--page-header-logo-size) + var(--page-header-gap))
 
 .title-row

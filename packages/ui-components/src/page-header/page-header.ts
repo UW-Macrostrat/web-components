@@ -34,11 +34,11 @@ export type PageHeaderWidth = "full" | "constrained";
  * map's context panel. */
 export type PageHeaderSize = "default" | "small";
 
-/** Where the large title starts, when there's a logo: `trail` (default)
- * indents it past the logo, in line with the breadcrumbs' text, so a hybrid
- * header's title moves straight up into the trail; `logo` starts it at the
- * logo's edge, which can read better with looser vertical spacing. */
-export type PageHeaderTitleAlignment = "trail" | "logo";
+/** Where the large title starts, when there's a logo: `logo-end` (default)
+ * past the logo, in line with the breadcrumbs' text, so a hybrid header's
+ * title moves straight up into the trail; `left` at the header's left edge,
+ * under the logo, which can read better with looser vertical spacing. */
+export type PageHeaderTitleAlignment = "logo-end" | "left";
 
 /** Whether the actions fold into a single "more" dropdown: `never`, below
  * `collapseActionsBelow` (`narrow`), or `always`. */
@@ -88,7 +88,7 @@ export interface PageHeaderProps {
   sticky?: boolean;
   width?: PageHeaderWidth;
   size?: PageHeaderSize;
-  /** Where the large title starts when there's a logo. Default `trail`. */
+  /** Where the large title starts when there's a logo. Default `logo-end`. */
   titleAlignment?: PageHeaderTitleAlignment;
   className?: string;
   /** Supporting content under the large title (description, tabs…). */
@@ -112,7 +112,7 @@ export function PageHeader(props: PageHeaderProps) {
     sticky = false,
     width = "full",
     size = "default",
-    titleAlignment = "trail",
+    titleAlignment = "logo-end",
     className,
     children,
   } = props;
@@ -212,7 +212,7 @@ export function PageHeader(props: PageHeaderProps) {
         stuck: isStuck,
         collapsed: isCollapsed,
         "has-logo": logo != null,
-        "title-aligned-to-trail": logo != null && titleAlignment == "trail",
+        "title-after-logo": logo != null && titleAlignment == "logo-end",
         "adapt-width": !isTitleFirst,
         "hide-labels": isTitleFirst && yieldLevel >= YieldLevel.HideLabels,
         "hide-identifier":

@@ -52,7 +52,7 @@ const meta: Meta<typeof PageHeader> = {
     },
     width: { control: "inline-radio", options: ["full", "constrained"] },
     size: { control: "inline-radio", options: ["default", "small"] },
-    titleAlignment: { control: "inline-radio", options: ["trail", "logo"] },
+    titleAlignment: { control: "inline-radio", options: ["logo-end", "left"] },
     sticky: { control: "boolean" },
     collapseActions: {
       control: "inline-radio",
@@ -178,12 +178,13 @@ export const Hybrid: Story = {
   },
 };
 
-/** The hybrid header with `titleAlignment: "logo"`: the large title starts at
- * the logo's edge rather than in line with the breadcrumbs' text. */
-export const TitleAlignedToLogo: Story = {
+/** The hybrid header with `titleAlignment: "left"`: the large title starts at
+ * the left edge, under the logo, rather than in line with the breadcrumbs'
+ * text. */
+export const TitleAlignedLeft: Story = {
   args: {
     ...Hybrid.args,
-    titleAlignment: "logo",
+    titleAlignment: "left",
   },
 };
 
