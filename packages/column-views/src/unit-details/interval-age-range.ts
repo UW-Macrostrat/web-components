@@ -20,13 +20,13 @@ export enum AgeRangeFlavor {
   None = "none",
   /** The position within each interval: "Norian to Rhaetian | 75%". */
   Proportion = "proportion",
-  /** Ages. An age on its interval's boundary belongs to the interval and goes
-   * in its tag (with `verbose`); any other age is the span's own, and follows
-   * the tag: "Norian 216.5 Ma to Rhaetian | 201.4 Ma". */
+  /** Ages, always: they say more than the interval names, even for a whole
+   * interval. An age on its interval's boundary belongs to the interval and
+   * goes in its tag; any other age is the span's own, and follows the tag:
+   * "Norian 216.5 Ma to Rhaetian | 201.4 Ma". */
   Ages = "ages",
-  /** Positions and ages together. Ages follow the `ages` rules, but an age
-   * on an interval boundary is always shown in the tag: "Norian | 50% to
-   * Rhaetian | 201.4 Ma". */
+  /** Positions and ages together, with ages as for `ages`:
+   * "Norian | 50% 216.5 Ma to Rhaetian | 201.4 Ma". */
   Both = "both",
 }
 
@@ -50,8 +50,9 @@ export interface IntervalAgeRangeProps extends Omit<
 > {
   unit: IntervalAgeRangeData;
   flavor?: AgeRangeFlavor | `${AgeRangeFlavor}`;
-  /** Always print the position or age, even where the span reaches an
-   * interval boundary and it's implied: "Cretaceous | base to top". */
+  /** Always print positions within the intervals, even where the span
+   * reaches an interval boundary and they're implied: "Cretaceous | base to
+   * top". (Ages always print.) */
   verbose?: boolean;
   /** Derive positions within the intervals from `b_age`/`t_age` when
    * `b_prop`/`t_prop` aren't given (default true). */
@@ -64,8 +65,8 @@ export interface IntervalAgeRangeProps extends Omit<
  * - `[Norian] to [Rhaetian | 75%]` (proportion)
  * - `[Norian | base] to [Rhaetian | 75%]` (proportion, verbose)
  * - `[Cretaceous | base to top]` (one interval, verbose)
- * - `[Norian] 216.5 Ma to [Rhaetian]` (ages)
- * - `[Norian] 216.5 Ma to [Rhaetian | 201.4 Ma]` (ages, verbose)
+ * - `[Norian] 216.5 Ma to [Rhaetian | 201.4 Ma]` (ages)
+ * - `[Cretaceous | 143.1–66 Ma]` (ages, one whole interval)
  * - `[Norian | 50%] 216.5 Ma to [Rhaetian | 201.4 Ma]` (both)
  * - `[Berriasian | 143.1 Ma] to [Santonian | 83.6 Ma]` (both, whole intervals)
  *
@@ -155,7 +156,7 @@ export function buildIntervalAgeRange(
   const spec = emptySpec(singleInterval);
 
   if (flavor == AgeRangeFlavor.Ages) {
-    return buildAgesSpec(spec, unit, int0, int1, verbose);
+    return buildAgesSpec(spec, unit, int0, int1);
   }
 
   if (flavor == AgeRangeFlavor.Proportion || flavor == AgeRangeFlavor.Both) {
@@ -166,15 +167,7 @@ export function buildIntervalAgeRange(
   }
 
   if (flavor == AgeRangeFlavor.Both) {
-    // Ages always show here, so an age on an interval boundary is printed in
-    // its tag even when the position ("base", "top") is left implied
-    const ages = buildAgesSpec(
-      emptySpec(singleInterval),
-      unit,
-      int0,
-      int1,
-      true,
-    );
+    const ages = buildAgesSpec(emptySpec(singleInterval), unit, int0, int1);
     spec.baseDetails = joinDetails(spec.baseDetails, ages.baseDetails);
     spec.topDetails = joinDetails(spec.topDetails, ages.topDetails);
     spec.baseAfter = ages.baseAfter;
@@ -245,12 +238,11 @@ function buildAgesSpec(
   unit: IntervalAgeRangeData,
   int0: Partial<IntervalShort>,
   int1: Partial<IntervalShort>,
-  verbose: boolean,
 ): IntervalAgeRangeSpec {
-  // An age on its interval's boundary belongs to the interval: it goes in the
-  // interval's tag, and only when verbose (otherwise the interval implies it).
-  // An age within the interval is the span's own, and follows the tag. A span
-  // without an age at one end is taken to reach the interval's boundary.
+  // Ages always show. An age on its interval's boundary belongs to the
+  // interval, and goes in the interval's tag; an age within the interval is
+  // the span's own, and follows the tag. A span without an age at one end is
+  // taken to reach the interval's boundary.
   const baseOwned = unit.b_age == null || agesMatch(unit.b_age, int0.b_age);
   const topOwned = unit.t_age == null || agesMatch(unit.t_age, int1.t_age);
 
@@ -263,7 +255,7 @@ function buildAgesSpec(
           t_age: unit.t_age ?? int0.t_age,
         }),
       );
-    } else if (verbose && int0.b_age != null && int0.t_age != null) {
+    } else if (int0.b_age != null && int0.t_age != null) {
       spec.baseDetails = h(AgeRangeValue, {
         b_age: int0.b_age,
         t_age: int0.t_age,
@@ -274,13 +266,13 @@ function buildAgesSpec(
 
   if (!baseOwned) {
     spec.baseAfter = h("span.span-age", h(AgeLabel, { age: unit.b_age }));
-  } else if (verbose && int0.b_age != null) {
+  } else if (int0.b_age != null) {
     spec.baseDetails = h(AgeLabel, { age: int0.b_age });
   }
 
   if (!topOwned) {
     spec.topAfter = h("span.span-age", h(AgeLabel, { age: unit.t_age }));
-  } else if (verbose && int1.t_age != null) {
+  } else if (int1.t_age != null) {
     spec.topDetails = h(AgeLabel, { age: int1.t_age });
   }
   return spec;
