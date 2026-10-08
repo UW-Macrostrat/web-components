@@ -90,6 +90,16 @@ export const FossilBasin: Story = {
     t_age: 100,
     b_age: 135,
     pixelScale: 10,
-    maxInternalUnits: 5,
+    maxInternalColumns: 5,
+  },
+};
+
+/** A measured section (an eODP hole) whose cores overlap by a few tenths of a
+ * meter at their boundaries: capped at one internal column, they stack in a
+ * single column instead of alternating between two. */
+export const SingleInternalColumn: Story = {
+  args: {
+    id: 4411,
+    maxInternalColumns: 1,
   },
 };
