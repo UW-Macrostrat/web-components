@@ -1,5 +1,13 @@
 # @macrostrat/map-views
 
+## [1.1.2] - 2026-10-08 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-views-v1.1.1...@macrostrat/map-views-v1.1.2)
+
+### Patch Changes
+
+- `ColumnNavigationMap` jumps to the selected column on first load instead of
+  easing to it when footprints arrive after the map
+  [cc21b675](https://github.com/UW-Macrostrat/web-components/commit/cc21b67547024eeb6bc0ad0be6822b23904c296c)
+
 ## [1.1.1] - 2026-09-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-views-v1.1.0...@macrostrat/map-views-v1.1.1)
 
 ### Patch Changes
