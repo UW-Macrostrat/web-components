@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.16.1] - 2026-10-08 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.16.0...@macrostrat/column-views-v3.16.1)
+
+### Patch Changes
+
+- `UnitComponent` respects `maxInternalColumns`: overlapping units spread across
+  [121e6c49](https://github.com/UW-Macrostrat/web-components/commit/121e6c495648ada0709a5107066fc2c7b03acead)
+  at most that many internal columns, sharing the last one past the cap. It had
+  taken the count from the overlap layout alone, so `maxInternalColumns: 1`
+  still split a section whose units overlap at their boundaries into two
+  columns. A unit without a layout now takes its full width instead of one as
+  many pixels wide as `nColumns`.
+
 ## [3.16.0] - 2026-10-07 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.15.0...@macrostrat/column-views-v3.16.0)
 
 ### Minor Changes
