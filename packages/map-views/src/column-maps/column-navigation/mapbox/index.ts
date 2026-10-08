@@ -140,6 +140,7 @@ function _ColumnsNavigationLayer({ enabled = true, color }) {
     h(ColumnSelectionManager, {
       selectedColumn: selectedColumnFeature,
       onSelectColumn,
+      columnsLoaded: columns != null && columns.length > 0,
     }),
     h(ColumnHoverInteraction, { onHover }),
   ]);
@@ -149,10 +150,13 @@ export function ColumnSelectionManager({
   selectedColumn,
   onSelectColumn,
   centerOnSelect = true,
+  columnsLoaded = true,
 }: {
   selectedColumn: ColumnFeature;
   onSelectColumn: (column: ColumnFeature) => void;
   centerOnSelect?: boolean;
+  /** Until then, a missing selection may just not have loaded yet. */
+  columnsLoaded?: boolean;
 }) {
   const onClick = useCallback(
     (event) => {
@@ -166,6 +170,7 @@ export function ColumnSelectionManager({
   return h([
     h.if(centerOnSelect)(SelectedColumnCenterer, {
       selectedColumn,
+      columnsLoaded,
     }),
     h(SelectedColumnOverlay, { selectedColumn }),
     h(ClickInteraction, {
@@ -243,9 +248,11 @@ function HoverInteraction({ onHover, layers }) {
 
 function SelectedColumnCenterer({
   selectedColumn,
+  columnsLoaded,
   easeDuration = 500,
 }: {
   selectedColumn: ColumnFeature;
+  columnsLoaded: boolean;
   easeDuration?: number;
 }) {
   const columnCenter = useMemo(() => {
@@ -259,18 +266,17 @@ function SelectedColumnCenterer({
   const initialRenderRef = useRef(true);
   // Center the map on the selected column when it changes
   useEffect(() => {
-    if (map == null) return;
+    if (map == null || !columnsLoaded) return;
+    // Jump to the first selection once columns load; ease between later ones.
     const isInitialRender = initialRenderRef.current;
-    if (isInitialRender) initialRenderRef.current = false;
-    // If this is the first render of the map, jump to the location. Otherwise, ease to it.
+    initialRenderRef.current = false;
     if (columnCenter == null) return;
     if (isInitialRender) {
       map.setCenter(columnCenter);
-      initialRenderRef.current = false;
     } else {
       map.easeTo({ center: columnCenter }, { duration: easeDuration });
     }
-  }, [mapRef.current, columnCenter]);
+  }, [mapRef.current, columnCenter, columnsLoaded]);
 
   return null;
 }
