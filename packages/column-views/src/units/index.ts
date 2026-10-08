@@ -61,38 +61,38 @@ export function BasicUnitComponent({ division, ...rest }) {
 
 interface UnitComponentProps<T extends BaseUnit> {
   division: UnitWithLayoutParameters<T> | T;
-  nColumns: number;
+  /** The most internal columns overlapping units spread across; unset, as
+   * many as the overlaps need */
+  nColumns?: number;
   width?: number;
 }
 
 export function UnitComponent<T extends BaseUnit>({
   division,
-  nColumns = 2,
+  nColumns,
   ...rest
 }: UnitComponentProps<T>) {
   const width = rest.width ?? useColumnLayout()?.width;
 
-  let _nColumns = nColumns;
-  if (isNaN(_nColumns)) {
-    _nColumns = 2;
+  // Without a layout the unit takes its full width from the column
+  if (!("layout" in division)) {
+    return h(TrackedLabeledUnit, { division, ...rest });
   }
-  let columnIx = 0;
-  let x = 0;
 
-  let reducedWidth = _nColumns;
-  if ("layout" in division) {
-    const layout = division.layout;
-    _nColumns = layout.totalColumns;
-    columnIx = layout.column;
-    reducedWidth = width / layout.totalColumns / layout.nColumns;
-    x = (columnIx * width) / _nColumns;
+  // `nColumns` caps the internal columns (`maxInternalColumns` on `Column`).
+  // Past the cap, units share the last column and overlap there.
+  const { layout } = division;
+  let totalColumns = layout.totalColumns;
+  if (nColumns != null && !isNaN(nColumns)) {
+    totalColumns = Math.max(1, Math.min(totalColumns, nColumns));
   }
+  const columnIx = Math.min(layout.column, totalColumns - 1);
 
   return h(TrackedLabeledUnit, {
     division,
     ...rest,
-    width: reducedWidth,
-    x,
+    width: width / totalColumns / layout.nColumns,
+    x: (columnIx * width) / totalColumns,
   });
 }
 
