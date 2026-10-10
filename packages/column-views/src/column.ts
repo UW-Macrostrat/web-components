@@ -14,7 +14,8 @@ import {
   RefObject,
 } from "react";
 import h from "./column.module.sass";
-import { UnitComponent } from "./units";
+import { GrainsizeProvider, UnitComponent } from "./units";
+import type { ColumnType, GrainsizeMode, GrainsizeOptions } from "./units";
 import {
   ColumnRef,
   UnitKeyboardNavigation,
@@ -68,6 +69,14 @@ interface BaseColumnProps extends Omit<
    * column whose coordinates aren't a measure — one laid out by surface order
    * alone, say. */
   showAgeAxis?: boolean;
+  /** Draw finer-grained units narrower, from the right edge of the unit column.
+   * `auto` (default) shows it on measured columns: per `columnType` where given,
+   * else on height and depth axes. */
+  grainsize?: GrainsizeMode;
+  /** Measured or composite (see `columnTypeFromColType` for a v2 `col_type`) */
+  columnType?: ColumnType | null;
+  /** How much grain size varies unit width (see `GrainsizeOptions`) */
+  grainsizeOptions?: GrainsizeOptions;
   // Timescale properties
   /** Draw the timescale. Defaults to on for an age column; an explicit value
    * wins over `timescaleLevels` / `timescales`, which otherwise turn it on. */
@@ -280,6 +289,9 @@ function ColumnInner(props: ColumnInnerProps) {
     timescaleIntervalStyle,
     ageAxisComponent = CompositeAgeAxis,
     showAgeAxis = true,
+    grainsize = "auto",
+    grainsizeOptions,
+    columnType,
   } = props;
 
   const { axisType } = useMacrostratColumnData();
@@ -328,18 +340,28 @@ function ColumnInner(props: ColumnInnerProps) {
         onClickInterval: onClickTimescaleInterval,
         intervalStyle: timescaleIntervalStyle,
       }),
-      h(SectionsColumn, {
-        unitComponent,
-        unitComponentProps,
-        showLabels,
-        width,
-        columnWidth,
-        showLabelColumn,
-        labelSuppressHeight,
-        clipUnits,
-        unconformityLabels: _sectionUnconformityLabels,
-        maxInternalColumns,
-      }),
+      h(
+        GrainsizeProvider,
+        {
+          ...grainsizeOptions,
+          mode: grainsize,
+          axisType,
+          columnType,
+          width: columnWidth,
+        },
+        h(SectionsColumn, {
+          unitComponent,
+          unitComponentProps,
+          showLabels,
+          width,
+          columnWidth,
+          showLabelColumn,
+          labelSuppressHeight,
+          clipUnits,
+          unconformityLabels: _sectionUnconformityLabels,
+          maxInternalColumns,
+        }),
+      ),
       children,
     ]),
   );

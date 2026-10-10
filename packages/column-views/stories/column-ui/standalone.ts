@@ -1,7 +1,7 @@
 import h from "@macrostrat/hyper";
 import { useMemo } from "react";
 import { FlexRow, useAPIResult } from "@macrostrat/ui-components";
-import { Column } from "../../src";
+import { Column, columnTypeFromColType } from "../../src";
 import { Spinner } from "@blueprintjs/core";
 import { ColumnProps } from "../../src";
 import "@macrostrat/style-system";
@@ -62,6 +62,10 @@ export function StandaloneColumn(props: StandaloneColumnProps) {
       h("h2", info.col_name),
       h("code", info.col_id),
     ]),
-    h(Column, { ...rest, units }),
+    h(Column, {
+      columnType: columnTypeFromColType(info.col_type),
+      ...rest,
+      units,
+    }),
   ]);
 }

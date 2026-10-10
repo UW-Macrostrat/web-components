@@ -17,6 +17,7 @@ import { IUnit } from "./types";
 import styles from "./boxes.module.sass";
 import classNames from "classnames";
 import { getUnitHeightRange } from "../prepare-units/utils";
+import { useGrainsizeBounds } from "./grainsize";
 import type { RectBounds } from "./types";
 import {
   getBestFGDCPatternForUnit,
@@ -119,10 +120,10 @@ export function MinimalUnit(props) {
 
   const { axisType } = useColumn();
   const lithMap = useLithologies();
-  const bounds = {
+  const bounds = useGrainsizeBounds(d, {
     ...useUnitRect(d, { widthFraction, axisType }),
     ...baseBounds,
-  };
+  });
 
   const [ref, selected, onClick, linked] = useUnitSelectionTarget(d);
   const selection = useSelectionStyle(selectionStyle, selected, linked);
@@ -180,12 +181,13 @@ function Unit(props: UnitProps) {
   const hasOverflowTop = d.t_clip_pos != null;
   const hasOverflowBottom = d.b_clip_pos != null;
 
-  const bounds = {
+  // Applied after the caller's bounds, which set the width of internal columns
+  const bounds = useGrainsizeBounds(d, {
     ...useUnitRect(d, { widthFraction, axisType }),
     ...baseBounds,
     overflowTop: hasOverflowTop,
     overflowBottom: hasOverflowBottom,
-  };
+  });
   const _patternID = patternID ?? getBestFGDCPatternForUnit(d);
   let _fill = fill ?? useGeologicPattern(_patternID, defaultFill);
 
@@ -260,7 +262,9 @@ function LabeledUnit(props: LabeledUnitProps) {
     ...useUnitRect(division, { widthFraction, axisType }),
     ...baseBounds,
   };
-  const { width, height } = bounds;
+  // `Unit` narrows its own box; only the label needs narrowing here
+  const labelBounds = useGrainsizeBounds(division, bounds);
+  const { width, height } = labelBounds;
   // Labels stay visible through the animation by default. `hideLabelsWhileTransitioning`
   // is a perf escape hatch: when set, the `foreignObject` label (whose HTML
   // reflows on every size change) is skipped mid-transition and restored on settle.
@@ -278,7 +282,7 @@ function LabeledUnit(props: LabeledUnitProps) {
     [
       h.if(showLabel && !skipLabel)(
         ForeignObject,
-        { ...bounds, className: "unit-label-container" },
+        { ...labelBounds, className: "unit-label-container" },
         h(SizeAwareLabel, {
           className: "unit-overlay",
           labelClassName: "unit-label",

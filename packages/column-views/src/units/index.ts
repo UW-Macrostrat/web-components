@@ -21,6 +21,7 @@ import { UnitWithLayoutParameters } from "../prepare-units/helpers.ts";
 
 export * from "./composite";
 export * from "./types";
+export * from "./grainsize";
 
 export function UnitsColumn({ width = 100 }) {
   /*
