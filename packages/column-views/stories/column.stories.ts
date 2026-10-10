@@ -294,6 +294,27 @@ export const GBDBColumn: Story = {
   },
 };
 
+/** Finer-grained units drawn narrower, from each unit's dominant lithology. On by
+ * default for measured columns; forced on here for a composite column. */
+export const GrainsizeOnAgeColumn: Story = {
+  args: {
+    id: 432,
+    showLabelColumn: true,
+    grainsize: "on",
+  },
+};
+
+/** A measured column with grain size turned off. */
+export const GrainsizeOff: Story = {
+  args: {
+    id: 81284,
+    inProcess: true,
+    axisType: ColumnAxisType.HEIGHT,
+    collapseSmallUnconformities: true,
+    grainsize: "off",
+  },
+};
+
 export function ColumnClickHandler() {
   const [hoveredHeight, setHoveredHeight] = useState(null);
 
