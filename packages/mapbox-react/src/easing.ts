@@ -33,7 +33,7 @@ export interface FlyToOptions extends AnimationOptions, CameraOptions {
 type MapEaseToOptions = MapEaseToState & {
   duration?: number;
   /** Move to `center` only when it is at least this far out of focus */
-  centerFrom?: PositionFocusState;
+  centerMarkerFrom?: PositionFocusState;
 };
 
 type MapEaseToProps = MapEaseToOptions & {
@@ -56,12 +56,12 @@ function _settleEasingRequest(get: any, set: any) {
   const settledRequest = get(settledEasingRequestAtom);
   const map = get(mapRefAtom);
   if (map == null || request == null || settledRequest == request) return;
-  const { duration = 800, centerFrom, ...rest } = request;
+  const { duration = 800, centerMarkerFrom, ...rest } = request;
   if (Object.keys(rest).length === 0) return;
 
   const initialized = settledRequest != null;
 
-  if (initialized && !shouldMoveToCenter(map, rest, centerFrom)) {
+  if (initialized && !shouldMoveToCenter(map, rest, centerMarkerFrom)) {
     setPaddingInPlace(map, rest.padding);
     set(settledEasingRequestAtom, request);
     return;
@@ -79,12 +79,12 @@ function _settleEasingRequest(get: any, set: any) {
 function shouldMoveToCenter(
   map: mapboxgl.Map,
   request: MapEaseToState,
-  centerFrom: PositionFocusState | undefined,
+  centerMarkerFrom: PositionFocusState | undefined,
 ): boolean {
-  if (request.center == null || centerFrom == null) return true;
+  if (request.center == null || centerMarkerFrom == null) return true;
   const padding = expandPadding(request.padding) ?? map.getPadding();
   const focus = getFocusState(map, request.center, padding);
-  return focus == null || focus >= centerFrom;
+  return focus == null || focus >= centerMarkerFrom;
 }
 
 /** Applies padding without moving what's on screen */
@@ -152,13 +152,13 @@ const mapEasingRequestAtom = atom<Partial<MapEaseToOptions>>(
       const val1 = pruneUndefinedKeys(val);
       const next = { ...acc, ...val1 };
       // A cutoff belongs to the request that set the center
-      if (val1.center != null) next.centerFrom = val1.centerFrom;
+      if (val1.center != null) next.centerMarkerFrom = val1.centerMarkerFrom;
       return next;
     }, {} as MapEaseToOptions);
 
-    const { centerFrom, ...rest } = state;
+    const { centerMarkerFrom, ...rest } = state;
     const changes: Partial<MapEaseToOptions> = filterChanges(rest, settled);
-    if (changes.center != null) changes.centerFrom = centerFrom;
+    if (changes.center != null) changes.centerMarkerFrom = centerMarkerFrom;
     return changes;
   },
   (get, set, request: Partial<MapEaseToOptions>) => {
@@ -223,7 +223,7 @@ export function useMapEaseTo(props: MapEaseToProps) {
     zoom,
     duration = 800,
     trackResize,
-    centerFrom,
+    centerMarkerFrom,
   } = props;
   const addRequest = useMapEaseToDispatch();
   useMapEaseToListener();
@@ -242,6 +242,6 @@ export function useMapEaseTo(props: MapEaseToProps) {
   /** Handle changes to any map props */
   useEffect(() => {
     // Add the proposed update to the queue
-    addRequest({ bounds, padding, center, zoom, duration, centerFrom });
-  }, [bounds, padding, center, zoom, duration, centerFrom]);
+    addRequest({ bounds, padding, center, zoom, duration, centerMarkerFrom });
+  }, [bounds, padding, center, zoom, duration, centerMarkerFrom]);
 }

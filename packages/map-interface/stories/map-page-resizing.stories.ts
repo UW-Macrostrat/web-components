@@ -276,7 +276,7 @@ function useSimulatedLoading(position: any, loadTime: number): boolean {
 export const DelayedPanelContent: StoryObj<typeof DelayedContentPage> = {
   render: (args) => h(DelayedContentPage, args),
   // Holds the option name; `mapping` converts it to the enum value
-  args: { loadTime: 1500, centerInfoMarker: "NEAR_EDGE" as any },
+  args: { loadTime: 1500, centerInfoMarker: "OFF_CENTER" as any },
   argTypes: {
     centerInfoMarker: {
       control: "select",

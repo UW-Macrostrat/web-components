@@ -92,7 +92,7 @@ export function MapView(props: MapViewProps) {
     // Deprecated
     accessToken,
     infoMarkerPosition,
-    centerInfoMarker = PositionFocusState.NEAR_EDGE,
+    centerInfoMarker = PositionFocusState.OFF_CENTER,
     transformRequest,
     projection,
     onMapLoaded = null,
@@ -247,7 +247,7 @@ export function MapView(props: MapViewProps) {
         containerRef: ref,
         parentRef,
         infoMarkerPosition,
-        centerFrom: centerInfoMarker,
+        centerMarkerFrom: centerInfoMarker,
       }),
       h(MapTerrainManager, { mapUse3D: is3DAvailable, terrainSourceID, style }),
       children,
