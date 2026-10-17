@@ -16,6 +16,7 @@ import {
   MapView,
 } from "../src";
 import { useMapInitialized, useMapRef } from "@macrostrat/mapbox-react";
+import { PositionFocusState } from "@macrostrat/mapbox-utils";
 import { LoremIpsum } from "lorem-ipsum";
 
 const lorem = new LoremIpsum();
@@ -207,7 +208,7 @@ export const ContextStackDoesntAdjustPadding: Story = {
 
 /** As on the website: the selected location reaches the map through
  * `infoMarkerPosition`, and the panel loads its content after it opens. */
-function DelayedContentPage({ loadTime = 1500, ...rest }) {
+function DelayedContentPage({ loadTime = 1500, centerInfoMarker, ...rest }) {
   if (mapboxToken != null) {
     mapboxgl.accessToken = mapboxToken;
   }
@@ -239,6 +240,7 @@ function DelayedContentPage({ loadTime = 1500, ...rest }) {
         projection: { name: "globe" },
         mapboxToken,
         infoMarkerPosition: position,
+        centerInfoMarker,
       },
       [h(ClickToSelect, { setPosition }), h(MapMarker, { position })],
     ),
@@ -273,5 +275,12 @@ function useSimulatedLoading(position: any, loadTime: number): boolean {
 
 export const DelayedPanelContent: StoryObj<typeof DelayedContentPage> = {
   render: (args) => h(DelayedContentPage, args),
-  args: { loadTime: 1500 },
+  args: { loadTime: 1500, centerInfoMarker: PositionFocusState.NEAR_EDGE },
+  argTypes: {
+    centerInfoMarker: {
+      control: "select",
+      options: Object.keys(PositionFocusState).filter((k) => isNaN(Number(k))),
+      mapping: PositionFocusState,
+    },
+  },
 };

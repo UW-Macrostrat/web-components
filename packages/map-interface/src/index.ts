@@ -10,4 +10,3 @@ export * from "./utils";
 export * from "./location-details";
 export * from "./hash-string";
 export * from "./compare";
-export { useReportDetailPanelLoading } from "./detail-panel-loading";

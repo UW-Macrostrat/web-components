@@ -13,6 +13,7 @@ import {
   MapPosition,
   getMapboxStyle,
   mergeStyles,
+  PositionFocusState,
 } from "@macrostrat/mapbox-utils";
 import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
@@ -45,6 +46,9 @@ export interface MapViewProps extends MapboxCoreOptions {
   terrainSourceID?: string;
   enableTerrain?: boolean;
   infoMarkerPosition?: mapboxgl.LngLatLike;
+  /** Move to a new info marker only when it is at least this far out of focus,
+   * judged once any detail panel has loaded. */
+  centerInfoMarker?: PositionFocusState;
   mapPosition?: MapPosition;
   initializeMap?: (
     container: HTMLElement,
@@ -88,6 +92,7 @@ export function MapView(props: MapViewProps) {
     // Deprecated
     accessToken,
     infoMarkerPosition,
+    centerInfoMarker = PositionFocusState.NEAR_EDGE,
     transformRequest,
     projection,
     onMapLoaded = null,
@@ -242,6 +247,7 @@ export function MapView(props: MapViewProps) {
         containerRef: ref,
         parentRef,
         infoMarkerPosition,
+        centerFrom: centerInfoMarker,
       }),
       h(MapTerrainManager, { mapUse3D: is3DAvailable, terrainSourceID, style }),
       children,

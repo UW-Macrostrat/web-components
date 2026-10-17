@@ -19,7 +19,6 @@ import {
 import { getMapPadding, useMapMarker } from "./utils";
 import { expandPadding, useInDarkMode } from "@macrostrat/ui-components";
 import { PaddingOptions } from "mapbox-gl";
-import { useDetailPanelLoading } from "./detail-panel-loading";
 
 export function MapResizeManager({ containerRef }) {
   const mapRef = useMapRef();
@@ -42,6 +41,7 @@ interface MapPaddingManagerProps {
   containerRef: React.RefObject<HTMLDivElement>;
   parentRef: React.RefObject<HTMLDivElement>;
   infoMarkerPosition: mapboxgl.LngLatLike;
+  centerFrom?: PositionFocusState;
   debounceTime?: number;
 }
 
@@ -49,6 +49,7 @@ export function MapPaddingManager({
   containerRef,
   parentRef,
   infoMarkerPosition,
+  centerFrom,
   debounceTime = 200,
   showOverlay = false,
 }: MapPaddingManagerProps) {
@@ -85,9 +86,7 @@ export function MapPaddingManager({
     },
   });
 
-  // Move once the detail panel has loaded, not at each size it passes through
-  const hold = useDetailPanelLoading();
-  useMapEaseTo({ center: infoMarkerPosition, padding, hold });
+  useMapEaseTo({ center: infoMarkerPosition, padding, centerFrom });
 
   // Lets CSS keep Mapbox's corner controls out from under the panels
   useEffect(() => {
