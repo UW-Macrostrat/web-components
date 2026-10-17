@@ -1,5 +1,5 @@
 ---
-"@macrostrat/map-interface": patch
+"@macrostrat/map-interface": minor
 ---
 
 Narrow-screen (<768px) map layout: square panel corners, a shrinking info drawer
