@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.0] - 2026-10-17 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-utils-v1.8.0...@macrostrat/mapbox-utils-v1.9.0)
+
+### Minor Changes
+
+- `getFocusState` measures focus relative to the padded map area and takes an
+  optional `padding`
+  [1be436c2](https://github.com/UW-Macrostrat/web-components/commit/1be436c2184d75b07250aac3419c84584c3855a9)
+
 ## [1.8.0] - 2026-07-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-utils-v1.7.4...@macrostrat/mapbox-utils-v1.8.0)
 
 ### Minor Changes

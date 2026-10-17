@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.5.0] - 2026-10-17 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.4.1...@macrostrat/mapbox-react-v3.5.0)
+
+### Minor Changes
+
+- `useHoldMapEasing` defers easing until released; `useMapEaseTo`
+  `centerMarkerFrom` leaves an in-focus center where it is
+  [eb1e53f5](https://github.com/UW-Macrostrat/web-components/commit/eb1e53f5f32780dd6a68559e7db476da5a153255)
+
+### Patch Changes
+
+- Updated dependencies
+  [1be436c2](https://github.com/UW-Macrostrat/web-components/commit/1be436c2184d75b07250aac3419c84584c3855a9)
+  - @macrostrat/mapbox-utils@1.9.0
+
 ## [3.4.1] - 2026-10-03 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.4.0...@macrostrat/mapbox-react-v3.4.1)
 
 ### Patch Changes
