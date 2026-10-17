@@ -180,6 +180,11 @@
   position: relative
   overflow: hidden
 
+// The map fills .map-ui behind the panels and is padded rather than resized:
+// a resize mid-ease leaves the eased-to location under the panels.
+.map-view-container:not(.standalone)
+  position: unset
+
 .right-panel
   width: 24em
 
@@ -357,15 +362,27 @@
 /* For mobile phones, we want to make the most of screen space,
  which in some cases means adding complications to the basic page. */
 @media only screen and (max-width: 768px)
+  // Panels run edge to edge, so their corners are square
+  .map-container
+    --map-panel-border-radius: 0
+
   .map-container.detail-panel-enter .context-stack
     height: 0
     visibility: hidden
     transition: height 0.5s ease-in-out
 
+  // Kept above the map, which is positioned behind it
+  .context-stack
+    position: relative
+
+  // A flex column lets the drawer shrink to the cap and scroll its body
   .detail-stack
     height: fit-content
     position: inherit
     max-height: 70%
+    display: flex
+    flex-direction: column
+    min-height: 0
 
   .infodrawer-stack
     max-height: 70%
@@ -388,13 +405,6 @@
 /* Desktop styling is necessarily much more complicated than mobile
  to handle a two-column layout. */
 @media screen and (min-width: 768px)
-  /* Make map fill page rather than containing div,
-   by unsetting map position */
-  // We should move this to another file.
-
-  .map-view-container:not(.standalone)
-      position: unset
-
   .map-ui
     flex-direction: row
     padding: 1em 1em 2em
@@ -547,7 +557,7 @@
   .map-container .detail-stack
     transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
 
-  .map-container.detail-panel-from.detail-stack
+  .map-container.detail-panel-from .detail-stack
     max-height: 0
     height: 0
 
