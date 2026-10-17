@@ -159,7 +159,7 @@ export function getFocusState(
   if (offset < 0.05) {
     return PositionFocusState.CENTERED;
   }
-  if (offset < 0.4) {
+  if (offset < 0.5) {
     return PositionFocusState.NEAR_CENTER;
   }
   if (offset < 0.85) {
