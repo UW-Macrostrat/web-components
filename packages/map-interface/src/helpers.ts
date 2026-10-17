@@ -87,6 +87,15 @@ export function MapPaddingManager({
   // Ideally, we would not have to do this when we know the infobox is loaded
   useMapEaseTo({ center: infoMarkerPosition, padding });
 
+  // Lets CSS keep Mapbox's corner controls out from under the panels
+  useEffect(() => {
+    const el = containerRef.current;
+    if (el == null) return;
+    for (const side of ["top", "bottom", "left", "right"]) {
+      el.style.setProperty(`--map-padding-${side}`, `${padding?.[side] ?? 0}px`);
+    }
+  }, [padding]);
+
   const paddingStyle = buildPaddingCSS(padding);
 
   return h("div.map-padding-overlay", { style: paddingStyle });

@@ -393,10 +393,25 @@
   :global(.mapbox-control.mapbox-zoom)
     display: none
 
+  // The closed stack slides sideways on desktop; here it only collapses
+  .map-container:not(.detail-panel-open) .detail-stack
+    margin-left: 0
+
+  // A row above Mapbox's logo and attribution: scale left, buttons right
   .map-controls
     position: absolute
-    top: -60px
+    bottom: calc(100% + 42px)
+    left: 10px
     right: 10px
+
+    :global(.map-scale-control)
+      margin-right: auto
+
+  // Mapbox's logo and attribution sit above the drawer, not under it
+  .mapbox-map :global(.mapboxgl-ctrl-bottom-left),
+  .mapbox-map :global(.mapboxgl-ctrl-bottom-right)
+    bottom: var(--map-padding-bottom, 0px)
+    transition: bottom 0.3s ease
 
   .detail-panel
     border-radius: 0px
