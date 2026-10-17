@@ -92,7 +92,7 @@ export function MapView(props: MapViewProps) {
     // Deprecated
     accessToken,
     infoMarkerPosition,
-    centerInfoMarker = PositionFocusState.NEAR_CENTER,
+    centerInfoMarker = PositionFocusState.NEAR_EDGE,
     transformRequest,
     projection,
     onMapLoaded = null,
