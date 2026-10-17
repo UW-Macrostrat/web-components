@@ -180,6 +180,11 @@
   position: relative
   overflow: hidden
 
+// The map fills .map-ui behind the panels and is padded rather than resized:
+// a resize mid-ease leaves the eased-to location under the panels.
+.map-view-container:not(.standalone)
+  position: unset
+
 .right-panel
   width: 24em
 
@@ -357,15 +362,27 @@
 /* For mobile phones, we want to make the most of screen space,
  which in some cases means adding complications to the basic page. */
 @media only screen and (max-width: 768px)
+  // Panels run edge to edge, so their corners are square
+  .map-container
+    --map-panel-border-radius: 0
+
   .map-container.detail-panel-enter .context-stack
     height: 0
     visibility: hidden
     transition: height 0.5s ease-in-out
 
+  // Kept above the map, which is positioned behind it
+  .context-stack
+    position: relative
+
+  // A flex column lets the drawer shrink to the cap and scroll its body
   .detail-stack
     height: fit-content
     position: inherit
     max-height: 70%
+    display: flex
+    flex-direction: column
+    min-height: 0
 
   .infodrawer-stack
     max-height: 70%
@@ -376,10 +393,25 @@
   :global(.mapbox-control.mapbox-zoom)
     display: none
 
+  // The closed stack slides sideways on desktop; here it only collapses
+  .map-container:not(.detail-panel-open) .detail-stack
+    margin-left: 0
+
+  // A row above Mapbox's logo and attribution: scale left, buttons right
   .map-controls
     position: absolute
-    top: -60px
+    bottom: calc(100% + 42px)
+    left: 10px
     right: 10px
+
+    :global(.map-scale-control)
+      margin-right: auto
+
+  // Mapbox's logo and attribution sit above the drawer, not under it
+  .mapbox-map :global(.mapboxgl-ctrl-bottom-left),
+  .mapbox-map :global(.mapboxgl-ctrl-bottom-right)
+    bottom: var(--map-padding-bottom, 0px)
+    transition: bottom 0.3s ease
 
   .detail-panel
     border-radius: 0px
@@ -388,13 +420,6 @@
 /* Desktop styling is necessarily much more complicated than mobile
  to handle a two-column layout. */
 @media screen and (min-width: 768px)
-  /* Make map fill page rather than containing div,
-   by unsetting map position */
-  // We should move this to another file.
-
-  .map-view-container:not(.standalone)
-      position: unset
-
   .map-ui
     flex-direction: row
     padding: 1em 1em 2em
@@ -544,15 +569,17 @@
 //padding: 0i
 
 @media only screen and (max-width: 768px)
+  // Opening slides rather than grows, so the map's padding is final at once
   .map-container .detail-stack
-    transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
+    transition: opacity 0.8s ease, transform 0.8s ease
 
-  .map-container.detail-panel-from.detail-stack
-    max-height: 0
-    height: 0
+  .map-container.detail-panel-from .detail-stack
+    transform: translateY(100%)
+    transition: none
 
   .map-container.detail-panel-leave .detail-stack
     max-height: 0
+    transition: max-height 0.8s ease
 
   .map-container.context-panel-from .context-panel
     max-height: 0

@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.6.0] - 2026-10-17 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.5.1...@macrostrat/map-interface-v2.6.0)
+
+### Minor Changes
+
+- `MapView` `centerInfoMarker` (default `OFF_CENTER`) recenters on a new info
+  marker only when it is out of focus; a loading `LocationPanel` holds the move
+  [8ef02f65](https://github.com/UW-Macrostrat/web-components/commit/8ef02f657fd09d3d2c0062b22656e7aacdfe5b32)
+- Narrow screens: the map is padded behind edge-to-edge panels, the info drawer
+  slides in and scrolls, and attribution and controls stay above it
+  [8443c1ea](https://github.com/UW-Macrostrat/web-components/commit/8443c1ea9d1328735fe6deaf0f419b171841b9a1)
+
+### Patch Changes
+
+- Updated dependencies
+  [eb1e53f5](https://github.com/UW-Macrostrat/web-components/commit/eb1e53f5f32780dd6a68559e7db476da5a153255)
+- Updated dependencies
+  [1be436c2](https://github.com/UW-Macrostrat/web-components/commit/1be436c2184d75b07250aac3419c84584c3855a9)
+  - @macrostrat/mapbox-react@3.5.0
+  - @macrostrat/mapbox-utils@1.9.0
+
 ## [2.5.1] - 2026-10-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.5.0...@macrostrat/map-interface-v2.5.1)
 
 ### Patch Changes

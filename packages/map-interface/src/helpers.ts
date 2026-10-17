@@ -41,6 +41,7 @@ interface MapPaddingManagerProps {
   containerRef: React.RefObject<HTMLDivElement>;
   parentRef: React.RefObject<HTMLDivElement>;
   infoMarkerPosition: mapboxgl.LngLatLike;
+  centerMarkerFrom?: PositionFocusState;
   debounceTime?: number;
 }
 
@@ -48,6 +49,7 @@ export function MapPaddingManager({
   containerRef,
   parentRef,
   infoMarkerPosition,
+  centerMarkerFrom,
   debounceTime = 200,
   showOverlay = false,
 }: MapPaddingManagerProps) {
@@ -84,8 +86,19 @@ export function MapPaddingManager({
     },
   });
 
-  // Ideally, we would not have to do this when we know the infobox is loaded
-  useMapEaseTo({ center: infoMarkerPosition, padding });
+  useMapEaseTo({ center: infoMarkerPosition, padding, centerMarkerFrom });
+
+  // Lets CSS keep Mapbox's corner controls out from under the panels
+  useEffect(() => {
+    const el = containerRef.current;
+    if (el == null) return;
+    for (const side of ["top", "bottom", "left", "right"]) {
+      el.style.setProperty(
+        `--map-padding-${side}`,
+        `${padding?.[side] ?? 0}px`,
+      );
+    }
+  }, [padding]);
 
   const paddingStyle = buildPaddingCSS(padding);
 

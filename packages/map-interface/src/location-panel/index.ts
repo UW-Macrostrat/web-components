@@ -4,6 +4,7 @@ import h from "./main.module.sass";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { PanelCard } from "../container";
 import { ComponentType } from "react";
+import { useHoldMapEasing } from "@macrostrat/mapbox-react";
 
 export function InfoDrawerContainer(props) {
   const className = classNames("infodrawer", props.className);
@@ -46,5 +47,7 @@ export const DetailsPanel = BaseInfoDrawer;
 export function LocationPanel(props) {
   const { children, className, loading = false, ...rest } = props;
   const cls = classNames("location-panel", className, { loading });
+  // The map moves once the panel has its final size
+  useHoldMapEasing(loading);
   return h(BaseInfoDrawer, { className: cls, ...rest }, children);
 }

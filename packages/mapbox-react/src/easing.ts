@@ -1,7 +1,16 @@
 import { useEffect } from "react";
 import type { MapEaseToState } from "@macrostrat/mapbox-utils";
-import { filterChanges, moveMap } from "@macrostrat/mapbox-utils";
-import type { AnimationOptions, CameraOptions } from "mapbox-gl";
+import {
+  filterChanges,
+  getFocusState,
+  moveMap,
+  PositionFocusState,
+} from "@macrostrat/mapbox-utils";
+import type {
+  AnimationOptions,
+  CameraOptions,
+  PaddingOptions,
+} from "mapbox-gl";
 import { atom, zustandStoreAtom } from "@macrostrat/scoped-store";
 import { mapState } from "./context";
 import { useWarning } from "@macrostrat/ui-components";
@@ -23,6 +32,8 @@ export interface FlyToOptions extends AnimationOptions, CameraOptions {
 
 type MapEaseToOptions = MapEaseToState & {
   duration?: number;
+  /** Move to `center` only when it is at least this far out of focus */
+  centerMarkerFrom?: PositionFocusState;
 };
 
 type MapEaseToProps = MapEaseToOptions & {
@@ -31,6 +42,8 @@ type MapEaseToProps = MapEaseToOptions & {
 };
 
 const hasActiveSubscriptionAtom = atom<boolean>(false);
+// Requests made while held are kept, merged and settled on release
+const easingHeldAtom = atom<boolean>(false);
 
 const mapRefAtom = atom<mapboxgl.Map | null>((get) => {
   const store = get(zustandStoreAtom);
@@ -38,21 +51,63 @@ const mapRefAtom = atom<mapboxgl.Map | null>((get) => {
 });
 
 function _settleEasingRequest(get: any, set: any) {
+  if (get(easingHeldAtom)) return;
   const request = get(mapEasingRequestAtom);
   const settledRequest = get(settledEasingRequestAtom);
   const map = get(mapRefAtom);
   if (map == null || request == null || settledRequest == request) return;
-  const { duration = 800, ...rest } = request;
+  const { duration = 800, centerMarkerFrom, ...rest } = request;
   if (Object.keys(rest).length === 0) return;
 
   const initialized = settledRequest != null;
+
+  if (initialized && !shouldMoveToCenter(map, rest, centerMarkerFrom)) {
+    setPaddingInPlace(map, rest.padding);
+    set(settledEasingRequestAtom, request);
+    return;
+  }
 
   const opts: FlyToOptions = {
     // Todo: if map isn't yet initialized, go with zero
     duration: initialized ? duration : 0,
   };
-  moveMap(map, request, opts);
+  moveMap(map, rest, opts);
   set(settledEasingRequestAtom, request);
+}
+
+/** Judges the center against the padding the map is about to have */
+function shouldMoveToCenter(
+  map: mapboxgl.Map,
+  request: MapEaseToState,
+  centerMarkerFrom: PositionFocusState | undefined,
+): boolean {
+  if (request.center == null || centerMarkerFrom == null) return true;
+  const padding = expandPadding(request.padding) ?? map.getPadding();
+  const focus = getFocusState(map, request.center, padding);
+  return focus == null || focus >= centerMarkerFrom;
+}
+
+/** Applies padding without moving what's on screen */
+function setPaddingInPlace(
+  map: mapboxgl.Map,
+  _padding: PaddingOptions | number | undefined,
+) {
+  const padding = expandPadding(_padding);
+  if (padding == null) return;
+  const { clientWidth: width, clientHeight: height } = map.getContainer();
+  const { top, bottom, left, right } = padding;
+  const paddedCenter: [number, number] = [
+    left + (width - left - right) / 2,
+    top + (height - top - bottom) / 2,
+  ];
+  map.jumpTo({ center: map.unproject(paddedCenter), padding });
+}
+
+function expandPadding(
+  padding: PaddingOptions | number | undefined,
+): PaddingOptions | undefined {
+  if (typeof padding !== "number") return padding;
+  return { top: padding, bottom: padding, left: padding, right: padding };
 }
 
 const settleEasingRequest = debounce(_settleEasingRequest, 400);
@@ -67,11 +122,12 @@ function useMapEaseToListener() {
     if (hasActive) return;
     if (store.get(hasActiveSubscriptionAtom)) return;
     store.set(hasActiveSubscriptionAtom);
-    const unsub = store.sub(mapEasingRequestAtom, () => {
-      settleEasingRequest(store.get, store.set);
-    });
+    const settle = () => settleEasingRequest(store.get, store.set);
+    const unsub = store.sub(mapEasingRequestAtom, settle);
+    const unsubHeld = store.sub(easingHeldAtom, settle);
     return () => {
       unsub();
+      unsubHeld();
       setHasActive(false);
     };
   }, [store]);
@@ -94,10 +150,16 @@ const mapEasingRequestAtom = atom<Partial<MapEaseToOptions>>(
 
     const state = unsettledRequests.reduce((acc, val) => {
       const val1 = pruneUndefinedKeys(val);
-      return { ...acc, ...val1 };
-    }, {});
+      const next = { ...acc, ...val1 };
+      // A cutoff belongs to the request that set the center
+      if (val1.center != null) next.centerMarkerFrom = val1.centerMarkerFrom;
+      return next;
+    }, {} as MapEaseToOptions);
 
-    return filterChanges(state, settled);
+    const { centerMarkerFrom, ...rest } = state;
+    const changes: Partial<MapEaseToOptions> = filterChanges(rest, settled);
+    if (changes.center != null) changes.centerMarkerFrom = centerMarkerFrom;
+    return changes;
   },
   (get, set, request: Partial<MapEaseToOptions>) => {
     // We bundle the duration with the request but keep it out here.
@@ -143,8 +205,26 @@ export function useMapEaseToDispatch() {
   return mapState.useSet(mapEasingRequestAtom);
 }
 
+/** Defers moving the map while `held`, e.g. until a panel has loaded; requests
+ * made meanwhile are merged and settled on release. */
+export function useHoldMapEasing(held: boolean) {
+  const setHeld = mapState.useSet(easingHeldAtom);
+  useEffect(() => {
+    setHeld(held);
+    return () => setHeld(false);
+  }, [held]);
+}
+
 export function useMapEaseTo(props: MapEaseToProps) {
-  const { bounds, padding, center, zoom, duration = 800, trackResize } = props;
+  const {
+    bounds,
+    padding,
+    center,
+    zoom,
+    duration = 800,
+    trackResize,
+    centerMarkerFrom,
+  } = props;
   const addRequest = useMapEaseToDispatch();
   useMapEaseToListener();
 
@@ -162,6 +242,6 @@ export function useMapEaseTo(props: MapEaseToProps) {
   /** Handle changes to any map props */
   useEffect(() => {
     // Add the proposed update to the queue
-    addRequest({ bounds, padding, center, zoom, duration });
-  }, [bounds, padding, center, zoom, duration]);
+    addRequest({ bounds, padding, center, zoom, duration, centerMarkerFrom });
+  }, [bounds, padding, center, zoom, duration, centerMarkerFrom]);
 }

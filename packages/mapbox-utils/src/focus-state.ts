@@ -117,8 +117,10 @@ export function greatCircleDistance(
 export function getFocusState(
   map: Map,
   location: LngLatLike | GeoJSON.Geometry | null,
+  padding: PaddingOptions = map.getPadding(),
 ): PositionFocusState | null {
-  /** Determine whether the infomarker is positioned in the viewport */
+  /** Determine whether the infomarker is positioned in the viewport. Pass
+   * `padding` to judge against padding the map doesn't have yet. */
   if (location == null) return null;
 
   const mapCenter = map.getCenter();
@@ -136,54 +138,37 @@ export function getFocusState(
   }
 
   const dist = greatCircleDistance(location, mapCenter);
-  if (dist > Math.PI / 4) {
-    return PositionFocusState.OFF_CENTER;
-  } else if (dist > Math.PI / 2) {
+  if (dist > Math.PI / 2) {
     return PositionFocusState.OUT_OF_VIEW;
+  } else if (dist > Math.PI / 4) {
+    return PositionFocusState.OFF_CENTER;
   }
 
-  const markerPos = map.project(location);
-  const mapPos = map.project(mapCenter);
-  const dx = Math.abs(markerPos.x - mapPos.x);
-  const dy = Math.abs(markerPos.y - mapPos.y);
-  const padding = map.getPadding();
-  let { width, height } = map.getCanvas();
-  width /= 2;
-  height /= 2;
+  const { x, y } = map.project(location);
+  const { clientWidth: width, clientHeight: height } = map.getContainer();
+  const { top, bottom, left, right } = padding;
 
-  if (dx < 10 && dy < 10) {
+  // Distance from the padded area's center, relative to its half-size
+  const halfWidth = Math.max(width - left - right, 1) / 2;
+  const halfHeight = Math.max(height - top - bottom, 1) / 2;
+  const offset = Math.max(
+    Math.abs(x - left - halfWidth) / halfWidth,
+    Math.abs(y - top - halfHeight) / halfHeight,
+  );
+
+  if (offset < 0.05) {
     return PositionFocusState.CENTERED;
   }
-  if (dx < 150 && dy < 150) {
+  if (offset < 0.5) {
     return PositionFocusState.NEAR_CENTER;
   }
-
-  const edgeAdj = 50;
-
-  if (
-    markerPos.x > padding.left + edgeAdj &&
-    markerPos.x < width - padding.right - edgeAdj &&
-    markerPos.y > padding.top + edgeAdj &&
-    markerPos.y < height - padding.bottom - edgeAdj
-  ) {
+  if (offset < 0.85) {
     return PositionFocusState.OFF_CENTER;
   }
-
-  if (
-    markerPos.x > padding.left &&
-    markerPos.x < width - padding.right &&
-    markerPos.y > padding.top &&
-    markerPos.y < height - padding.bottom
-  ) {
+  if (offset < 1) {
     return PositionFocusState.NEAR_EDGE;
   }
-
-  if (
-    markerPos.x > 0 &&
-    markerPos.x < width &&
-    markerPos.y > 0 &&
-    markerPos.y < height
-  ) {
+  if (x > 0 && x < width && y > 0 && y < height) {
     return PositionFocusState.OUT_OF_PADDING;
   }
   return PositionFocusState.OUT_OF_VIEW;
