@@ -19,6 +19,7 @@ import {
 import { getMapPadding, useMapMarker } from "./utils";
 import { expandPadding, useInDarkMode } from "@macrostrat/ui-components";
 import { PaddingOptions } from "mapbox-gl";
+import { useDetailPanelLoading } from "./detail-panel-loading";
 
 export function MapResizeManager({ containerRef }) {
   const mapRef = useMapRef();
@@ -84,15 +85,19 @@ export function MapPaddingManager({
     },
   });
 
-  // Ideally, we would not have to do this when we know the infobox is loaded
-  useMapEaseTo({ center: infoMarkerPosition, padding });
+  // Move once the detail panel has loaded, not at each size it passes through
+  const hold = useDetailPanelLoading();
+  useMapEaseTo({ center: infoMarkerPosition, padding, hold });
 
   // Lets CSS keep Mapbox's corner controls out from under the panels
   useEffect(() => {
     const el = containerRef.current;
     if (el == null) return;
     for (const side of ["top", "bottom", "left", "right"]) {
-      el.style.setProperty(`--map-padding-${side}`, `${padding?.[side] ?? 0}px`);
+      el.style.setProperty(
+        `--map-padding-${side}`,
+        `${padding?.[side] ?? 0}px`,
+      );
     }
   }, [padding]);
 

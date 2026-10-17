@@ -26,11 +26,15 @@ type MapEaseToOptions = MapEaseToState & {
 };
 
 type MapEaseToProps = MapEaseToOptions & {
+  /** Defer moving the map until false */
+  hold?: boolean;
   // @deprecated
   trackResize?: boolean;
 };
 
 const hasActiveSubscriptionAtom = atom<boolean>(false);
+// Requests made while held are kept, merged and settled on release
+const easingHeldAtom = atom<boolean>(false);
 
 const mapRefAtom = atom<mapboxgl.Map | null>((get) => {
   const store = get(zustandStoreAtom);
@@ -38,6 +42,7 @@ const mapRefAtom = atom<mapboxgl.Map | null>((get) => {
 });
 
 function _settleEasingRequest(get: any, set: any) {
+  if (get(easingHeldAtom)) return;
   const request = get(mapEasingRequestAtom);
   const settledRequest = get(settledEasingRequestAtom);
   const map = get(mapRefAtom);
@@ -67,11 +72,12 @@ function useMapEaseToListener() {
     if (hasActive) return;
     if (store.get(hasActiveSubscriptionAtom)) return;
     store.set(hasActiveSubscriptionAtom);
-    const unsub = store.sub(mapEasingRequestAtom, () => {
-      settleEasingRequest(store.get, store.set);
-    });
+    const settle = () => settleEasingRequest(store.get, store.set);
+    const unsub = store.sub(mapEasingRequestAtom, settle);
+    const unsubHeld = store.sub(easingHeldAtom, settle);
     return () => {
       unsub();
+      unsubHeld();
       setHasActive(false);
     };
   }, [store]);
@@ -144,9 +150,24 @@ export function useMapEaseToDispatch() {
 }
 
 export function useMapEaseTo(props: MapEaseToProps) {
-  const { bounds, padding, center, zoom, duration = 800, trackResize } = props;
+  const {
+    bounds,
+    padding,
+    center,
+    zoom,
+    duration = 800,
+    trackResize,
+    hold,
+  } = props;
   const addRequest = useMapEaseToDispatch();
+  const setHeld = mapState.useSet(easingHeldAtom);
   useMapEaseToListener();
+
+  useEffect(() => {
+    if (hold == null) return;
+    setHeld(hold);
+    return () => setHeld(false);
+  }, [hold]);
 
   useWarning(
     "trackResize is deprecated and no longer works",

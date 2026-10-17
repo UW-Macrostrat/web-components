@@ -569,15 +569,17 @@
 //padding: 0i
 
 @media only screen and (max-width: 768px)
+  // Opening slides rather than grows, so the map's padding is final at once
   .map-container .detail-stack
-    transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
+    transition: opacity 0.8s ease, transform 0.8s ease
 
   .map-container.detail-panel-from .detail-stack
-    max-height: 0
-    height: 0
+    transform: translateY(100%)
+    transition: none
 
   .map-container.detail-panel-leave .detail-stack
     max-height: 0
+    transition: max-height 0.8s ease
 
   .map-container.context-panel-from .context-panel
     max-height: 0

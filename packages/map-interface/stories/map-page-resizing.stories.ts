@@ -15,6 +15,7 @@ import {
   LocationPanel,
   MapView,
 } from "../src";
+import { useMapInitialized, useMapRef } from "@macrostrat/mapbox-react";
 import { LoremIpsum } from "lorem-ipsum";
 
 const lorem = new LoremIpsum();
@@ -202,4 +203,75 @@ export const ContextStackDoesntAdjustPadding: Story = {
       "--map-context-stack-padding": "0px",
     },
   },
+};
+
+/** As on the website: the selected location reaches the map through
+ * `infoMarkerPosition`, and the panel loads its content after it opens. */
+function DelayedContentPage({ loadTime = 1500, ...rest }) {
+  if (mapboxToken != null) {
+    mapboxgl.accessToken = mapboxToken;
+  }
+  const mapStyle = useBasicMapStyle({ styleType: "standard" });
+  const [position, setPosition] = useState<mapboxgl.LngLat | null>(null);
+  const loading = useSimulatedLoading(position, loadTime);
+
+  let detailElement: React.ReactNode = null;
+  if (position != null) {
+    detailElement = h(
+      LocationPanel,
+      { onClose: () => setPosition(null), position, loading },
+      h.if(!loading)(paragraphs),
+    );
+  }
+
+  return h(
+    MapAreaContainer,
+    {
+      navbar: h(FloatingNavbar, { title: "Delayed panel content" }),
+      detailPanel: detailElement,
+      contextPanelOpen: false,
+      ...rest,
+    },
+    h(
+      MapView,
+      {
+        style: mapStyle,
+        projection: { name: "globe" },
+        mapboxToken,
+        infoMarkerPosition: position,
+      },
+      [h(ClickToSelect, { setPosition }), h(MapMarker, { position })],
+    ),
+  );
+}
+
+function ClickToSelect({ setPosition }) {
+  const mapRef = useMapRef();
+  const isInitialized = useMapInitialized();
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map == null) return;
+    const onClick = (e: mapboxgl.MapMouseEvent) => setPosition(e.lngLat);
+    map.on("click", onClick);
+    return () => {
+      map.off("click", onClick);
+    };
+  }, [isInitialized, setPosition]);
+  return null;
+}
+
+function useSimulatedLoading(position: any, loadTime: number): boolean {
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    if (position == null) return;
+    setLoading(true);
+    const timer = setTimeout(() => setLoading(false), loadTime);
+    return () => clearTimeout(timer);
+  }, [position, loadTime]);
+  return loading;
+}
+
+export const DelayedPanelContent: StoryObj<typeof DelayedContentPage> = {
+  render: (args) => h(DelayedContentPage, args),
+  args: { loadTime: 1500 },
 };

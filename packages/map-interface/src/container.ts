@@ -12,6 +12,7 @@ import { mapViewInfo } from "@macrostrat/mapbox-utils";
 import { ReactNode } from "react";
 import h from "./main.module.sass";
 import { MapBottomControls } from "./controls";
+import { DetailPanelLoadingProvider } from "./detail-panel-loading";
 
 type AnyElement = React.ReactNode | React.ReactElement | React.ReactFragment;
 
@@ -122,21 +123,24 @@ function _MapAreaContainer({
     ]);
   }
 
-  return h(MapStyledContainer, { style, className: mainUIClassNames }, [
-    h("div.main-row", [
-      h("div.map-ui", rest, [
-        h("div.context-stack-holder", contextStack),
-        h("div.map-main-stack", [children ?? mainPanel]),
-        h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([detailStackExt]),
-        h.if(detailPanelStyle == DetailPanelStyle.FIXED)(
-          "div.map-control-stack",
-          mapControlsExt,
-        ),
+  return h(
+    DetailPanelLoadingProvider,
+    h(MapStyledContainer, { style, className: mainUIClassNames }, [
+      h("div.main-row", [
+        h("div.map-ui", rest, [
+          h("div.context-stack-holder", contextStack),
+          h("div.map-main-stack", [children ?? mainPanel]),
+          h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([detailStackExt]),
+          h.if(detailPanelStyle == DetailPanelStyle.FIXED)(
+            "div.map-control-stack",
+            mapControlsExt,
+          ),
+        ]),
+        h.if(detailPanelStyle == DetailPanelStyle.FIXED)([detailStackExt]),
       ]),
-      h.if(detailPanelStyle == DetailPanelStyle.FIXED)([detailStackExt]),
+      h("div.bottom", null, bottomPanel),
     ]),
-    h("div.bottom", null, bottomPanel),
-  ]);
+  );
 }
 
 function ContextStack(props: ContextStackProps) {
