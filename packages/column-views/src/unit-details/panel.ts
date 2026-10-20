@@ -11,6 +11,8 @@ import {
   MacrostratInteractionProvider,
   MacrostratItemIdentifier,
   Parenthetical,
+  ReferenceList,
+  citationText,
   useInteractionManager,
   Value,
 } from "@macrostrat/data-components";
@@ -407,38 +409,18 @@ export function ThicknessField({ unit, label = "Thickness" }) {
   });
 }
 
+/** The references compacted as on the website's lexicon pages: shortened
+ * author lists, titles that link out in place of printed DOIs and URLs, and
+ * parts of one volume under its citation. */
 function BibInfo({ refs }) {
   // A reference the server doesn't know comes back as a hole, not a record
-  const refData = useMacrostratData("refs", refs)?.filter((d) => d != null);
-
-  if (refData == null || refData.length === 0) {
-    return null;
-  }
-
-  if (refData.length == 1) {
-    return h(Citation, {
-      data: refData[0],
-      tag: "span",
-      key: refData[0].ref_id,
-    });
-  }
-
-  return h(
-    "ul.refs",
-    refData.map((data, i) =>
-      h(Citation, { data, tag: "li", key: data.ref_id }),
-    ),
+  const refData = useMacrostratData("refs", refs);
+  const citations = useMemo(
+    () => refData?.filter((d) => d != null).map(citationText),
+    [refData],
   );
-}
-
-function Citation({ data, tag = "p" }) {
-  return h(tag, { className: "citation" }, [
-    h("span.authors", data.author),
-    ", ",
-    h("span.year", data.pub_year),
-    ", ",
-    h("span.title", data.ref),
-  ]);
+  if (citations == null || citations.length === 0) return null;
+  return h(ReferenceList, { refs: citations });
 }
 
 function enhanceEnvironments(

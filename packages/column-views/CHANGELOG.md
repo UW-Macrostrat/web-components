@@ -1,5 +1,33 @@
 # Changelog
 
+## [3.18.0] - 2026-10-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.17.0...@macrostrat/column-views-v3.18.0)
+
+### Minor Changes
+
+- `ReferenceList` lists references compactly, in the format of the Macrostrat
+  website's lexicon pages: titles that link out in place of printed DOIs and
+  URLs, long author lists shortened, parts of one volume (a drilling
+  expedition's site reports) under its citation, and volumes of a series under
+  the series' name. It takes the formatted citations v2 routes return beside
+  their data; `citationText` gives the same form for a `/defs/refs` record. The
+  parser (`parseReference`, `organizeReferences` and friends) is exported too.
+  `column-views`' `ReferencesField` — the unit details panel, `ColumnBasicInfo`
+  and the age model's surface details — now lists its references this way.
+  [9ccb94f](https://github.com/UW-Macrostrat/web-components/commit/9ccb94fdd5ee4ed5284b091ec6c7c52c73ec9171)
+- A plain click on the selected unit deselects it; it had reselected the same
+  unit, so a selection could only be cleared from a details panel. New
+  `deselectOnClick` prop on `Column`, `MacrostratColumnStateProvider` and
+  `MacrostratColumnDataProvider` (default `true`) keeps the old behavior when
+  `false`. With multiple selection, this applies when the unit is the whole
+  selection; ⌘/Ctrl- and Shift-clicks are unchanged.
+  [9ccb94f](https://github.com/UW-Macrostrat/web-components/commit/9ccb94fdd5ee4ed5284b091ec6c7c52c73ec9171)
+
+### Patch Changes
+
+- Updated dependencies
+  [9ccb94f](https://github.com/UW-Macrostrat/web-components/commit/9ccb94fdd5ee4ed5284b091ec6c7c52c73ec9171)
+  - @macrostrat/data-components@1.10.0
+
 ## [3.17.0] - 2026-10-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.16.1...@macrostrat/column-views-v3.17.0)
 
 ### Minor Changes

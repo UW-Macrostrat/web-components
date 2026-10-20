@@ -128,6 +128,8 @@ export interface ColumnProps
   /** Controlled multiple selection; memoize it. */
   selectedUnits?: number[] | null;
   onUnitsSelected?: (unitIDs: number[], units: any[]) => void;
+  /** A plain click on the selected unit deselects it (default true) */
+  deselectOnClick?: boolean;
   // Unconformity height in pixels
   unconformityHeight?: number;
   scale?: ScaleContinuousNumeric<number, number>;
@@ -150,6 +152,7 @@ export function Column(props: ColumnProps) {
     allowMultipleSelection = false,
     selectedUnits,
     onUnitsSelected,
+    deselectOnClick,
     children,
     units: rawUnits,
     t_age,
@@ -239,6 +242,7 @@ export function Column(props: ColumnProps) {
       selectedUnit,
       onUnitsSelected,
       selectedUnits,
+      deselectOnClick,
       isTransitioning,
       hideLabelsWhileTransitioning,
       ref,

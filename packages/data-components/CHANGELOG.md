@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.10.0] - 2026-10-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.9.0...@macrostrat/data-components-v1.10.0)
+
+### Minor Changes
+
+- `ReferenceList` lists references compactly, in the format of the Macrostrat
+  website's lexicon pages: titles that link out in place of printed DOIs and
+  URLs, long author lists shortened, parts of one volume (a drilling
+  expedition's site reports) under its citation, and volumes of a series under
+  the series' name. It takes the formatted citations v2 routes return beside
+  their data; `citationText` gives the same form for a `/defs/refs` record. The
+  parser (`parseReference`, `organizeReferences` and friends) is exported too.
+  `column-views`' `ReferencesField` — the unit details panel, `ColumnBasicInfo`
+  and the age model's surface details — now lists its references this way.
+  [9ccb94f](https://github.com/UW-Macrostrat/web-components/commit/9ccb94fdd5ee4ed5284b091ec6c7c52c73ec9171)
+
 ## [1.9.0] - 2026-10-07 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.8.0...@macrostrat/data-components-v1.9.0)
 
 ### Minor Changes
