@@ -15,6 +15,7 @@ import type { ExtUnit, PackageLayoutData } from "../prepare-units";
 import {
   allowMultipleSelectionAtom,
   allowUnitSelectionAtom,
+  deselectOnClickAtom,
   selectedUnitIDAtom,
   selectedUnitIDsAtom,
   UnitSelectionCallbacks,
@@ -57,6 +58,9 @@ export interface ColumnStateProviderProps<
   /** Controlled multiple selection (memoize it: a new array resets the
    * selection) */
   selectedUnits?: number[] | null;
+  /** A plain click on the unit that is the whole selection deselects it
+   * (default true); off, it leaves the unit selected. */
+  deselectOnClick?: boolean;
 }
 
 export function MacrostratColumnStateProvider<T extends BaseUnit>({
@@ -68,6 +72,7 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
   onUnitsSelected,
   selectedUnit,
   selectedUnits,
+  deselectOnClick = true,
 }: ColumnStateProviderProps<T>) {
   /** Top-level provider for Macrostrat column data.
    * It is either provided by the Column component itself, or
@@ -114,6 +119,7 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
     [selectedUnitIDAtom, selectedUnit],
     [allowMultipleSelectionAtom, allowMultipleSelection],
     [selectedUnitIDsAtom, selectedUnits],
+    [deselectOnClickAtom, deselectOnClick],
   ];
 
   let selectionHandlers: ReactNode = null;
@@ -175,6 +181,7 @@ export function MacrostratColumnDataProvider<T extends BaseUnit>({
   onUnitsSelected,
   selectedUnit,
   selectedUnits,
+  deselectOnClick,
   isTransitioning,
   hideLabelsWhileTransitioning,
   ref,
@@ -219,6 +226,7 @@ export function MacrostratColumnDataProvider<T extends BaseUnit>({
       onUnitsSelected,
       selectedUnit,
       selectedUnits,
+      deselectOnClick,
       ref,
     },
     [

@@ -73,6 +73,9 @@ export const allowUnitSelectionAtom = atom<boolean>(true);
 
 export const allowMultipleSelectionAtom = atom<boolean>(false);
 
+/** A plain click on the unit that is the whole selection deselects it */
+export const deselectOnClickAtom = atom<boolean>(true);
+
 /** The primary selected unit */
 export const selectedUnitIDAtom = atom<number | null>();
 /** Every selected unit, with the primary last. Unused (null) for single
@@ -276,8 +279,12 @@ export function useUnitSelectionTarget(
   const [selectedUnit, selectUnit] = useUnitSelection();
   const syncElement = scope.useSetAtom(syncSelectedElementAtom);
   const allowMultiple = scope.useAtomValue(allowMultipleSelectionAtom);
+  const deselectOnClick = scope.useAtomValue(deselectOnClickAtom);
   const isPrimary = selectedUnit?.unit_id == unit.unit_id;
-  const selected = scope.useAtomValue(selectedUnitIDSetAtom).has(unit.unit_id);
+  const selectedIDs = scope.useAtomValue(selectedUnitIDSetAtom);
+  const selected = selectedIDs.has(unit.unit_id);
+  // A plain click on this unit would select only what is already selected
+  const isWholeSelection = selected && selectedIDs.size == 1;
   const selectedUnitElement = scope.useAtomValue(selectedUnitElementAtom);
 
   // "Linked" units share a stratigraphic name with the selected unit (e.g.
@@ -299,10 +306,14 @@ export function useUnitSelectionTarget(
       } else if (allowMultiple && (evt.metaKey || evt.ctrlKey)) {
         mode = "toggle";
       }
-      selectUnit?.(unit, ref.current, mode);
+      let target: IUnit | null = unit;
+      if (mode == "replace" && deselectOnClick && isWholeSelection) {
+        target = null;
+      }
+      selectUnit?.(target, ref.current, mode);
       evt.stopPropagation();
     },
-    [unit, selectUnit, allowMultiple],
+    [unit, selectUnit, allowMultiple, deselectOnClick, isWholeSelection],
   );
 
   useEffect(() => {
