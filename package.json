@@ -63,7 +63,7 @@
     "changesets-format-with-issue-links": "^0.3.0",
     "madge": "^8.0.0",
     "prettier": "^3.9.6",
-    "vite": "^7.3.1"
+    "vite": "^7.3.7"
   },
   "resolutions": {
     "react": "^19",
