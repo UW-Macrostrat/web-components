@@ -38,6 +38,7 @@ import {
 } from "react";
 import {
   AnchorButton,
+  Button,
   Classes,
   Icon,
   NonIdealState,
@@ -48,6 +49,7 @@ import {
   anchorRefAtom,
   ctx,
   dataProviderAtom,
+  dataRefreshTokenAtom,
   DataSheetProvider,
   DataViewRendererType,
   FetchData,
@@ -326,11 +328,7 @@ export function DataPanelRenderer<T>({
   let emptyState: ReactNode = null;
   if (cards.length === 0) {
     if (error != null) {
-      emptyState = h(NonIdealState, {
-        icon: "error",
-        title: "Couldn't load data",
-        description: error.message ?? "The data source returned an error.",
-      });
+      emptyState = h(LoadErrorState, { error });
     } else if (initialized && !loading) {
       // Only after a fetch settled with no rows — not during the reset gap.
       emptyState = h(NonIdealState, {
@@ -560,6 +558,22 @@ function modifiersOf(arg?: SelectModifiers | ReactMouseEvent): SelectModifiers {
     return { additive: arg.metaKey || arg.ctrlKey, range: arg.shiftKey };
   }
   return arg;
+}
+
+/** A failed load, with a retry: auto-load stays off after an error, so
+ * reloading is the user's call. */
+function LoadErrorState({ error }: { error: Error }) {
+  const bumpRefresh = ctx.useSet(dataRefreshTokenAtom);
+  return h(NonIdealState, {
+    icon: "error",
+    title: "Couldn't load data",
+    description: error.message ?? "The data source returned an error.",
+    action: h(
+      Button,
+      { icon: "refresh", onClick: () => bumpRefresh((v) => v + 1) },
+      "Try again",
+    ),
+  });
 }
 
 /**
