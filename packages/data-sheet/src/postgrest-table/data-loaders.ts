@@ -447,7 +447,8 @@ export interface LoadControls {
   total: number | null;
   /** Auto-load is paused at the `autoLoadPages` checkpoint. */
   paused: boolean;
-  /** Auto-load is currently permitted (`hasMore && !loading && !paused`) —
+  /** Auto-load is currently permitted (`hasMore && !loading && !paused`, and
+   * no load error) —
    * used to gate an infinite-scroll sentinel. */
   canLoadMore: boolean;
   /** Advance one page *without* resuming a paused auto-load (the sentinel
@@ -482,7 +483,10 @@ export function useLoadControls(): LoadControls {
   const paused =
     autoLoadPages != null &&
     loadedCount - resumeBaseline >= autoLoadPages * pageSize;
-  const canLoadMore = hasMore && !footer.loading && !paused;
+  // A failed chunk leaves its rows null, so without the error check the
+  // sentinel re-requests it forever.
+  const canLoadMore =
+    hasMore && !footer.loading && !paused && footer.error == null;
 
   const advance = useCallback(() => {
     setVisibleRegion({
