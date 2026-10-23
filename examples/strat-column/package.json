@@ -12,7 +12,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^18",
     "typescript": "^6.0.2",
-    "vite": "^7.2.7",
+    "vite": "^7.3.7",
     "vite-plugin-serve-static": "^1.1.0"
   },
   "dependencies": {
