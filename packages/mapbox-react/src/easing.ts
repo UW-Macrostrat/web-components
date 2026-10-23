@@ -12,7 +12,7 @@ import type {
   PaddingOptions,
 } from "mapbox-gl";
 import { atom, zustandStoreAtom } from "@macrostrat/scoped-store";
-import { mapState } from "./context";
+import { mapState, useMapInitialized, useMapRef } from "./context";
 import { useWarning } from "@macrostrat/ui-components";
 import { debounce } from "underscore";
 
@@ -44,6 +44,8 @@ type MapEaseToProps = MapEaseToOptions & {
 const hasActiveSubscriptionAtom = atom<boolean>(false);
 // Requests made while held are kept, merged and settled on release
 const easingHeldAtom = atom<boolean>(false);
+// Camera moves reset Mapbox's gesture handlers, ending a drag as a click
+const pointerDownAtom = atom<boolean>(false);
 
 const mapRefAtom = atom<mapboxgl.Map | null>((get) => {
   const store = get(zustandStoreAtom);
@@ -51,7 +53,7 @@ const mapRefAtom = atom<mapboxgl.Map | null>((get) => {
 });
 
 function _settleEasingRequest(get: any, set: any) {
-  if (get(easingHeldAtom)) return;
+  if (get(easingHeldAtom) || get(pointerDownAtom)) return;
   const request = get(mapEasingRequestAtom);
   const settledRequest = get(settledEasingRequestAtom);
   const map = get(mapRefAtom);
@@ -118,6 +120,7 @@ function useMapEaseToListener() {
    * but duplicates will no-op. */
   const store = mapState.useStore();
   const [hasActive, setHasActive] = mapState.use(hasActiveSubscriptionAtom);
+  useMapPointerTracker();
   useEffect(() => {
     if (hasActive) return;
     if (store.get(hasActiveSubscriptionAtom)) return;
@@ -125,12 +128,36 @@ function useMapEaseToListener() {
     const settle = () => settleEasingRequest(store.get, store.set);
     const unsub = store.sub(mapEasingRequestAtom, settle);
     const unsubHeld = store.sub(easingHeldAtom, settle);
+    const unsubPointer = store.sub(pointerDownAtom, settle);
     return () => {
       unsub();
       unsubHeld();
+      unsubPointer();
       setHasActive(false);
     };
   }, [store]);
+}
+
+/** Holds easing while a pointer is pressed on the map */
+function useMapPointerTracker() {
+  const mapRef = useMapRef();
+  const isInitialized = useMapInitialized();
+  const setPointerDown = mapState.useSet(pointerDownAtom);
+  useEffect(() => {
+    const el = mapRef.current?.getCanvasContainer();
+    if (el == null) return;
+    const press = () => setPointerDown(true);
+    const release = () => setPointerDown(false);
+    el.addEventListener("pointerdown", press);
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
+    return () => {
+      el.removeEventListener("pointerdown", press);
+      window.removeEventListener("pointerup", release);
+      window.removeEventListener("pointercancel", release);
+      release();
+    };
+  }, [mapRef.current, isInitialized]);
 }
 
 const mapInitializedAtom = atom<boolean>((get) => {
