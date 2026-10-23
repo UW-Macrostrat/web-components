@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.5.1] - 2026-10-23 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.5.0...@macrostrat/mapbox-react-v3.5.1)
+
+### Patch Changes
+
+- `useMapEaseTo` waits for the pointer to lift before moving the map, so a
+  camera move mid-drag no longer ends the drag as a click
+  [0ee26344](https://github.com/UW-Macrostrat/web-components/commit/0ee26344ee72e588801ee7d1cbb392373507c34b)
+
 ## [3.5.0] - 2026-10-17 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.4.1...@macrostrat/mapbox-react-v3.5.0)
 
 ### Minor Changes
