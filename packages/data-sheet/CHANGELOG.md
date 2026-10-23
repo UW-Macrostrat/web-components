@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.11.1] - 2026-10-23 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.11.0...@macrostrat/data-sheet-v4.11.1)
+
+### Patch Changes
+
+- Stop `DataPanel`'s infinite-scroll sentinel from re-requesting a chunk that
+  failed to load (e.g. a 401), which looped without pause
+  [cbcd9eaa](https://github.com/UW-Macrostrat/web-components/commit/cbcd9eaaaae6136f9eca183b51df2bc36e1fe2da)
+- Add a "Try again" button to `DataPanel`'s load-error state, which reloads the
+  view
+  [11e239dd](https://github.com/UW-Macrostrat/web-components/commit/11e239dda9e390cfe7d78e3a50330fc91f49aad7)
+
 ## [4.11.0] - 2026-10-01 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.10.1...@macrostrat/data-sheet-v4.11.0)
 
 ### Minor Changes
