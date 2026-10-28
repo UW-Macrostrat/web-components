@@ -1,0 +1,129 @@
+// One font, size and weight for every field and button
+.oauth-login-form
+  width: 100%
+  max-width: 302px
+  display: flex
+  flex-direction: column
+  gap: 0.75rem
+  font-family: var(--pz-body-font)
+  font-size: 0.9rem
+  font-weight: 400
+
+.login-field
+  padding: 0.7rem 0.9rem
+  border-radius: 8px
+  border: 1px solid #ccc
+  font: inherit
+
+// Blueprint's large minimal button, 10% shorter. Qualified to outrank
+// Blueprint's `.bp6-button.bp6-large`, which sets its own height and font size.
+.oauth-login-form .login-button:global(.bp6-button)
+  width: fit-content
+  align-self: center
+  min-height: 36px
+  font: inherit
+
+.divider
+  display: flex
+  align-items: center
+  gap: 0.75rem
+
+  hr
+    flex: 1
+    border: 0
+    border-top: 1px solid #ccc
+
+  span
+    font-size: 0.85rem
+    opacity: 0.7
+
+// Provider sign-in buttons.
+//
+// Colors, logos and label wording follow each provider's brand guidelines, so
+// users recognize what they're handing credentials to:
+//   Google   — light theme: white surface, #dadce0 border, #1f1f1f label
+//   Facebook — #1877f2 surface, white "f" mark and label
+//   Apple    — black surface, white  mark and label
+// All three providers require their own mark and an unmodified "Continue with …"
+// label, so avoid restyling these to match site chrome. The label font is the
+// form's, so it matches the fields and Login button beside them.
+.oauth-buttons
+  display: flex
+  flex-direction: column
+  gap: 0.5rem
+
+.oauth-button
+  display: flex
+  align-items: center
+  justify-content: center
+  gap: 0.75rem
+  width: 100%
+  // 40px minimum height is part of both providers' specs
+  min-height: 40px
+  padding: 0.6rem 0.9rem
+  border-radius: 8px
+  font: inherit
+  text-decoration: none
+  cursor: pointer
+  transition: background-color 0.15s ease, box-shadow 0.15s ease
+
+  &:hover,
+  &:focus
+    text-decoration: none
+
+  svg
+    flex-shrink: 0
+
+.google
+  background-color: #fff
+  border: 1px solid #dadce0
+
+  // Blueprint styles bare anchors, so the label color is pinned in every state
+  &,
+  &:hover,
+  &:focus,
+  &:active
+    color: #1f1f1f
+
+  &:hover
+    background-color: #f8f9fa
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3)
+
+  &:active
+    background-color: #f1f3f4
+
+.apple
+  background-color: #000
+  border: 1px solid #000
+
+  &,
+  &:hover,
+  &:focus,
+  &:active
+    color: #fff
+
+  &:hover
+    background-color: #1a1a1a
+    border-color: #1a1a1a
+
+  &:active
+    background-color: #262626
+    border-color: #262626
+
+.facebook
+  background-color: #1877f2
+  border: 1px solid #1877f2
+
+  &,
+  &:hover,
+  &:focus,
+  &:active
+    color: #fff
+
+  &:hover
+    background-color: #166fe5
+    border-color: #166fe5
+
+  &:active
+    background-color: #1464cf
+    border-color: #1464cf
