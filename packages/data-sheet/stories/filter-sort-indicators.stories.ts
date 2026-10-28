@@ -3,6 +3,7 @@ import h from "@macrostrat/hyper";
 import { ReactNode, useEffect } from "react";
 import {
   FormGroup,
+  Icon,
   Menu,
   NumericInput,
   SegmentedControl,
@@ -18,6 +19,7 @@ import {
   FilterIndicator,
   InlineFilterControl,
   MenuInlineFilterItem,
+  sortIcon,
   TableFilter,
   useStoreAPI,
 } from "../src";
@@ -306,10 +308,29 @@ export const FilterIndicators: StoryObj = {
  * removable tag, with an Asc/Desc submenu on click (re-clicking the active
  * direction clears it). `showColumnKey` prefixes the field name (as the unified
  * bar does).
+ *
+ * The icon shows the direction too (`sortIcon` / `SortDirectionIcon`, as on
+ * the panel's Sort button and menus): ascending is an up arrow with
+ * `sort-asc`'s lines, descending a down arrow with `sort-desc`'s, and nothing
+ * sorted is the plain `sort` icon. Flip a tag's direction from its menu to see
+ * it change.
  */
 export const SortIndicators: StoryObj = {
   render: () =>
     h(Gallery, [
+      h(Cell, { key: "icons", label: "sortIcon · none, asc, desc" }, [
+        h("div", { style: { display: "flex", gap: "12px" } }, [
+          h(Icon, { key: "none", icon: sortIcon(null) }),
+          h(Icon, {
+            key: "asc",
+            icon: sortIcon({ key: "value", ascending: true }),
+          }),
+          h(Icon, {
+            key: "desc",
+            icon: sortIcon({ key: "value", ascending: false }),
+          }),
+        ]),
+      ]),
       h(Cell, { key: "off", label: "inactive" }, [
         h(ColumnSortIndicator, { columnKey: "value", showColumnKey: false }),
       ]),

@@ -1,5 +1,11 @@
 import type { ColumnSpec } from "../../provider";
-import { ReactNode, useCallback, useMemo, useState } from "react";
+import {
+  ReactElement,
+  ReactNode,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import {
   buildMultiOperatorColumnFilter,
   ColumnFilterState,
@@ -8,7 +14,9 @@ import {
 import { ColumnSort, ctx, storeAtom } from "../../provider";
 import {
   Button,
+  Classes,
   HTMLSelect,
+  type IconName,
   InputGroup,
   Menu,
   MenuDivider,
@@ -340,7 +348,7 @@ function ColumnSortActions({ sort, setSort }) {
     h(MenuItem, {
       key: "asc",
       text: "Ascending",
-      icon: "sort-asc",
+      icon: h(SortDirectionIcon, { ascending: true }),
       active: sort?.ascending === true,
       onClick: () => setSort(true),
       shouldDismissPopover: false,
@@ -348,7 +356,7 @@ function ColumnSortActions({ sort, setSort }) {
     h(MenuItem, {
       key: "desc",
       text: "Descending",
-      icon: "sort-desc",
+      icon: h(SortDirectionIcon, { ascending: false }),
       active: sort?.ascending === false,
       onClick: () => setSort(false),
       shouldDismissPopover: false,
@@ -356,9 +364,58 @@ function ColumnSortActions({ sort, setSort }) {
   ]);
 }
 
+// Blueprint's 16px sort icons, split into the arrow and the lines so each can
+// follow the direction. Blueprint's own `sort-asc`/`sort-desc` reorder the
+// lines but keep the same down arrow, which doesn't read as a direction.
+const SORT_ARROW_PATH =
+  "M5 12c-.28 0-.53.11-.71.29l-.29.3V9c0-.55-.45-1-1-1s-1 .45-1 1v3.59l-.29-.29A.97.97 0 0 0 1 12a1.003 1.003 0 0 0-.71 1.71l2 2c.18.18.43.29.71.29s.53-.11.71-.29l2-2A1.003 1.003 0 0 0 5 12";
+// Longest line on top, shortest at the bottom (the lines of `sort-desc`)
+const LINES_LONGEST_FIRST =
+  "M9 13H8c-.55 0-1 .45-1 1s.45 1 1 1h1c.55 0 1-.45 1-1s-.45-1-1-1m4-8H8c-.55 0-1 .45-1 1s.45 1 1 1h5c.55 0 1-.45 1-1s-.45-1-1-1m-2 4H8c-.55 0-1 .45-1 1s.45 1 1 1h3c.55 0 1-.45 1-1s-.45-1-1-1m4-8H8c-.55 0-1 .45-1 1s.45 1 1 1h7c.55 0 1-.45 1-1s-.45-1-1-1";
+// Shortest line on top, longest at the bottom (the lines of `sort-asc`)
+const LINES_SHORTEST_FIRST =
+  "M8 7h3c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1s.45 1 1 1m0-4h1c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1s.45 1 1 1m0 8h5c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1s.45 1 1 1M15 13H8c-.55 0-1 .45-1 1s.45 1 1 1h7c.55 0 1-.45 1-1s-.45-1-1-1";
+// The arrow spans y 8–16; mirroring it about y = 12 points it up in place
+const FLIP_ARROW_UP = "matrix(1 0 0 -1 0 24)";
+
+/** The sort icon for a direction. Ascending: the arrow points up, with
+ * `sort-asc`'s lines (longest at the bottom). Descending: the arrow points
+ * down, with `sort-desc`'s lines (longest on top) — Blueprint's `sort-desc`
+ * itself. Rendered as Blueprint renders its own icons, so it sizes and colors
+ * the same in buttons, tags and menu items. */
+export function SortDirectionIcon({ ascending }: { ascending: boolean }) {
+  let lines = LINES_LONGEST_FIRST;
+  let arrowTransform: string | undefined = undefined;
+  if (ascending) {
+    lines = LINES_SHORTEST_FIRST;
+    arrowTransform = FLIP_ARROW_UP;
+  }
+
+  return h(
+    "span",
+    { className: Classes.ICON, "aria-hidden": true },
+    h(
+      "svg",
+      { width: 16, height: 16, viewBox: "0 0 16 16", fill: "currentColor" },
+      [
+        h("path", { d: lines }),
+        h("path", { d: SORT_ARROW_PATH, transform: arrowTransform }),
+      ],
+    ),
+  );
+}
+
+/** A sort's icon: the sort icon with its arrow pointing the sort's direction,
+ * or Blueprint's plain `sort` icon when nothing is sorted. */
+export function sortIcon(
+  sort: ColumnSort | null | undefined,
+): IconName | ReactElement {
+  if (sort == null) return "sort";
+  return h(SortDirectionIcon, { ascending: sort.ascending });
+}
+
 function displayParamsForSort(sort: ColumnSort | undefined) {
-  const icon =
-    sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
+  const icon = sortIcon(sort);
   const label =
     sort == null ? null : sort.ascending ? "Ascending" : "Descending";
 
@@ -405,8 +462,9 @@ export function ColumnSortIndicator({
 /** Menu-native sort as a **single, flat** item — no submenu. The item shows the
  * field name with a direction icon (↑/↓); an active sort reads through the
  * `primary` intent, and clicking the item toggles the direction (unsorted →
- * ascending → descending → …). A right-aligned ✕ clears it. `text` is the
- * field's display label (the `DataPanel` lists one item per sortable field). */
+ * ascending → descending → …) and closes the menu. A right-aligned ✕ clears
+ * it. `text` is the field's display label (the `DataPanel` lists one item per
+ * sortable field). */
 export function ColumnSortMenu({
   columnKey,
   text,
@@ -418,8 +476,7 @@ export function ColumnSortMenu({
 }) {
   const [sort, setSort] = useSortAtom(columnKey);
   const isActive = sort != null;
-  const icon =
-    sort == null ? "sort" : sort.ascending ? "sort-asc" : "sort-desc";
+  const icon = sortIcon(sort);
   const name = text ?? defaultLabel ?? columnKey;
 
   let clearButton: ReactNode = undefined;
@@ -441,9 +498,10 @@ export function ColumnSortMenu({
     intent: isActive ? "primary" : undefined,
     active: isActive,
     labelElement: clearButton,
-    shouldDismissPopover: false,
     // Toggle direction; `setSort` never receives the current direction (so its
-    // click-same-to-clear path doesn't fire) — clearing is the ✕'s job.
+    // click-same-to-clear path doesn't fire) — clearing is the ✕'s job. A pick
+    // closes the menu (the MenuItem default); the ✕ stops its click, so
+    // clearing leaves the menu open.
     onClick: () => setSort(sort == null ? true : !sort.ascending),
   });
 }

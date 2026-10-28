@@ -23,6 +23,7 @@ import {
   MenuFormItem,
   MenuInlineFilterItem,
   resolveColumnFilter,
+  sortIcon,
 } from "./filter-and-sort.ts";
 import { toggleModalSelectionAtom } from "./selection.ts";
 import { atom } from "jotai";
@@ -295,6 +296,8 @@ function useSortAction(): TableAction | null {
   const columnSpec = useSelector((s) => s.columnSpec);
 
   const [hasActive, clearSorts] = ctx.use(hasActiveSortsAtom);
+  // The button's arrow follows the sort, so the direction reads at a glance
+  const icon = sortIcon(ctx.useValue(primarySortAtom));
 
   const sortableCols = useMemo(
     () => columnSpec.filter((c) => c.sortable),
@@ -314,6 +317,8 @@ function useSortAction(): TableAction | null {
   return {
     id: "sort",
     name: "Sort",
+    // An action's icon is a Blueprint icon name; the button below shows the
+    // direction
     icon: "sort",
     description: "Add a sort to the data panel.",
     targets: ALL_CARDINALITIES,
@@ -322,7 +327,7 @@ function useSortAction(): TableAction | null {
       h(
         FilterTag,
         {
-          icon: "sort",
+          icon,
           active: hasActive,
           onClear: clearSorts as () => void,
           content: sortMenu,
@@ -341,6 +346,10 @@ const hasActiveFiltersAtom = atom(
     get(storeAtom)?.clearFilters?.();
   },
 );
+/** The highest-priority sort — the one a source that honors a single ordering
+ * applies — whose direction the Sort button shows. */
+const primarySortAtom = atom((get) => get(storeAtom)?.columnSorts?.[0] ?? null);
+
 const hasActiveSortsAtom = atom(
   (get) => (get(storeAtom)?.columnSorts?.length ?? 0) > 0,
   (get) => {
