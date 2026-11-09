@@ -1,0 +1,120 @@
+.graph-editor
+  position: relative
+  height: 100%
+  width: 100%
+  display: flex
+  flex-direction: column
+  overflow: hidden
+  color: var(--text-color, #243448)
+
+.graph-toolbar
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  gap: .4rem
+  padding-bottom: .4rem
+  z-index: 1
+  label
+    margin: 0 0 0 .5rem
+
+.graph-canvas
+  min-height: 0
+  flex: 1
+  touch-action: none
+  cursor: grab
+  &:active
+    cursor: grabbing
+
+.graph-node
+  cursor: grab
+  &:focus-visible .node-background
+    stroke-width: 3px
+  &.active .node-background, &.connecting .node-background
+    stroke: #397dcc
+    stroke-width: 3px
+
+.node-background
+  fill: var(--panel-background-color, white)
+  stroke: var(--panel-border-color, #8194aa)
+
+.node-title, .node-type
+  fill: var(--text-emphasized-color, #243448)
+  pointer-events: none
+
+.node-title
+  font-size: 14px
+  font-weight: 600
+
+.node-type
+  font-size: 12px
+  opacity: .75
+
+.graph-edge
+  cursor: pointer
+  &.active .edge-line, &:focus-visible .edge-line
+    stroke: #397dcc
+    stroke-width: 3px
+
+.edge-hit
+  stroke: transparent
+  stroke-width: 20px
+  fill: none
+
+.edge-line
+  stroke: var(--text-muted-color, #8194aa)
+  stroke-width: 1.5px
+  fill: none
+
+.arrow-tip
+  fill: var(--text-muted-color, #8194aa)
+
+.edge-label
+  fill: var(--text-emphasized-color, #243448)
+  font-size: 13px
+  paint-order: stroke
+  stroke: var(--panel-secondary-background-color, white)
+  stroke-width: 4px
+  stroke-linejoin: round
+
+.graph-hint
+  font-size: 12px
+  margin: .4rem 0 0
+
+.graph-inspector
+  position: absolute
+  top: 45px
+  right: 8px
+  width: min(235px, calc(100% - 16px))
+  max-height: calc(100% - 80px)
+  overflow: auto
+  display: flex
+  flex-direction: column
+  gap: .6rem
+  padding: .8rem
+  border-radius: 5px
+  background: var(--panel-background-color, white)
+  border: 1px solid var(--panel-border-color, #8194aa)
+  box-shadow: 0 3px 12px #0002
+  p
+    font-size: 12px
+    margin: .5rem 0
+
+.graph-field
+  display: flex
+  flex-direction: column
+  gap: .25rem
+  margin-bottom: .5rem
+  font-size: 14px
+  input
+    width: 100%
+    min-width: 0
+    padding: .3rem .45rem
+    color: inherit
+    background: var(--input-background-color, transparent)
+    border: 1px solid var(--panel-border-color, #8194aa)
+    border-radius: 3px
+
+@media (max-width: 550px)
+  .graph-inspector
+    width: 190px
+    top: 75px

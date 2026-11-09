@@ -1,4 +1,5 @@
 import type { EntityExt } from "../extractions";
+import type { Relationship } from "./relationships";
 
 export interface InternalEntity extends EntityExt {
   term_type: string;
@@ -23,7 +24,12 @@ export interface Result {
   entities?: InternalEntity[];
 }
 
-export type TreeData = EntityExt;
+export interface TreeData extends EntityExt {
+  children: TreeData[];
+  /** Explicit outgoing edges, including cycles. Children remain paragraph
+   * annotation context and are never used to encode graph cycles. */
+  relationships?: Relationship[];
+}
 
 export interface ServerRelationship {
   src_name: string;
