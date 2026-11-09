@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.18.1] - 2026-11-09 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.18.0...@macrostrat/column-views-v3.18.1)
+
+### Patch Changes
+
+- Unit details popover opens beside the selected unit box, not at its left edge
+  [25defa17](https://github.com/UW-Macrostrat/web-components/commit/25defa174fb66dac6be997ab35f758df605f674a)
+
 ## [3.18.0] - 2026-10-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.17.0...@macrostrat/column-views-v3.18.0)
 
 ### Minor Changes
