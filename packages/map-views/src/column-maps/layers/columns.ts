@@ -31,13 +31,10 @@ export function BaseColumnsLayer({
   const colors = useColumnMapColors();
   const color = rest.color ?? colors.column;
   const selectedColor = rest.selectedColor ?? colors.hover;
-  useOverlayStyle(
-    () => {
-      if (!enabled) return null;
-      return buildColumnsStyle({ ...rest, color, selectedColor });
-    },
-    [enabled, color, selectedColor],
-  );
+  useOverlayStyle(() => {
+    if (!enabled) return null;
+    return buildColumnsStyle({ ...rest, color, selectedColor });
+  }, [enabled, color, selectedColor]);
 
   useMapStyleOperator(
     (map) => {
@@ -110,6 +107,10 @@ export function buildColumnsStyle(
 
   const circleRadius = opts.circleRadius ?? 4;
 
+  // A hovered column is filled in the hover color, not just outlined, so it
+  // reads at a glance against its neighbors.
+  const hoverFillOpacity = 0.4;
+
   return {
     sources: {
       columns: buildGeoJSONSource(),
@@ -121,8 +122,8 @@ export function buildColumnsStyle(
         type: "fill",
         source: "columns",
         paint: {
-          "fill-color": columnColor,
-          "fill-opacity": fillOpacity,
+          "fill-color": ["case", isHovered, columnSelectedColor, columnColor],
+          "fill-opacity": ["case", isHovered, hoverFillOpacity, fillOpacity],
         },
       },
       {
@@ -130,9 +131,14 @@ export function buildColumnsStyle(
         type: "circle",
         source: "columns",
         paint: {
-          "circle-radius": circleRadius,
-          "circle-color": columnColor,
-          "circle-opacity": fillOpacity,
+          "circle-radius": [
+            "case",
+            isHovered,
+            ["*", circleRadius, 1.5],
+            circleRadius,
+          ],
+          "circle-color": ["case", isHovered, columnSelectedColor, columnColor],
+          "circle-opacity": ["case", isHovered, 1.0, fillOpacity],
         },
         filter: ["==", "$type", "Point"],
       },
@@ -142,7 +148,7 @@ export function buildColumnsStyle(
         source: "columns",
         paint: {
           "line-color": ["case", isHovered, columnSelectedColor, lineColor],
-          "line-width": lineWidth,
+          "line-width": ["case", isHovered, ["+", lineWidth, 1], lineWidth],
           "line-opacity": ["case", isHovered, 1.0, lineOpacity],
         },
       },
