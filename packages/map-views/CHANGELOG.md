@@ -1,5 +1,12 @@
 # @macrostrat/map-views
 
+## [1.1.3] - 2026-11-09 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-views-v1.1.2...@macrostrat/map-views-v1.1.3)
+
+### Patch Changes
+
+- Column maps fill and enlarge the hovered column, not just recolor its outline
+  [a0d598d3](https://github.com/UW-Macrostrat/web-components/commit/a0d598d3a376f298ffd3b8e94b3631b69cfb9de8)
+
 ## [1.1.2] - 2026-10-08 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-views-v1.1.1...@macrostrat/map-views-v1.1.2)
 
 ### Patch Changes
