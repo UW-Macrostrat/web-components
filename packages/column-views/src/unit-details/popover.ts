@@ -1,5 +1,5 @@
 import hyper from "@macrostrat/hyper";
-import { Popover } from "@blueprintjs/core";
+import { PopoverNext } from "@blueprintjs/core";
 import styles from "./popover.module.sass";
 import {
   useAtomOverlayPosition,
@@ -31,25 +31,23 @@ export function UnitDetailsPopover({
 }) {
   const content = h(InteractionBarrier, children);
 
+  // Legacy `Popover` anchored to the box's left edge under React 19
   return h(
     "div.popover-main",
     {
       style,
     },
-    h(
-      Popover,
-      // @ts-ignore
-      {
-        content,
-        isOpen: true,
-        usePortal: false,
-        position: "right",
-        modifiers: {
-          preventOverflow: { options: { padding: viewportPadding } },
-        },
+    h(PopoverNext, {
+      content,
+      isOpen: true,
+      usePortal: false,
+      placement: "right",
+      middleware: {
+        shift: { padding: viewportPadding },
       },
-      h("span.popover-target"),
-    ),
+      renderTarget: ({ isOpen, ref, ...targetProps }) =>
+        h("span.popover-target", { ...targetProps, ref }),
+    }),
   );
 }
 
