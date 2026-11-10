@@ -7,7 +7,8 @@ export interface Relationship {
   id: RelationshipID;
   source: number;
   dest: number;
-  relationship_type: string | null;
+  /** Opaque metadata; never displayed or edited by the feedback interface. */
+  relationship_type?: string | null;
   relationship_type_id?: number | null;
 }
 
@@ -68,25 +69,26 @@ export function treeWithRelationships(
   return visit(tree);
 }
 
-export function relationshipError(
-  edge: Relationship,
-  nodes: TreeData[],
+/** Display each directed pair once, retaining every distinct parent.
+ * This projection must never be used as the save payload. */
+export function visibleConnections(
+  nodes: Pick<TreeData, "id">[],
   edges: Relationship[],
-  replacing?: RelationshipID,
-): string | null {
-  const ids = new Set(uniqueEntities(nodes).map((node) => node.id));
-  if (!ids.has(edge.source) || !ids.has(edge.dest)) {
-    return "Choose an existing source and target entity.";
-  }
-  if (!edge.relationship_type?.trim()) return "Choose a relationship type.";
-  if (
-    edges.some(
-      (other) => other.id !== replacing && sameRelationship(edge, other),
+): Relationship[] {
+  const ids = new Set(nodes.map((node) => node.id));
+  const seen = new Set<string>();
+  return edges.filter((edge) => {
+    if (
+      edge.source === edge.dest ||
+      !ids.has(edge.source) ||
+      !ids.has(edge.dest)
     )
-  ) {
-    return "This directed relationship already exists.";
-  }
-  return null;
+      return false;
+    const key = `${edge.source}:${edge.dest}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export function sameRelationship(a: Relationship, b: Relationship): boolean {

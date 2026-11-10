@@ -68,7 +68,7 @@ export interface FeedbackComponentProps {
   /** Directed edges; when omitted, legacy children are imported as untyped
    * edges. Pass [] to explicitly start with no relationships. */
   relationships?: Relationship[];
-  /** Suggested relationship types; unlisted names can also be entered. */
+  /** @deprecated Accepted for compatibility; relationship types are not shown or edited. */
   relationshipTypes?: RelationshipType[];
   /** Existing consumers can keep calling treeToGraph(tree): outgoing edge
    * metadata preserves types and cycles. The second argument is the same graph. */
@@ -96,7 +96,6 @@ export interface FeedbackComponentProps {
 // A stable default so an omitted `entities` prop does not read as new input on
 // every render (which would replace the working tree each time).
 const NO_ENTITIES: Entity[] = [];
-const NO_RELATIONSHIP_TYPES: RelationshipType[] = [];
 
 export function FeedbackComponent({
   entities = NO_ENTITIES,
@@ -107,7 +106,6 @@ export function FeedbackComponent({
   onSave,
   onSaveGraph,
   relationships,
-  relationshipTypes = NO_RELATIONSHIP_TYPES,
   allowOverlap,
   matchLinks,
   view = false,
@@ -255,7 +253,6 @@ export function FeedbackComponent({
             h(KGEditor, {
               tree,
               relationships: state.relationships,
-              relationshipTypes,
               dispatch,
               selectedNodes,
               viewOnly,

@@ -3,13 +3,7 @@ import { useState } from "react";
 import hyper from "@macrostrat/hyper";
 import { OverlaysProvider } from "@blueprintjs/core";
 import { FeedbackComponent, type GraphData } from "../src";
-import {
-  kgEntities,
-  kgEntityTypes,
-  kgRelationships,
-  kgRelationshipTypes,
-  kgText,
-} from "./kg-data";
+import { kgEntities, kgEntityTypes, kgRelationships, kgText } from "./kg-data";
 import styles from "./kg-editor.stories.module.sass";
 
 const h = hyper.styled(styles);
@@ -19,15 +13,14 @@ function KGExample({ view = false, empty = false, failSave = false }) {
   return h(
     OverlaysProvider,
     h("div.kg-story", [
-      h("h2", "Relationship feedback with cycles"),
+      h("h2", "Entities with multiple parents"),
       h(
         "p",
-        "Synthetic example: Formation → sandstone → Quartz → Formation is a cycle. Quartz has two parents; sandstone has repeated text spans and a self loop. Select an arrow, change its type, apply it, then Save to inspect the payload.",
+        "Synthetic example: sandstone and shale both point to the same Quartz entity. Connections are unlabeled and not editable. Select an entity to review its type or match, then Save to inspect the payload.",
       ),
       h(FeedbackComponent, {
         entities: kgEntities,
         relationships: empty ? NO_EDGES : kgRelationships,
-        relationshipTypes: kgRelationshipTypes,
         text: kgText,
         entityTypes: kgEntityTypes,
         termsEndpoint: null,
@@ -62,7 +55,7 @@ function KGExample({ view = false, empty = false, failSave = false }) {
         h(
           "pre",
           saved == null
-            ? "Edit a relationship or entity, then click Save."
+            ? "Edit an entity, then click Save."
             : JSON.stringify(saved, null, 2),
         ),
       ]),
@@ -77,7 +70,7 @@ export default {
 } satisfies Meta<typeof KGExample>;
 
 type Story = StoryObj<typeof KGExample>;
-export const CyclesAndRelationshipFeedback: Story = {};
+export const MultipleParents: Story = {};
 export const ViewOnly: Story = { args: { view: true } };
 export const StartWithoutRelationships: Story = { args: { empty: true } };
 export const FailedSaveRetainsEdits: Story = { args: { failSave: true } };

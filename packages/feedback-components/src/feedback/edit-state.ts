@@ -4,8 +4,6 @@ import update, { Spec } from "immutability-helper";
 import { EntityType } from "../extractions/types";
 import {
   type Relationship,
-  type RelationshipID,
-  relationshipError,
   relationshipsFromTree,
   sameRelationship,
   uniqueEntities,
@@ -38,9 +36,6 @@ type TextRange = {
 };
 
 type TreeAction =
-  | { type: "add-relationship"; payload: Relationship }
-  | { type: "update-relationship"; payload: Relationship }
-  | { type: "delete-relationship"; payload: { id: RelationshipID } }
   | {
       type: "move-node";
       payload: { dragIds: number[]; parentId: number; index: number };
@@ -181,37 +176,6 @@ export function treeReducer(state: TreeState, action: TreeAction): TreeState {
       state.initialRelationships,
     );
   }
-  if (
-    action.type === "add-relationship" ||
-    action.type === "update-relationship"
-  ) {
-    const edge = {
-      ...action.payload,
-      relationship_type: action.payload.relationship_type?.trim() ?? null,
-    };
-    const updating = action.type === "update-relationship";
-    const exists = state.relationships.some((item) => item.id === edge.id);
-    if (updating !== exists) return state;
-    let replacing: RelationshipID | undefined;
-    if (updating) replacing = edge.id;
-    if (relationshipError(edge, state.tree, state.relationships, replacing))
-      return state;
-    let relationships = [...state.relationships, edge];
-    if (updating)
-      relationships = state.relationships.map((item) =>
-        item.id === edge.id ? edge : item,
-      );
-    return { ...state, relationships };
-  }
-  if (action.type === "delete-relationship") {
-    return {
-      ...state,
-      relationships: state.relationships.filter(
-        (edge) => edge.id !== action.payload.id,
-      ),
-    };
-  }
-
   const next = annotationReducer(state, action);
   if (next.tree === state.tree) return next;
   const ids = new Set(uniqueEntities(next.tree).map((node) => node.id));

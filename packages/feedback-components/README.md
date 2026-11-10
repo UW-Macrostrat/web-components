@@ -1,102 +1,62 @@
 # Feedback components
 
-Components for user feedback and assessment of (often AI-extracted) information
+Components for user feedback and assessment of (often AI-extracted) information.
 
-## Knowledge graph feedback
+## Entity feedback with multiple parents
 
-`FeedbackComponent` replaces its tree/graph panel with a custom directed graph
-editor. The paragraph renderer, text selection/tagging, merged spans, entity
-type picker, match search and lexicon links use the existing components.
-Paragraph annotation children are retained as highlighting context; graph
-topology is stored independently and never recursively rendered as children.
+`FeedbackComponent` replaces its tree/graph panel with a KG view where an entity
+can have multiple parents. Connections are unlabeled and non-interactive: there
+is no relationship selection, type picker, or add/edit/delete control. The
+paragraph renderer, highlighting, text tagging, merged spans, entity-type
+picker, match search and lexicon links retain their existing behavior.
 
-Select an arrow or relationship row to correct its source, target or type.
-Choose a suggested type or enter a custom name, then **Apply relationship**.
-**Save** submits the complete edited graph; **Reset** restores the input.
-Deleting a relationship leaves its entities intact. Deleting an entity removes
-its incident edges. Merging entities redirects both endpoints and retains any
-resulting self loops. Multiple parents, reciprocal edges and different typed
-edges on the same pair are supported. Exact duplicate relationships are
-rejected.
+Select entities to edit their types or matches, or tag new spans in the
+paragraph. **Save** submits entity edits; **Reset** restores the input. Dragging
+nodes only changes the layout. Deleting an entity removes its incident
+connections; merging entities redirects connections to the surviving entity.
 
 ```ts
-import {
-  FeedbackComponent,
-  type GraphData,
-} from "@macrostrat/feedback-components";
-import "@macrostrat/feedback-components/style.css";
-
 h(FeedbackComponent, {
-  entities, // Existing paragraph entities with IDs, indices, spans and matches.
+  entities,
   text: paragraph_text,
-  entityTypes, // Map<number, EntityType>, as before.
+  entityTypes,
   relationships: [
-    {
-      id: "r1",
-      source: 1,
-      dest: 2,
-      relationship_type: "strat_name_to_lith",
-      relationship_type_id: 7,
-    },
-    {
-      id: "r2",
-      source: 2,
-      dest: 1,
-      relationship_type: "occurs_in",
-      relationship_type_id: 8,
-    },
+    { id: "r1", source: 1, dest: 3 },
+    { id: "r2", source: 2, dest: 3 }, // Entity 3 has two parents.
   ],
-  relationshipTypes: [
-    {
-      id: 7,
-      name: "strat_name_to_lith",
-      description: "Formation has lithology",
-    },
-    { id: 8, name: "occurs_in", description: "Entity occurs in formation" },
-  ],
-  onSaveGraph: async (graph: GraphData) => {
+  onSaveGraph: async (graph) => {
     await saveGraph(graph); // Your persistence callback; throw on failure.
   },
 });
 ```
 
-Edge IDs must be unique within a run; `source` and `dest` reference entity IDs.
-Relationship-type IDs in this example and the Stories are illustrative. Supply
-the actual vocabulary IDs from your API. A custom name gets a null type ID, so
-the save consumer must resolve or validate it if its API requires an ID.
+Relationship IDs are unique within a run; endpoints reference entity IDs. Omit
+`relationships` to import legacy tree children, or pass `[]` for an explicitly
+edgeless graph. Supply the original edge list when available so an upstream tree
+conversion does not lose additional parents. Repeated node IDs are displayed
+once, with all their incoming connections.
 
-Omit `relationships` to import old tree children as untyped edges, or pass `[]`
-for an explicitly edgeless graph. Pass the original edge list to preserve
-relationships that an upstream tree projection would discard. Do not encode a
-cycle by making `children` refer back to an ancestor.
+Self-loops are hidden. Multiple records on the same directed pair are displayed
+as one connection. These are display-only filters: existing relationship records
+and any type metadata pass through saves, including hidden self-loops. The
+interface does not request, show, or modify relationship-type feedback. The old
+`relationshipTypes` prop is accepted but ignored for compatibility.
 
 `onSaveGraph(graph)` receives `{ nodes, edges }` and takes precedence over
-`onSave`. Existing `onSave(tree)` consumers that call **the updated**
-`treeToGraph(tree)` still receive every edge and its type: each saved entity
-carries explicit outgoing `relationships` metadata. An optional second
-`onSave(tree, graph)` argument contains the graph directly. Serializing and
-reloading the annotated tree also preserves edges; edge ordering may change.
-Code that reconstructs edges solely from `children` must instead use the graph
-callback or updated converter. `GraphData.nodes[].children` is empty; use
-`edges` for topology. No API requests are made by the editor's save callback
-itself.
-
-For `UW-Macrostrat/web`, `feedback-api.ts` already calls `treeToGraph` for
-create and overwrite. Updating this package therefore includes edge metadata in
-those request payloads. The app must additionally pass the run's original
-relationships and relationship vocabulary to the component to display their
-existing types/cycles. The graph API must accept and persist `relationship_type`
-and/or `relationship_type_id`; this component patch does not change or validate
-that server contract.
+`onSave`. Existing `onSave(tree)` consumers can keep calling the updated
+`treeToGraph(tree)`: explicit outgoing `relationships` metadata preserves all
+parents and original edge metadata. The optional second `onSave(tree, graph)`
+argument contains the same graph. Do not reconstruct connections solely from
+`children` or save the filtered display projection. `GraphData.nodes[].children`
+is empty; use `edges`. No API requests are made by the component itself.
 
 ## Stories and checks
 
-Run `yarn dev` and open **Text extractions → Knowledge graph editor → Cycles And
-Relationship Feedback**. The Story shows synthetic input data and the last saved
-JSON. It includes a three-node cycle, two parents for one entity, reciprocal and
-parallel typed edges, a self loop, repeated text spans and a matched lithology.
-Companion Stories cover read-only mode, an edgeless start and a rejected save
-that retains edits. They do not write to an API.
+Run `yarn dev` and open **Text extractions → Knowledge graph editor → Multiple
+Parents**. Sandstone and shale both point to one Quartz entity; the example also
+includes repeated text spans and a matched lithology. Input data and the last
+saved JSON are shown. Companion Stories cover read-only mode, an edgeless start
+and a rejected save that retains entity edits. They do not write to an API.
 
 ```bash
 yarn node --import tsx --test packages/feedback-components/tests/kg-editor.test.ts
