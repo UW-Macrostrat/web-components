@@ -4,7 +4,11 @@ import update, { Spec } from "immutability-helper";
 import { EntityType } from "../extractions/types";
 import {
   type Relationship,
+  type RelationshipID,
+  type Connection,
+  connectionError,
   relationshipsFromTree,
+  sameConnection,
   sameRelationship,
   uniqueEntities,
 } from "./relationships";
@@ -18,6 +22,11 @@ export interface TreeState {
   initialTree: TreeData[];
   tree: TreeData[];
   selectedNodes: number[];
+  selectedRelationship: RelationshipID | null;
+  connectionMode: boolean;
+  connectionSource: number | null;
+  movingEndpoint: "source" | "dest" | null;
+  connectionNotice: string | null;
   entityTypesMap: Map<number, EntityType>;
   selectedEntityType: EntityType;
   lastInternalId: number;
@@ -36,6 +45,19 @@ type TextRange = {
 };
 
 type TreeAction =
+  | { type: "set-connection-mode"; payload: boolean }
+  | { type: "pick-connection-node"; payload: { id: number } }
+  | {
+      type: "start-relationship-move";
+      payload: { id: RelationshipID; endpoint: "source" | "dest" };
+    }
+  | { type: "select-relationship"; payload: { id: RelationshipID } }
+  | { type: "add-relationship"; payload: Connection }
+  | {
+      type: "move-relationship";
+      payload: Connection & { id: RelationshipID };
+    }
+  | { type: "delete-relationship"; payload: { id: RelationshipID } }
   | {
       type: "move-node";
       payload: { dragIds: number[]; parentId: number; index: number };
@@ -124,6 +146,11 @@ export function createFeedbackState(
     initialTree,
     tree: initialTree,
     selectedNodes,
+    selectedRelationship: null,
+    connectionMode: false,
+    connectionSource: null,
+    movingEndpoint: null,
+    connectionNotice: null,
     entityTypesMap: entityTypes,
     selectedEntityType: type,
     lastInternalId: Math.min(
@@ -154,7 +181,16 @@ export function useTreeDispatch() {
 export function treeReducer(state: TreeState, action: TreeAction): TreeState {
   if (action.type === "set-view-only") {
     if (state.viewOnly === action.payload) return state;
-    return { ...state, viewOnly: action.payload, selectedNodes: [] };
+    return {
+      ...state,
+      viewOnly: action.payload,
+      selectedNodes: [],
+      selectedRelationship: null,
+      connectionMode: false,
+      connectionSource: null,
+      movingEndpoint: null,
+      connectionNotice: null,
+    };
   }
   if (action.type === "replace-tree") {
     return createFeedbackState(
@@ -167,6 +203,157 @@ export function treeReducer(state: TreeState, action: TreeAction): TreeState {
   }
   if (state.viewOnly) return annotationReducer(state, action);
 
+  switch (action.type) {
+    case "set-connection-mode":
+      return {
+        ...state,
+        connectionMode: action.payload,
+        connectionSource: null,
+        movingEndpoint: null,
+        connectionNotice: null,
+        selectedNodes: [],
+        selectedRelationship: null,
+      };
+    case "start-relationship-move": {
+      if (!state.relationships.some((edge) => edge.id === action.payload.id))
+        return state;
+      return {
+        ...state,
+        // Endpoint changes are relationship editing even if begun in entity mode.
+        connectionMode: true,
+        connectionSource: null,
+        movingEndpoint: action.payload.endpoint,
+        connectionNotice: null,
+        selectedNodes: [],
+        selectedRelationship: action.payload.id,
+      };
+    }
+    case "pick-connection-node": {
+      const nodes = uniqueEntities(state.tree);
+      const { id } = action.payload;
+      if (!nodes.some((node) => node.id === id)) return state;
+      if (state.movingEndpoint != null) {
+        const original = state.relationships.find(
+          (edge) => edge.id === state.selectedRelationship,
+        );
+        if (!original) return state;
+        const connection = { ...original, [state.movingEndpoint]: id };
+        const error = connectionError(
+          nodes,
+          state.relationships,
+          connection,
+          original,
+        );
+        if (error) return { ...state, connectionNotice: error };
+        const next = treeReducer(state, {
+          type: "move-relationship",
+          payload: connection,
+        });
+        return {
+          ...next,
+          // Resume ordinary relationship editing after the replacement click.
+          connectionMode: true,
+          connectionSource: null,
+          movingEndpoint: null,
+          connectionNotice: null,
+        };
+      }
+      if (!state.connectionMode) return state;
+      if (state.connectionSource == null)
+        return { ...state, connectionSource: id, connectionNotice: null };
+      const connection = { source: state.connectionSource, dest: id };
+      const error = connectionError(nodes, state.relationships, connection);
+      if (error) return { ...state, connectionNotice: error };
+      const next = treeReducer(state, {
+        type: "add-relationship",
+        payload: connection,
+      });
+      return {
+        ...next,
+        connectionSource: null,
+        selectedRelationship: null,
+        connectionNotice: "Connection added.",
+      };
+    }
+    case "select-relationship": {
+      if (!state.relationships.some((edge) => edge.id === action.payload.id))
+        return state;
+      return {
+        ...state,
+        selectedNodes: [],
+        selectedRelationship: action.payload.id,
+        connectionMode: state.connectionMode,
+        connectionSource: null,
+        movingEndpoint: null,
+        connectionNotice: null,
+      };
+    }
+    case "add-relationship": {
+      const { source, dest } = action.payload;
+      if (
+        connectionError(
+          uniqueEntities(state.tree),
+          state.relationships,
+          action.payload,
+        )
+      )
+        return state;
+      const ids = new Set(state.relationships.map((edge) => edge.id));
+      let index = 1;
+      while (ids.has(`connection:${index}`)) index++;
+      const edge: Relationship = { id: `connection:${index}`, source, dest };
+      return {
+        ...state,
+        relationships: [...state.relationships, edge],
+        selectedNodes: [],
+        selectedRelationship: edge.id,
+      };
+    }
+    case "move-relationship":
+    case "delete-relationship": {
+      const original = state.relationships.find(
+        (edge) => edge.id === action.payload.id,
+      );
+      if (!original) return state;
+      if (action.type === "delete-relationship") {
+        // One visible arrow may represent several typed records. Edit the
+        // entire pair so a hidden duplicate cannot make an arrow reappear.
+        return {
+          ...state,
+          relationships: state.relationships.filter(
+            (edge) => !sameConnection(edge, original),
+          ),
+          selectedNodes: [],
+          selectedRelationship: null,
+          connectionMode: state.connectionMode,
+          connectionSource: null,
+          movingEndpoint: null,
+          connectionNotice: null,
+        };
+      }
+      const { source, dest } = action.payload;
+      if (
+        sameConnection(original, action.payload) ||
+        connectionError(
+          uniqueEntities(state.tree),
+          state.relationships,
+          action.payload,
+          original,
+        )
+      )
+        return state;
+      return {
+        ...state,
+        relationships: state.relationships.map((edge) => {
+          if (!sameConnection(edge, original)) return edge;
+          return { ...edge, source, dest };
+        }),
+        selectedNodes: [],
+        selectedRelationship: original.id,
+      };
+    }
+  }
+
   if (action.type === "reset") {
     return createFeedbackState(
       state.initialTree,
@@ -176,7 +363,16 @@ export function treeReducer(state: TreeState, action: TreeAction): TreeState {
       state.initialRelationships,
     );
   }
-  const next = annotationReducer(state, action);
+  let next = annotationReducer(state, action);
+  if (next.selectedNodes !== state.selectedNodes)
+    next = {
+      ...next,
+      selectedRelationship: null,
+      connectionMode: false,
+      connectionSource: null,
+      movingEndpoint: null,
+      connectionNotice: null,
+    };
   if (next.tree === state.tree) return next;
   const ids = new Set(uniqueEntities(next.tree).map((node) => node.id));
   let relationships = state.relationships;
@@ -198,12 +394,24 @@ export function treeReducer(state: TreeState, action: TreeAction): TreeState {
       (edge) => ids.has(edge.source) && ids.has(edge.dest),
     );
   }
-  return { ...next, relationships };
+  let selectedRelationship = next.selectedRelationship;
+  if (!relationships.some((edge) => edge.id === selectedRelationship))
+    selectedRelationship = null;
+  return { ...next, relationships, selectedRelationship };
 }
 
 function annotationReducer(state: TreeState, action: TreeAction): TreeState {
   if (action.type === "toggle-view-only") {
-    return { ...state, viewOnly: !state.viewOnly, selectedNodes: [] };
+    return {
+      ...state,
+      viewOnly: !state.viewOnly,
+      selectedNodes: [],
+      selectedRelationship: null,
+      connectionMode: false,
+      connectionSource: null,
+      movingEndpoint: null,
+      connectionNotice: null,
+    };
   }
 
   if (action.type === "replace-tree") {

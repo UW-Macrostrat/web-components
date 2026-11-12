@@ -7,6 +7,7 @@ import type { TreeData } from "./types";
 import type { TreeDispatch } from "./edit-state";
 import {
   type Relationship,
+  type RelationshipID,
   uniqueEntities,
   visibleConnections,
 } from "./relationships";
@@ -29,6 +30,11 @@ interface KGEditorProps {
   tree: TreeData[];
   relationships: Relationship[];
   selectedNodes: number[];
+  selectedRelationship: RelationshipID | null;
+  connectionMode: boolean;
+  connectionSource: number | null;
+  movingEndpoint: "source" | "dest" | null;
+  connectionNotice: string | null;
   dispatch: TreeDispatch;
   viewOnly: boolean;
   matchComponent?: MatchComponent;
@@ -36,12 +42,16 @@ interface KGEditorProps {
   resetKey: unknown;
 }
 
-/** Edit entities while showing their existing multi-parent connections.
- * Connections are unlabeled and cannot be selected or edited. */
+/** Click entities to connect them; select an arrow to reconnect or delete it. */
 export function KGEditor({
   tree,
   relationships,
   selectedNodes,
+  selectedRelationship,
+  connectionMode,
+  connectionSource,
+  movingEndpoint,
+  connectionNotice,
   dispatch,
   viewOnly,
   resetKey,
@@ -52,11 +62,37 @@ export function KGEditor({
     [nodes, relationships],
   );
   const highlights = useMemo(() => buildHighlights(tree, null), [tree]);
+  const selectedConnection = connections.find(
+    (edge) => edge.id === selectedRelationship,
+  );
+  // Endpoint picking is always presented as Relationship mode, even if a
+  // parent state still has the entity-mode flag during the transition.
+  const relationshipMode = connectionMode || movingEndpoint != null;
+  const picking = !viewOnly && relationshipMode;
+  const entityName = (id: number) =>
+    nodes.find((node) => node.id === id)?.name ?? "entity";
+  let instruction = "Click the source entity, then the destination.";
+  if (connectionSource != null)
+    instruction = `From ${entityName(connectionSource)} → click the destination.`;
+  if (movingEndpoint === "source") instruction = "Click the new source entity.";
+  if (movingEndpoint === "dest")
+    instruction = "Click the new destination entity.";
+
+  function clearSelection() {
+    dispatch({ type: "deselect" });
+  }
+
+  function deleteConnection(edge: Relationship) {
+    if (viewOnly || !edge) return;
+    dispatch({ type: "delete-relationship", payload: { id: edge.id } });
+  }
+
   // Use the same entity/parent emphasis as the paragraph.
   const highlightedIDs = new Set(
     highlights
       .filter(
         (tag) =>
+          picking ||
           selectedNodes.length === 0 ||
           selectedNodes.includes(tag.id) ||
           tag.parents?.some((id) => selectedNodes.includes(id)),
@@ -69,6 +105,10 @@ export function KGEditor({
     event: React.MouseEvent | React.KeyboardEvent,
   ) {
     if (viewOnly) return;
+    if (picking) {
+      dispatch({ type: "pick-connection-node", payload: { id } });
+      return;
+    }
     if (
       event.ctrlKey ||
       event.metaKey ||
@@ -85,40 +125,176 @@ export function KGEditor({
     }
   }
 
-  return h("section.kg-editor", { "aria-label": "Knowledge graph editor" }, [
-    h("div.kg-toolbar", [
-      h("strong", "Knowledge graph"),
-      h(
-        "span.kg-count",
-        `${nodes.length} entities · ${connections.length} connections`,
+  return h(
+    "section.kg-editor",
+    {
+      "aria-label": "Knowledge graph editor",
+      onKeyDown(event) {
+        if (event.key === "Escape") {
+          event.stopPropagation();
+          clearSelection();
+        }
+      },
+    },
+    [
+      h("div.kg-toolbar", [
+        h("strong", "Knowledge graph"),
+        h(
+          "span.kg-count",
+          `${nodes.length} entities · ${connections.length} connections`,
+        ),
+        h.if(!viewOnly)(
+          "div.kg-mode-switch",
+          {
+            role: "group",
+            "aria-label": "Graph editing mode",
+            "data-mode": relationshipMode ? "relationship" : "entity",
+          },
+          [
+            h("div.kg-mode-current", [
+              h("span.kg-mode-label", "Current mode"),
+              h(
+                "strong.kg-mode-name",
+                relationshipMode ? "Relationship" : "Entity",
+              ),
+            ]),
+            h(
+              Button,
+              {
+                icon: relationshipMode ? "edit" : "link",
+                small: true,
+                outlined: true,
+                disabled: !relationshipMode && nodes.length < 2,
+                "aria-label": `Switch to ${relationshipMode ? "Entity" : "Relationship"} mode`,
+                onClick() {
+                  dispatch({
+                    type: "set-connection-mode",
+                    payload: !relationshipMode,
+                  });
+                },
+              },
+              `Switch to ${relationshipMode ? "Entity" : "Relationship"} mode`,
+            ),
+          ],
+        ),
+      ]),
+      h.if(!viewOnly && !picking)(
+        "div.kg-mode-help",
+        "Entity mode: click entities to select and edit them.",
       ),
-    ]),
-    h("div.kg-body", [
-      h(GraphCanvas, {
-        nodes,
-        relationships: connections,
-        selectedNodes,
-        highlightedIDs,
-        selectNode,
-        resetKey,
-        onClear() {
-          dispatch({ type: "deselect" });
+      h.if(picking)("div.kg-connection-status", [
+        h("span", { role: "status", "aria-live": "polite" }, [
+          h.if(connectionNotice != null)("strong", connectionNotice + " "),
+          instruction,
+        ]),
+        h(
+          Button,
+          { small: true, minimal: true, onClick: clearSelection },
+          "Cancel",
+        ),
+      ]),
+      h.if(!viewOnly && selectedConnection != null)(
+        "div.kg-connection-actions",
+        {
+          role: "group",
+          "aria-label": "Selected connection",
         },
-        onDelete() {
-          if (!viewOnly)
-            dispatch({ type: "delete-node", payload: { ids: selectedNodes } });
-        },
-      }),
-    ]),
-  ]);
+        [
+          h(
+            "strong.kg-connection-label",
+            `${entityName(selectedConnection?.source)} → ${entityName(selectedConnection?.dest)}`,
+          ),
+          h(
+            Button,
+            {
+              small: true,
+              active: movingEndpoint === "source",
+              onClick() {
+                dispatch({
+                  type: "start-relationship-move",
+                  payload: { id: selectedConnection.id, endpoint: "source" },
+                });
+              },
+            },
+            "Change source",
+          ),
+          h(
+            Button,
+            {
+              small: true,
+              active: movingEndpoint === "dest",
+              onClick() {
+                dispatch({
+                  type: "start-relationship-move",
+                  payload: { id: selectedConnection.id, endpoint: "dest" },
+                });
+              },
+            },
+            "Change destination",
+          ),
+          h(
+            Button,
+            {
+              small: true,
+              icon: "trash",
+              intent: "danger",
+              onClick: () => deleteConnection(selectedConnection),
+            },
+            "Delete connection",
+          ),
+          h(
+            Button,
+            { small: true, minimal: true, onClick: clearSelection },
+            "Close",
+          ),
+        ],
+      ),
+      h("div.kg-body", [
+        h(GraphCanvas, {
+          nodes,
+          relationships: connections,
+          selectedNodes,
+          selectedRelationship,
+          connectionSource,
+          picking,
+          viewOnly,
+          highlightedIDs,
+          selectNode,
+          selectConnection(edge: Relationship) {
+            if (viewOnly) return;
+            dispatch({ type: "select-relationship", payload: { id: edge.id } });
+          },
+          deleteConnection,
+          resetKey,
+          onClear: clearSelection,
+          onDelete() {
+            if (viewOnly) return;
+            if (selectedConnection) deleteConnection(selectedConnection);
+            else if (picking) clearSelection();
+            else
+              dispatch({
+                type: "delete-node",
+                payload: { ids: selectedNodes },
+              });
+          },
+        }),
+      ]),
+    ],
+  );
 }
 
 function GraphCanvas({
   nodes,
   relationships,
   selectedNodes,
+  selectedRelationship,
+  connectionSource,
+  picking,
+  viewOnly,
   highlightedIDs,
   selectNode,
+  selectConnection,
+  deleteConnection,
   resetKey,
   onClear,
   onDelete,
@@ -129,11 +305,9 @@ function GraphCanvas({
   const [viewport, setViewport] = useState({ width: 800, height: 400 });
   const viewportRef = useRef(viewport);
   const [arrangement, setArrangement] = useState(0);
-  const topology = JSON.stringify([
-    nodes.map((node) => node.id),
-    relationships.map((edge) => [edge.source, edge.dest]),
-  ]);
-  // Entity selection, labels and colors must not restart the layout.
+  const topology = JSON.stringify(nodes.map((node) => node.id));
+  // Use current connections when arranging or changing entities. Editing
+  // connections must keep node positions and the camera stable for rapid clicks.
   const defaults = useMemo(
     () =>
       initialPositions(
@@ -339,6 +513,10 @@ function GraphCanvas({
         "span.kg-help",
         "Drag background to pan · Scroll to zoom at pointer · Ctrl/⌘-click to select more",
       ),
+      h.if(!viewOnly)(
+        "span.kg-help",
+        "Click a connection to move or delete it.",
+      ),
     ]),
     h(
       "svg.kg-svg",
@@ -346,7 +524,7 @@ function GraphCanvas({
         ref: svgRef,
         viewBox: `${camera.x} ${camera.y} ${viewport.width / camera.scale} ${viewport.height / camera.scale}`,
         preserveAspectRatio: "none",
-        className: classNames({ panning }),
+        className: classNames({ panning, picking }),
         tabIndex: 0,
         role: "group",
         "aria-label": "Directed knowledge graph",
@@ -365,7 +543,10 @@ function GraphCanvas({
           if (event.target === event.currentTarget) onClear();
         },
         onKeyDown(event) {
-          if (event.key === "Escape") onClear();
+          if (event.key === "Escape") {
+            event.stopPropagation();
+            onClear();
+          }
           if (event.key === "Delete" || event.key === "Backspace") {
             event.preventDefault();
             onDelete();
@@ -426,12 +607,56 @@ function GraphCanvas({
         ...relationships.map((edge) => {
           const geometry = edgeGeometry(edge, relationships, actual);
           if (!geometry) return null;
-          return h("path.kg-edge-line", {
-            key: `${edge.source}:${edge.dest}`,
-            d: geometry.path,
-            markerEnd: `url(#${arrowId})`,
-            "aria-hidden": true,
-          });
+          const active = edge.id === selectedRelationship;
+          const source = nodes.find((node) => node.id === edge.source)?.name;
+          const dest = nodes.find((node) => node.id === edge.dest)?.name;
+          return h(
+            "g.kg-edge",
+            {
+              key: edge.id,
+              className: classNames({ active, editable: !viewOnly }),
+              role: viewOnly ? "img" : "button",
+              tabIndex: viewOnly ? undefined : 0,
+              "aria-label": `${source} → ${dest}`,
+              "aria-pressed": viewOnly ? undefined : active,
+              onPointerDown(event) {
+                if (viewOnly || event.button !== 0) return;
+                event.stopPropagation();
+                suppressClick.current = false;
+                (event.currentTarget as SVGElement).focus({
+                  preventScroll: true,
+                });
+              },
+              onClick(event) {
+                event.stopPropagation();
+                if (!suppressClick.current) selectConnection(edge);
+                suppressClick.current = false;
+              },
+              onKeyDown(event) {
+                if (event.key === "Delete" || event.key === "Backspace") {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  deleteConnection(edge);
+                  return;
+                }
+                if (event.key !== "Enter" && event.key !== " ") return;
+                event.preventDefault();
+                selectConnection(edge);
+              },
+            },
+            [
+              h("title", `${source} → ${dest}`),
+              h("path.kg-edge-hit", {
+                d: geometry.path,
+                vectorEffect: "non-scaling-stroke",
+              }),
+              h("path.kg-edge-line", {
+                d: geometry.path,
+                markerEnd: `url(#${arrowId})`,
+                "aria-hidden": true,
+              }),
+            ],
+          );
         }),
         ...nodes.map((node) => {
           const p = actual.get(node.id)!;
@@ -445,14 +670,24 @@ function GraphCanvas({
               transform: `translate(${p.x}, ${p.y})`,
               className: classNames({
                 active,
+                "connection-source": picking && node.id === connectionSource,
                 matched: node.match != null,
                 dimmed: !highlightedIDs.has(node.id),
               }),
               role: "button",
               tabIndex: 0,
               "aria-label": `${node.name}, ${node.type?.name ?? "entity"}`,
-              "aria-pressed": active,
+              "aria-pressed":
+                active || (picking && node.id === connectionSource),
               onPointerDown(event) {
+                if (picking && event.button === 0) {
+                  event.stopPropagation();
+                  suppressClick.current = false;
+                  (event.currentTarget as SVGElement).focus({
+                    preventScroll: true,
+                  });
+                  return;
+                }
                 if (event.button === 0) startDrag(event, "node", node.id);
               },
               onClick(event) {

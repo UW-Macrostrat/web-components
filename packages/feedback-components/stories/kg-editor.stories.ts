@@ -16,7 +16,7 @@ function KGExample({ view = false, empty = false, failSave = false }) {
       h("h2", "Entities with multiple parents"),
       h(
         "p",
-        "Synthetic example: sandstone and shale both point to the same Quartz entity. Connections are unlabeled and not editable. Select an entity to review its type or match, then Save to inspect the payload.",
+        "Synthetic example: sandstone and shale both point to the same Quartz entity. Turn on Relationship mode, then click a source and destination to connect them. Click an arrow to delete it or change an endpoint. Save to inspect the payload.",
       ),
       h(FeedbackComponent, {
         entities: kgEntities,
@@ -55,7 +55,7 @@ function KGExample({ view = false, empty = false, failSave = false }) {
         h(
           "pre",
           saved == null
-            ? "Edit an entity, then click Save."
+            ? "Edit an entity or connection, then click Save."
             : JSON.stringify(saved, null, 2),
         ),
       ]),

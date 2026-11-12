@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.0.1] - 2026-11-12
+
+- Relationship editing mode
+
 ## [3.0.0] - 2026-11-9
 
 - Replaced tree/graph panel with a custom KG editor
