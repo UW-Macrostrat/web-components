@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.0.0] - 2026-11-9
+
+- Replaced tree/graph panel with a custom KG editor
+- Multi-parented entities allowed
+
 ## [2.3.1] - 2026-09-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/feedback-components-v2.3.0...@macrostrat/feedback-components-v2.3.1)
 
 ### Patch Changes

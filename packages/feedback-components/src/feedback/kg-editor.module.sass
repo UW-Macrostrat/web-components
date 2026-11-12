@@ -1,0 +1,98 @@
+.kg-editor
+  display: flex
+  flex-direction: column
+  height: 100%
+  min-height: 0
+  color: var(--text-color, #273644)
+
+.kg-toolbar
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  gap: .6rem
+  padding-bottom: .6rem
+
+.kg-count, .kg-help
+  color: var(--text-muted-color, #667583)
+  font-size: .85em
+
+.kg-count
+  margin-right: auto
+
+.kg-body
+  display: grid
+  grid-template-columns: minmax(0, 1fr)
+  flex: 1
+  min-height: 0
+  gap: .75rem
+
+.kg-canvas
+  min-width: 0
+  min-height: 0
+  display: flex
+  flex-direction: column
+  border: 1px solid var(--panel-border-color, #ccd3db)
+  border-radius: 6px
+  background: var(--panel-background-color, #fff)
+
+.kg-canvas-controls
+  display: flex
+  flex-wrap: wrap
+  gap: .4rem
+  align-items: center
+  padding: .4rem
+
+.kg-svg
+  width: 100%
+  flex: 1
+  min-height: 0
+  touch-action: none
+  user-select: none
+  cursor: grab
+
+  &.panning
+    cursor: grabbing
+
+.kg-edge-line
+  fill: none
+  stroke: var(--text-muted-color, #6b7b8b)
+  stroke-width: 1.8
+  pointer-events: none
+
+.kg-arrow
+  fill: var(--text-muted-color, #6b7b8b)
+
+.kg-node
+  cursor: grab
+
+  &.dimmed
+    opacity: .35
+
+  &:active
+    cursor: grabbing
+
+  &.matched .kg-node-box
+    stroke: orange
+
+  &.active .kg-node-box, &:focus .kg-node-box
+    stroke: #2d72d2
+    stroke-width: 3
+
+.kg-node-box
+  fill: var(--panel-background-color, #fff)
+  stroke: var(--panel-border-color, #9aabbc)
+  stroke-width: 1.5
+
+.kg-node-name, .kg-node-type, .kg-empty
+  text-anchor: middle
+  pointer-events: none
+  fill: var(--text-color, #273644)
+
+.kg-node-name
+  font-size: 11px
+  font-weight: 600
+
+.kg-node-type
+  font-size: 10px
+  fill: var(--text-muted-color, #667583)
+

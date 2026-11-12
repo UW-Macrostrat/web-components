@@ -2,13 +2,19 @@ import { TreeData } from "./types";
 import { createContext, Dispatch, useContext, useReducer } from "react";
 import update, { Spec } from "immutability-helper";
 import { EntityType } from "../extractions/types";
+import {
+  type Relationship,
+  relationshipsFromTree,
+  sameRelationship,
+  uniqueEntities,
+} from "./relationships";
 
 export enum ViewMode {
   Tree = "tree",
   Graph = "graph",
 }
 
-interface TreeState {
+export interface TreeState {
   initialTree: TreeData[];
   tree: TreeData[];
   selectedNodes: number[];
@@ -18,6 +24,9 @@ interface TreeState {
   isSelectingEntityType: boolean;
   viewMode: ViewMode;
   viewOnly: boolean;
+  relationships: Relationship[];
+  initialRelationships: Relationship[];
+  initialEntityTypes: Map<number, EntityType>;
 }
 
 type TextRange = {
@@ -61,8 +70,13 @@ type TreeAction =
   | {
       /** Replace the tree wholesale (new input data); clears the selection. */
       type: "replace-tree";
-      payload: { tree: TreeData[] };
+      payload: {
+        tree: TreeData[];
+        relationships?: Relationship[];
+        entityTypes?: Map<number, EntityType>;
+      };
     }
+  | { type: "set-view-only"; payload: boolean }
   | { type: "toggle-view-only" };
 
 export type TreeDispatch = Dispatch<TreeAction>;
@@ -72,7 +86,26 @@ export function useUpdatableTree(
   entityTypes: Map<number, EntityType>,
   viewOnly: boolean,
   autoSelect: string[] = [],
+  relationships?: Relationship[],
 ): [TreeState, TreeDispatch] {
+  return useReducer(treeReducer, null, () =>
+    createFeedbackState(
+      initialTree,
+      entityTypes,
+      viewOnly,
+      autoSelect,
+      relationships,
+    ),
+  );
+}
+
+export function createFeedbackState(
+  initialTree: TreeData[],
+  entityTypes: Map<number, EntityType>,
+  viewOnly = false,
+  autoSelect: string[] = [],
+  relationships = relationshipsFromTree(initialTree),
+): TreeState {
   // Get the first entity type
   // issue: grabs second entity instead of selected one
   const type = entityTypes.values().next().value;
@@ -82,23 +115,29 @@ export function useUpdatableTree(
 
   if (autoSelect.length > 0) {
     // If autoSelect is provided, find the nodes with the matching names
-    selectedNodes = initialTree
-      .flatMap((node) => node.children ?? [])
+    selectedNodes = uniqueEntities(initialTree)
       .filter((node) => autoSelect.includes(node.name.toLowerCase()))
       .map((node) => node.id);
   }
 
-  return useReducer(treeReducer, {
+  return {
     initialTree,
     tree: initialTree,
     selectedNodes,
     entityTypesMap: entityTypes,
     selectedEntityType: type,
-    lastInternalId: 0,
+    lastInternalId: Math.min(
+      0,
+      ...uniqueEntities(initialTree).map((node) => node.id),
+      ...entityTypes.keys(),
+    ),
     isSelectingEntityType: false,
     viewMode: ViewMode.Tree,
     viewOnly,
-  });
+    relationships,
+    initialRelationships: relationships,
+    initialEntityTypes: entityTypes,
+  };
 }
 
 export const TreeDispatchContext = createContext<TreeDispatch | null>(null);
@@ -111,7 +150,58 @@ export function useTreeDispatch() {
   return dispatch;
 }
 
-function treeReducer(state: TreeState, action: TreeAction) {
+/** Graph topology is independent of the paragraph's annotation hierarchy. */
+export function treeReducer(state: TreeState, action: TreeAction): TreeState {
+  if (action.type === "set-view-only") {
+    if (state.viewOnly === action.payload) return state;
+    return { ...state, viewOnly: action.payload, selectedNodes: [] };
+  }
+  if (action.type === "replace-tree") {
+    return createFeedbackState(
+      action.payload.tree,
+      action.payload.entityTypes ?? state.entityTypesMap,
+      state.viewOnly,
+      [],
+      action.payload.relationships,
+    );
+  }
+  if (state.viewOnly) return annotationReducer(state, action);
+
+  if (action.type === "reset") {
+    return createFeedbackState(
+      state.initialTree,
+      state.initialEntityTypes,
+      state.viewOnly,
+      [],
+      state.initialRelationships,
+    );
+  }
+  const next = annotationReducer(state, action);
+  if (next.tree === state.tree) return next;
+  const ids = new Set(uniqueEntities(next.tree).map((node) => node.id));
+  let relationships = state.relationships;
+  if (action.type === "merge-nodes") {
+    const mergedIds = action.payload?.ids ?? state.selectedNodes;
+    const survivor = next.selectedNodes[0];
+    relationships = relationships.map((edge) => ({
+      ...edge,
+      source: mergedIds.includes(edge.source) ? survivor : edge.source,
+      dest: mergedIds.includes(edge.dest) ? survivor : edge.dest,
+    }));
+    relationships = relationships.filter(
+      (edge, index, all) =>
+        !all.slice(0, index).some((other) => sameRelationship(edge, other)),
+    );
+  }
+  if (action.type === "delete-node") {
+    relationships = relationships.filter(
+      (edge) => ids.has(edge.source) && ids.has(edge.dest),
+    );
+  }
+  return { ...next, relationships };
+}
+
+function annotationReducer(state: TreeState, action: TreeAction): TreeState {
   if (action.type === "toggle-view-only") {
     return { ...state, viewOnly: !state.viewOnly, selectedNodes: [] };
   }
@@ -188,7 +278,10 @@ function treeReducer(state: TreeState, action: TreeAction) {
       const startIndex = allNodes.findIndex((node) => node.id === node1);
       const endIndex = allNodes.findIndex((node) => node.id === node2);
 
-      const selectedNodes = allNodes.slice(startIndex, endIndex + 1);
+      const selectedNodes = allNodes.slice(
+        Math.min(startIndex, endIndex),
+        Math.max(startIndex, endIndex) + 1,
+      );
 
       return {
         ...state,
@@ -381,6 +474,7 @@ function treeReducer(state: TreeState, action: TreeAction) {
     case "set-view-mode":
       return { ...state, viewMode: action.payload };
   }
+  return state;
 }
 
 function nodeIsInTree(tree: TreeData[], id: number): boolean {
@@ -467,54 +561,29 @@ export interface EntityOutput {
 
 export interface GraphData {
   nodes: EntityOutput[];
-  edges: { source: number; dest: number }[];
+  edges: Relationship[];
 }
 
-export function treeToGraph(tree: TreeData[]): GraphData {
-  // Convert the tree to a graph
-  let nodes: EntityOutput[] = [];
-  let edges: { source: number; dest: number }[] = [];
-  const nodeMap = new Map<number, TreeData>();
-
-  for (let node of tree) {
-    // If we've already found an instance of this node, we don't need to record
-    // it again
-    if (nodeMap.has(node.id)) {
-      continue;
-    }
-
-    const { id, name, type, children } = node;
-
-    const nodeData: EntityOutput = {
+export function treeToGraph(
+  tree: TreeData[],
+  relationships = relationshipsFromTree(tree),
+): GraphData {
+  const nodes = uniqueEntities(tree).map((node): EntityOutput => {
+    const { id, name, type } = node;
+    return {
       id,
-      type: type.id,
-      type_name: type.name,
-      color: type.color,
+      type: type?.id ?? null,
+      type_name: type?.name ?? null,
+      color: type?.color ?? null,
       name,
       txt_range: spansOf(node),
       reasoning: null,
       match: node.match,
-      children,
+      // Topology lives in edges. Keep the legacy field JSON-safe.
+      children: [],
     };
-
-    nodeMap.set(node.id, node);
-    nodes.push(nodeData);
-
-    if (node.children) {
-      for (let child of node.children) {
-        edges.push({ source: node.id, dest: child.id });
-      }
-
-      // Now process the children
-      const { nodes: childNodes, edges: childEdges } = treeToGraph(
-        node.children,
-      );
-      nodes.push(...childNodes);
-      edges.push(...childEdges);
-    }
-  }
-
-  return { nodes, edges };
+  });
+  return { nodes, edges: relationships.map((edge) => ({ ...edge })) };
 }
 
 /** Every text span an entity covers. `indices` is the primary span; a merged
@@ -640,7 +709,6 @@ function flattenAndSort(nodes) {
   // sort by start
   return result.sort((a, b) => a.indices[0] - b.indices[0]);
 }
-
 
 function viewMode(state, action) {
   if (action.type === "set-view-mode") {

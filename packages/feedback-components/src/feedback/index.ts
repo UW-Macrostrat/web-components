@@ -1,25 +1,24 @@
 import styles from "./feedback.module.sass";
 import hyper from "@macrostrat/hyper";
 
-import { Tree, TreeApi } from "react-arborist";
-import Node from "./node";
 import { FeedbackText } from "./text-visualizer";
 import type { InternalEntity, TreeData } from "./types";
 import type { Entity } from "../extractions";
 import type { EntityType } from "../extractions/types";
-import { getTagStyle, ModelInfo } from "../extractions";
+import { ModelInfo, type MatchComponent } from "../extractions";
 import {
   TreeDispatchContext,
   treeToGraph,
   useUpdatableTree,
-  ViewMode,
+  type GraphData,
 } from "./edit-state";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   ButtonGroup,
   Card,
   SegmentedControl,
+  Callout,
   Divider,
 } from "@blueprintjs/core";
 import {
@@ -31,30 +30,30 @@ import { OmniboxSelector } from "./type-selector";
 import {
   CancelButton,
   ErrorBoundary,
-  FlexRow,
   SaveButton,
 } from "@macrostrat/ui-components";
-import useElementDimensions from "use-element-dimensions";
-import { GraphView } from "./graph";
+import { KGEditor } from "./kg-editor";
+import {
+  type Relationship,
+  type RelationshipType,
+  treeWithRelationships,
+} from "./relationships";
 
 import { Matches } from "./matches";
 import { TypeList } from "./typelist";
 
 export type { GraphData, EntityOutput } from "./edit-state";
+export type {
+  Relationship,
+  RelationshipID,
+  RelationshipType,
+} from "./relationships";
 export { treeToGraph, mergeNodes, spansOf } from "./edit-state";
 export type { TreeData } from "./types";
 export type { FeedbackConfig } from "./config";
 export { DEFAULT_TERMS_ENDPOINT } from "./config";
 
 const h = hyper.styled(styles);
-
-function setsAreTheSame<T>(a: Set<T>, b: Set<T>) {
-  if (a.size !== b.size) return false;
-  for (const item of a) {
-    if (!b.has(item)) return false;
-  }
-  return true;
-}
 
 export interface FeedbackComponentProps {
   /** The run's entity tree (`type` as an entity-type id or object). */
@@ -66,8 +65,16 @@ export interface FeedbackComponentProps {
   entityTypes: Map<number, EntityType>;
   /** Renders a matched entity's link in the tree (legacy; prefer `matchLinks`). */
   matchComponent?: MatchComponent;
-  /** Called with the edited tree when the reviewer saves. */
-  onSave?: (tree: TreeData[]) => void | Promise<void>;
+  /** Directed edges; when omitted, legacy children are imported as untyped
+   * edges. Pass [] to explicitly start with no relationships. */
+  relationships?: Relationship[];
+  /** @deprecated Accepted for compatibility; relationship types are not shown or edited. */
+  relationshipTypes?: RelationshipType[];
+  /** Existing consumers can keep calling treeToGraph(tree): outgoing edge
+   * metadata preserves types and cycles. The second argument is the same graph. */
+  onSave?: (tree: TreeData[], graph: GraphData) => void | Promise<void>;
+  /** Preferred graph-native save callback. Takes precedence over onSave. */
+  onSaveGraph?: (graph: GraphData) => void | Promise<void>;
   /** Allow a new tag to overlap or nest inside an existing one. */
   allowOverlap?: boolean;
   /** Lexicon route prefixes for matched entities, keyed by term type. */
@@ -79,7 +86,7 @@ export interface FeedbackComponentProps {
   /** PostgREST route of the terms view searched by "Add match". Defaults to the
    * development database; pass your deployment's route (`null` disables). */
   termsEndpoint?: string | null;
-  /** Height of the tree/graph panel (CSS length). Defaults to `min(600px, 60vh)`. */
+  /** Height of the KG editor panel (CSS length). Defaults to `min(600px, 60vh)`. */
   panelHeight?: string | number;
   /** Create an entity as soon as text is selected, without the confirmation
    * control (the pre-2.3 behavior). */
@@ -97,6 +104,8 @@ export function FeedbackComponent({
   entityTypes,
   matchComponent,
   onSave,
+  onSaveGraph,
+  relationships,
   allowOverlap,
   matchLinks,
   view = false,
@@ -105,7 +114,9 @@ export function FeedbackComponent({
   panelHeight,
   autoCreateTags = false,
 }: FeedbackComponentProps) {
-  const [viewOnly, setViewOnly] = useState(view);
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [match, setMatchLinks] = useState(matchLinks);
 
   const initialTree = useMemo(
@@ -117,8 +128,9 @@ export function FeedbackComponent({
   const [state, dispatch] = useUpdatableTree(
     initialTree,
     entityTypes,
-    viewOnly,
+    view,
     autoSelect,
+    relationships,
   );
 
   // New input (another run, or reloaded data) replaces the working tree, so a
@@ -130,11 +142,24 @@ export function FeedbackComponent({
   // tree — discarding the mount-time state, including any `autoSelect`.
   // Comparing identities makes the effect idempotent.
   const renderedTree = useRef(initialTree);
+  const renderedRelationships = useRef(relationships);
   useEffect(() => {
-    if (renderedTree.current === initialTree) return;
+    if (
+      renderedTree.current === initialTree &&
+      renderedRelationships.current === relationships
+    )
+      return;
     renderedTree.current = initialTree;
-    dispatch({ type: "replace-tree", payload: { tree: initialTree } });
-  }, [initialTree]);
+    renderedRelationships.current = relationships;
+    setSaveError(null);
+    dispatch({
+      type: "replace-tree",
+      payload: { tree: initialTree, relationships, entityTypes },
+    });
+  }, [initialTree, relationships, entityTypes]);
+  useEffect(() => {
+    dispatch({ type: "set-view-only", payload: view });
+  }, [view]);
 
   const config: FeedbackConfig = useMemo(
     () => ({ termsEndpoint }),
@@ -143,7 +168,9 @@ export function FeedbackComponent({
 
   let panelStyle = undefined;
   if (panelHeight != null) {
-    panelStyle = { "--feedback-panel-height": panelHeight } as any;
+    let value = panelHeight;
+    if (typeof value === "number") value = `${value}px`;
+    panelStyle = { "--feedback-panel-height": value } as any;
   }
 
   const {
@@ -152,170 +179,174 @@ export function FeedbackComponent({
     selectedEntityType,
     isSelectingEntityType,
     entityTypesMap,
+    viewOnly,
   } = state;
+  const dirty =
+    state.initialTree !== state.tree ||
+    state.initialRelationships !== state.relationships;
 
-  const [{ width, height }, ref] = useElementDimensions();
+  async function save() {
+    if (savingRef.current || (!onSave && !onSaveGraph)) return;
+    savingRef.current = true;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const graph = treeToGraph(state.tree, state.relationships);
+      if (onSaveGraph) await onSaveGraph(graph);
+      else
+        await onSave(
+          treeWithRelationships(state.tree, state.relationships),
+          graph,
+        );
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : String(error));
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
+  }
 
   const canMerge = !viewOnly && selectedNodes.length > 1;
 
-  return h(FeedbackConfigContext.Provider, { value: config }, h("div.page-wrapper", [
-    h(
-      "div.feedback-container",
-      h(TreeDispatchContext.Provider, { value: dispatch }, [
-        h.if(!view)(SegmentedControl, {
-          options: [
-            { label: "View", value: "view" },
-            { label: "Edit", value: "edit" },
-          ],
-          value: viewOnly ? "view" : "edit",
-          small: true,
-          onValueChange() {
-            setViewOnly(!viewOnly);
-            dispatch({ type: "toggle-view-only" });
-          },
-          role: "toolbar",
-        }),
-        h(
-          ErrorBoundary,
-          {
-            description:
-              "An error occurred while rendering the feedback text component.",
-          },
-          h(FeedbackText, {
-            text,
-            dispatch,
-            // @ts-ignore
-            nodes: tree,
-            selectedNodes,
-            selectedEntityType,
-            allowOverlap,
-            matchLinks: match,
-            viewOnly,
-            autoCreateTags,
+  return h(
+    FeedbackConfigContext.Provider,
+    { value: config },
+    h("div.page-wrapper", { inert: saving, "aria-busy": saving }, [
+      h(
+        "div.feedback-container",
+        h(TreeDispatchContext.Provider, { value: dispatch }, [
+          h.if(!view)(SegmentedControl, {
+            options: [
+              { label: "View", value: "view" },
+              { label: "Edit", value: "edit" },
+            ],
+            value: viewOnly ? "view" : "edit",
+            small: true,
+            onValueChange() {
+              dispatch({ type: "toggle-view-only" });
+            },
+            role: "toolbar",
           }),
-        ),
-        h(
-          FlexRow,
-          { alignItems: "baseline", justifyContent: "space-between" },
-          [
-            h(ModelInfo, { data: model }),
-            h(SegmentedControl, {
-              options: [
-                { label: "Tree", value: "tree" },
-                { label: "Graph", value: "graph" },
-              ],
-              value: state.viewMode,
-              small: true,
-              onValueChange(value: ViewMode) {
-                dispatch({ type: "set-view-mode", payload: value });
-              },
-            }),
-          ],
-        ),
-        h(
-          "div.entity-panel",
-          { style: panelStyle },
-          h("div.entity-panel-inner", { ref }, [
-            h.if(state.viewMode == "tree")(ManagedSelectionTree, {
-              selectedNodes,
+          h(
+            ErrorBoundary,
+            {
+              description:
+                "An error occurred while rendering the feedback text component.",
+            },
+            h(FeedbackText, {
+              text,
               dispatch,
-              tree,
-              width,
-              height,
-              matchComponent,
+              // @ts-ignore
+              nodes: tree,
+              selectedNodes,
+              selectedEntityType,
+              allowOverlap,
               matchLinks: match,
               viewOnly,
+              autoCreateTags,
             }),
-            h.if(state.viewMode == "graph")(GraphView, {
+          ),
+          h(ModelInfo, { data: model }),
+          h(
+            "div.entity-panel",
+            { style: panelStyle },
+            h(KGEditor, {
               tree,
-              width,
-              height,
+              relationships: state.relationships,
               dispatch,
               selectedNodes,
               viewOnly,
+              matchComponent,
+              matchLinks: match,
+              resetKey: state.initialTree,
             }),
-          ]),
-        ),
-      ]),
-    ),
-    h(Card, { className: "control-panel" }, [
-      h("div.control-content", [
-        h.if(!viewOnly)(
-          ButtonGroup,
-          {
-            vertical: true,
-            fill: true,
-            minimal: true,
-            alignText: "left",
-          },
-          [
-            h(
-              CancelButton,
-              {
-                icon: "trash",
-                disabled: state.initialTree == state.tree,
-                onClick() {
-                  dispatch({ type: "reset" });
-                },
-              },
-              "Reset",
-            ),
-            h(
-              SaveButton,
-              {
-                onClick() {
-                  onSave(state.tree);
-                },
-                disabled: state.initialTree == state.tree,
-              },
-              "Save",
-            ),
-          ],
-        ),
-        h.if(canMerge)(
-          Button,
-          {
-            className: "merge-button",
-            icon: "git-merge",
-            fill: true,
-            minimal: true,
-            alignText: "left",
-            title: "Combine the selected entities into one (M)",
-            onClick() {
-              dispatch({ type: "merge-nodes" });
+          ),
+        ]),
+      ),
+      h(Card, { className: "control-panel" }, [
+        h("div.control-content", [
+          h.if(!viewOnly)(
+            ButtonGroup,
+            {
+              vertical: true,
+              fill: true,
+              minimal: true,
+              alignText: "left",
             },
-          },
-          `Merge ${selectedNodes.length} entities`,
-        ),
-        h.if(!viewOnly)(Matches, {
-          match,
-          setMatchLinks,
-          matchLinks,
-          selectedNodes,
-          tree,
-          dispatch,
-        }),
-        h.if(!viewOnly)(Divider),
-        h(EntityTypeSelector, {
-          entityTypes: entityTypesMap,
-          selected: selectedEntityType,
-          onChange(payload) {
-            dispatch({ type: "select-entity-type", payload });
-          },
-          dispatch,
-          tree,
-          selectedNodes,
-          isOpen: isSelectingEntityType,
-          setOpen: (isOpen: boolean) =>
-            dispatch({
-              type: "toggle-entity-type-selector",
-              payload: isOpen,
-            }),
-          viewOnly,
-        }),
+            [
+              h(
+                CancelButton,
+                {
+                  icon: "trash",
+                  disabled: !dirty,
+                  onClick() {
+                    setSaveError(null);
+                    dispatch({ type: "reset" });
+                  },
+                },
+                "Reset",
+              ),
+              h(
+                SaveButton,
+                {
+                  onClick: save,
+                  loading: saving,
+                  disabled: !dirty || (!onSave && !onSaveGraph),
+                },
+                "Save",
+              ),
+            ],
+          ),
+          h.if(saveError != null)(
+            Callout,
+            { intent: "danger", title: "Feedback was not saved" },
+            saveError,
+          ),
+          h.if(canMerge)(
+            Button,
+            {
+              className: "merge-button",
+              icon: "git-merge",
+              fill: true,
+              minimal: true,
+              alignText: "left",
+              title: "Combine the selected entities into one (M)",
+              onClick() {
+                dispatch({ type: "merge-nodes" });
+              },
+            },
+            `Merge ${selectedNodes.length} entities`,
+          ),
+          h.if(!viewOnly)(Matches, {
+            match,
+            setMatchLinks,
+            matchLinks,
+            selectedNodes,
+            tree,
+            dispatch,
+          }),
+          h.if(!viewOnly)(Divider),
+          h(EntityTypeSelector, {
+            entityTypes: entityTypesMap,
+            selected: selectedEntityType,
+            onChange(payload) {
+              dispatch({ type: "select-entity-type", payload });
+            },
+            dispatch,
+            tree,
+            selectedNodes,
+            isOpen: isSelectingEntityType,
+            setOpen: (isOpen: boolean) =>
+              dispatch({
+                type: "toggle-entity-type-selector",
+                payload: isOpen,
+              }),
+            viewOnly,
+          }),
+        ]),
       ]),
     ]),
-  ]));
+  );
 }
 
 function normalizeMatch(match: any) {
@@ -333,16 +364,24 @@ function normalizeMatch(match: any) {
   return entity_id != null ? { ...match, entity_id } : match;
 }
 
-function processEntity(entity: Entity, entityTypes: Map<number, EntityType>): InternalEntity {
-  const type = typeof entity.type === "number" ? entityTypes.get(entity.type) : entity.type;
+function processEntity(
+  entity: Entity,
+  entityTypes: Map<number, EntityType>,
+): InternalEntity {
+  const type =
+    typeof entity.type === "number"
+      ? entityTypes.get(entity.type)
+      : entity.type;
 
   return {
     ...entity,
+    orig_id: entity.id,
     type: type ?? { id: -1, name: "unknown", description: null, color: "#999" },
     term_type: type?.name ?? "unknown",
     txt_range: entity.spans ?? [entity.indices],
     match: normalizeMatch(entity.match),
-    children: entity.children?.map((child) => processEntity(child, entityTypes)) ?? [],
+    children:
+      entity.children?.map((child) => processEntity(child, entityTypes)) ?? [],
   } as InternalEntity;
 }
 
@@ -360,7 +399,7 @@ function EntityTypeSelector({
   // Show all entity types when selected is null
   const _selected = selected != null ? selected : undefined;
   const [inputValue, setInputValue] = useState("");
-  const types = Array.from(entityTypes.values());
+  const types = Array.from(entityTypes.values()) as EntityType[];
 
   const items =
     inputValue !== ""
@@ -394,133 +433,4 @@ function EntityTypeSelector({
       },
     }),
   ]);
-}
-
-function countNodes(tree) {
-  if (!tree) return 0;
-  let count = 0;
-
-  function recurse(nodes) {
-    for (const node of nodes) {
-      count++;
-      if (node.children && Array.isArray(node.children)) {
-        recurse(node.children);
-      }
-    }
-  }
-
-  recurse(tree);
-  return count;
-}
-
-function ManagedSelectionTree(props) {
-  const {
-    selectedNodes,
-    dispatch,
-    tree,
-    height,
-    width,
-    matchComponent,
-    matchLinks,
-    viewOnly,
-  } = props;
-
-  const ref = useRef<TreeApi<TreeData>>();
-  // Use a ref to track clicks (won't cause rerender)
-  const clickedRef = useRef(false);
-
-  const _Node = useCallback(
-    (props) => h(Node, { ...props, matchComponent, matchLinks, viewOnly }),
-    [matchComponent, matchLinks, viewOnly],
-  );
-
-  // Update Tree selection when selectedNodes change
-  useEffect(() => {
-    if (ref.current == null) return;
-
-    const selection = new Set(selectedNodes.map((d) => d.toString()));
-    const currentSelection = ref.current.selectedIds;
-    if (setsAreTheSame(selection, currentSelection)) return;
-
-    ref.current.setSelection({
-      ids: selectedNodes.map((d) => d.toString()),
-      anchor: null,
-      mostRecent: null,
-    });
-  }, [selectedNodes]);
-
-  // Mark clicked when user clicks inside the tree container
-  function handleClick() {
-    clickedRef.current = true;
-  }
-
-  const ctrlPressedRef = useRef(false);
-
-  useEffect(() => {
-    const down = (e) => {
-      if (e.ctrlKey || e.metaKey) ctrlPressedRef.current = true;
-    };
-    const up = () => (ctrlPressedRef.current = false);
-
-    window.addEventListener("keydown", down);
-    window.addEventListener("keyup", up);
-    return () => {
-      window.removeEventListener("keydown", down);
-      window.removeEventListener("keyup", up);
-    };
-  }, []);
-
-  const handleSelect = useCallback(
-    (nodes) => {
-      if (!clickedRef.current) return;
-      clickedRef.current = false;
-      const isMultiSelect = ctrlPressedRef.current;
-
-      let ids = nodes.map((d) => parseInt(d.id));
-
-      if (isMultiSelect) {
-        dispatch({ type: "toggle-node-selected", payload: { ids } });
-      } else {
-        if (ids.length === 1 && ids[0] === selectedNodes[0]) {
-          ids = [];
-        }
-
-        dispatch({ type: "select-node", payload: { ids } });
-      }
-    },
-    [selectedNodes, dispatch],
-  );
-
-  return h(
-    "div.selection-tree-wrapper",
-    { onPointerDown: handleClick },
-    h(Tree, {
-      className: "selection-tree",
-      height,
-      width,
-      ref,
-      data: tree,
-      onMove({ dragIds, parentId, index }) {
-        dispatch({
-          type: "move-node",
-          payload: {
-            dragIds: dragIds.map((d) => parseInt(d)),
-            parentId: parentId ? parseInt(parentId) : null,
-            index,
-          },
-        });
-      },
-      onDelete({ ids }) {
-        dispatch({
-          type: "delete-node",
-          payload: { ids: ids.map((d) => parseInt(d)) },
-        });
-      },
-      onSelect: handleSelect,
-      children: _Node,
-      idAccessor(d) {
-        return d.id.toString();
-      },
-    }),
-  );
 }
