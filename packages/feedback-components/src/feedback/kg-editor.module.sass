@@ -19,6 +19,22 @@
 .kg-count
   margin-right: auto
 
+.kg-connection-actions, .kg-connection-status
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  gap: .5rem
+  padding-bottom: .6rem
+
+.kg-connection-status
+  color: var(--text-muted-color, #667583)
+  font-size: .85em
+
+.kg-connection-label
+  margin-right: auto
+  overflow-wrap: anywhere
+  font-size: .85em
+
 .kg-body
   display: grid
   grid-template-columns: minmax(0, 1fr)
@@ -53,11 +69,34 @@
   &.panning
     cursor: grabbing
 
+  &.picking .kg-node
+    cursor: crosshair
+
 .kg-edge-line
   fill: none
   stroke: var(--text-muted-color, #6b7b8b)
   stroke-width: 1.8
   pointer-events: none
+
+.kg-edge-hit
+  fill: none
+  stroke: transparent
+  stroke-width: 14
+  pointer-events: none
+
+.kg-edge
+  &.editable
+    cursor: pointer
+
+    .kg-edge-hit
+      pointer-events: stroke
+
+    &:hover .kg-edge-line, &:focus .kg-edge-line
+      stroke: #2d72d2
+
+  &.active .kg-edge-line
+    stroke: #2d72d2
+    stroke-width: 3
 
 .kg-arrow
   fill: var(--text-muted-color, #6b7b8b)
@@ -77,6 +116,10 @@
   &.active .kg-node-box, &:focus .kg-node-box
     stroke: #2d72d2
     stroke-width: 3
+
+  &.connection-source .kg-node-box
+    stroke: #238551
+    stroke-width: 4
 
 .kg-node-box
   fill: var(--panel-background-color, #fff)

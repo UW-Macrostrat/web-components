@@ -1,6 +1,7 @@
 import type { TreeData } from "./types";
 
 export type RelationshipID = string | number;
+export type Connection = Pick<Relationship, "source" | "dest">;
 
 /** A directed edge. Entity IDs are independent of paragraph offsets. */
 export interface Relationship {
@@ -16,6 +17,33 @@ export interface RelationshipType {
   id?: number;
   name: string;
   description?: string | null;
+}
+
+/** Editing is by directed pair, regardless of stored relationship types. */
+export function sameConnection(a: Connection, b: Connection): boolean {
+  return a.source === b.source && a.dest === b.dest;
+}
+
+export function connectionError(
+  nodes: Pick<TreeData, "id">[],
+  edges: Relationship[],
+  connection: Connection,
+  original?: Connection,
+): string | null {
+  const ids = new Set(nodes.map((node) => node.id));
+  if (!ids.has(connection.source) || !ids.has(connection.dest))
+    return "Choose an existing entity for both endpoints.";
+  if (connection.source === connection.dest)
+    return "Choose two different entities.";
+  if (
+    edges.some(
+      (edge) =>
+        sameConnection(edge, connection) &&
+        (!original || !sameConnection(edge, original)),
+    )
+  )
+    return "These entities are already connected in this direction.";
+  return null;
 }
 
 /** Visit each entity once, even when the input repeats it under two parents. */
