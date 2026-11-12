@@ -219,7 +219,8 @@ export function treeReducer(state: TreeState, action: TreeAction): TreeState {
         return state;
       return {
         ...state,
-        connectionMode: false,
+        // Endpoint changes are relationship editing even if begun in entity mode.
+        connectionMode: true,
         connectionSource: null,
         movingEndpoint: action.payload.endpoint,
         connectionNotice: null,
@@ -248,7 +249,14 @@ export function treeReducer(state: TreeState, action: TreeAction): TreeState {
           type: "move-relationship",
           payload: connection,
         });
-        return { ...next, movingEndpoint: null, connectionNotice: null };
+        return {
+          ...next,
+          // Resume ordinary relationship editing after the replacement click.
+          connectionMode: true,
+          connectionSource: null,
+          movingEndpoint: null,
+          connectionNotice: null,
+        };
       }
       if (!state.connectionMode) return state;
       if (state.connectionSource == null)

@@ -65,7 +65,10 @@ export function KGEditor({
   const selectedConnection = connections.find(
     (edge) => edge.id === selectedRelationship,
   );
-  const picking = !viewOnly && (connectionMode || movingEndpoint != null);
+  // Endpoint picking is always presented as Relationship mode, even if a
+  // parent state still has the entity-mode flag during the transition.
+  const relationshipMode = connectionMode || movingEndpoint != null;
+  const picking = !viewOnly && relationshipMode;
   const entityName = (id: number) =>
     nodes.find((node) => node.id === id)?.name ?? "entity";
   let instruction = "Click the source entity, then the destination.";
@@ -141,23 +144,44 @@ export function KGEditor({
           `${nodes.length} entities · ${connections.length} connections`,
         ),
         h.if(!viewOnly)(
-          Button,
+          "div.kg-mode-switch",
           {
-            icon: "link",
-            small: true,
-            active: connectionMode,
-            "aria-pressed": connectionMode,
-            disabled: nodes.length < 2,
-            onClick() {
-              dispatch({
-                type: "set-connection-mode",
-                payload: !connectionMode,
-              });
-            },
+            role: "group",
+            "aria-label": "Graph editing mode",
+            "data-mode": relationshipMode ? "relationship" : "entity",
           },
-          "Relationship mode",
+          [
+            h("div.kg-mode-current", [
+              h("span.kg-mode-label", "Current mode"),
+              h(
+                "strong.kg-mode-name",
+                relationshipMode ? "Relationship" : "Entity",
+              ),
+            ]),
+            h(
+              Button,
+              {
+                icon: relationshipMode ? "edit" : "link",
+                small: true,
+                outlined: true,
+                disabled: !relationshipMode && nodes.length < 2,
+                "aria-label": `Switch to ${relationshipMode ? "Entity" : "Relationship"} mode`,
+                onClick() {
+                  dispatch({
+                    type: "set-connection-mode",
+                    payload: !relationshipMode,
+                  });
+                },
+              },
+              `Switch to ${relationshipMode ? "Entity" : "Relationship"} mode`,
+            ),
+          ],
         ),
       ]),
+      h.if(!viewOnly && !picking)(
+        "div.kg-mode-help",
+        "Entity mode: click entities to select and edit them.",
+      ),
       h.if(picking)("div.kg-connection-status", [
         h("span", { role: "status", "aria-live": "polite" }, [
           h.if(connectionNotice != null)("strong", connectionNotice + " "),
