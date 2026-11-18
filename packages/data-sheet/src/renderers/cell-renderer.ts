@@ -8,7 +8,11 @@ import { TableElementStatus } from "../provider";
 import { editorKeyHandlerAtom, validateCell } from "../utils";
 import h from "../main.module.sass";
 import { memo, ReactNode, useEffect, useRef, useState } from "react";
-import { EditorPopup, CellDetailModal } from "../components";
+import {
+  EditorPopup,
+  CellDetailModal,
+  CellDetailContent,
+} from "../components";
 import { singleFocusedCell } from "../provider";
 import { Cell } from "@blueprintjs/table";
 import { ctx, dragValueHandlerAtom, useSelector } from "../provider";
@@ -272,7 +276,7 @@ export function basicCellRenderer<T>(
           interactive: false,
           ...cellComponentProps,
         },
-        col.cellDetail!(makeDetailCtx(false)),
+        h(CellDetailContent, { ctx: makeDetailCtx(false) }),
       );
     }
     return h(
@@ -297,7 +301,7 @@ export function basicCellRenderer<T>(
   // viewer (otherwise), presented as a popover / modal / inline. Supersedes
   // dataEditor / detailRenderer / editorForCell.
   if (col.cellDetail != null) {
-    const content = col.cellDetail(makeDetailCtx(editable));
+    const content = h(CellDetailContent, { ctx: makeDetailCtx(editable) });
 
     if (detailPresentation === "inline") {
       // Persistent in-cell surface (editable on the focused cell). No popover.

@@ -48,6 +48,7 @@ import {
   editorActionsFor,
   type EditorActionTarget,
 } from "./editor-actions";
+import { CellDetailContent } from "./cell-detail";
 import styles from "./row-editor.module.sass";
 
 const h = hyper.styled(styles);
@@ -601,7 +602,7 @@ function FieldSurface({ ctx }: { ctx: CellDetailContext }) {
   const { column: col, editable } = ctx;
   const several = ctx.cells != null;
   if (col.cellDetail != null && (!several || col.multiCell)) {
-    return h("div.field-surface.cell-detail", col.cellDetail(ctx));
+    return h("div.field-surface.cell-detail", h(CellDetailContent, { ctx }));
   }
   if (!editable) {
     return h(FieldValue, { ctx });

@@ -1,6 +1,13 @@
 import { Dialog } from "@blueprintjs/core";
 import h from "./main.module.sass";
 import { useSelector } from "../provider";
+import type { CellDetailContext } from "../provider";
+
+/** Mounts a column's `cellDetail` as a component, so it may use hooks. The
+ * grid's cell renderer is a plain function, where hooks would break. */
+export function CellDetailContent({ ctx }: { ctx: CellDetailContext }) {
+  return ctx.column.cellDetail?.(ctx) ?? null;
+}
 
 /**
  * Modal presentation for a cell's `cellDetail` surface. Subscribes to the
