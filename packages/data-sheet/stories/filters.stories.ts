@@ -308,3 +308,41 @@ export const AutoColumnSpec: StoryObj = {
       editable: false,
     }),
 };
+
+/** A table-level text search with `presentation: "inline"`: an always-visible
+ * input at the start of the filter bar, rather than an "Add filter" item. */
+const inlineSearchFilter: TableFilter<any, { search: string }> = {
+  id: "inline-search",
+  name: "Search",
+  icon: "search",
+  presentation: "inline",
+  defaultState: { search: "" },
+  filterForm({ state, setState }) {
+    return h(InputGroup, {
+      small: true,
+      leftIcon: "search",
+      placeholder: "Search name or category…",
+      value: state?.search ?? "",
+      onValueChange(search) {
+        setState({ search });
+      },
+    });
+  },
+  predicate(row, state) {
+    const q = state?.search?.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      row.name.toLowerCase().includes(q) ||
+      row.category.toLowerCase().includes(q)
+    );
+  },
+};
+
+export const InlineSearchFilter: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      data: testData,
+      columnSpec,
+      filters: [inlineSearchFilter],
+    }),
+};

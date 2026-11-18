@@ -9,7 +9,11 @@ import {
   type TableFilter,
 } from "../../actions";
 import type { ColumnSpec } from "../../provider";
-import { ColumnSortIndicator, FilterIndicator } from "../indicators";
+import {
+  ColumnSortIndicator,
+  FilterIndicator,
+  InlineFilterControl,
+} from "../indicators";
 
 /** Collect all available filters from global filters and column specs. */
 function collectAllFilters<T>(
@@ -42,7 +46,9 @@ function collectAllFilters<T>(
  * removable tags (filters reconfigurable in place via their `filterForm`). The
  * "Add filter" button offers only **table-level** filters (no `columnKey`) and
  * only when no column is selected — per-column filters are added/configured
- * from the column header dropdown instead, so there's no redundancy. */
+ * from the column header dropdown instead, so there's no redundancy.
+ * A filter with `presentation: "inline"` (e.g. a text search) is instead an
+ * always-visible control at the start of the bar, as in `DataPanel`. */
 export function ActiveFiltersList<T>({
   filters = [],
 }: {
@@ -62,6 +68,11 @@ export function ActiveFiltersList<T>({
     [filters, columnSpec],
   );
 
+  const inlineFilters = useMemo(
+    () => allFilters.filter((f) => f.presentation === "inline"),
+    [allFilters],
+  );
+
   const activeIds = useMemo(
     () => new Set(activeFilters.keys()),
     [activeFilters],
@@ -70,23 +81,41 @@ export function ActiveFiltersList<T>({
   // Only table-level filters are addable from the bar; column filters live in
   // the column header dropdown.
   const availableFilters = useMemo(
-    () => allFilters.filter((f) => f.columnKey == null && !activeIds.has(f.id)),
+    () =>
+      allFilters.filter(
+        (f) =>
+          f.columnKey == null &&
+          f.presentation !== "inline" &&
+          !activeIds.has(f.id),
+      ),
     [allFilters, activeIds],
   );
 
   const showAdd = !columnSelected && availableFilters.length > 0;
 
+  // An inline filter's control shows its own state, so it gets no tag.
+  const filterArray = Array.from(activeFilters.entries()).filter(
+    ([, entry]) => entry.filter?.presentation !== "inline",
+  ) as any[];
+
   const hasAnything =
-    columnSorts.length > 0 || activeFilters.size > 0 || showAdd;
+    inlineFilters.length > 0 ||
+    columnSorts.length > 0 ||
+    filterArray.length > 0 ||
+    showAdd;
   if (!hasAnything)
     return h(
       "div.filter-bar.empty",
       h("p.description", "No active filters or sorts"),
     );
 
-  const filterArray = Array.from(activeFilters.entries()) as any[];
-
   return h("div.filter-bar", [
+    h.if(inlineFilters.length > 0)(
+      "div.group.inline-filters",
+      inlineFilters.map((filter) =>
+        h(InlineFilterControl, { key: filter.id, filter }),
+      ),
+    ),
     h(
       "div.group.filters",
       filterArray.map(([id, entry]) =>
