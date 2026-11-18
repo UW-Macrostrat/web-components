@@ -159,10 +159,13 @@ export function ActionsToolbar<T>({
   });
 }
 
-function isActionDisabled(action: TableAction, state: any): boolean {
+function isActionDisabled<T>(
+  action: TableAction<T>,
+  context: TableActionContext<T>,
+): boolean {
   if (typeof action.disabled === "boolean") return action.disabled;
   if (typeof action.disabled === "function") {
-    return action.disabled(state);
+    return action.disabled(context);
   }
   return false;
 }
@@ -187,10 +190,11 @@ function RunActionButton<T>({ action }: { action: TableAction<T> }) {
   const store = ctx.useStore();
   const toaster = useToaster();
 
-  // Reactive disabled check — re-renders when relevant state changes
-  const isDisabled = useSelector((state) => {
-    return isActionDisabled(action, state);
-  });
+  // Rebuilt on every store change so `disabled` sees the current selection;
+  // the selector returns a boolean, so the button re-renders only on a flip.
+  const isDisabled = useSelector(() =>
+    isActionDisabled(action, buildActionContext(store.get, store.set)),
+  );
 
   const runAction = useCallback(
     (configState?: any) => {
@@ -304,8 +308,8 @@ function hasAnyDisplayableActions(
   if (allActions.length === 0) {
     return false;
   }
-  // Check whether any action doesn't have hotkey and is not disabled
+  // A `disabled` function may enable the action later, so only `true` hides it.
   return allActions.some(
-    (action) => action.hotkey == null && !isActionDisabled(action, {}),
+    (action) => action.hotkey == null && action.disabled !== true,
   );
 }

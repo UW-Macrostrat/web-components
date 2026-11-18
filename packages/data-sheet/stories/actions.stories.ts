@@ -338,3 +338,32 @@ export const WithThrowingAction: StoryObj = {
       ],
     }),
 };
+
+/** An action whose `disabled` reads the action context: enabled only while
+ * rows are selected. Select some rows to enable it. */
+const logSelectedRowsAction: TableAction = {
+  id: "log-selected-rows",
+  name: "Log selected rows",
+  icon: "console",
+  targets: [
+    "none",
+    RegionCardinality.CELLS,
+    RegionCardinality.FULL_ROWS,
+    RegionCardinality.FULL_TABLE,
+  ],
+  requiresEditable: false,
+  disabled: (ctx) => ctx.getSelectedRows().length === 0,
+  run(ctx) {
+    console.log(ctx.getSelectedRows());
+  },
+};
+
+export const ContextDisabledAction: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      data: testData,
+      columnSpec,
+      editable: false,
+      actions: [logSelectedRowsAction],
+    }),
+};

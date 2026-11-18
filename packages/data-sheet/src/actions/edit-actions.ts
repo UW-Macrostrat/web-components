@@ -51,7 +51,7 @@ export function createSaveAction<T = any>(
     intent: "primary",
     targets: ALL_CARDINALITIES,
     requiresEditable: true,
-    disabled: (s: any) => !hasPendingChanges(s),
+    disabled: (ctx) => !hasPendingChanges(ctx),
     run: (ctx) => {
       // Validation errors block saving (warnings don't). The offending cells
       // are already highlighted; refuse and surface a summary.

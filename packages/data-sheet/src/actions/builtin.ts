@@ -10,7 +10,7 @@ export const deleteRowsAction: TableAction = {
   intent: "danger",
   targets: [RegionCardinality.FULL_ROWS],
   requiresEditable: true,
-  disabled: (s: any) => s?.canDeleteRows === false,
+  disabled: (ctx) => ctx.canDeleteRows === false,
   run(ctx) {
     ctx.deleteSelectedRows();
   },
