@@ -38,7 +38,6 @@ import {
 } from "react";
 import {
   AnchorButton,
-  Button,
   Classes,
   Icon,
   NonIdealState,
@@ -49,7 +48,6 @@ import {
   anchorRefAtom,
   ctx,
   dataProviderAtom,
-  dataRefreshTokenAtom,
   DataSheetProvider,
   DataViewRendererType,
   FetchData,
@@ -73,6 +71,7 @@ import {
 import classNames from "classnames";
 import {
   ActionsToolbar,
+  LoadErrorState,
   LoadProgressIndicator,
   useDataPanelControls,
   type ViewControlsPresentation,
@@ -558,22 +557,6 @@ function modifiersOf(arg?: SelectModifiers | ReactMouseEvent): SelectModifiers {
     return { additive: arg.metaKey || arg.ctrlKey, range: arg.shiftKey };
   }
   return arg;
-}
-
-/** A failed load, with a retry: auto-load stays off after an error, so
- * reloading is the user's call. */
-function LoadErrorState({ error }: { error: Error }) {
-  const bumpRefresh = ctx.useSet(dataRefreshTokenAtom);
-  return h(NonIdealState, {
-    icon: "error",
-    title: "Couldn't load data",
-    description: error.message ?? "The data source returned an error.",
-    action: h(
-      Button,
-      { icon: "refresh", onClick: () => bumpRefresh((v) => v + 1) },
-      "Try again",
-    ),
-  });
 }
 
 /**

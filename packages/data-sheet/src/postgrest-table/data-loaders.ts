@@ -368,7 +368,6 @@ const defaultVisibleRegion: RowRegion = {
 /** Atom to house the current visible region of the table */
 const visibleRegionAtom = atom<RowRegion>(defaultVisibleRegion);
 
-
 /** Current page index (0-based) for paged fetch mode. */
 export const chunkPageAtom = atom(0);
 
@@ -769,6 +768,10 @@ export function useDataLoader<T = any>(
 
   useAsyncEffect(async () => {
     if (state.loading) return;
+    // A failed load is final until the view is reset (a sort or filter change,
+    // or a refresh). Without this, whatever re-runs the effect requests the
+    // same chunk again, for as long as the source keeps failing.
+    if (state.error != null) return;
 
     // A seed hasn't landed in state yet. Every effect in a commit sees the
     // render's snapshot, so this one runs *before* the seed it was mounted
