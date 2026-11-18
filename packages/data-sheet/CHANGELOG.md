@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.11.2] - 2026-11-18 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.11.1...@macrostrat/data-sheet-v4.11.2)
+
+### Patch Changes
+
+- `DataSheet` shows a failed load with a "Try again" button when no rows have
+  loaded, as `DataPanel` does
+  [a4b06e55](https://github.com/UW-Macrostrat/web-components/commit/a4b06e5570d27a848704a1108c789cd547caef6d)
+- Stop the data loader from re-requesting a chunk that failed to load, for
+  `DataSheet` as well as `DataPanel`; a failed load is final until the view
+  changes or is refreshed
+  [a4b06e55](https://github.com/UW-Macrostrat/web-components/commit/a4b06e5570d27a848704a1108c789cd547caef6d)
+
 ## [4.11.1] - 2026-10-23 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.11.0...@macrostrat/data-sheet-v4.11.1)
 
 ### Patch Changes
