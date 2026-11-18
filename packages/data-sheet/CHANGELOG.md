@@ -7,6 +7,9 @@
 - Fix `DataSheet` never showing Save for a `provider` with `saveRows` /
   `insertRow` / `deleteRows`: the grid now reads the provider from the store
   [c62943c8](https://github.com/UW-Macrostrat/web-components/commit/c62943c8950854864458170b39c400812688bc4d)
+- Clear saved edits after a provider save: the reload re-attached them by
+  identity, so edit markers stayed and Save remained enabled
+  [1005830c](https://github.com/UW-Macrostrat/web-components/commit/1005830c60fb7fa4b23c2d4b0da496bac0b6ae70)
 
 ## [4.11.3] - 2026-11-18 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.11.2...@macrostrat/data-sheet-v4.11.3)
 
