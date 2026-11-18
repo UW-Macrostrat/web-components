@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.11.3] - 2026-11-18 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.11.2...@macrostrat/data-sheet-v4.11.3)
+
+### Patch Changes
+
+- In an editable sheet, `editable: false` columns show a lock icon in the header
+  and dimmed values
+  [d124066a](https://github.com/UW-Macrostrat/web-components/commit/d124066aba51390eac5a28ad140941ce57a21c1e)
+- Fix keyboard shortcuts (e.g. Cmd+C copy) doing nothing in read-only sheets,
+  whose hotkeys were built from a stale, empty action list
+  [04999807](https://github.com/UW-Macrostrat/web-components/commit/0499980775c755265782a0abe0addd3b6a4df017)
+
 ## [4.11.2] - 2026-11-18 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.11.1...@macrostrat/data-sheet-v4.11.2)
 
 ### Patch Changes
