@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*",
-    "@storybook/react-vite": "10.5.10"
+    "@storybook/react-vite": "10.6.7"
   },
   "publishConfig": {
     "access": "public"
