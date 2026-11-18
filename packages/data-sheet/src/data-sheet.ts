@@ -165,7 +165,8 @@ export function DataSheetRenderer<T>({
   // refresh. Otherwise the loose `onSave` handler is used.
   const bumpRefresh = ctx.useSet(dataRefreshTokenAtom);
   const providerSave = useMemo(() => {
-    const p = provider;
+    // The store's provider: `provider` is split off before props reach here.
+    const p = provider ?? activeProvider;
     if (
       p == null ||
       (p.saveRows == null && p.deleteRows == null && p.insertRow == null)
@@ -174,9 +175,11 @@ export function DataSheetRenderer<T>({
     }
     return async (actionCtx: TableActionContext<T>) => {
       await persistViaProvider(p, actionCtx);
+      // Saved edits are no longer pending; the reload would re-attach them.
+      actionCtx.setState({ updatedData: [], rowStatus: [] });
       bumpRefresh((v) => v + 1);
     };
-  }, [provider, bumpRefresh]);
+  }, [provider, activeProvider, bumpRefresh]);
   const saveHandler = onSave ?? providerSave;
 
   // Sync table actions to atom. Consumer actions come first (they override a

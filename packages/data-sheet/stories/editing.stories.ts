@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
-import { DataSheet, defaultTableActions } from "../src";
+import { createLocalProvider, DataSheet, defaultTableActions } from "../src";
 import type { TableFilter } from "../src";
 import "@blueprintjs/table/lib/css/table.css";
 import { FormGroup, SegmentedControl } from "@blueprintjs/core";
@@ -149,5 +149,33 @@ export const EditsUnderSortAndFilter: StoryObj = {
       editable: true,
       actions: defaultTableActions,
       filters: [categoryFilter],
+    }),
+};
+
+// A provider that can persist: its `saveRows` is what the built-in Save calls.
+const savedRows = buildData(12).map((row, id) => ({ id, ...row }));
+const savingProvider = {
+  ...createLocalProvider(savedRows, { identity: (row) => row.id }),
+  async saveRows(rows: typeof savedRows) {
+    for (const row of rows) {
+      savedRows[row.id] = row;
+    }
+  },
+};
+
+/**
+ * **Save through a provider.**
+ *
+ * No `onSave` is given: the sheet builds its Save from the provider's
+ * `saveRows`. Edit a cell and **Save** enables at the toolbar's end; saving
+ * writes the rows and reloads them, so the edit markers clear and the values
+ * stay.
+ */
+export const SavesThroughProvider: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      provider: savingProvider,
+      columnSpec,
+      editable: true,
     }),
 };
