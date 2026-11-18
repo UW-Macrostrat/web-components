@@ -209,7 +209,7 @@ export function DataSheetRenderer<T>({
 
   // This is quite hacky!
   const hotkeysConfig = useMemo(() => {
-    return getHotkeys();
+    return getHotkeys(_actions);
   }, [_actions]);
 
   const { handleKeyDown, handleKeyUp } = useHotkeys(hotkeysConfig);

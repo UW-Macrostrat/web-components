@@ -9,7 +9,12 @@
 import h from "@macrostrat/hyper";
 import { ColumnHeaderCell, RegionCardinality } from "@blueprintjs/table";
 import { Icon, Menu, MenuItem } from "@blueprintjs/core";
-import { ctx, tableActionsAtom, type ColumnSpec } from "../provider";
+import {
+  ctx,
+  tableActionsAtom,
+  useSelector,
+  type ColumnSpec,
+} from "../provider";
 import type {
   PostgrestColumnFilter,
   ColumnSortEntry,
@@ -92,6 +97,9 @@ export function renderColumnHeaderCell({
  * exposed as `data-column-key` so consumers can target a specific header from
  * CSS (e.g. to tint a column) without a bespoke styling prop. */
 function ColumnHeaderName({ col, hasSortActive, hasFilterActive, activeSort }) {
+  // Only meaningful when the rest of the sheet takes edits.
+  const tableEditable = useSelector((s) => s.editable);
+  const locked = tableEditable && col.editable === false && !col.derived;
   return h(
     "div",
     {
@@ -118,6 +126,12 @@ function ColumnHeaderName({ col, hasSortActive, hasFilterActive, activeSort }) {
         icon: "function",
         size: 12,
         title: "Derived — computed from other values, not editable",
+        style: { marginLeft: "4px", flexShrink: 0, opacity: 0.6 },
+      }),
+      h.if(locked)(Icon, {
+        icon: "lock",
+        size: 12,
+        title: "Not editable",
         style: { marginLeft: "4px", flexShrink: 0, opacity: 0.6 },
       }),
       h.if(hasSortActive || hasFilterActive)(

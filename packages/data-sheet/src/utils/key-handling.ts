@@ -2,13 +2,12 @@ import type { KeyboardEvent } from "react";
 import {
   storeAPIAtom,
   storeAtom,
-  tableActionsAtom,
   type DataSheetStoreMain,
   singleFocusedCell,
   ctx,
 } from "../provider";
 import { atom } from "jotai";
-import { runActionWrapper } from "../actions";
+import { runActionWrapper, type TableAction } from "../actions";
 import { actionRequiresEditable } from "../actions/selection.ts";
 import { HotkeyConfig } from "@blueprintjs/core";
 import { toasterAtom } from "../notifications.ts";
@@ -30,15 +29,13 @@ const hasSelectionAtom = atom((get) => {
   return selection.length > 0;
 });
 
-export const tableHotkeysAtom = atom<null, [], HotkeyConfig[]>(
+// Actions are passed in: tableActionsAtom is synced in an effect, so it lags a render.
+export const tableHotkeysAtom = atom<null, [TableAction[]], HotkeyConfig[]>(
   null,
-  (get, set) => {
+  (get, set, tableActions) => {
     const store = get(storeAPIAtom);
     const toaster = get(toasterAtom);
     const editable = get(isEditableAtom);
-
-    /** Set up hotkeys for table actions */
-    const tableActions = get(tableActionsAtom);
 
     if (store == null) return [];
     const keyHandler = (
