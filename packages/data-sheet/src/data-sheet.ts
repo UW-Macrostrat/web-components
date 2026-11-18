@@ -175,6 +175,8 @@ export function DataSheetRenderer<T>({
     }
     return async (actionCtx: TableActionContext<T>) => {
       await persistViaProvider(p, actionCtx);
+      // Saved edits are no longer pending; the reload would re-attach them.
+      actionCtx.setState({ updatedData: [], rowStatus: [] });
       bumpRefresh((v) => v + 1);
     };
   }, [provider, activeProvider, bumpRefresh]);
