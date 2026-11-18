@@ -15,6 +15,7 @@ import {
   useRef,
 } from "react";
 import {
+  LoadErrorOverlay,
   LoadProgressIndicator,
   ActionsToolbar,
   ActiveFiltersList,
@@ -574,34 +575,38 @@ export function DataSheetRenderer<T>({
         ref: tableElementRef,
         style: holderStyle,
       },
-      h(
-        Table as any, // Some sort of hyperscript type error
-        {
-          ref,
-          numRows,
-          className: "data-sheet",
-          enableFocusedCell,
-          enableColumnReordering,
-          onColumnsReordered,
-          focusedCell,
-          selectedRegions,
-          defaultRowHeight: rowHeight,
-          columnWidths,
-          onColumnWidthChanged,
-          onSelection,
-          /** TODO: we could enable this if we had a use-case */
-          enableRowReordering: false,
-          enableRowResizing: false,
-          // The cell renderer is memoized internally based on these data dependencies
-          cellRendererDependencies,
-          onVisibleCellsChange: _onVisibleCellsChange,
-          rowHeaderCellRenderer,
-          selectionModes: _selectionModes,
-          ...tableProps,
-          getCellClipboardData: null,
-        },
-        realizedColumns,
-      ),
+      [
+        // Inside the holder, so the toolbar and filters stay reachable.
+        h.if(_showLoadProgress)(LoadErrorOverlay),
+        h(
+          Table as any, // Some sort of hyperscript type error
+          {
+            ref,
+            numRows,
+            className: "data-sheet",
+            enableFocusedCell,
+            enableColumnReordering,
+            onColumnsReordered,
+            focusedCell,
+            selectedRegions,
+            defaultRowHeight: rowHeight,
+            columnWidths,
+            onColumnWidthChanged,
+            onSelection,
+            /** TODO: we could enable this if we had a use-case */
+            enableRowReordering: false,
+            enableRowResizing: false,
+            // The cell renderer is memoized internally based on these data dependencies
+            cellRendererDependencies,
+            onVisibleCellsChange: _onVisibleCellsChange,
+            rowHeaderCellRenderer,
+            selectionModes: _selectionModes,
+            ...tableProps,
+            getCellClipboardData: null,
+          },
+          realizedColumns,
+        ),
+      ],
     ),
     h("div.status-bar", [
       filterStatus,
