@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.11.4] - 2026-11-18 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.11.3...@macrostrat/data-sheet-v4.11.4)
+
+### Patch Changes
+
+- Fix `DataSheet` never showing Save for a `provider` with `saveRows` /
+  `insertRow` / `deleteRows`: the grid now reads the provider from the store
+  [c62943c8](https://github.com/UW-Macrostrat/web-components/commit/c62943c8950854864458170b39c400812688bc4d)
+
 ## [4.11.3] - 2026-11-18 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.11.2...@macrostrat/data-sheet-v4.11.3)
 
 ### Patch Changes
