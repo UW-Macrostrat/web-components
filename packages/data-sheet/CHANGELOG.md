@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.11.5] - 2026-11-18 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.11.4...@macrostrat/data-sheet-v4.11.5)
+
+### Patch Changes
+
+- Fix toolbar actions passing store state, not a `TableActionContext`, to
+  `disabled`
+  [ccd13eae](https://github.com/UW-Macrostrat/web-components/commit/ccd13eae2b00f6f552b8ff2537d74edc59a53ac0)
+- Mount `cellDetail` as a component, so it may use hooks
+  [ccd13eae](https://github.com/UW-Macrostrat/web-components/commit/ccd13eae2b00f6f552b8ff2537d74edc59a53ac0)
+- `DataSheet` renders `presentation: "inline"` filters as always-visible
+  controls in its filter bar, as `DataPanel` does
+  [ccd13eae](https://github.com/UW-Macrostrat/web-components/commit/ccd13eae2b00f6f552b8ff2537d74edc59a53ac0)
+
 ## [4.11.4] - 2026-11-18 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.11.3...@macrostrat/data-sheet-v4.11.4)
 
 ### Patch Changes
