@@ -176,7 +176,8 @@ export interface ColumnSpec {
    * editor when `ctx.editable` and a read-only viewer otherwise, superseding
    * `dataEditor` / `detailRenderer` / `editorForCell`. Presentation is chosen
    * separately via `detailPresentation` (popover / modal / inline), so the
-   * same component works in any container.
+   * same component works in any container. Mounted as a component, so it may
+   * use hooks.
    */
   cellDetail?: (ctx: CellDetailContext) => React.ReactNode;
   /**

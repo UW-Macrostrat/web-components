@@ -4,6 +4,7 @@ import { DataSheet, defaultTableActions } from "../src";
 import type { CellDetailContext } from "../src";
 import { Callout, Switch } from "@blueprintjs/core";
 import { useState } from "react";
+import classNames from "classnames";
 import "@blueprintjs/table/lib/css/table.css";
 
 const h = hyper;
@@ -211,4 +212,53 @@ function EditableToggleDemo() {
 
 export const TableEditableToggle: StoryObj = {
   render: () => h(EditableToggleDemo),
+};
+
+/** A `cellDetail` that keeps a draft in `useState` and commits it on Apply —
+ * it is mounted as a component, so hooks work. */
+function CategoryDraftDetail(ctx: CellDetailContext) {
+  const [draft, setDraft] = useState(ctx.value);
+  if (!ctx.editable) return h("span", ctx.value);
+  return h("div.bp6-button-group", [
+    ...categories.map((c) =>
+      h(
+        "button.bp6-button",
+        {
+          key: c,
+          className: classNames({ "bp6-active": c === draft }),
+          onClick: () => setDraft(c),
+        },
+        c,
+      ),
+    ),
+    h(
+      "button.bp6-button.bp6-intent-primary",
+      {
+        onClick() {
+          ctx.onChange(draft);
+          ctx.close();
+        },
+      },
+      "Apply",
+    ),
+  ]);
+}
+
+export const CellDetailWithHooks: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      data: testData,
+      editable: true,
+      actions: defaultTableActions,
+      columnSpec: [
+        { name: "Name", key: "name", width: 150 },
+        {
+          name: "Category",
+          key: "category",
+          width: 160,
+          cellDetail: CategoryDraftDetail,
+          detailPlacement: "bottom-start",
+        },
+      ],
+    }),
 };
