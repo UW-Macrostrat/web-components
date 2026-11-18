@@ -84,6 +84,11 @@
   color: var(--pz-text-subtle-color, var(--secondary-color)) !important
   font-style: italic
 
+// Locked columns in an editable sheet: dimmed, not italic, so they read apart
+// from derived ones.
+.readonly-cell
+  color: var(--pz-text-subtle-color, var(--secondary-color)) !important
+
 .value-viewer-cell
   :global(.bp6-popover-target)
     width: 100%

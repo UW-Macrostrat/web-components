@@ -174,8 +174,13 @@ export function basicCellRenderer<T>(
     col.cellDetail != null ? (col.detailPresentation ?? "popover") : null;
 
   // Derived values are drawn dimmed, so a reader can tell a record from a
-  // restatement of one. Applied on every path below.
-  const derivedClass = col.derived ? "derived-cell" : undefined;
+  // restatement of one. Locked columns in an editable sheet are dimmed too.
+  // Applied on every path below.
+  const locked = tableIsEditable && col.editable === false && !col.derived;
+  const valueClass = classNames({
+    "derived-cell": col.derived,
+    "readonly-cell": locked,
+  });
 
   // Fast path — any non-focused cell whose *unfocused* appearance is just the
   // value viewer (a plain Blueprint `Cell`). That's everything except a custom
@@ -196,7 +201,7 @@ export function basicCellRenderer<T>(
         loading,
         //value,
         style,
-        className: derivedClass,
+        className: valueClass,
         interactive: false,
         //disabled: tableIsEditable && !editable,
       },
@@ -277,7 +282,7 @@ export function basicCellRenderer<T>(
         loading,
         value,
         style,
-        className: derivedClass,
+        className: valueClass,
         disabled: tableIsEditable && !editable,
         interactive: false,
         ...cellComponentProps,
@@ -412,7 +417,7 @@ export function basicCellRenderer<T>(
     if (_dataEditor != null) {
       cellContents = _dataEditor;
     }
-    const className = classNames("value-viewer-cell", derivedClass);
+    const className = classNames("value-viewer-cell", valueClass);
 
     return h(
       _Cell,
