@@ -14,6 +14,7 @@ import {
   type CompositeColumnScale,
   getUnitHeightRange,
 } from "../prepare-units";
+import { groupUnitsByLabel, type LabelGroup } from "./label-groups";
 
 interface UnitDataProps extends NotesColumnProps {
   left?: number;
@@ -24,6 +25,8 @@ interface UnitDataProps extends NotesColumnProps {
   divisions?: IUnit[];
   minimumHeight?: number;
   scale?: CompositeColumnScale;
+  /** One note for each run of touching units that share a name (default true) */
+  coalesceLabels?: boolean;
 }
 
 interface UnitNote extends NoteData {
@@ -31,6 +34,8 @@ interface UnitNote extends NoteData {
   top_height: number;
   data: IUnit;
   id: number;
+  /** Every unit the note labels; `data` is the topmost */
+  units: IUnit[];
 }
 
 function noteForDivision(
@@ -49,6 +54,20 @@ function noteForDivision(
     data: div,
     id: div.unit_id,
     note: nameForDivision(div),
+    units: [div],
+  };
+}
+
+function noteForLabelGroup(group: LabelGroup<IUnit>): UnitNote {
+  const [height, top_height] = group.heightRange;
+  const top = group.units[0];
+  return {
+    height,
+    top_height,
+    data: top,
+    id: top.unit_id,
+    note: group.label,
+    units: group.units,
   };
 }
 
@@ -69,6 +88,7 @@ function UnitDataColumn_(props: UnitDataProps) {
     nameForDivision,
     minimumHeight = 0,
     divisions = units,
+    coalesceLabels = true,
     ...rest
   } = props;
 
@@ -82,10 +102,22 @@ function UnitDataColumn_(props: UnitDataProps) {
   );
 
   if (divisions == null) return null;
-  const notes: UnitNote[] = divisions
-    .filter(shouldRenderNote)
-    .map((d: IUnit) => noteForDivision(d, { axisType, nameForDivision }))
-    .filter(minimumHeightFilter);
+  const toLabel = divisions.filter(shouldRenderNote);
+  let notes: UnitNote[];
+  if (coalesceLabels) {
+    // Merged before the height filter, so a run of thin units can earn a note
+    notes = groupUnitsByLabel(toLabel, {
+      axisType,
+      scale,
+      nameForUnit: nameForDivision ?? defaultNameFunction,
+      joinOverlapping: true,
+    }).map(noteForLabelGroup);
+  } else {
+    notes = toLabel.map((d: IUnit) =>
+      noteForDivision(d, { axisType, nameForDivision }),
+    );
+  }
+  notes = notes.filter(minimumHeightFilter);
 
   return h(NotesColumn, {
     transform: `translate(${left})`,

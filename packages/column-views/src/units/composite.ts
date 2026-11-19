@@ -18,6 +18,7 @@ import {
 } from "react";
 import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
+import { InlineLabelGroupsProvider, useUnitLabelGroup } from "./label-groups";
 import styles from "./composite.module.sass";
 import {
   useCompositeScale,
@@ -54,7 +55,9 @@ export function LabelTrackerProvider(props) {
     const tracker = labelTrackerRef.current;
     const allReported = units.every((d) => findUnitID(d) in tracker);
     if (!allReported) return;
-    setUnlabeledDivisions(units.filter((d) => tracker[findUnitID(d)] === false));
+    setUnlabeledDivisions(
+      units.filter((d) => tracker[findUnitID(d)] === false),
+    );
   }, [units, findUnitID]);
 
   const trackLabelVisibility = useCallback(
@@ -89,12 +92,42 @@ function TrackedLabeledUnit({
   ...rest
 }) {
   const trackLabelVisibility = useContext(LabelTrackerContext);
+  const membership = useUnitLabelGroup(division);
+  const isFollower = membership != null && !membership.isLeader;
+  const labelGroup = membership?.group ?? null;
+  const reportedUnits = labelGroup?.units ?? [division];
+  const visibleRef = useRef<boolean | null>(null);
+
+  const report = (visible: boolean) => {
+    for (const unit of reportedUnits) {
+      trackLabelVisibility?.(unit, visible);
+    }
+  };
+
+  // A group can gain members without its label's fit changing
+  const memberKey = reportedUnits.map((d) => d.unit_id).join(",");
+  useEffect(() => {
+    if (isFollower || visibleRef.current == null) return;
+    report(visibleRef.current);
+  }, [memberKey, isFollower, trackLabelVisibility]);
+
+  // The group's leader draws and reports its label
+  if (isFollower) {
+    return h(LabeledUnit, {
+      division,
+      label: nameForDivision(division),
+      ...rest,
+      showLabel: false,
+    });
+  }
+
   return h(LabeledUnit, {
     division,
     label: nameForDivision(division),
+    labelGroup,
     onLabelUpdated(label, visible) {
-      // If there is al LabelTrackerContext, update the label visibility
-      trackLabelVisibility?.(division, visible);
+      visibleRef.current = visible;
+      report(visible);
     },
     ...rest,
   });
@@ -123,6 +156,8 @@ type ICompositeUnitProps = BaseUnitProps & {
   shouldRenderNote?: (d: any) => boolean;
   /** Suppress the label for a unit drawn thinner than this many pixels */
   labelSuppressHeight?: number;
+  /** Label touching units that share a name once, across all of them (default true) */
+  coalesceLabels?: boolean;
 };
 
 interface CompositeUnitProps {
@@ -131,6 +166,8 @@ interface CompositeUnitProps {
   width: number;
   showLabels?: boolean;
   clipToFrame?: boolean;
+  /** Label touching units that share a name once, across all of them (default true) */
+  coalesceLabels?: boolean;
 }
 
 export function CompositeUnitsColumn(props: CompositeUnitProps) {
@@ -143,15 +180,23 @@ export function CompositeUnitsColumn(props: CompositeUnitProps) {
     unitComponent = TrackedLabeledUnit,
     unitComponentProps,
     clipToFrame,
+    coalesceLabels = true,
     ...rest
   } = props;
 
+  const nameForUnit =
+    unitComponentProps?.nameForDivision ?? defaultNameFunction;
+
   return h(LithologyColumn, { width, clipToFrame }, [
-    h(UnitBoxes, {
-      unitComponent,
-      unitComponentProps,
-      ...rest,
-    }),
+    h(
+      InlineLabelGroupsProvider,
+      { nameForUnit, enabled: coalesceLabels },
+      h(UnitBoxes, {
+        unitComponent,
+        unitComponentProps,
+        ...rest,
+      }),
+    ),
     h(CoveredUnits),
   ]);
 }
@@ -196,6 +241,7 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
     noteComponent,
     shouldRenderNote,
     labelSuppressHeight = DEFAULT_LABEL_SUPPRESS_HEIGHT,
+    coalesceLabels = true,
   } = props;
 
   const { totalHeight, axisType } = useMacrostratColumnData();
@@ -230,6 +276,7 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
           minimumHeight: labelSuppressHeight,
           noteComponent,
           shouldRenderNote,
+          coalesceLabels,
           scale: _compositeScale,
           onClickNote(note) {
             selectUnit(note.data, null, null);

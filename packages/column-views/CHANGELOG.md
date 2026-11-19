@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.19.0] - 2026-11-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.18.1...@macrostrat/column-views-v3.19.0)
+
+### Minor Changes
+
+- Coalesce repeated unit labels: touching units that share a name get one label
+  [8088f501](https://github.com/UW-Macrostrat/web-components/commit/8088f5018f7ee8f444fa5513a68c5ed20c25c6d9)
+  spanning them, inline and in the label column. Turn off with
+  `coalesceLabels={false}` on `Column`.
+
+### Patch Changes
+
+- Keep abutting units in one section on depth and height columns; only real gaps
+  [8088f501](https://github.com/UW-Macrostrat/web-components/commit/8088f5018f7ee8f444fa5513a68c5ed20c25c6d9)
+  (e.g. missing core) split them.
+
 ## [3.18.1] - 2026-11-09 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.18.0...@macrostrat/column-views-v3.18.1)
 
 ### Patch Changes

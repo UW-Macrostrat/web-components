@@ -35,6 +35,9 @@ export * from "./density";
 export { preprocessUnits };
 export type { CompositeColumnScale };
 
+/** Gaps between units smaller than this (in axis units) don't split a section */
+const sectionGapTolerance = 0.001;
+
 export function usePreparedColumnUnits(
   data: UnitLong[],
   options: PrepareColumnOptions,
@@ -148,7 +151,12 @@ export function prepareColumnUnits(
   } else if (axisType == ColumnAxisType.AGE) {
     sections0 = groupUnitsIntoSectionsBySectionID(units1, axisType);
   } else {
-    sections0 = groupUnitsIntoSectionsByOverlap(units1, axisType);
+    // Negative tolerance: abutting units join; only real gaps split sections
+    sections0 = groupUnitsIntoSectionsByOverlap(
+      units1,
+      axisType,
+      -sectionGapTolerance,
+    );
   }
 
   // Limit sections to the range specified by t_age/b_age or t_pos/b_pos global options

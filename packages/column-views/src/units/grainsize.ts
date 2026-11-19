@@ -183,18 +183,42 @@ export function useGrainsizeBounds<T extends { width: number }>(
   return { ...bounds, width: bounds.width - Math.min(inset, limit) };
 }
 
+/** `bounds` narrowed to fit inside every one of `divisions` — the box for a
+ * label shared by several units. */
+export function useGrainsizeBoundsForUnits<T extends { width: number }>(
+  divisions: { [key: string]: any }[],
+  bounds: T,
+): T {
+  const options = useContext(GrainsizeContext);
+  if (options == null) return bounds;
+  const inset = Math.max(
+    ...divisions.map((d) => grainsizeInset(d?.lith, options)),
+  );
+  if (inset == 0) return bounds;
+  const limit = (1 - options.minWidthFraction) * bounds.width;
+  return { ...bounds, width: bounds.width - Math.min(inset, limit) };
+}
+
 /** Pixels to pull a unit's right edge in by, for its grain size. */
 export function useGrainsizeInset(
   lithologies: UnitLithology[] | null | undefined,
 ): number {
   const options = useContext(GrainsizeContext);
-  return useMemo(() => {
-    if (options == null) return 0;
-    const size = unitGrainsize(lithologies);
-    if (size == null) return 0;
-    const steps = grainSizes.length - 1;
-    return ((steps - grainSizes.indexOf(size)) / steps) * options.range;
-  }, [options, lithologies]);
+  return useMemo(
+    () => grainsizeInset(lithologies, options),
+    [options, lithologies],
+  );
+}
+
+function grainsizeInset(
+  lithologies: UnitLithology[] | null | undefined,
+  options: GrainsizeScale | null,
+): number {
+  if (options == null) return 0;
+  const size = unitGrainsize(lithologies);
+  if (size == null) return 0;
+  const steps = grainSizes.length - 1;
+  return ((steps - grainSizes.indexOf(size)) / steps) * options.range;
 }
 
 export function grainsizeEnabled(

@@ -44,6 +44,8 @@ export interface SectionSharedProps {
   showLabelColumn?: boolean;
   /** Suppress the label for a unit drawn thinner than this many pixels */
   labelSuppressHeight?: number;
+  /** Label touching units that share a name once, across all of them (default true) */
+  coalesceLabels?: boolean;
   axisType?: ColumnAxisType;
   className?: string;
   clipUnits?: boolean;
@@ -71,6 +73,7 @@ export function SectionsColumn(props: SectionSharedProps) {
     clipUnits = true,
     maxInternalColumns,
     labelSuppressHeight,
+    coalesceLabels = true,
   } = props;
 
   const units = useMacrostratUnits();
@@ -87,10 +90,12 @@ export function SectionsColumn(props: SectionSharedProps) {
       clipUnits,
       maxInternalColumns,
       unconformityLabels,
+      coalesceLabels,
     }),
     h.if(showLabelColumn)(SectionLabelsColumn, {
       width: width - columnWidth,
       labelSuppressHeight,
+      coalesceLabels,
     }),
   ]);
 }
@@ -105,10 +110,14 @@ function SectionUnitsColumn(props: SectionSharedProps) {
     maxInternalColumns,
     axisType,
     unconformityLabels = true,
+    coalesceLabels,
   } = props;
 
-  const { sections, totalHeight, axisType: columnAxisType } =
-    useMacrostratColumnData();
+  const {
+    sections,
+    totalHeight,
+    axisType: columnAxisType,
+  } = useMacrostratColumnData();
 
   const scaleData: PackageScaleLayoutData[] = sections.map((section) => {
     return section.scaleInfo;
@@ -141,6 +150,7 @@ function SectionUnitsColumn(props: SectionSharedProps) {
             width: innerWidth,
             clipUnits,
             maxInternalColumns,
+            coalesceLabels,
           }, // This unconformity is with the section _above_
         );
       }),
@@ -168,6 +178,7 @@ function SectionUnits(props: SectionProps) {
     className,
     clipUnits = true,
     maxInternalColumns,
+    coalesceLabels,
   } = props;
 
   const { domain, pixelScale, pixelHeight, scale } = scaleInfo;
@@ -209,6 +220,7 @@ function SectionUnits(props: SectionProps) {
         unitComponent,
         unitComponentProps: _unitComponentProps,
         clipToFrame: clipUnits,
+        coalesceLabels,
       }),
     ),
   );
@@ -398,17 +410,15 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
  * into sections, and fetching per section would ask for the same timescale
  * once per section per timescale.
  */
-function useColumnTimescales(props: CompositeTimescaleProps): ColumnTimescale[] {
+function useColumnTimescales(
+  props: CompositeTimescaleProps,
+): ColumnTimescale[] {
   const { timescales, levels = 3, timescaleID, additionalTimescales } = props;
 
   const specs = useMemo(
-    () => timescaleSpecs({ timescales, levels, timescaleID, additionalTimescales }),
-    [
-      timescales,
-      levels,
-      timescaleID,
-      additionalTimescales?.join(","),
-    ],
+    () =>
+      timescaleSpecs({ timescales, levels, timescaleID, additionalTimescales }),
+    [timescales, levels, timescaleID, additionalTimescales?.join(",")],
   );
 
   // Only the ones that didn't come with their own intervals need fetching
@@ -431,7 +441,12 @@ function useColumnTimescales(props: CompositeTimescaleProps): ColumnTimescale[] 
 /** The `timescales` list, or one built from the older props that name the
  * leveled timescale and the flat ones beside it. */
 function timescaleSpecs(props: CompositeTimescaleProps): ColumnTimescale[] {
-  const { timescales, levels = 3, timescaleID, additionalTimescales = [] } = props;
+  const {
+    timescales,
+    levels = 3,
+    timescaleID,
+    additionalTimescales = [],
+  } = props;
 
   if (timescales != null) {
     return timescales.map(normalizeTimescale);

@@ -62,6 +62,9 @@ interface BaseColumnProps extends Omit<
   /** Suppress the label for a unit drawn thinner than this many pixels
    * (default 2) */
   labelSuppressHeight?: number;
+  /** Label a run of touching units that share a name once, across the run,
+   * inline and in the label column (default true) */
+  coalesceLabels?: boolean;
   keyboardNavigation?: boolean;
   showLabels?: boolean;
   maxInternalColumns?: number;
@@ -279,6 +282,7 @@ function ColumnInner(props: ColumnInnerProps) {
     columnWidth: _columnWidth = 150,
     showLabelColumn: _showLabelColumn = true,
     labelSuppressHeight,
+    coalesceLabels,
     className,
     clipUnits = false,
     children,
@@ -361,6 +365,7 @@ function ColumnInner(props: ColumnInnerProps) {
           columnWidth,
           showLabelColumn,
           labelSuppressHeight,
+          coalesceLabels,
           clipUnits,
           unconformityLabels: _sectionUnconformityLabels,
           maxInternalColumns,
