@@ -17,7 +17,8 @@ import { IUnit } from "./types";
 import styles from "./boxes.module.sass";
 import classNames from "classnames";
 import { getUnitHeightRange } from "../prepare-units/utils";
-import { useGrainsizeBounds } from "./grainsize";
+import { useGrainsizeBounds, useGrainsizeBoundsForUnits } from "./grainsize";
+import type { LabelGroup } from "./label-groups";
 import type { RectBounds } from "./types";
 import {
   getBestFGDCPatternForUnit,
@@ -77,6 +78,8 @@ export interface LabeledUnitProps
   onLabelUpdated?(label: string, shown: boolean);
   halfWidth?: boolean;
   showLabel?: boolean;
+  /** Draw the label across all the units of this group, not just this one */
+  labelGroup?: LabelGroup<IUnit> | null;
   backgroundColor?: string;
   selectionStyle?: UnitSelectionStyle | `${UnitSelectionStyle}`;
 }
@@ -249,6 +252,7 @@ function LabeledUnit(props: LabeledUnitProps) {
     onLabelUpdated,
     widthFraction,
     showLabel = true,
+    labelGroup,
     backgroundColor,
     patternID,
     selectionStyle,
@@ -258,12 +262,25 @@ function LabeledUnit(props: LabeledUnitProps) {
 
   const { axisType, isTransitioning, hideLabelsWhileTransitioning } =
     useColumn();
+  const { scale } = useContext(ColumnContext);
   const bounds = {
     ...useUnitRect(division, { widthFraction, axisType }),
     ...baseBounds,
   };
+
+  let labelUnits = [division];
+  let labelRect = bounds;
+  if (labelGroup != null) {
+    labelUnits = labelGroup.units;
+    const [bottom, top] = labelGroup.heightRange.map((d) => scale(d) as number);
+    labelRect = {
+      ...bounds,
+      y: Math.min(bottom, top),
+      height: Math.abs(bottom - top),
+    };
+  }
   // `Unit` narrows its own box; only the label needs narrowing here
-  const labelBounds = useGrainsizeBounds(division, bounds);
+  const labelBounds = useGrainsizeBoundsForUnits(labelUnits, labelRect);
   const { width, height } = labelBounds;
   // Labels stay visible through the animation by default. `hideLabelsWhileTransitioning`
   // is a perf escape hatch: when set, the `foreignObject` label (whose HTML
@@ -290,7 +307,8 @@ function LabeledUnit(props: LabeledUnitProps) {
           label,
           // Re-fit the label when a transition settles (isTransitioning flips),
           // not on every intermediate frame.
-          remeasureKey: isTransitioning,
+          // Also re-fit when the label's group gains or loses units
+          remeasureKey: `${isTransitioning}:${labelUnits.length}`,
           onVisibilityChanged(viz) {
             onLabelUpdated(label, viz);
           },

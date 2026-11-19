@@ -223,6 +223,9 @@ export function groupUnitsIntoSectionsByOverlap<T extends BaseUnit>(
    * This creates "synthetic" sections that correspond to packages bound by scale gaps.
    * This is most useful in the height and depth domains, where gaps (e.g., missing core) are
    * common.
+   *
+   * A positive `tolerance` ignores overlaps that small, so abutting units stay
+   * apart; a negative one also joins units separated by less than it.
    * */
   // Start with each unit as its own "section", and progressively merge...
   const sectionList: WorkingSection[] = [];
