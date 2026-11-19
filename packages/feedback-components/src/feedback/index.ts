@@ -5,7 +5,7 @@ import { FeedbackText } from "./text-visualizer";
 import type { InternalEntity, TreeData } from "./types";
 import type { Entity } from "../extractions";
 import type { EntityType } from "../extractions/types";
-import { ModelInfo, type MatchComponent } from "../extractions";
+import { ModelInfo, type ModelInfoData, type MatchComponent } from "../extractions";
 import {
   TreeDispatchContext,
   treeToGraph,
@@ -61,7 +61,9 @@ export interface FeedbackComponentProps {
   /** The paragraph the entities were extracted from. */
   text: string;
   /** The model that produced the run (shown under the text). */
-  model?: any;
+  model?: ModelInfoData;
+  /** Model/version metadata route; null disables metadata requests. */
+  modelDetailsEndpoint?: string | null;
   entityTypes: Map<number, EntityType>;
   /** Renders a matched entity's link in the tree (legacy; prefer `matchLinks`). */
   matchComponent?: MatchComponent;
@@ -101,6 +103,7 @@ export function FeedbackComponent({
   entities = NO_ENTITIES,
   text,
   model,
+  modelDetailsEndpoint,
   entityTypes,
   matchComponent,
   onSave,
@@ -246,7 +249,7 @@ export function FeedbackComponent({
               autoCreateTags,
             }),
           ),
-          h(ModelInfo, { data: model }),
+          h(ModelInfo, { data: model, modelDetailsEndpoint }),
           h(
             "div.entity-panel",
             { style: panelStyle },
