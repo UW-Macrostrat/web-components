@@ -6,6 +6,9 @@ import { CSSProperties } from "react";
 import { asChromaColor } from "@macrostrat/color-utils";
 import hyper from "@macrostrat/hyper";
 import { useDarkMode } from "@macrostrat/ui-components";
+import { ModelInfo } from "./model-info";
+
+export * from "./model-info";
 
 export type { Entity, EntityExt };
 
@@ -51,9 +54,24 @@ export function entitySpans(
 }
 
 export function enhanceData(extractionData, models, entityTypes) {
+  let model = models.get(extractionData.model_id) ?? extractionData.model;
+  if (extractionData.model_id != null) {
+    if (
+      model?.version_id != null &&
+      model.version_id !== extractionData.version_id
+    ) {
+      // A model index may contain a different version's row.
+      model = { ...model, version_name: undefined, version_description: undefined };
+    }
+    model = {
+      ...model,
+      model_id: extractionData.model_id,
+      version_id: extractionData.version_id,
+    };
+  }
   return {
     ...extractionData,
-    model: models.get(extractionData.model_id),
+    model,
     entities: extractionData.entities?.map((d) =>
       enhanceEntity(d, entityTypes),
     ),
@@ -136,17 +154,25 @@ export function ExtractionContext({
   entityTypes,
   matchComponent,
   matchLinks,
+  modelDetailsEndpoint,
 }: {
   data: any;
   entityTypes: Map<number, EntityType>;
   matchComponent: MatchComponent;
   matchLinks?: Record<string, string>;
+  modelDetailsEndpoint?: string | null;
 }) {
   const highlights = buildHighlights(data.entities, null);
 
   return h("div", [
     h("p", h(HighlightedText, { text: data.paragraph_text, highlights })),
-    h(ModelInfo, { data: data.model }),
+    h(ModelInfo, {
+      data: data.model && {
+        ...data.model,
+        version_id: data.version_id ?? data.model.version_id,
+      },
+      modelDetailsEndpoint,
+    }),
     h(
       "ul.entities",
       data.entities.map((d) =>
@@ -154,11 +180,6 @@ export function ExtractionContext({
       ),
     ),
   ]);
-}
-
-export function ModelInfo({ data }) {
-  if (!data) return null;
-  return h("p.model-name", ["Model: ", h("code.bp6-code", data.name)]);
 }
 
 export type MatchComponent = (props: { data: any }) => any;

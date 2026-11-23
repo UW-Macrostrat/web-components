@@ -2,6 +2,34 @@
 
 Components for user feedback and assessment of (often AI-extracted) information.
 
+## Model and version details
+
+`ModelInfo` displays the model name and version name. The model links to its URL
+when one is provided. Without a URL, its description appears in a Blueprint
+tooltip; without either, it is plain text. Hovering or focusing a version shows
+its description in a Blueprint tooltip, if present.
+
+Pass a row from `https://dev.macrostrat.org/api/pg/kg_model_details` directly as
+`data`, or pass a legacy model object with `model_id` (or `id`) and `version_id`.
+Legacy objects load metadata from that endpoint, filtered by both IDs.
+`enhanceData(run, models, entityTypes)` now carries the run's IDs into `data.model`,
+so existing consumers passing that model to `FeedbackComponent` resolve the
+correct version without changes. Without a version ID, only model metadata is
+fetched; no version is guessed. Failed requests leave the supplied data visible.
+
+```ts
+h(ModelInfo, { data: { model_id: 7, version_id: 229 } });
+// Or pass the complete API row, with no additional fetch:
+h(ModelInfo, { data: modelDetailsRow });
+```
+
+`ModelInfo`, `FeedbackComponent`, and `ExtractionContext` accept
+`modelDetailsEndpoint` to override the route for another deployment, or `null`
+to disable metadata requests. When supplying `FeedbackComponent.model` directly
+without `enhanceData`, include `version_id` or the resolved version fields.
+See **Text extractions → Model info** for link, tooltip, plain-text, legacy and
+live-lookup examples.
+
 ## Entity feedback with multiple parents
 
 `FeedbackComponent` replaces its tree/graph panel with a KG view where an entity
@@ -68,7 +96,8 @@ ignored for compatibility.
 parents and original edge metadata. The optional second `onSave(tree, graph)`
 argument contains the same graph. Do not reconstruct connections solely from
 `children` or save the filtered display projection. `GraphData.nodes[].children`
-is empty; use `edges`. No API requests are made by the component itself.
+is empty; use `edges`. Saves are handled by the consumer; model metadata and
+term matching can make read-only API requests.
 
 ## Stories and checks
 
