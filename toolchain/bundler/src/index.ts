@@ -93,6 +93,11 @@ function buildStandardViteConfig(
     ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.peerDependencies || {}),
   ].filter((dep) => !rollupInternal.includes(dep));
+  // A peer's subpath (e.g. `vike-react/usePageContext`) must resolve to the host's copy.
+  const peerDeps = Object.keys(pkg.peerDependencies || {});
+  const isExternal = (id: string) =>
+    externalDeps.includes(id) ||
+    peerDeps.some((dep) => id.startsWith(dep + "/"));
 
   return defineConfig({
     root,
@@ -147,7 +152,7 @@ function buildStandardViteConfig(
       // Rollup options
       rollupOptions: {
         // External dependencies that should not be bundled
-        external: externalDeps,
+        external: isExternal,
         output: {
           preserveModules: true,
           interop: "auto",

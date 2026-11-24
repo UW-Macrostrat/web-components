@@ -34,6 +34,7 @@ and third-party usage are welcome!
 - [![@macrostrat/map-views](https://img.shields.io/npm/v/@macrostrat/map-views?label=%40macrostrat%2Fmap-views)](https://www.npmjs.com/package/@macrostrat/map-views)
 - [![@macrostrat/mapbox-react](https://img.shields.io/npm/v/@macrostrat/mapbox-react?label=%40macrostrat%2Fmapbox-react)](https://www.npmjs.com/package/@macrostrat/mapbox-react)
 - [![@macrostrat/mapbox-utils](https://img.shields.io/npm/v/@macrostrat/mapbox-utils?label=%40macrostrat%2Fmapbox-utils)](https://www.npmjs.com/package/@macrostrat/mapbox-utils)
+- [![@macrostrat/navigation-components](https://img.shields.io/npm/v/@macrostrat/navigation-components?label=%40macrostrat%2Fnavigation-components)](https://www.npmjs.com/package/@macrostrat/navigation-components)
 - [![@macrostrat/static-map-utils](https://img.shields.io/npm/v/@macrostrat/static-map-utils?label=%40macrostrat%2Fstatic-map-utils)](https://www.npmjs.com/package/@macrostrat/static-map-utils)
 - [![@macrostrat/stratigraphy-utils](https://img.shields.io/npm/v/@macrostrat/stratigraphy-utils?label=%40macrostrat%2Fstratigraphy-utils)](https://www.npmjs.com/package/@macrostrat/stratigraphy-utils)
 - [![@macrostrat/style-system](https://img.shields.io/npm/v/@macrostrat/style-system?label=%40macrostrat%2Fstyle-system)](https://www.npmjs.com/package/@macrostrat/style-system)
@@ -68,19 +69,20 @@ import "@macrostrat/column-components/style.css";
 The following table lists the packages that require separate style imports,
 along with the version since which the style import has been necessary.
 
-| Module                            | Stylesheet                         | Since   |
-| --------------------------------- | ---------------------------------- | ------- |
-| `@macrostrat/column-components`   | `.../dist/column-components.css`   | `2.0.0` |
-| `@macrostrat/column-creator`      | `.../dist/column-creator.css`      | `0.2.0` |
-| `@macrostrat/column-views`        | `.../dist/column-views.css`        | `3.0.0` |
-| `@macrostrat/data-components`     | `.../dist/data-components.css`     | `1.0.0` |
-| `@macrostrat/data-sheet`          | `.../dist/data-sheet.css`          | `3.0.0` |
-| `@macrostrat/feedback-components` | `.../dist/feedback-components.css` | `2.0.0` |
-| `@macrostrat/form-components`     | `.../dist/form-components.css`     | `1.0.0` |
-| `@macrostrat/map-interface`       | `.../dist/map-interface.css`       | `2.0.0` |
-| `@macrostrat/static-map-utils`    | `.../dist/static-map-utils.css`    | `2.0.0` |
-| `@macrostrat/timescale`           | `.../dist/timescale.css`           | `3.0.0` |
-| `@macrostrat/ui-components`       | `.../dist/ui-components.css`       | `5.0.0` |
+| Module                              | Stylesheet                           | Since   |
+| ----------------------------------- | ------------------------------------ | ------- |
+| `@macrostrat/column-components`     | `.../dist/column-components.css`     | `2.0.0` |
+| `@macrostrat/column-creator`        | `.../dist/column-creator.css`        | `0.2.0` |
+| `@macrostrat/column-views`          | `.../dist/column-views.css`          | `3.0.0` |
+| `@macrostrat/data-components`       | `.../dist/data-components.css`       | `1.0.0` |
+| `@macrostrat/data-sheet`            | `.../dist/data-sheet.css`            | `3.0.0` |
+| `@macrostrat/feedback-components`   | `.../dist/feedback-components.css`   | `2.0.0` |
+| `@macrostrat/form-components`       | `.../dist/form-components.css`       | `1.0.0` |
+| `@macrostrat/map-interface`         | `.../dist/map-interface.css`         | `2.0.0` |
+| `@macrostrat/navigation-components` | `.../dist/navigation-components.css` | `0.1.0` |
+| `@macrostrat/static-map-utils`      | `.../dist/static-map-utils.css`      | `2.0.0` |
+| `@macrostrat/timescale`             | `.../dist/timescale.css`             | `3.0.0` |
+| `@macrostrat/ui-components`         | `.../dist/ui-components.css`         | `5.0.0` |
 
 ## Contributing
 
