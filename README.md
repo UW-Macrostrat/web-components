@@ -40,6 +40,7 @@ and third-party usage are welcome!
 - [![@macrostrat/svg-map-components](https://img.shields.io/npm/v/@macrostrat/svg-map-components?label=%40macrostrat%2Fsvg-map-components)](https://www.npmjs.com/package/@macrostrat/svg-map-components)
 - [![@macrostrat/timescale](https://img.shields.io/npm/v/@macrostrat/timescale?label=%40macrostrat%2Ftimescale)](https://www.npmjs.com/package/@macrostrat/timescale)
 - [![@macrostrat/ui-components](https://img.shields.io/npm/v/@macrostrat/ui-components?label=%40macrostrat%2Fui-components)](https://www.npmjs.com/package/@macrostrat/ui-components)
+- [![@macrostrat/vike-navigation](https://img.shields.io/npm/v/@macrostrat/vike-navigation?label=%40macrostrat%2Fvike-navigation)](https://www.npmjs.com/package/@macrostrat/vike-navigation)
 
 ### Style imports
 
@@ -81,6 +82,7 @@ along with the version since which the style import has been necessary.
 | `@macrostrat/static-map-utils`    | `.../dist/static-map-utils.css`    | `2.0.0` |
 | `@macrostrat/timescale`           | `.../dist/timescale.css`           | `3.0.0` |
 | `@macrostrat/ui-components`       | `.../dist/ui-components.css`       | `5.0.0` |
+| `@macrostrat/vike-navigation`     | `.../dist/vike-navigation.css`     | `0.1.0` |
 
 ## Contributing
 

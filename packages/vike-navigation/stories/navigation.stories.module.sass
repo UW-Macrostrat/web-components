@@ -1,0 +1,91 @@
+.contact-sheet
+  display: flex
+  flex-wrap: wrap
+  align-items: flex-start
+  gap: var(--pz-space-6) var(--pz-space-5)
+  padding: var(--pz-space-5)
+  background: var(--pz-background-color)
+  min-height: 100vh
+  box-sizing: border-box
+
+.scenario
+  margin: 0
+  max-width: 100%
+
+  figcaption
+    font-size: var(--pz-font-size-sm)
+    margin-bottom: var(--pz-space-2)
+    color: var(--pz-text-color)
+
+  .url
+    font-family: var(--pz-font-mono)
+    color: var(--pz-text-subtle-color)
+    margin-left: 0.5em
+
+.frame
+  resize: horizontal
+  overflow: hidden
+  max-width: 100%
+  min-width: 12rem
+  background: var(--pz-panel-background-color)
+  border: 1px dashed var(--pz-border-color)
+  border-radius: var(--pz-radius-md)
+
+.note
+  margin: var(--pz-space-2) 0 0
+  max-width: 44em
+  font-size: var(--pz-font-size-sm)
+  color: var(--pz-text-subtle-color)
+
+.page-sample
+  background: var(--pz-background-color)
+
+.page-body
+  padding: var(--pz-space-3) var(--pz-space-4) var(--pz-space-4)
+  color: var(--pz-text-subtle-color)
+  font-size: var(--pz-font-size-sm)
+
+.navbar-sample
+  display: flex
+
+  .navbar-trail
+    flex: 1
+    min-width: 0
+
+    & > :global(.page-breadcrumbs)
+      flex: 1
+      min-width: 0
+
+.panel-sample
+  padding: var(--pz-space-2)
+
+// Macrostrat's root crumb is its wordmark, in the display face.
+.wordmark
+  font-family: "Maven Pro", var(--pz-font-sans)
+  font-size: 1.05em
+
+.mono-identifier
+  font-family: var(--pz-font-mono)
+
+.lex-title
+  display: inline-flex
+  align-items: baseline
+  gap: 0.4em
+
+.demo-page
+  min-height: 100vh
+  background: var(--pz-background-color)
+  color: var(--pz-text-color)
+
+.demo-content
+  max-width: 60rem
+  margin: 0 auto
+  padding: var(--pz-space-4) var(--pz-content-padding)
+
+  :global(a.is-active)
+    font-weight: var(--pz-font-weight-medium)
+    text-decoration: underline
+
+.note code
+  font-family: var(--pz-font-mono)
+  font-size: 0.95em

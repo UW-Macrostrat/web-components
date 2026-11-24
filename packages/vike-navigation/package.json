@@ -1,0 +1,63 @@
+{
+  "name": "@macrostrat/vike-navigation",
+  "version": "0.1.0",
+  "description": "Route-aware breadcrumbs and page headers for Vike applications",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/vike-navigation"
+  },
+  "license": "MIT",
+  "author": "Daven Quinn",
+  "source": "src/index.ts",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "node": "dist/index.cjs",
+  "types": "dist/index.d.ts",
+  "style": "dist/vike-navigation.css",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      },
+      "style": "./dist/vike-navigation.css"
+    },
+    "./package.json": "./package.json",
+    "./style.css": "./dist/vike-navigation.css",
+    "./dist/vike-navigation.css": "./dist/vike-navigation.css"
+  },
+  "scripts": {
+    "build": "bundle-library ."
+  },
+  "peerDependencies": {
+    "react": "^18.0.0||^19.0.0",
+    "vike": ">=0.4.250",
+    "vike-react": ">=0.6.20"
+  },
+  "dependencies": {
+    "@macrostrat/hyper": "^3.1.1",
+    "@macrostrat/ui-components": "workspace:^",
+    "classnames": "^2.5.1"
+  },
+  "devDependencies": {
+    "@macrostrat/web-components-bundler": "workspace:*",
+    "vike": "^0.4.268",
+    "vike-react": "^0.6.29"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

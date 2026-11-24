@@ -1,0 +1,26 @@
+// A logo image fills the box `--page-header-logo-size` gives it.
+header:global(.site-page-header)
+  :global(.page-header-logo-link)
+    display: flex
+    width: 100%
+    height: 100%
+
+  :global(.page-header-logo-link) img
+    width: 100%
+    height: 100%
+
+  // A root crumb in a display face sits off the others' baseline if centred.
+  // The chevrons and the "…" menu have no text, so they stay centred.
+  ol,
+  li
+    align-items: baseline
+
+  li::after,
+  :global(.bp6-breadcrumbs-collapsed)
+    align-self: center
+
+// A title and the tag that qualifies it, on one baseline.
+.title-with-adornment
+  display: inline-flex
+  align-items: baseline
+  gap: 0.5em
