@@ -42,7 +42,7 @@
     "axios": "^1.13.2",
     "d3-selection": "^3.0.0",
     "mapbox-gl": "^3.0.0",
-    "maplibre-gl": "^5.17.0",
+    "maplibre-gl": "^6.4.1",
     "textures": "^1.2.3"
   },
   "devDependencies": {
