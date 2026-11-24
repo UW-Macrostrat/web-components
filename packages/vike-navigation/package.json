@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/vike-navigation",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Route-aware breadcrumbs and page headers for Vike applications",
   "repository": {
     "type": "git",
