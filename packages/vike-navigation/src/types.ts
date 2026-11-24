@@ -17,7 +17,8 @@ export type PageInfoConfig = PageInfo | ((ctx: any) => PageInfo);
 
 /** One step of a route trail, as `getBreadcrumbs` matches it on the server. */
 export interface RouteCrumb {
-  url: string;
+  /** Absent on the "Not found" or "Error" crumb that replaces the last. */
+  url?: string;
   slug: string;
   /** Absent when the trail was derived from the URL alone. */
   pageId?: string;

@@ -157,7 +157,7 @@ const scenarios: Scenario[] = [
 ];
 
 const meta: Meta<typeof SitePageHeader> = {
-  title: "Navigation components/Site page header",
+  title: "Vike navigation/Site page header",
   component: SitePageHeader,
   parameters: {
     layout: "fullscreen",

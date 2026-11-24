@@ -1,11 +1,11 @@
 {
-  "name": "@macrostrat/navigation-components",
+  "name": "@macrostrat/vike-navigation",
   "version": "0.0.0",
   "description": "Route-aware breadcrumbs and page headers for Vike applications",
   "repository": {
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
-    "directory": "packages/navigation-components"
+    "directory": "packages/vike-navigation"
   },
   "license": "MIT",
   "author": "Daven Quinn",
@@ -14,7 +14,7 @@
   "module": "dist/index.js",
   "node": "dist/index.cjs",
   "types": "dist/index.d.ts",
-  "style": "dist/navigation-components.css",
+  "style": "dist/vike-navigation.css",
   "files": [
     "src",
     "dist"
@@ -33,11 +33,11 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.cjs"
       },
-      "style": "./dist/navigation-components.css"
+      "style": "./dist/vike-navigation.css"
     },
     "./package.json": "./package.json",
-    "./style.css": "./dist/navigation-components.css",
-    "./dist/navigation-components.css": "./dist/navigation-components.css"
+    "./style.css": "./dist/vike-navigation.css",
+    "./dist/vike-navigation.css": "./dist/vike-navigation.css"
   },
   "scripts": {
     "build": "bundle-library ."

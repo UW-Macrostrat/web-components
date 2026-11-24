@@ -1,5 +1,5 @@
 ---
-"@macrostrat/navigation-components": minor
+"@macrostrat/vike-navigation": minor
 ---
 
 New package: route-aware breadcrumbs and page headers for Vike apps

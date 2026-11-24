@@ -2122,23 +2122,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/navigation-components@workspace:packages/navigation-components":
-  version: 0.0.0-use.local
-  resolution: "@macrostrat/navigation-components@workspace:packages/navigation-components"
-  dependencies:
-    "@macrostrat/hyper": "npm:^3.1.1"
-    "@macrostrat/ui-components": "workspace:^"
-    "@macrostrat/web-components-bundler": "workspace:*"
-    classnames: "npm:^2.5.1"
-    vike: "npm:^0.4.268"
-    vike-react: "npm:^0.6.29"
-  peerDependencies:
-    react: ^18.0.0||^19.0.0
-    vike: ">=0.4.250"
-    vike-react: ">=0.6.20"
-  languageName: unknown
-  linkType: soft
-
 "@macrostrat/scoped-store@workspace:^, @macrostrat/scoped-store@workspace:packages/scoped-store":
   version: 0.0.0-use.local
   resolution: "@macrostrat/scoped-store@workspace:packages/scoped-store"
@@ -2282,6 +2265,23 @@ __metadata:
   peerDependencies:
     react: ^18.0.0||^19.0.0
     react-dom: ^18.0.0||^19.0.0
+  languageName: unknown
+  linkType: soft
+
+"@macrostrat/vike-navigation@workspace:packages/vike-navigation":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/vike-navigation@workspace:packages/vike-navigation"
+  dependencies:
+    "@macrostrat/hyper": "npm:^3.1.1"
+    "@macrostrat/ui-components": "workspace:^"
+    "@macrostrat/web-components-bundler": "workspace:*"
+    classnames: "npm:^2.5.1"
+    vike: "npm:^0.4.268"
+    vike-react: "npm:^0.6.29"
+  peerDependencies:
+    react: ^18.0.0||^19.0.0
+    vike: ">=0.4.250"
+    vike-react: ">=0.6.20"
   languageName: unknown
   linkType: soft
 

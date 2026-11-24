@@ -1,4 +1,4 @@
-# @macrostrat/navigation-components
+# @macrostrat/vike-navigation
 
 Route-aware breadcrumbs and page headers for [Vike](https://vike.dev) apps,
 extracted from the Macrostrat website. Each page names its crumb with a
@@ -6,7 +6,7 @@ extracted from the Macrostrat website. Each page names its crumb with a
 `PageHeader` from `@macrostrat/ui-components`.
 
 ```ts
-import "@macrostrat/navigation-components/style.css";
+import "@macrostrat/vike-navigation/style.css";
 ```
 
 ## Wiring a Vike app
@@ -18,7 +18,7 @@ import "@macrostrat/navigation-components/style.css";
    import {
      navigationMeta,
      navigationPassToClient,
-   } from "@macrostrat/navigation-components";
+   } from "@macrostrat/vike-navigation";
 
    export default {
      passToClient: [...navigationPassToClient /* … */],
@@ -29,7 +29,7 @@ import "@macrostrat/navigation-components/style.css";
 2. **`+onCreatePageContext.server.ts`**: match a page at each ancestor URL.
 
    ```ts
-   import { getBreadcrumbs } from "@macrostrat/navigation-components";
+   import { getBreadcrumbs } from "@macrostrat/vike-navigation";
    pageContext.breadcrumbs = await getBreadcrumbs(pageContext);
    ```
 
@@ -71,5 +71,5 @@ import "@macrostrat/navigation-components/style.css";
 - `buildBreadcrumbs`, `pageHeaderContent`: the same as pure functions, for
   rendering outside Vike (pass `items` to `SitePageHeader`).
 
-Stories: **Navigation components → Site page header**, including a contact sheet
-of every case.
+Stories: **Vike navigation → Site page header**, including a contact sheet of
+every case.

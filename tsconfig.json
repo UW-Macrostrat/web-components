@@ -26,7 +26,7 @@
     { "path": "./packages/map-views" },
     { "path": "./packages/mapbox-react" },
     { "path": "./packages/mapbox-utils" },
-    { "path": "./packages/navigation-components" },
+    { "path": "./packages/vike-navigation" },
     { "path": "./packages/scoped-store" },
     { "path": "./packages/static-map-utils" },
     { "path": "./packages/stratigraphy-utils" },
